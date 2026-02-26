@@ -2,6 +2,8 @@ package com.afrinuts.farmos.data.local.converter;
 
 import androidx.room.TypeConverter;
 
+import com.afrinuts.farmos.data.local.entity.BlockEntity;
+
 import java.util.Date;
 
 /**
@@ -18,6 +20,17 @@ public class Converters {
     @TypeConverter
     public static Long dateToTimestamp(Date date) {
         return date == null ? null : date.getTime();
+    }
+
+    // BlockStatus enum converter
+    @TypeConverter
+    public static String fromBlockStatus(BlockEntity.BlockStatus status) {
+        return status == null ? null : status.name();
+    }
+
+    @TypeConverter
+    public static BlockEntity.BlockStatus toBlockStatus(String status) {
+        return status == null ? null : BlockEntity.BlockStatus.valueOf(status);
     }
 
     // We'll add enum converters here as we create them
