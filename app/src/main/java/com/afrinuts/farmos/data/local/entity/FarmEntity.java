@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey;
 
 /**
  * Farm entity representing a cashew farm.
- * Even in v1 (single farm), we design for multi-farm future.
+ * Designed for multi-farm future from Day 1.
  */
 @Entity(tableName = "farms")
 public class FarmEntity {
@@ -18,7 +18,9 @@ public class FarmEntity {
     private double totalHectares;
     private double cashewHectares;
     private int treesPerHectare;
-    private Integer plantingYear; // Integer to allow null
+    private Integer plantingYear; // Integer allows null
+    private long createdAt;
+    private long updatedAt;
 
     // Constructor
     public FarmEntity(String name, String location, double totalHectares,
@@ -29,6 +31,8 @@ public class FarmEntity {
         this.cashewHectares = cashewHectares;
         this.treesPerHectare = treesPerHectare;
         this.plantingYear = plantingYear;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     // Getters and Setters
@@ -88,6 +92,22 @@ public class FarmEntity {
         this.plantingYear = plantingYear;
     }
 
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         return "FarmEntity{" +
@@ -98,6 +118,8 @@ public class FarmEntity {
                 ", cashewHectares=" + cashewHectares +
                 ", treesPerHectare=" + treesPerHectare +
                 ", plantingYear=" + plantingYear +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

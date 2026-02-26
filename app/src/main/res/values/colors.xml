@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AfriNuts Brand Colors -->
+    <color name="primary">#5A7411</color>        <!-- Primary green -->
+    <color name="accent">#E04E00</color>         <!-- Accent orange -->
+    <color name="dark_orange">#9C3D10</color>    <!-- Dark orange -->
+    <color name="secondary">#A0C800</color>      <!-- Secondary green -->
+    <color name="background">#F5F5F5</color>      <!-- Light background -->
+    <color name="text_dark">#5A4D47</color>       <!-- Dark text -->
+    <color name="text_light">#FFFFFF</color>      <!-- White text -->
+    <color name="warm_grey">#DEDAD4</color>       <!-- Warm grey -->
+    <color name="navy">#253746</color>            <!-- Navy -->
+    <color name="teal">#00869D</color>            <!-- Teal -->
+    <color name="olive">#698714</color>           <!-- Olive -->
+
+    <!-- Semantic aliases -->
+    <color name="purple_500">@color/primary</color>
+    <color name="purple_700">@color/olive</color>
+    <color name="white">@color/text_light</color>
+    <color name="black">#FF000000</color>
+</resources>

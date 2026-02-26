@@ -8,15 +8,16 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.afrinuts.farmos.data.local.converter.Converters;
+import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 
 /**
  * Main database configuration for AfriNuts Farm OS.
- * Version 1: Single farm, offline-first.
+ * Version 1: Core entities only.
  */
 @Database(
         entities = {
-                FarmEntity.class,
+                FarmEntity.class
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
         version = 1,
@@ -25,8 +26,8 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
-    // DAO declarations will go here
-    public abstract FarmDao farmDao(); // We'll create FarmDao next
+    // DAO declarations
+    public abstract FarmDao farmDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -40,7 +41,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     "afrinuts_farm_os.db"
                             )
                             // Allow queries on main thread for development only
-                            // Remove this in production!
+                            // REMOVE THIS BEFORE PRODUCTION RELEASE
                             .allowMainThreadQueries()
                             .build();
                 }

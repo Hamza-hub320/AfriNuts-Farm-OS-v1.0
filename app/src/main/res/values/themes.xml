@@ -1,0 +1,47 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.AfriNutsFarmOS" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/olive</item>
+        <item name="colorOnPrimary">@color/text_light</item>
+
+        <!-- Secondary brand colors -->
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/dark_orange</item>
+        <item name="colorOnSecondary">@color/text_light</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/warm_grey</item>
+        <item name="colorOnSurface">@color/text_dark</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/primary</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_dark</item>
+        <item name="android:textColorSecondary">@color/navy</item>
+
+        <!-- Button styling -->
+        <item name="materialButtonStyle">@style/Widget.AfriNuts.Button</item>
+
+        <!-- Customize your theme here -->
+    </style>
+
+    <!-- Button Style -->
+    <style name="Widget.AfriNuts.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="rippleColor">@color/accent</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Gradient backgrounds (can be used in layouts) -->
+    <style name="GradientMain">
+        <item name="android:background">@drawable/gradient_main</item>
+    </style>
+
+    <style name="GradientAlt">
+        <item name="android:background">@drawable/gradient_alt</item>
+    </style>
+</resources>

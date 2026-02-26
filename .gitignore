@@ -1,0 +1,16 @@
+# Android Studio
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+
+# Local config
+local.properties
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
