@@ -36,51 +36,8 @@ public class MainActivity extends AppCompatActivity {
         testDatabase();
 
         // Test blocks
-        AppDatabase db = AppDatabase.getInstance(this);
-        testBlocks(db);
-    }
-
-    private void testBlocks(AppDatabase db) {
-        FarmEntity farm = db.farmDao().getFirstFarm();
-        if (farm != null) {
-            // Check if blocks already exist
-            List<BlockEntity> existingBlocks = db.blockDao().getBlocksByFarmId(farm.getId());
-
-            if (existingBlocks.isEmpty()) {
-                // Create sample blocks for demonstration
-
-                BlockEntity block1 = new BlockEntity(
-                        farm.getId(),
-                        "A1",
-                        1.0,
-                        BlockEntity.BlockStatus.PLANTED.name()
-                );
-
-                BlockEntity block2 = new BlockEntity(
-                        farm.getId(),
-                        "A2",
-                        1.0,
-                        BlockEntity.BlockStatus.PLANTED.name()
-                );
-
-                BlockEntity block3 = new BlockEntity(
-                        farm.getId(),
-                        "B1",
-                        1.0,
-                        BlockEntity.BlockStatus.CLEARED.name()
-                );
-
-                db.blockDao().insert(block1);
-                db.blockDao().insert(block2);
-                db.blockDao().insert(block3);
-
-                Log.d(TAG, "Added 3 sample blocks");
-            }
-
-            // Log block count
-            int blockCount = db.blockDao().getBlockCount(farm.getId());
-            Log.d(TAG, "Total blocks: " + blockCount);
-        }
+        //AppDatabase db = AppDatabase.getInstance(this);
+        //testBlocks(db);
     }
 
     private void testDatabase() {

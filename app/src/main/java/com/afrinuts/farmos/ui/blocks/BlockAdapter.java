@@ -13,11 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.ui.blocks.BlockDetailActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 
 public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHolder> {
 
@@ -174,7 +176,13 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHol
             }
 
             // Card click listener
-            cardView.setOnClickListener(v -> listener.onBlockClick(block));
+            cardView.setOnClickListener(v -> {
+                // Pass the block ID to detail activity
+                android.content.Context context = itemView.getContext();
+                android.content.Intent intent = new android.content.Intent(context, BlockDetailActivity.class);
+                intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
+                context.startActivity(intent);
+            });
         }
     }
 }
