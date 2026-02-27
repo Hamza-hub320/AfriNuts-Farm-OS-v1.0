@@ -3,6 +3,7 @@ package com.afrinuts.farmos;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -15,6 +16,8 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.blocks.BlockDialog;
+import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
+import com.afrinuts.farmos.utils.DataSeeder;
 
 import java.util.List;
 import java.util.Locale;
@@ -54,9 +57,25 @@ public class MainActivity extends AppCompatActivity {
 
         // Load farm data
         loadFarmData();
+        // After loadFarmData() or in onCreate
+        DataSeeder.seedInitialExpenses(this);
 
         // Setup click listeners
         setupClickListeners();
+
+        Button btnTestExpense = new Button(this);
+        btnTestExpense.setText("Add Test Expense");
+        btnTestExpense.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
+                dialog.setOnExpenseAddedListener(() -> {
+                    Toast.makeText(this, "Expense added! Total: " +
+                                    String.format("%,.0f XAF", database.expenseDao().getTotalExpenses(currentFarm.getId())),
+                            Toast.LENGTH_LONG).show();
+                });
+                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
+            }
+        });
     }
 
     private void initViews() {

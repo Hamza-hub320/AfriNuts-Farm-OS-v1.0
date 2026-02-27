@@ -9,8 +9,10 @@ import androidx.room.TypeConverters;
 
 import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
+import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 
 /**
@@ -20,10 +22,11 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 @Database(
         entities = {
                 FarmEntity.class,
-                BlockEntity.class
+                BlockEntity.class,
+                ExpenseEntity.class
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
-        version = 3,
+        version = 4,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -33,6 +36,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FarmDao farmDao();
 
     public abstract BlockDao blockDao();
+    public abstract ExpenseDao expenseDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -48,7 +52,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .allowMainThreadQueries()
                             // 🔥 This will wipe and recreate the database
                             .fallbackToDestructiveMigration()
-                            // .addMigrations(new Migration1To2(), new Migration2To3())
+                            // .addMigrations(new Migration1To2(), new Migration2To3(), new Migration3To4())
                             .build();
                 }
             }
