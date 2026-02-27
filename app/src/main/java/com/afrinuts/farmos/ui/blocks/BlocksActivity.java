@@ -18,24 +18,27 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class BlocksActivity extends AppCompatActivity {
 
     private static final String TAG = "BlocksActivity";
 
     private RecyclerView recyclerView;
-    private BlockAdapter adapter;
     private ProgressBar progressBar;
     private TextView emptyView;
     private TextView summaryText;
 
     private AppDatabase database;
     private FarmEntity currentFarm;
-    private List<BlockEntity> blocks;
+
+    // New fields for expandable adapter
+    private ExpandableBlockAdapter expandableAdapter;
+    private List<BlockGroup> blockGroups = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,58 +104,62 @@ public class BlocksActivity extends AppCompatActivity {
     private void loadFarmData() {
         showLoading(true);
 
-        // Run database operations on background thread
         new Thread(() -> {
             // Get the first farm (we only have one in v1)
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
                 // Get all blocks for this farm
-                blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+                List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
 
-                // Calculate summary stats
-                int totalBlocks = blocks.size();
-                int plantedBlocks = 0;
-                int totalAliveTrees = 0;
-                int totalReplacements = 0;
-
-                for (BlockEntity block : blocks) {
-                    if (block.getStatus() == BlockEntity.BlockStatus.PLANTED) {
-                        plantedBlocks++;
+                // Group blocks by row (first character of block name)
+                Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
+                for (BlockEntity block : allBlocks) {
+                    String row = block.getBlockName().substring(0, 1);
+                    if (!groupedBlocks.containsKey(row)) {
+                        groupedBlocks.put(row, new ArrayList<>());
                     }
-                    totalAliveTrees += block.getAliveTrees();
-                    totalReplacements += block.getReplacementCount();
+                    groupedBlocks.get(row).add(block);
                 }
 
-                int totalExpectedTrees = totalBlocks * 100;
-                double overallSurvivalRate = totalExpectedTrees > 0 ?
-                        (totalAliveTrees * 100.0 / totalExpectedTrees) : 0;
+                // Create BlockGroups in order (A, B, C, D, E)
+                List<BlockGroup> newGroups = new ArrayList<>();
+                String[] rows = {"A", "B", "C", "D", "E"};
 
-                String summary = String.format(Locale.getDefault(),
-                        "Summary: %d blocks | Planted: %d | Alive: %d/%d (%.1f%%) | Replaced: %d",
-                        totalBlocks, plantedBlocks, totalAliveTrees, totalExpectedTrees,
-                        overallSurvivalRate, totalReplacements);
-
-                int finalTotalBlocks = totalBlocks;
-                String finalSummary = summary;
+                for (String row : rows) {
+                    if (groupedBlocks.containsKey(row)) {
+                        BlockGroup group = new BlockGroup(row);
+                        // Sort blocks by number (A1, A2, A3, etc.)
+                        List<BlockEntity> blocksForRow = groupedBlocks.get(row);
+                        blocksForRow.sort((b1, b2) -> {
+                            String num1 = b1.getBlockName().substring(1);
+                            String num2 = b2.getBlockName().substring(1);
+                            return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
+                        });
+                        group.setBlocks(blocksForRow);
+                        newGroups.add(group);
+                    }
+                }
 
                 // Update UI on main thread
+                List<BlockGroup> finalNewGroups = newGroups;
                 runOnUiThread(() -> {
                     showLoading(false);
 
-                    if (finalTotalBlocks == 0) {
+                    if (finalNewGroups.isEmpty()) {
                         showEmpty(true);
                     } else {
                         showEmpty(false);
-                        summaryText.setText(finalSummary);
-                        summaryText.setVisibility(View.VISIBLE);
+                        blockGroups = finalNewGroups;
 
-                        // Setup adapter
-                        adapter = new BlockAdapter(blocks, block -> {
-                            // Handle block click - open detail view
+                        // Calculate farm summary
+                        updateFarmSummary(allBlocks);
+
+                        // Setup expandable adapter
+                        expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
                             openBlockDetail(block);
                         });
-                        recyclerView.setAdapter(adapter);
+                        recyclerView.setAdapter(expandableAdapter);
                     }
                 });
             } else {
@@ -192,16 +199,36 @@ public class BlocksActivity extends AppCompatActivity {
         }
 
         // All 35 blocks are already created
-        return "FULL"; // Special indicator
+        return "FULL";
+    }
+
+    private void updateFarmSummary(List<BlockEntity> allBlocks) {
+        int totalBlocks = allBlocks.size();
+        int plantedBlocks = 0;
+        int totalAliveTrees = 0;
+
+        for (BlockEntity block : allBlocks) {
+            if (block.isPlanted()) {
+                plantedBlocks++;
+                totalAliveTrees += block.getAliveTrees();
+            }
+        }
+
+        String summary = String.format(Locale.getDefault(),
+                "📊 Farm Summary: %d/%d blocks planted | 🌳 %d/%d trees alive",
+                plantedBlocks, totalBlocks, totalAliveTrees, totalBlocks * 100);
+
+        summaryText.setText(summary);
+        summaryText.setVisibility(View.VISIBLE);
     }
 
     private void openBlockDetail(BlockEntity block) {
-        // TODO: Start BlockDetailActivity
-        Snackbar.make(recyclerView,
-                "Opening block " + block.getBlockName() + " - Coming soon",
-                Snackbar.LENGTH_LONG).show();
+        // Start BlockDetailActivity
+        android.content.Intent intent = new android.content.Intent(this, BlockDetailActivity.class);
+        intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
+        startActivity(intent);
 
-        Log.d(TAG, "Block clicked: " + block.toString());
+        Log.d(TAG, "Opening block: " + block.getBlockName());
     }
 
     private void showLoading(boolean show) {
@@ -220,6 +247,7 @@ public class BlocksActivity extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
     @Override
     protected void onResume() {
         super.onResume();
