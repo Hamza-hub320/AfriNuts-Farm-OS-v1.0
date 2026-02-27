@@ -22,7 +22,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -236,8 +235,8 @@ public class BlockDetailActivity extends AppCompatActivity {
             etSurvivalRate.setText(String.valueOf(survivalRate));
             etReplacementCount.setText(String.valueOf(replacementCount));
 
-            aliveTreesText.setText(String.format("🌱 Alive: %d trees", aliveTrees));
-            deadTreesText.setText(String.format("💀 Dead: %d trees", deadTrees));
+            aliveTreesText.setText(String.format("Alive: %d trees", aliveTrees));
+            deadTreesText.setText(String.format("Dead: %d trees", deadTrees));
 
             survivalProgress.setProgress((int) survivalRate);
         } else {
@@ -256,6 +255,28 @@ public class BlockDetailActivity extends AppCompatActivity {
         return sdf.format(timestamp);
     }
 
+    // Add this method to show status update dialog
+    private void showStatusUpdateDialog() {
+        if (block == null) return;
+
+        StatusUpdateDialog dialog = StatusUpdateDialog.newInstance(block);
+        dialog.setOnStatusUpdatedListener(updatedBlock -> {
+            // Update the local block object
+            this.block = updatedBlock;
+
+            // Save to database
+            new Thread(() -> {
+                database.blockDao().update(updatedBlock);
+                runOnUiThread(() -> {
+                    displayBlockData(); // Refresh display
+                    Toast.makeText(this, "Status updated successfully", Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+        });
+
+        dialog.show(getSupportFragmentManager(), "StatusUpdateDialog");
+    }
+
     private void enableEditMode(boolean enable) {
         isEditMode = enable;
 
@@ -264,44 +285,85 @@ public class BlockDetailActivity extends AppCompatActivity {
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
         fabEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
 
+        // Make status badge clickable in edit mode
+        statusBadge.setClickable(enable);
+        statusBadge.setFocusable(enable);
+        if (enable) {
+            statusBadge.setOnClickListener(v -> showStatusUpdateDialog());
+            statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    getColor(R.color.accent))); // Highlight to show it's clickable
+        } else {
+            statusBadge.setOnClickListener(null);
+            // Reset color based on status
+            int statusColor;
+            switch (block.getStatus()) {
+                case NOT_CLEARED:
+                    statusColor = getColor(android.R.color.holo_red_dark);
+                    break;
+                case CLEARED:
+                    statusColor = getColor(android.R.color.holo_orange_dark);
+                    break;
+                case PLOWED:
+                    statusColor = getColor(android.R.color.holo_blue_dark);
+                    break;
+                case PLANTED:
+                    statusColor = getColor(android.R.color.holo_green_dark);
+                    break;
+                default:
+                    statusColor = getColor(R.color.primary);
+            }
+            statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
+        }
+
         // Make fields editable
         setFieldsEditable(enable);
 
         if (enable) {
-            // Show message
             Snackbar.make(findViewById(android.R.id.content),
-                    "Edit mode enabled. Make your changes and save.",
+                    "Edit mode enabled. Click status badge to update block progress.",
                     Snackbar.LENGTH_LONG).show();
         }
     }
 
     private void setFieldsEditable(boolean editable) {
+        if (block == null) return;
 
-        if (block == null) {
-            return; // Block not loaded yet
-        }
-
-        // Notes can always be edited in edit mode
+        // Notes are always editable in edit mode
         etNotes.setEnabled(editable);
 
-        // Planting details can only be edited if block is planted
+        // Planting details - ONLY show/edit if block is PLANTED
         if (block.isPlanted()) {
+            plantingDetailsSection.setVisibility(View.VISIBLE);
+
+            // Make fields editable based on mode
             etSurvivalRate.setEnabled(editable);
             etReplacementCount.setEnabled(editable);
-        }
 
-        // Status change will be handled via a dialog (more complex)
-        // We'll implement that next
+            // Visual feedback for edit mode
+            if (editable) {
+                etSurvivalRate.setBackgroundResource(R.drawable.edit_mode_background);
+                etReplacementCount.setBackgroundResource(R.drawable.edit_mode_background);
+            } else {
+                etSurvivalRate.setBackgroundResource(0); // Reset to default
+                etReplacementCount.setBackgroundResource(0);
+            }
+        } else {
+            plantingDetailsSection.setVisibility(View.GONE);
+        }
     }
 
     private void saveChanges() {
         // Collect updated values
         String notes = etNotes.getText().toString().trim();
-        String survivalRateStr = etSurvivalRate.getText().toString().trim();
-        String replacementCountStr = etReplacementCount.getText().toString().trim();
 
-        // Validate if planted
+        // Save notes regardless
+        block.setNotes(notes.isEmpty() ? null : notes);
+
+        // If block is planted, save planting details
         if (block.isPlanted()) {
+            String survivalRateStr = etSurvivalRate.getText().toString().trim();
+            String replacementCountStr = etReplacementCount.getText().toString().trim();
+
             if (TextUtils.isEmpty(survivalRateStr)) {
                 etSurvivalRate.setError("Survival rate is required");
                 return;
@@ -336,9 +398,6 @@ public class BlockDetailActivity extends AppCompatActivity {
             block.setSurvivalRate(survivalRate);
             block.setReplacementCount(replacementCount);
         }
-
-        // Update notes
-        block.setNotes(notes.isEmpty() ? null : notes);
 
         // Save to database
         Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();

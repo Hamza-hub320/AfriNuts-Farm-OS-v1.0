@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Status"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Current Status -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Status:"
+        android:textSize="14sp"
+        android:textColor="@color/navy"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/currentStatusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Not Cleared"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:background="@color/warm_grey"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Arrow indicating progression -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="▼"
+        android:textSize="24sp"
+        android:textColor="@color/accent"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Next Status -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next Status:"
+        android:textSize="14sp"
+        android:textColor="@color/navy"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/nextStatusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cleared"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:background="@color/warm_grey"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Date Picker -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date"
+            android:focusable="false"
+            android:clickable="true"
+            android:drawableEnd="@android:drawable/ic_menu_today" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

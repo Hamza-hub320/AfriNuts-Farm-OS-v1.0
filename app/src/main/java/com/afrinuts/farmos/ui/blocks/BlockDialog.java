@@ -27,9 +27,16 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class BlockDialog extends DialogFragment {
+
+    private String suggestedBlockName;
+
+    public void setNextBlockName(String blockName) {
+        this.suggestedBlockName = blockName;
+    }
 
     private static final String ARG_FARM_ID = "farm_id";
 
@@ -118,6 +125,12 @@ public class BlockDialog extends DialogFragment {
 
     private void initViews(View view) {
         etBlockName = view.findViewById(R.id.etBlockName);
+        if (suggestedBlockName != null) {
+            etBlockName.setText(suggestedBlockName);
+            etBlockName.setEnabled(false); // Optional: lock it to prevent changes
+            etBlockName.setFocusable(false);
+            etBlockName.setBackgroundResource(R.drawable.suggested_block_background);
+        }
         etHectareSize = view.findViewById(R.id.etHectareSize);
         etStatus = view.findViewById(R.id.etStatus);
 
@@ -237,6 +250,16 @@ public class BlockDialog extends DialogFragment {
         layoutPlantingDetails.setVisibility(isPlanted ? View.VISIBLE : View.GONE);
     }
 
+    private boolean isBlockNameExists(String blockName) {
+        List<BlockEntity> existingBlocks = database.blockDao().getBlocksByFarmId(farmId);
+        for (BlockEntity block : existingBlocks) {
+            if (block.getBlockName().equalsIgnoreCase(blockName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void saveBlock() {
         String blockName = etBlockName.getText().toString().trim();
         String hectareSizeStr = etHectareSize.getText().toString().trim();
@@ -248,6 +271,15 @@ public class BlockDialog extends DialogFragment {
         // Validate block name
         if (TextUtils.isEmpty(blockName)) {
             etBlockName.setError("Block name is required");
+            return;
+        }
+
+        // Check for duplicate block name
+        if (isBlockNameExists(blockName)) {
+            etBlockName.setError("Block " + blockName + " already exists!");
+            Toast.makeText(getContext(),
+                    "Block " + blockName + " already exists! Please use a different name.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 

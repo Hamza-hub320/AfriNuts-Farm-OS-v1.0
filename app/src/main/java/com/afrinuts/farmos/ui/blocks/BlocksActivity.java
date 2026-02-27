@@ -69,9 +69,17 @@ public class BlocksActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fabAdd);
         fab.setOnClickListener(v -> {
             if (currentFarm != null) {
+                String nextBlock = getNextAvailableBlockName();
+                if (nextBlock.equals("FULL")) {
+                    Snackbar.make(v,
+                            "All 35 blocks (A1-E7) have been created. Cannot add more.",
+                            Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
                 BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
+                dialog.setNextBlockName(nextBlock);
                 dialog.setOnBlockAddedListener(() -> {
-                    // Refresh the blocks list
                     loadFarmData();
                 });
                 dialog.show(getSupportFragmentManager(), "BlockDialog");
@@ -157,6 +165,36 @@ public class BlocksActivity extends AppCompatActivity {
         }).start();
     }
 
+    private String getNextAvailableBlockName() {
+        // 5 rows (A through E) and 7 columns (1 through 7)
+        char[] rows = {'A', 'B', 'C', 'D', 'E'};
+        int columns = 7;
+
+        if (currentFarm == null) return "A1";
+
+        // Get existing block names
+        List<BlockEntity> existingBlocks =
+                database.blockDao().getBlocksByFarmId(currentFarm.getId());
+
+        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
+        for (BlockEntity block : existingBlocks) {
+            existingNames.add(block.getBlockName());
+        }
+
+        // Find first available name in the grid
+        for (char row : rows) {
+            for (int col = 1; col <= columns; col++) {
+                String blockName = row + String.valueOf(col);
+                if (!existingNames.contains(blockName)) {
+                    return blockName;
+                }
+            }
+        }
+
+        // All 35 blocks are already created
+        return "FULL"; // Special indicator
+    }
+
     private void openBlockDetail(BlockEntity block) {
         // TODO: Start BlockDetailActivity
         Snackbar.make(recyclerView,
@@ -181,5 +219,11 @@ public class BlocksActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload data when returning to this activity
+        loadFarmData();
     }
 }
