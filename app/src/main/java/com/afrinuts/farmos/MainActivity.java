@@ -2,6 +2,7 @@ package com.afrinuts.farmos;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
+import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnAddExpenseCard;
     private CardView btnViewExpensesCard;
     private CardView btnExpenseChartsCard;
+    private CardView btnAddRevenueCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         btnAddExpenseCard = findViewById(R.id.btnAddExpenseCard);
         btnViewExpensesCard = findViewById(R.id.btnViewExpensesCard);
         btnExpenseChartsCard = findViewById(R.id.btnExpenseChartsCard);
+        btnAddRevenueCard = findViewById(R.id.btnAddRevenueCard);
     }
 
     private void setupClickListeners() {
@@ -177,6 +180,18 @@ public class MainActivity extends AppCompatActivity {
             if (currentFarm != null) {
                 Intent intent = new Intent(MainActivity.this, ExpenseChartsActivity.class);
                 startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnAddRevenueCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
+                dialog.setOnRevenueAddedListener(() -> {
+                    Toast.makeText(this, "Revenue added!", Toast.LENGTH_SHORT).show();
+                });
+                dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }

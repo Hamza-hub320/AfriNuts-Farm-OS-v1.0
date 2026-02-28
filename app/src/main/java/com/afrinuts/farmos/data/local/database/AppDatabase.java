@@ -11,9 +11,11 @@ import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
+import com.afrinuts.farmos.data.local.dao.RevenueDao;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 
 /**
  * Main database configuration for AfriNuts Farm OS.
@@ -23,7 +25,9 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
         entities = {
                 FarmEntity.class,
                 BlockEntity.class,
-                ExpenseEntity.class
+                ExpenseEntity.class,
+                RevenueEntity.class
+
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
         version = 4,
@@ -37,6 +41,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract BlockDao blockDao();
     public abstract ExpenseDao expenseDao();
+    public abstract RevenueDao revenueDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -52,7 +57,8 @@ public abstract class AppDatabase extends RoomDatabase {
                             .allowMainThreadQueries()
                             // 🔥 This will wipe and recreate the database
                             .fallbackToDestructiveMigration()
-                            // .addMigrations(new Migration1To2(), new Migration2To3(), new Migration3To4())
+                            // .addMigrations(new Migration1To2(), new Migration2To3(),
+                            //               new Migration3To4(), new Migration4To5())
                             .build();
                 }
             }

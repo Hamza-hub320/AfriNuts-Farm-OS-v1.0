@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Harvest Revenue"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Quantity (kg) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etQuantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Quantity (kg)"
+                android:inputType="numberDecimal" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Price per kg -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPricePerKg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Price per kg (XAF)"
+                android:inputType="numberDecimal" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Harvest Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etHarvestDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Harvest Date"
+                android:focusable="false"
+                android:clickable="true"
+                android:drawableEnd="@android:drawable/ic_menu_today" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Revenue Type: Block-specific or Processing Center -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleRevenueType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:singleSelection="true">
+
+            <Button
+                android:id="@+id/btnPerBlock"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Per Block"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            <Button
+                android:id="@+id/btnProcessingCenter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Processing Center"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Block Selector (visible only when "Per Block" is selected) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutBlockSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:visibility="visible"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:hint="Select Block">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etBlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Quality Grade -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:hint="Quality Grade">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etQuality"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buyer -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBuyer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Buyer (optional)" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Notes -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Notes (optional)"
+                android:inputType="textMultiLine"
+                android:minLines="2" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Total Amount Preview -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            android:backgroundTint="@color/warm_grey">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total Amount:"
+                    android:textSize="16sp"
+                    android:textColor="@color/navy"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTotalAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 XAF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Revenue"
+                android:backgroundTint="@color/primary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
