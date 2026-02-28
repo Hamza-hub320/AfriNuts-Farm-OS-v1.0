@@ -251,7 +251,7 @@
                         android:id="@+id/blocksCountText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="35"
+                        android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary" />
@@ -286,35 +286,35 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:text="Farm Progress"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
                     android:textColor="@color/text_dark"
-                    android:layout_marginBottom="12dp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <!-- Planted Blocks Progress -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Planted Blocks"
-                        android:textSize="14sp"
-                        android:textColor="@color/navy" />
+                        android:textColor="@color/navy"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/plantedBlocksText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0/35"
+                        android:textColor="@color/primary"
                         android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary" />
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
@@ -323,34 +323,34 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="8dp"
-                    android:progress="0"
+                    android:layout_marginBottom="16dp"
                     android:max="100"
-                    android:progressTint="@color/primary"
-                    android:layout_marginBottom="16dp" />
+                    android:progress="0"
+                    android:progressTint="@color/primary" />
 
                 <!-- Survival Rate -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Avg. Survival Rate"
-                        android:textSize="14sp"
-                        android:textColor="@color/navy" />
+                        android:textColor="@color/navy"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/survivalRateText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0%"
+                        android:textColor="@color/primary"
                         android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary" />
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
@@ -358,7 +358,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Quick Actions -->
+        <!-- Quick Actions Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -368,20 +368,21 @@
             android:textColor="@color/text_dark"
             android:layout_marginBottom="12dp" />
 
+        <!-- Quick Actions - 4 Column Layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="16dp"
-            android:weightSum="2">
+            android:weightSum="4">
 
-            <!-- View Blocks Button -->
+            <!-- View Blocks Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnViewBlocksCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="2dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -393,34 +394,35 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="20dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📋"
-                        android:textSize="32sp" />
+                        android:textSize="24sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Blocks"
-                        android:textSize="14sp"
+                        android:text="Blocks"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add Block Button -->
+            <!-- Add Block Card (MISSING) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnAddBlockCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -432,22 +434,101 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="20dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="➕"
-                        android:textSize="32sp" />
+                        android:textSize="24sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Block"
-                        android:textSize="14sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Add Expense Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnAddExpenseCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💰"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add Expense"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- View Expenses Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnViewExpensesCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📊"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Expenses"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
 
                 </LinearLayout>
 
@@ -455,7 +536,7 @@
 
         </LinearLayout>
 
-        <!-- Recent Activity / Weather Card (Placeholder for future) -->
+        <!-- Weather Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

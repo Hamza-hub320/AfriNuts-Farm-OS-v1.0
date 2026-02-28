@@ -122,7 +122,7 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 if (itemIndex >= 0 && itemIndex < group.getBlocks().size()) {
                     BlockEntity block = group.getBlocks().get(itemIndex);
-                    ((BlockViewHolder) holder).bind(block, listener, false);
+                    ((BlockViewHolder) holder).bind(block, listener);
                 }
             }
         }
@@ -194,26 +194,98 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    // Reuse existing BlockViewHolder from your code
-    class BlockViewHolder extends RecyclerView.ViewHolder {
-        // Copy your existing BlockViewHolder code here
-        // I'll reference your existing implementation
-        private com.afrinuts.farmos.ui.blocks.BlockAdapter.BlockViewHolder delegate;
+    static class BlockViewHolder extends RecyclerView.ViewHolder {
+
+        private View expandableContent;
+        private View expandHeader;
+        private TextView expandIcon;
+        private boolean isExpanded = false;
 
         BlockViewHolder(@NonNull View itemView) {
             super(itemView);
-            // We'll reuse your existing BlockAdapter's ViewHolder logic
-            // This is a simplified approach - in production, you'd want to share the ViewHolder
+
+            expandableContent = itemView.findViewById(R.id.expandableContent);
+            expandHeader = itemView.findViewById(R.id.expandHeader);
+            expandIcon = itemView.findViewById(R.id.expandIcon);
         }
 
-        void bind(BlockEntity block, OnBlockClickListener listener, boolean isExpanded) {
-            // Reuse your existing binding logic from BlockAdapter
-            // For now, we'll create a simple binding
+        void bind(BlockEntity block, OnBlockClickListener listener) {
+
             TextView blockNameText = itemView.findViewById(R.id.blockNameText);
             TextView statusText = itemView.findViewById(R.id.statusText);
+            TextView statsText = itemView.findViewById(R.id.statsText);
+            TextView dateText = itemView.findViewById(R.id.dateText);
+            TextView replacementText = itemView.findViewById(R.id.replacementText);
+            TextView survivalText = itemView.findViewById(R.id.survivalText);
+            ProgressBar survivalProgress = itemView.findViewById(R.id.survivalProgress);
 
             blockNameText.setText(block.getBlockName());
             statusText.setText(block.getStatus().getDisplayName());
+
+            int statusColor;
+            switch (block.getStatus()) {
+                case NOT_CLEARED:
+                    statusColor = itemView.getContext().getColor(android.R.color.holo_red_dark);
+                    break;
+                case CLEARED:
+                    statusColor = itemView.getContext().getColor(android.R.color.holo_orange_dark);
+                    break;
+                case PLOWED:
+                    statusColor = itemView.getContext().getColor(android.R.color.holo_blue_dark);
+                    break;
+                case PLANTED:
+                    statusColor = itemView.getContext().getColor(android.R.color.holo_green_dark);
+                    break;
+                default:
+                    statusColor = itemView.getContext().getColor(R.color.primary);
+            }
+
+            statusText.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(statusColor));
+
+            Long relevantDate = block.getRelevantDate();
+            if (relevantDate != null && relevantDate > 0) {
+                java.text.SimpleDateFormat sdf =
+                        new java.text.SimpleDateFormat("MMM dd, yyyy",
+                                java.util.Locale.getDefault());
+                dateText.setText(block.getDateLabel() + ": " +
+                        sdf.format(new java.util.Date(relevantDate)));
+            } else {
+                dateText.setText(block.getDateLabel() + ": Not recorded");
+            }
+
+            if (block.isPlanted()) {
+                statsText.setText(String.format("🌱 Alive: %d | 💀 Dead: %d",
+                        block.getAliveTrees(), block.getDeadTrees()));
+
+                replacementText.setText(block.getReplacementCount() + " trees");
+                survivalProgress.setProgress((int) block.getSurvivalRate());
+                survivalText.setText(String.format("%.1f%%",
+                        block.getSurvivalRate()));
+            } else {
+                statsText.setText("⏳ " +
+                        block.getStatus().getDisplayName() +
+                        " - No trees yet");
+
+                replacementText.setText("—");
+                survivalProgress.setProgress(0);
+                survivalText.setText("—");
+            }
+
+            if (expandHeader != null) {
+                expandHeader.setOnClickListener(v -> {
+                    isExpanded = !isExpanded;
+
+                    if (expandableContent != null) {
+                        expandableContent.setVisibility(
+                                isExpanded ? View.VISIBLE : View.GONE);
+                    }
+
+                    if (expandIcon != null) {
+                        expandIcon.setText(isExpanded ? "▲" : "▼");
+                    }
+                });
+            }
 
             itemView.setOnClickListener(v -> listener.onBlockClick(block));
         }

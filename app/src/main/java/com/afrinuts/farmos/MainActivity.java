@@ -1,4 +1,6 @@
 package com.afrinuts.farmos;
+import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
+import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private AppDatabase database;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
+    private CardView btnAddExpenseCard;
+    private CardView btnViewExpensesCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,27 +59,41 @@ public class MainActivity extends AppCompatActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Load farm data
+        // FIRST: Ensure farm exists
+        ensureFarmExists();
+
+        // THEN: Load farm data
         loadFarmData();
-        // After loadFarmData() or in onCreate
-        DataSeeder.seedInitialExpenses(this);
 
         // Setup click listeners
         setupClickListeners();
+    }
 
-        Button btnTestExpense = new Button(this);
-        btnTestExpense.setText("Add Test Expense");
-        btnTestExpense.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
-                dialog.setOnExpenseAddedListener(() -> {
-                    Toast.makeText(this, "Expense added! Total: " +
-                                    String.format("%,.0f XAF", database.expenseDao().getTotalExpenses(currentFarm.getId())),
-                            Toast.LENGTH_LONG).show();
-                });
-                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
-            }
-        });
+    private void ensureFarmExists() {
+        // Check if farm already exists
+        FarmEntity existingFarm = database.farmDao().getFirstFarm();
+
+        if (existingFarm == null) {
+            Log.d(TAG, "No farm found. Creating default farm...");
+
+            // Create Odienné farm
+            FarmEntity odienneFarm = new FarmEntity(
+                    "AfriNuts Odienné",
+                    "Odienné, Côte d'Ivoire",
+                    35.0,  // total hectares
+                    35.0,  // cashew hectares
+                    100,   // trees per hectare
+                    2024   // planting year
+            );
+
+            long id = database.farmDao().insert(odienneFarm);
+            Log.d(TAG, "Created farm with ID: " + id);
+
+            // Seed initial expenses after farm is created
+            DataSeeder.seedInitialExpenses(this);
+        } else {
+            Log.d(TAG, "Farm already exists with ID: " + existingFarm.getId());
+        }
     }
 
     private void initViews() {
@@ -91,12 +109,19 @@ public class MainActivity extends AppCompatActivity {
 
         btnViewBlocksCard = findViewById(R.id.btnViewBlocksCard);
         btnAddBlockCard = findViewById(R.id.btnAddBlockCard);
+        btnAddExpenseCard = findViewById(R.id.btnAddExpenseCard);
+        btnViewExpensesCard = findViewById(R.id.btnViewExpensesCard);
     }
 
     private void setupClickListeners() {
         btnViewBlocksCard.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, BlocksActivity.class);
-            startActivity(intent);
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, BlocksActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Loading farm data... Please try again", Toast.LENGTH_SHORT).show();
+                loadFarmData(); // Retry loading
+            }
         });
 
         btnAddBlockCard.setOnClickListener(v -> {
@@ -119,6 +144,27 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                 });
                 dialog.show(getSupportFragmentManager(), "BlockDialog");
+            } else {
+                Toast.makeText(this, "Farm not configured. Please restart app.", Toast.LENGTH_LONG).show();
+            }
+        });
+        btnAddExpenseCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
+                dialog.setOnExpenseAddedListener(() -> {
+                    Toast.makeText(this, "Expense added!", Toast.LENGTH_SHORT).show();
+                    // Optionally refresh some summary
+                });
+                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnViewExpensesCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, ExpensesListActivity.class);
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }
@@ -151,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadFarmData() {
         new Thread(() -> {
-            // Get farm
+            // Refresh currentFarm from database
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {

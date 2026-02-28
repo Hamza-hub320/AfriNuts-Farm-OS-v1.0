@@ -25,6 +25,9 @@
         <activity
             android:name=".ui.blocks.BlockDetailActivity"
             android:parentActivityName=".ui.blocks.BlocksActivity" />
+        <activity
+            android:name=".ui.expenses.ExpensesListActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

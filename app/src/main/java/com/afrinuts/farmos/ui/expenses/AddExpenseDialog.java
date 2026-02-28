@@ -139,7 +139,29 @@ public class AddExpenseDialog extends DialogFragment {
         updateDateLabel();
 
         // Default to farm-wide selected
-        btnFarmWide.setChecked(true);
+        toggleExpenseType.check(R.id.btnFarmWide);
+        layoutBlockSelector.setVisibility(View.GONE);
+
+        // Set default description based on category selection
+        setupCategoryDescriptionListener();
+    }
+
+    // Add this helper method to auto-fill description based on category
+    private void setupCategoryDescriptionListener() {
+        etCategory.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedCategory = (String) parent.getItemAtPosition(position);
+
+            // Find the category
+            for (ExpenseEntity.ExpenseCategory cat : ExpenseEntity.ExpenseCategory.values()) {
+                if (selectedCategory.contains(cat.getDisplayName())) {
+                    if (cat.getDefaultDescription() != null &&
+                            TextUtils.isEmpty(etDescription.getText())) {
+                        etDescription.setText(cat.getDefaultDescription());
+                    }
+                    break;
+                }
+            }
+        });
     }
 
     private void setupCategoryDropdown() {
