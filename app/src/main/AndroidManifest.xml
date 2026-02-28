@@ -35,6 +35,9 @@
         <activity
             android:name=".ui.expenses.ExpenseChartsActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.revenue.RevenuesListActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
