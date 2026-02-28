@@ -1,6 +1,7 @@
 package com.afrinuts.farmos;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
+import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private List<BlockEntity> allBlocks;
     private CardView btnAddExpenseCard;
     private CardView btnViewExpensesCard;
+    private CardView btnExpenseChartsCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         btnAddBlockCard = findViewById(R.id.btnAddBlockCard);
         btnAddExpenseCard = findViewById(R.id.btnAddExpenseCard);
         btnViewExpensesCard = findViewById(R.id.btnViewExpensesCard);
+        btnExpenseChartsCard = findViewById(R.id.btnExpenseChartsCard);
     }
 
     private void setupClickListeners() {
@@ -164,6 +167,15 @@ public class MainActivity extends AppCompatActivity {
         btnViewExpensesCard.setOnClickListener(v -> {
             if (currentFarm != null) {
                 Intent intent = new Intent(MainActivity.this, ExpensesListActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnExpenseChartsCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, ExpenseChartsActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();

@@ -28,6 +28,13 @@
         <activity
             android:name=".ui.expenses.ExpensesListActivity"
             android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.expenses.ExpenseDetailActivity"
+            android:parentActivityName=".ui.expenses.ExpensesListActivity" />
+        <activity
+            android:name=".ui.expenses.ExpenseChartsActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

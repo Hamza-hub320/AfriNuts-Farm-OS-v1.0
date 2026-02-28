@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="8dp">
+
+    <TextView
+        android:id="@+id/tvTopCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Land Clearing"
+        android:textSize="14sp"
+        android:textColor="@color/text_dark" />
+
+    <TextView
+        android:id="@+id/tvTopAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5,250,000 XAF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/tvTopDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jan 2024"
+        android:textSize="12sp"
+        android:textColor="@color/navy" />
+
+</LinearLayout>

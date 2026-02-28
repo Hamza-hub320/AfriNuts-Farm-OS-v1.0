@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.ui.expenses.ExpenseDetailActivity;
 
 import java.util.List;
 
@@ -92,7 +93,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             }
 
             // Click listener
-            cardView.setOnClickListener(v -> listener.onExpenseClick(expense));
+            cardView.setOnClickListener(v -> {
+                android.content.Context context = itemView.getContext();
+                android.content.Intent intent =
+                        new android.content.Intent(context, ExpenseDetailActivity.class);
+                intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
+                context.startActivity(intent);
+            });
         }
     }
 }
