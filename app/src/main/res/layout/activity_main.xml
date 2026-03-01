@@ -837,13 +837,17 @@
 
         </LinearLayout>
 
-        <!-- Weather Card -->
+        <!-- Weather Card - Enhanced -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/weatherCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -851,6 +855,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- Location and Last Updated -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -862,35 +867,144 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="🌤️ Weather"
+                        android:text="🌤️ Weather - Odienné"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_dark" />
 
                     <TextView
+                        android:id="@+id/weatherUpdateTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Odienné"
-                        android:textSize="14sp"
-                        android:textColor="@color/navy" />
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textColor="@color/navy"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
+                <!-- Loading/Error State -->
                 <TextView
+                    android:id="@+id/weatherLoadingText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sunny, 32°C"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Good conditions for farm work"
+                    android:text="Loading weather data..."
                     android:textSize="14sp"
-                    android:textColor="@color/navy" />
+                    android:textColor="@color/navy"
+                    android:gravity="center"
+                    android:padding="16dp" />
+
+                <!-- Weather Content (initially hidden) -->
+                <LinearLayout
+                    android:id="@+id/weatherContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- Current Weather -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <ImageView
+                            android:id="@+id/weatherIcon"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:contentDescription="Weather icon"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/weatherIconFallback"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:gravity="center"
+                            android:text="☀️"
+                            android:textSize="40sp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:id="@+id/weatherTemp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="32°C"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/weatherCondition"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sunny"
+                                android:textSize="16sp"
+                                android:textColor="@color/navy" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="end">
+
+                            <TextView
+                                android:id="@+id/weatherHumidity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💧 45%"
+                                android:textSize="14sp"
+                                android:textColor="@color/navy" />
+
+                            <TextView
+                                android:id="@+id/weatherWind"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💨 12 km/h"
+                                android:textSize="14sp"
+                                android:textColor="@color/navy" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- 3-Day Forecast -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3-Day Forecast"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/navy"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:id="@+id/forecastContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3" />
+
+                </LinearLayout>
+
+                <!-- Refresh Button (hidden by default, shown on error) -->
+                <Button
+                    android:id="@+id/btnRefreshWeather"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Retry"
+                    android:backgroundTint="@color/accent"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
 

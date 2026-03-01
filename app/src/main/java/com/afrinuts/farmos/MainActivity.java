@@ -9,6 +9,13 @@ import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
 import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
 
+import com.afrinuts.farmos.data.remote.WeatherResponse;
+import com.afrinuts.farmos.data.repository.WeatherRepository;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.view.View;
+import java.text.SimpleDateFormat;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -62,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnWorkerAnalyticsCard;
     private CardView btnProfitDashboardCard;
 
+    private WeatherRepository weatherRepository;
+    private LinearLayout weatherContent;
+    private TextView weatherLoadingText;
+    private TextView weatherUpdateTime;
+    private TextView weatherIconFallback;
+    private ImageView weatherIcon;
+    private TextView weatherTemp;
+    private TextView weatherCondition;
+    private TextView weatherHumidity;
+    private TextView weatherWind;
+    private LinearLayout forecastContainer;
+    private Button btnRefreshWeather;
+    private CardView weatherCard;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup click listeners
         setupClickListeners();
+
+        weatherRepository = new WeatherRepository(this);
+        loadWeatherData();
     }
 
     private void ensureFarmExists() {
@@ -132,6 +156,19 @@ public class MainActivity extends AppCompatActivity {
         btnAddTaskCard = findViewById(R.id.btnAddTaskCard);
         btnWorkerAnalyticsCard = findViewById(R.id.btnWorkerAnalyticsCard);
         btnProfitDashboardCard = findViewById(R.id.btnProfitDashboardCard);
+
+        weatherContent = findViewById(R.id.weatherContent);
+        weatherLoadingText = findViewById(R.id.weatherLoadingText);
+        weatherUpdateTime = findViewById(R.id.weatherUpdateTime);
+        weatherIconFallback = findViewById(R.id.weatherIconFallback);
+        weatherIcon = findViewById(R.id.weatherIcon);
+        weatherTemp = findViewById(R.id.weatherTemp);
+        weatherCondition = findViewById(R.id.weatherCondition);
+        weatherHumidity = findViewById(R.id.weatherHumidity);
+        weatherWind = findViewById(R.id.weatherWind);
+        forecastContainer = findViewById(R.id.forecastContainer);
+        btnRefreshWeather = findViewById(R.id.btnRefreshWeather);
+        weatherCard = findViewById(R.id.weatherCard);
     }
 
     private void setupClickListeners() {
@@ -259,6 +296,12 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }
         });
+
+        btnRefreshWeather.setOnClickListener(v -> loadWeatherData());
+
+        weatherCard.setOnClickListener(v -> {
+            Toast.makeText(this, "Detailed weather forecast coming soon!", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private String getNextAvailableBlockName() {
@@ -358,6 +401,104 @@ public class MainActivity extends AppCompatActivity {
 
         survivalRateText.setText(String.format(Locale.getDefault(),
                 "%.0f%%", avgSurvivalRate));
+    }
+
+    private void loadWeatherData() {
+        weatherLoadingText.setVisibility(View.VISIBLE);
+        weatherContent.setVisibility(View.GONE);
+        btnRefreshWeather.setVisibility(View.GONE);
+
+        weatherRepository.getWeatherForecast(new WeatherRepository.WeatherCallback() {
+            @Override
+            public void onSuccess(WeatherResponse weather) {
+                runOnUiThread(() -> displayWeather(weather));
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    weatherLoadingText.setText("Unable to load weather data");
+                    btnRefreshWeather.setVisibility(View.VISIBLE);
+                    Log.e(TAG, "Weather error: " + error);
+                });
+            }
+        });
+    }
+
+    private void displayWeather(WeatherResponse weather) {
+        weatherLoadingText.setVisibility(View.GONE);
+        weatherContent.setVisibility(View.VISIBLE);
+
+        WeatherResponse.Current current = weather.getCurrent();
+        WeatherResponse.Location location = weather.getLocation();
+
+        if (location != null && location.getLocaltime() != null) {
+            weatherUpdateTime.setText("Updated: " + location.getLocaltime());
+            weatherUpdateTime.setVisibility(View.VISIBLE);
+        }
+
+        weatherTemp.setText(String.format(Locale.getDefault(),
+                "%.0f°C", current.getTempC()));
+        weatherCondition.setText(current.getCondition().getText());
+
+        weatherHumidity.setText(String.format(Locale.getDefault(),
+                "💧 %d%%", current.getHumidity()));
+        weatherWind.setText(String.format(Locale.getDefault(),
+                "💨 %.0f km/h", current.getWindKph()));
+
+        setWeatherIconFallback(current.getCondition().getText());
+
+        displayForecast(weather.getForecast());
+    }
+
+    private void setWeatherIconFallback(String condition) {
+        String icon = "☀️";
+        String lower = condition.toLowerCase();
+
+        if (lower.contains("rain")) icon = "🌧️";
+        else if (lower.contains("cloud")) icon = "☁️";
+        else if (lower.contains("storm")) icon = "⛈️";
+        else if (lower.contains("snow")) icon = "🌨️";
+        else if (lower.contains("fog")) icon = "🌫️";
+        else if (lower.contains("wind")) icon = "💨";
+
+        weatherIconFallback.setText(icon);
+    }
+
+    private void displayForecast(WeatherResponse.Forecast forecast) {
+        if (forecast == null || forecast.getForecastday() == null) return;
+
+        forecastContainer.removeAllViews();
+
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.getDefault());
+
+        for (WeatherResponse.ForecastDay day : forecast.getForecastday()) {
+            View dayView = getLayoutInflater().inflate(R.layout.item_forecast_day, forecastContainer, false);
+
+            TextView tvDay = dayView.findViewById(R.id.forecastDay);
+            TextView tvIcon = dayView.findViewById(R.id.forecastIcon);
+            TextView tvTemp = dayView.findViewById(R.id.forecastTemp);
+            TextView tvRain = dayView.findViewById(R.id.forecastRain);
+
+            try {
+                java.util.Date date = inputFormat.parse(day.getDate());
+                tvDay.setText(outputFormat.format(date));
+            } catch (Exception e) {
+                tvDay.setText("--");
+            }
+
+            String condition = day.getDay().getCondition().getText().toLowerCase();
+            if (condition.contains("rain")) tvIcon.setText("🌧️");
+            else if (condition.contains("cloud")) tvIcon.setText("☁️");
+            else tvIcon.setText("☀️");
+
+            tvTemp.setText(String.format(Locale.getDefault(),
+                    "%.0f°", day.getDay().getAvgtempC()));
+            tvRain.setText(day.getDay().getDailyChanceOfRain() + "%");
+
+            forecastContainer.addView(dayView);
+        }
     }
 
     @Override
