@@ -44,6 +44,9 @@
         <activity
             android:name=".ui.tasks.TaskDetailActivity"
             android:parentActivityName=".ui.tasks.TasksListActivity" />
+        <activity
+            android:name=".ui.workers.WorkerDashboardActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

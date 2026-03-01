@@ -71,6 +71,9 @@ public interface TaskDao {
             "GROUP BY assignedTo ORDER BY taskCount DESC")
     List<WorkerTaskCount> getWorkerTaskCounts();
 
+    @Query("SELECT * FROM task_assignments ORDER BY assignedAt DESC")
+    List<TaskAssignmentHistoryEntity> getAllAssignments();
+
     // Inner class for worker statistics
     class WorkerTaskCount {
         public String assignedTo;

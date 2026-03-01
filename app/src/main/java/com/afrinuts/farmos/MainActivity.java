@@ -6,6 +6,7 @@ import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
 import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
+import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnViewRevenueCard;
     private CardView btnTasksListCard;
     private CardView btnAddTaskCard;
+    private CardView btnWorkerAnalyticsCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         btnViewRevenueCard = findViewById(R.id.btnViewRevenueCard);
         btnTasksListCard = findViewById(R.id.btnTasksListCard);
         btnAddTaskCard = findViewById(R.id.btnAddTaskCard);
+        btnWorkerAnalyticsCard = findViewById(R.id.btnWorkerAnalyticsCard);
     }
 
     private void setupClickListeners() {
@@ -231,6 +234,15 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Task created successfully!", Toast.LENGTH_SHORT).show();
                 });
                 dialog.show(getSupportFragmentManager(), "AddTaskDialog");
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnWorkerAnalyticsCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, WorkerDashboardActivity.class);
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }
