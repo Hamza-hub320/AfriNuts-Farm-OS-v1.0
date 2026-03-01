@@ -47,6 +47,9 @@
         <activity
             android:name=".ui.workers.WorkerDashboardActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.revenue.RevenueDetailActivity"
+            android:parentActivityName=".ui.revenue.RevenuesListActivity" />
     </application>
 
 </manifest>
