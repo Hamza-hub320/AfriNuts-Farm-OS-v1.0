@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.dao.TaskDao;  // Add this import
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -65,12 +66,20 @@ public class AssignWorkerDialog extends DialogFragment {
 
         // Load existing workers for suggestions
         new Thread(() -> {
-            List<TaskAssignmentHistoryEntity.WorkerTaskCount> workerCounts =
+            // Use TaskDao.WorkerTaskCount - WorkerTaskCount is an inner class of TaskDao
+            List<TaskDao.WorkerTaskCount> workerCounts =
                     database.taskDao().getWorkerTaskCounts();
 
             existingWorkers.clear();
-            for (TaskAssignmentHistoryEntity.WorkerTaskCount wc : workerCounts) {
-                existingWorkers.add(wc.assignedTo);
+            for (TaskDao.WorkerTaskCount wc : workerCounts) {
+                existingWorkers.add(wc.assignedTo);  // Now 'assignedTo' will be recognized
+            }
+
+            // Update UI on main thread if needed
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    setupWorkerSuggestions();
+                });
             }
         }).start();
     }
@@ -81,7 +90,6 @@ public class AssignWorkerDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_assign_worker, null);
 
         initViews(view);
-        setupWorkerSuggestions();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Assign Worker")
@@ -105,12 +113,14 @@ public class AssignWorkerDialog extends DialogFragment {
     }
 
     private void setupWorkerSuggestions() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                existingWorkers
-        );
-        etWorkerName.setAdapter(adapter);
+        if (etWorkerName != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    existingWorkers
+            );
+            etWorkerName.setAdapter(adapter);
+        }
     }
 
     private void assignWorker() {
@@ -147,19 +157,21 @@ public class AssignWorkerDialog extends DialogFragment {
 
             long id = database.taskDao().insertAssignment(newAssignment);
 
-            requireActivity().runOnUiThread(() -> {
-                if (id > 0) {
-                    Toast.makeText(getContext(),
-                            "Worker assigned successfully", Toast.LENGTH_SHORT).show();
-                    if (listener != null) {
-                        listener.onWorkerAssigned();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (id > 0) {
+                        Toast.makeText(getContext(),
+                                "Worker assigned successfully", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onWorkerAssigned();
+                        }
+                        dismiss();
+                    } else {
+                        Toast.makeText(getContext(),
+                                "Error assigning worker", Toast.LENGTH_SHORT).show();
                     }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(),
-                            "Error assigning worker", Toast.LENGTH_SHORT).show();
-                }
-            });
+                });
+            }
         }).start();
     }
 }

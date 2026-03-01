@@ -101,8 +101,13 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
                 tvBuyer.setText("👤 No buyer");
             }
 
-            // Click listener
-            cardView.setOnClickListener(v -> listener.onRevenueClick(revenue));
+            // Click listener - Open Revenue Detail Activity
+            cardView.setOnClickListener(v -> {
+                android.content.Context context = itemView.getContext();
+                android.content.Intent intent = new android.content.Intent(context, RevenueDetailActivity.class);
+                intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
+                context.startActivity(intent);
+            });
         }
     }
 }

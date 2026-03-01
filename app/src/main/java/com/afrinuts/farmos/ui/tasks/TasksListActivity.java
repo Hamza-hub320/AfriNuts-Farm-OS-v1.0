@@ -319,4 +319,10 @@ public class TasksListActivity extends AppCompatActivity {
         });
         adapter.notifyDataSetChanged();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData(); // Refresh data when returning to activity
+    }
 }
