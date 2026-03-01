@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.ui.tasks.TaskDetailActivity;
 
 import java.util.List;
 
@@ -107,7 +108,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
 
             // Click listener
-            cardView.setOnClickListener(v -> listener.onTaskClick(task));
+            cardView.setOnClickListener(v -> {
+                android.content.Context context = itemView.getContext();
+                android.content.Intent intent =
+                        new android.content.Intent(context, TaskDetailActivity.class);
+                intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, task.getId());
+                context.startActivity(intent);
+            });
         }
     }
 }

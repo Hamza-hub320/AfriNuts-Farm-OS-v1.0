@@ -157,57 +157,58 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:fillViewport="true"
         android:scrollbars="none">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Tasks"
                 android:checked="true"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                android:text="All Tasks" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPending"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⏳ Pending"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                android:text="⏳ Pending" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipInProgress"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔄 In Progress"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                android:text="🔄 In Progress" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCompleted"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✅ Completed"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                android:text="✅ Completed" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOverdue"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚠️ Overdue"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                android:text="⚠️ Overdue" />
 
         </com.google.android.material.chip.ChipGroup>
 
     </HorizontalScrollView>
 
-    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="48dp"

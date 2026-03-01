@@ -41,6 +41,9 @@
         <activity
             android:name=".ui.tasks.TasksListActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.tasks.TaskDetailActivity"
+            android:parentActivityName=".ui.tasks.TasksListActivity" />
     </application>
 
 </manifest>
