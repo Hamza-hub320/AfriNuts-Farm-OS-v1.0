@@ -4,6 +4,8 @@ import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
 import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
+import com.afrinuts.farmos.ui.tasks.TasksListActivity;
+import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnExpenseChartsCard;
     private CardView btnAddRevenueCard;
     private CardView btnViewRevenueCard;
+    private CardView btnTasksListCard;
+    private CardView btnAddTaskCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
         btnExpenseChartsCard = findViewById(R.id.btnExpenseChartsCard);
         btnAddRevenueCard = findViewById(R.id.btnAddRevenueCard);
         btnViewRevenueCard = findViewById(R.id.btnViewRevenueCard);
+        btnTasksListCard = findViewById(R.id.btnTasksListCard);
+        btnAddTaskCard = findViewById(R.id.btnAddTaskCard);
     }
 
     private void setupClickListeners() {
@@ -204,6 +210,27 @@ public class MainActivity extends AppCompatActivity {
             if (currentFarm != null) {
                 Intent intent = new Intent(MainActivity.this, RevenuesListActivity.class);
                 startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnTasksListCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, TasksListActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnAddTaskCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
+                dialog.setOnTaskAddedListener(() -> {
+                    Toast.makeText(this, "Task created successfully!", Toast.LENGTH_SHORT).show();
+                });
+                dialog.show(getSupportFragmentManager(), "AddTaskDialog");
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }

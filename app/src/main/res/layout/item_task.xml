@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Top Row: Icon + Title + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvTaskIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:text="🚜"
+                android:textSize="24sp"
+                android:background="@color/warm_grey"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTaskTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear Block A1"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_dark" />
+
+                <TextView
+                    android:id="@+id/tvTaskScope"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Block A1"
+                    android:textSize="14sp"
+                    android:textColor="@color/navy" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTaskStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="⏳ Pending"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/status_background" />
+
+        </LinearLayout>
+
+        <!-- Description (if available) -->
+        <TextView
+            android:id="@+id/tvTaskDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear land for planting cashew trees"
+            android:textSize="14sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="12dp"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <!-- Bottom Row: Due Date + Overdue Warning -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/warm_grey"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvDueDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📅 Due: Mar 15, 2024"
+                android:textSize="14sp"
+                android:textColor="@color/navy"
+                android:drawableStart="@android:drawable/ic_menu_today"
+                android:drawablePadding="4dp" />
+
+            <TextView
+                android:id="@+id/tvOverdueWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠️ Overdue"
+                android:textSize="14sp"
+                android:textColor="@android:color/holo_red_dark"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

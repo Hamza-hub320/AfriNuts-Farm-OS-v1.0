@@ -368,9 +368,7 @@
             android:textColor="@color/text_dark"
             android:layout_marginBottom="12dp" />
 
-        <!-- Quick Actions - 2x3 Grid -->
-
-        <!-- Row 1 -->
+        <!-- Row 1 - Block Management -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -384,7 +382,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -396,23 +394,25 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📋"
-                        android:textSize="26sp" />
+                        android:textSize="24sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Blocks"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp" />
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
             <!-- Add Block -->
@@ -421,8 +421,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="3dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -434,24 +434,75 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
-                        android:text="➕"
-                        android:textSize="26sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="➕"
+                        android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Add Block"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
+
+            <!-- Tasks List (View) - NEW 🌱 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnTasksListCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌱"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tasks"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <!-- Row 2 - Financial Management -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:weightSum="3">
 
             <!-- Add Expense -->
             <androidx.cardview.widget.CardView
@@ -459,7 +510,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
+                android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -471,34 +522,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
-                        android:text="💸"
-                        android:textSize="26sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="💸"
+                        android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Add Expense"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- Row 2 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:weightSum="3">
 
             <!-- View Expenses -->
             <androidx.cardview.widget.CardView
@@ -506,7 +549,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -518,33 +562,34 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
-                        android:text="📊"
-                        android:textSize="26sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="📊"
+                        android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Expenses"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
-            <!-- Add Revenue (new icon 📥) -->
+            <!-- Add Revenue -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnAddRevenueCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="3dp"
+                android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -556,32 +601,84 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
-                        android:text="📥"
-                        android:textSize="26sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="📥"
+                        android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Add Revenue"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
-            <!-- Expense Analytics -->
+        </LinearLayout>
+
+        <!-- Row 3 - Revenue & Analytics -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:weightSum="3">
+
+            <!-- View Revenue -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnViewRevenueCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📋"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Revenue"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Analytics -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnExpenseChartsCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -593,27 +690,67 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp">
+                    android:padding="12dp">
 
                     <TextView
-                        android:text="📈"
-                        android:textSize="26sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="📈"
+                        android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Analytics"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="4dp" />
+
                 </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Add Task - NEW ✅ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnAddTaskCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✅"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add Task"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-
 
         <!-- Weather Card -->
         <androidx.cardview.widget.CardView

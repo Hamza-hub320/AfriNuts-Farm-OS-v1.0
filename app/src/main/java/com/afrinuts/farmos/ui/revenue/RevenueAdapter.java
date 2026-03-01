@@ -13,6 +13,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 
 import java.util.List;
+import java.util.Locale;
 
 public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueViewHolder> {
 

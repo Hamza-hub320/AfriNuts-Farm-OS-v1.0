@@ -113,7 +113,11 @@ public class RevenueEntity {
     }
 
     public double getTotalAmount() { return totalAmount; }
-    // No setter for totalAmount - it's calculated
+
+    // Required by Room for hydration from database
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 
     public String getBuyer() { return buyer; }
     public void setBuyer(String buyer) {
