@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Add these permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,7 +14,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AfriNutsFarmOS">
+        android:theme="@style/Theme.AfriNutsFarmOS"
+        android:usesCleartextTraffic="true"> <!-- Add this for development if API uses HTTP -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -19,12 +25,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.blocks.BlocksActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.blocks.BlockDetailActivity"
             android:parentActivityName=".ui.blocks.BlocksActivity" />
+
         <activity
             android:name=".ui.expenses.ExpensesListActivity"
             android:parentActivityName=".MainActivity" />
@@ -32,28 +41,35 @@
         <activity
             android:name=".ui.expenses.ExpenseDetailActivity"
             android:parentActivityName=".ui.expenses.ExpensesListActivity" />
+
         <activity
             android:name=".ui.expenses.ExpenseChartsActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.revenue.RevenuesListActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.tasks.TasksListActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.profit.ProfitDashboardActivity"
-            android:parentActivityName=".MainActivity"
-            android:exported="false" />
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.tasks.TaskDetailActivity"
             android:parentActivityName=".ui.tasks.TasksListActivity" />
+
         <activity
             android:name=".ui.workers.WorkerDashboardActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.revenue.RevenueDetailActivity"
             android:parentActivityName=".ui.revenue.RevenuesListActivity" />
+
     </application>
 
 </manifest>

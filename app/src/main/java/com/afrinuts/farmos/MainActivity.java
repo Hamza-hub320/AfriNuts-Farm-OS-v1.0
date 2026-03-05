@@ -35,6 +35,7 @@ import com.afrinuts.farmos.ui.blocks.BlockDialog;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.utils.DataSeeder;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -429,26 +430,42 @@ public class MainActivity extends AppCompatActivity {
         weatherLoadingText.setVisibility(View.GONE);
         weatherContent.setVisibility(View.VISIBLE);
 
+        // Current weather
         WeatherResponse.Current current = weather.getCurrent();
         WeatherResponse.Location location = weather.getLocation();
 
+        // Update time - format nicely
         if (location != null && location.getLocaltime() != null) {
-            weatherUpdateTime.setText("Updated: " + location.getLocaltime());
+            String timeStr = location.getLocaltime();
+            try {
+                // Parse the time from "2026-03-05 20:19" to readable format
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault());
+                Date date = inputFormat.parse(timeStr);
+                weatherUpdateTime.setText("Updated: " + outputFormat.format(date));
+            } catch (Exception e) {
+                weatherUpdateTime.setText("Updated: " + timeStr);
+            }
             weatherUpdateTime.setVisibility(View.VISIBLE);
         }
 
+        // Set temperature and condition
         weatherTemp.setText(String.format(Locale.getDefault(),
                 "%.0f°C", current.getTempC()));
         weatherCondition.setText(current.getCondition().getText());
 
+        // Set humidity and wind
         weatherHumidity.setText(String.format(Locale.getDefault(),
                 "💧 %d%%", current.getHumidity()));
         weatherWind.setText(String.format(Locale.getDefault(),
                 "💨 %.0f km/h", current.getWindKph()));
 
+        // Set weather icon based on condition
         setWeatherIconFallback(current.getCondition().getText());
 
-        displayForecast(weather.getForecast());
+        // Note: The forecast requires a separate API call with 'days' parameter
+        // For now, we'll just show current weather
+        // To add forecast, you'll need to call getWeatherForecast() instead
     }
 
     private void setWeatherIconFallback(String condition) {

@@ -15,8 +15,8 @@ import retrofit2.Call;
 
 public class WeatherRepository {
 
-    private static final String API_KEY = "96e38ff2387f454aa67191459252008";
-    private static final String LOCATION = "Odienné";
+    private static final String API_KEY = "14b7945cfe25455a868194701260103";
+    private static final String LOCATION = "Odienne";  // Updated to match API response
     private static final int FORECAST_DAYS = 3;
 
     private AppDatabase database;

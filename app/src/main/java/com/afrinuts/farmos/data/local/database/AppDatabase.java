@@ -38,7 +38,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
 
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
-        version = 6,
+        version = 7,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -48,9 +48,13 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FarmDao farmDao();
 
     public abstract BlockDao blockDao();
+
     public abstract ExpenseDao expenseDao();
+
     public abstract RevenueDao revenueDao();
+
     public abstract TaskDao taskDao();
+
     public abstract WeatherDao weatherDao();
 
     private static volatile AppDatabase INSTANCE;
