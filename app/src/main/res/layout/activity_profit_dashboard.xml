@@ -35,21 +35,21 @@
                 android:layout_height="wrap_content"
                 android:text="All Time"
                 android:checked="true"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipThisYear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="This Year"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipThisMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="This Month"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>
 
@@ -70,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -82,10 +82,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Profit &amp; Loss Summary"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        android:text="Profit and Loss Summary"
+                        style="@style/Text.H5"
                         android:layout_marginBottom="16dp" />
 
                     <!-- Revenue Row -->
@@ -100,16 +98,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="💰 Total Revenue"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy" />
+                            style="@style/Text.Body" />
 
                         <TextView
                             android:id="@+id/totalRevenueValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 XAF"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            style="@style/Text.Stat.Small"
                             android:textColor="@android:color/holo_green_dark" />
 
                     </LinearLayout>
@@ -125,16 +121,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="💸 Total Expenses"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy" />
+                            style="@style/Text.Body" />
 
                         <TextView
                             android:id="@+id/totalExpensesValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 XAF"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            style="@style/Text.Stat.Small"
                             android:textColor="@android:color/holo_red_dark" />
 
                     </LinearLayout>
@@ -143,7 +137,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/warm_grey"
+                        style="@style/Widget.AfriNuts.Divider"
                         android:layout_marginVertical="12dp" />
 
                     <!-- Net Profit Row -->
@@ -157,17 +151,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="📊 Net Profit"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.H5" />
 
                         <TextView
                             android:id="@+id/netProfitValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 XAF"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
+                            style="@style/Text.Stat"
                             android:textColor="@color/primary" />
 
                     </LinearLayout>
@@ -178,8 +169,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0% margin"
-                        android:textSize="14sp"
-                        android:textColor="@color/navy"
+                        style="@style/Text.Caption"
                         android:layout_gravity="end" />
 
                 </LinearLayout>
@@ -191,7 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -204,9 +194,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Per Unit Analysis"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.H5"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -236,16 +224,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Small" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="per Ha"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -269,16 +254,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Small" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="per Tree"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -302,16 +284,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0%"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Small" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Margin"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -326,9 +305,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Recent Activity"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_dark"
+                style="@style/Text.H5"
                 android:layout_marginBottom="12dp" />
 
             <LinearLayout
@@ -336,6 +313,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AfriNuts.ProgressBar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:visibility="gone" />
+
+            <!-- Empty State -->
+            <TextView
+                android:id="@+id/emptyView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="No transactions found"
+                style="@style/Text.H3"
+                android:textColor="@color/navy"
+                android:gravity="center"
+                android:visibility="gone" />
 
         </LinearLayout>
 

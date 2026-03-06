@@ -14,8 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create New Task"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            style="@style/Text.H3"
             android:textColor="@color/primary"
             android:layout_marginBottom="16dp" />
 
@@ -24,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTaskTitle"
@@ -40,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTaskDescription"
@@ -52,7 +51,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Task Type Dropdown -->
+        <!-- Task Type Dropdown - FIXED -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,7 +63,8 @@
                 android:id="@+id/etTaskType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Farm-Wide"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.AfriNuts.Button.Outlined" />
 
             <Button
                 android:id="@+id/btnPerBlock"
@@ -90,11 +90,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Per Block"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.AfriNuts.Button.Outlined" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- Block Selector (visible only when "Per Block" is selected) -->
+        <!-- Block Selector (visible only when "Per Block" is selected) - FIXED -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutBlockSelector"
             android:layout_width="match_parent"
@@ -108,7 +108,8 @@
                 android:id="@+id/etBlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:padding="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,7 +118,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDueDate"
@@ -135,7 +136,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStatus"
@@ -159,7 +160,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.AfriNuts.Button.Outlined"
                 android:layout_marginEnd="8dp" />
 
             <Button
@@ -167,7 +168,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Create Task"
-                android:backgroundTint="@color/primary" />
+                style="@style/Widget.AfriNuts.Button" />
 
         </LinearLayout>
 

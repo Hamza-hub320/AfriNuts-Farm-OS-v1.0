@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            app:cardCornerRadius="12dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -50,17 +50,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
+                    style="@style/Text.Stat.Small"
                     android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Revenue"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -72,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            app:cardCornerRadius="12dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -93,17 +90,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 kg"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
+                    style="@style/Text.Stat.Small"
                     android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Harvest"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -132,35 +126,35 @@
                 android:layout_height="wrap_content"
                 android:text="All Revenue"
                 android:checked="true"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipBlocks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="From Blocks"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipProcessing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Processing Center"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="⭐ Premium"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStandard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="✓ Standard"
-                style="@style/Widget.MaterialComponents.Chip.Filter" />
+                style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>
 
@@ -195,17 +189,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No harvest records yet"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_dark"
+            style="@style/Text.H4"
             android:layout_marginTop="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tap + to add your first harvest"
-            android:textSize="14sp"
-            android:textColor="@color/navy"
+            style="@style/Text.Body.Small"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>

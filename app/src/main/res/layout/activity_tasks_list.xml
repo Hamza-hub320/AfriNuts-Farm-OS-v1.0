@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Task Management" />
 
     <!-- Summary Cards Row -->
     <LinearLayout
@@ -29,8 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,16 +50,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pending"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -72,8 +69,7 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -93,16 +89,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="In Progress"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -114,8 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -135,16 +127,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Completed"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -171,7 +160,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
+                style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
@@ -179,28 +168,28 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPending"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
+                style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="⏳ Pending" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipInProgress"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
+                style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="🔄 In Progress" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCompleted"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
+                style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="✅ Completed" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOverdue"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
+                style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="⚠️ Overdue" />
@@ -209,12 +198,14 @@
 
     </HorizontalScrollView>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"
+        style="@style/Widget.AfriNuts.ProgressBar"
         android:visibility="gone" />
 
     <!-- Empty State -->
@@ -237,17 +228,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No tasks yet"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_dark"
+            style="@style/Text.H3"
             android:layout_marginTop="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tap + to create your first task"
-            android:textSize="14sp"
-            android:textColor="@color/navy"
+            style="@style/Text.Body.Small"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>

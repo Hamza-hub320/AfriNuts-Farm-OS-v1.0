@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Task List" />
 
     <!-- Summary Cards -->
     <ScrollView
@@ -31,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -44,9 +45,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Workforce Overview"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.H4"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -69,16 +68,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textSize="28sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Large" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Workers"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -95,16 +91,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textSize="28sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Large" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Tasks"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -121,16 +114,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0%"
-                                android:textSize="28sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Large" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Completed"
-                                android:textSize="12sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -150,17 +140,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="⏱️ Avg. Task Time"
-                            android:textSize="14sp"
-                            android:textColor="@color/navy" />
+                            style="@style/Text.Body.Small" />
 
                         <TextView
                             android:id="@+id/avgTaskTimeValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 hours"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/primary" />
+                            style="@style/Text.Stat.Small" />
 
                     </LinearLayout>
 
@@ -168,23 +155,23 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Worker Performance List -->
+            <!-- Worker Performance List Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Worker Performance"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_dark"
+                style="@style/Text.H5"
                 android:layout_marginBottom="12dp" />
 
             <!-- Progress Bar -->
             <ProgressBar
                 android:id="@+id/progressBar"
+                style="@style/Widget.AfriNuts.ProgressBar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
+                android:indeterminate="true"
                 android:visibility="gone" />
 
             <!-- Empty State -->
@@ -207,17 +194,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="No workers yet"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_dark"
+                    style="@style/Text.H3"
                     android:layout_marginTop="16dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Assign tasks to workers to see performance data"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
+                    style="@style/Text.Body.Small"
                     android:layout_marginTop="8dp" />
 
             </LinearLayout>

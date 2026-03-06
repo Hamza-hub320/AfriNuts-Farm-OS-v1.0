@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="4dp">
 
                 <LinearLayout
@@ -52,21 +52,15 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Block A1"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
+                            style="@style/Text.H1"
                             android:textColor="@color/primary" />
 
                         <TextView
                             android:id="@+id/statusBadge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="6dp"
-                            android:text="Planted"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/white"
-                            android:background="@drawable/status_background" />
+                            style="@style/Widget.AfriNuts.StatusBadge"
+                            android:text="Planted" />
 
                     </LinearLayout>
 
@@ -75,8 +69,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Farm: AfriNuts Odienné | Size: 1.0 ha"
-                        android:textSize="16sp"
-                        android:textColor="@color/navy" />
+                        style="@style/Text.Body.Small" />
 
                 </LinearLayout>
 
@@ -87,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="4dp">
 
                 <LinearLayout
@@ -100,8 +93,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📅 Timeline"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        style="@style/Text.H4"
                         android:textColor="@color/primary"
                         android:layout_marginBottom="16dp" />
 
@@ -118,9 +110,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="Cleared:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/clearedDateText"
@@ -128,8 +118,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 15, 2024"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body.Small" />
 
                     </LinearLayout>
 
@@ -146,9 +135,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="Plowed:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/plowedDateText"
@@ -156,8 +143,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 20, 2024"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body.Small" />
 
                     </LinearLayout>
 
@@ -173,9 +159,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="Planted:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/plantedDateText"
@@ -183,8 +167,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 25, 2024"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body.Small" />
 
                     </LinearLayout>
 
@@ -198,7 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="4dp"
                 android:visibility="gone">
 
@@ -212,8 +195,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="🌱 Planting Details"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        style="@style/Text.H4"
                         android:textColor="@color/primary"
                         android:layout_marginBottom="16dp" />
 
@@ -222,7 +204,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        style="@style/Widget.AfriNuts.EditText">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etSurvivalRate"
@@ -243,12 +225,11 @@
 
                         <ProgressBar
                             android:id="@+id/survivalProgress"
-                            style="?android:attr/progressBarStyleHorizontal"
+                            style="@style/Widget.AfriNuts.ProgressBar"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
                             android:progress="95"
-                            android:max="100"
-                            android:progressTint="@color/primary" />
+                            android:max="100" />
 
                     </LinearLayout>
 
@@ -257,7 +238,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        style="@style/Widget.AfriNuts.EditText">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etReplacementCount"
@@ -283,7 +264,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="🌱 Alive: 95 trees"
-                            android:textSize="16sp"
+                            style="@style/Text.Body"
                             android:textColor="@color/primary" />
 
                         <TextView
@@ -292,7 +273,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="💀 Dead: 5 trees"
-                            android:textSize="16sp"
+                            style="@style/Text.Body"
                             android:textColor="@color/accent"
                             android:gravity="end" />
 
@@ -307,7 +288,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="4dp">
 
                 <LinearLayout
@@ -320,15 +301,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📝 Notes"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        style="@style/Text.H4"
                         android:textColor="@color/primary"
                         android:layout_marginBottom="12dp" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        style="@style/Widget.AfriNuts.EditText">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNotes"
@@ -361,6 +341,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
+                    style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/accent"
                     app:icon="@android:drawable/ic_menu_edit"
                     app:iconGravity="textStart" />
@@ -372,6 +353,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
+                    style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/primary"
                     app:icon="@android:drawable/ic_menu_save"
                     app:iconGravity="textStart"
@@ -383,6 +365,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Delete"
+                    style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
                     app:icon="@android:drawable/ic_menu_delete"
                     app:iconGravity="textStart" />

@@ -34,7 +34,7 @@ public class RevenuesListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RevenueAdapter adapter;
     private ProgressBar progressBar;
-    private LinearLayout emptyView;
+    private LinearLayout emptyLayout;
     private TextView totalRevenueValue;
     private TextView totalHarvestValue;
     private ChipGroup filterChipGroup;
@@ -74,7 +74,7 @@ public class RevenuesListActivity extends AppCompatActivity {
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
+        emptyLayout = findViewById(R.id.emptyView);
         totalRevenueValue = findViewById(R.id.totalRevenueValue);
         totalHarvestValue = findViewById(R.id.totalHarvestValue);
         filterChipGroup = findViewById(R.id.filterChipGroup);
@@ -252,11 +252,11 @@ public class RevenuesListActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        emptyView.setVisibility(View.GONE);
+        emptyLayout.setVisibility(View.GONE);
     }
 
     private void showEmpty(boolean show) {
-        emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
+        emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }

@@ -20,8 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="John Doe"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            style="@style/Text.Label"
             android:textColor="@color/primary" />
 
         <TextView
@@ -29,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2 days"
-            android:textSize="12sp"
+            style="@style/Text.Caption.Small"
             android:textColor="@color/navy" />
 
     </LinearLayout>
@@ -39,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Mar 10 → Mar 12, 2024"
-        android:textSize="12sp"
+        style="@style/Text.Caption.Small"
         android:textColor="@color/navy" />
 
 </LinearLayout>

@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -61,17 +61,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Premium Grade"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.H3" />
 
                         <TextView
                             android:id="@+id/tvSource"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Block A1"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
+                            style="@style/Text.Body.Small"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -85,7 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -98,8 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Harvest Details"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        style="@style/Text.H4"
                         android:textColor="@color/text_dark"
                         android:layout_marginBottom="16dp" />
 
@@ -114,9 +110,7 @@
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Quantity:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/tvQuantity"
@@ -124,8 +118,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="350 kg"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body" />
 
                     </LinearLayout>
 
@@ -140,9 +133,7 @@
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Price/kg:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/tvPricePerKg"
@@ -150,8 +141,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="1,500 XAF"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body" />
 
                     </LinearLayout>
 
@@ -168,9 +158,7 @@
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Total:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/tvTotalAmount"
@@ -178,8 +166,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="525,000 XAF"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
+                            style="@style/Text.Stat"
                             android:textColor="@color/primary" />
 
                     </LinearLayout>
@@ -195,9 +182,7 @@
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Harvest Date:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/tvHarvestDate"
@@ -205,8 +190,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 15, 2024"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body" />
 
                     </LinearLayout>
 
@@ -221,9 +205,7 @@
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Buyer:"
-                            android:textSize="16sp"
-                            android:textColor="@color/navy"
-                            android:textStyle="bold" />
+                            style="@style/Text.Label" />
 
                         <TextView
                             android:id="@+id/tvBuyer"
@@ -231,8 +213,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Olam"
-                            android:textSize="16sp"
-                            android:textColor="@color/text_dark" />
+                            style="@style/Text.Body" />
 
                     </LinearLayout>
 
@@ -242,8 +223,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Premium quality harvest from Block A1"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.Body.Small"
                         android:background="@color/warm_grey"
                         android:padding="12dp"
                         android:minLines="2"
@@ -259,6 +239,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Delete Revenue Record"
+                style="@style/Widget.AfriNuts.Button"
                 android:backgroundTint="@android:color/holo_red_dark"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp" />

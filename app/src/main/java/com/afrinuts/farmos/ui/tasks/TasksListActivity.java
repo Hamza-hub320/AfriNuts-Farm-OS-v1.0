@@ -34,7 +34,7 @@ public class TasksListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
     private ProgressBar progressBar;
-    private LinearLayout emptyView;
+    private LinearLayout emptyLayout;
     private TextView pendingTasksValue;
     private TextView inProgressTasksValue;
     private TextView completedTasksValue;
@@ -75,7 +75,7 @@ public class TasksListActivity extends AppCompatActivity {
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
+        emptyLayout = findViewById(R.id.emptyView);
         pendingTasksValue = findViewById(R.id.pendingTasksValue);
         inProgressTasksValue = findViewById(R.id.inProgressTasksValue);
         completedTasksValue = findViewById(R.id.completedTasksValue);
@@ -266,11 +266,11 @@ public class TasksListActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        emptyView.setVisibility(View.GONE);
+        emptyLayout.setVisibility(View.GONE);
     }
 
     private void showEmpty(boolean show) {
-        emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
+        emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }

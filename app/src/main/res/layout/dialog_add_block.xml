@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,8 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add New Block"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            style="@style/Text.H2"
             android:textColor="@color/primary"
             android:layout_marginBottom="16dp" />
 
@@ -23,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etBlockName"
@@ -39,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etHectareSize"
@@ -56,14 +57,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Block Status"
-                android:inputType="none" />
+                android:inputType="none"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -73,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.AfriNuts.EditText"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -83,7 +87,9 @@
                 android:hint="Date"
                 android:focusable="false"
                 android:clickable="true"
-                android:drawableEnd="@android:drawable/ic_menu_today" />
+                android:drawableEnd="@android:drawable/ic_menu_today"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,8 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Planting Details"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                style="@style/Text.H5"
                 android:textColor="@color/primary"
                 android:layout_marginBottom="12dp" />
 
@@ -116,7 +121,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                style="@style/Widget.AfriNuts.EditText">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etSurvivalRate"
@@ -133,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                style="@style/Widget.AfriNuts.EditText">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etReplacementCount"
@@ -152,7 +157,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNotes"
@@ -176,7 +181,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.AfriNuts.Button.Outlined"
                 android:layout_marginEnd="8dp" />
 
             <Button
@@ -184,7 +189,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save Block"
-                android:backgroundTint="@color/primary" />
+                style="@style/Widget.AfriNuts.Button" />
 
         </LinearLayout>
 

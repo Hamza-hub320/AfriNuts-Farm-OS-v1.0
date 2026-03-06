@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp">
 
+    <!-- Dialog Title -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Update Status"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        style="@style/Text.H3"
         android:textColor="@color/primary"
         android:layout_marginBottom="16dp" />
 
-    <!-- Current Status -->
+    <!-- Current Status Label -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current Status:"
-        android:textSize="14sp"
-        android:textColor="@color/navy"
+        style="@style/Text.Label"
         android:layout_marginBottom="4dp" />
 
+    <!-- Current Status Value -->
     <TextView
         android:id="@+id/currentStatusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Not Cleared"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        style="@style/Text.H4"
         android:textColor="@color/primary"
         android:background="@color/warm_grey"
         android:padding="12dp"
@@ -45,22 +45,21 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Next Status -->
+    <!-- Next Status Label -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Next Status:"
-        android:textSize="14sp"
-        android:textColor="@color/navy"
+        style="@style/Text.Label"
         android:layout_marginBottom="4dp" />
 
+    <!-- Next Status Value -->
     <TextView
         android:id="@+id/nextStatusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Cleared"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        style="@style/Text.H4"
         android:textColor="@color/primary"
         android:background="@color/warm_grey"
         android:padding="12dp"
@@ -71,7 +70,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.AfriNuts.EditText"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etDate"

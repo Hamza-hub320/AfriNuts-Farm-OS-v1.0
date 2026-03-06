@@ -5,10 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/white"
-    app:cardUseCompatPadding="true">
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:id="@+id/blockNameText"
@@ -29,21 +28,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Block A1"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                style="@style/Text.H3"
                 android:textColor="@color/primary" />
 
             <TextView
                 android:id="@+id/statusText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="Planted"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="@drawable/status_background" />
+                style="@style/Widget.AfriNuts.StatusBadge"
+                android:text="Planted" />
 
         </LinearLayout>
 
@@ -52,17 +45,17 @@
             android:id="@+id/statsText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Alive: 95 | Dead: 5"
-            android:textSize="16sp"
+            android:text="🌱 Alive: 95 | 💀 Dead: 5"
+            style="@style/Text.Body"
             android:textColor="@color/text_dark"
-            android:layout_marginTop="12dp" />
+            android:layout_marginBottom="12dp" />
 
         <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/warm_grey"
-            android:layout_marginVertical="12dp" />
+            style="@style/Widget.AfriNuts.Divider"
+            android:layout_marginBottom="12dp" />
 
         <!-- Expandable Header (click to expand/collapse) -->
         <LinearLayout
@@ -74,23 +67,23 @@
             android:padding="4dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:layout_marginBottom="4dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="View details"
-                android:textSize="16sp"
-                android:textColor="@color/accent"
-                android:textStyle="bold" />
+                style="@style/Text.Label"
+                android:textColor="@color/accent" />
 
             <TextView
                 android:id="@+id/expandIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="▼"
-                android:textSize="20sp"
+                style="@style/Text.H5"
                 android:textColor="@color/accent" />
 
         </LinearLayout>
@@ -102,7 +95,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="8dp">
 
             <!-- Planting Date -->
             <LinearLayout
@@ -115,9 +108,7 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:text="Planted:"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
-                    android:textStyle="bold" />
+                    style="@style/Text.Label" />
 
                 <TextView
                     android:id="@+id/dateText"
@@ -125,8 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Mar 15, 2024"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_dark" />
+                    style="@style/Text.Body.Small" />
 
             </LinearLayout>
 
@@ -141,9 +131,7 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:text="Replacements:"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
-                    android:textStyle="bold" />
+                    style="@style/Text.Label" />
 
                 <TextView
                     android:id="@+id/replacementText"
@@ -151,8 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="2 trees"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_dark" />
+                    style="@style/Text.Body.Small" />
 
             </LinearLayout>
 
@@ -167,26 +154,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Survival Rate"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
-                    android:textStyle="bold"
+                    style="@style/Text.Label"
                     android:layout_marginBottom="4dp" />
 
                 <ProgressBar
                     android:id="@+id/survivalProgress"
-                    style="?android:attr/progressBarStyleHorizontal"
+                    style="@style/Widget.AfriNuts.ProgressBar"
                     android:layout_width="match_parent"
                     android:layout_height="8dp"
                     android:progress="95"
-                    android:max="100"
-                    android:progressTint="@color/primary" />
+                    android:max="100" />
 
                 <TextView
                     android:id="@+id/survivalText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="95%"
-                    android:textSize="12sp"
+                    style="@style/Text.Caption.Small"
                     android:textColor="@color/primary"
                     android:layout_gravity="end"
                     android:layout_marginTop="2dp" />
@@ -195,22 +179,20 @@
 
             <!-- Notes -->
             <LinearLayout
+                android:id="@+id/notesSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="8dp"
                 android:background="@color/warm_grey"
-                android:padding="8dp"
-                android:visibility="gone"
-                android:id="@+id/notesSection">
+                android:padding="12dp"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Notes"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
-                    android:textStyle="bold"
+                    android:text="📝 Notes"
+                    style="@style/Text.Label"
                     android:layout_marginBottom="4dp" />
 
                 <TextView
@@ -218,8 +200,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Sample notes here"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_dark" />
+                    style="@style/Text.Body.Small" />
 
             </LinearLayout>
 

@@ -13,16 +13,17 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Farm Blocks" />
 
     <!-- Summary Card -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        android:backgroundTint="@color/white">
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.AfriNuts.CardView"
+        app:cardElevation="2dp">
 
         <TextView
             android:id="@+id/summaryText"
@@ -30,7 +31,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="Loading summary..."
-            android:textSize="16sp"
+            style="@style/Text.Body"
             android:textColor="@color/text_dark"
             android:visibility="gone" />
 
@@ -39,23 +40,45 @@
     <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
+        style="@style/Widget.AfriNuts.ProgressBar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"
+        android:indeterminate="true"
         android:visibility="gone" />
 
     <!-- Empty State -->
-    <TextView
+    <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="No blocks found. Add your first block!"
-        android:textSize="18sp"
-        android:textColor="@color/navy"
+        android:layout_marginTop="64dp"
+        android:orientation="vertical"
         android:gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📦"
+            android:textSize="64sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No blocks found"
+            style="@style/Text.H3"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add your first block to start tracking"
+            style="@style/Text.Body.Small"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
 
     <!-- RecyclerView for Blocks -->
     <androidx.recyclerview.widget.RecyclerView
@@ -64,7 +87,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="8dp"
-        android:clipToPadding="false" />
+        android:clipToPadding="false"
+        android:visibility="visible" />
 
     <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -75,6 +99,7 @@
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_input_add"
         android:contentDescription="Add new block"
-        app:backgroundTint="@color/accent" />
+        app:backgroundTint="@color/accent"
+        app:fabSize="normal" />
 
 </LinearLayout>

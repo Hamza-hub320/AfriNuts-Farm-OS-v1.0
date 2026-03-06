@@ -3,19 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Dialog Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Harvest Revenue"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            style="@style/Text.H2"
             android:textColor="@color/primary"
             android:layout_marginBottom="16dp" />
 
@@ -24,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etQuantity"
@@ -40,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPricePerKg"
@@ -56,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etHarvestDate"
@@ -83,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Per Block"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.AfriNuts.Button.Outlined" />
 
             <Button
                 android:id="@+id/btnProcessingCenter"
@@ -91,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Processing Center"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.AfriNuts.Button.Outlined" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -102,8 +103,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:visibility="visible"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:hint="Select Block">
+            style="@style/Widget.AfriNuts.EditText"
+            android:hint="Select Block"
+            app:endIconMode="dropdown_menu">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etBlock"
@@ -118,8 +120,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:hint="Quality Grade">
+            style="@style/Widget.AfriNuts.EditText"
+            android:hint="Quality Grade"
+            app:endIconMode="dropdown_menu">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etQuality"
@@ -134,7 +137,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etBuyer"
@@ -149,7 +152,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.AfriNuts.EditText">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNotes"
@@ -166,34 +169,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            app:cardCornerRadius="8dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp"
-            android:backgroundTint="@color/warm_grey">
+            app:cardCornerRadius="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="16dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:background="@color/warm_grey">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Total Amount:"
-                    android:textSize="16sp"
-                    android:textColor="@color/navy"
-                    android:textStyle="bold" />
+                    style="@style/Text.Label" />
 
                 <TextView
                     android:id="@+id/tvTotalAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat.Small" />
 
             </LinearLayout>
 
@@ -204,14 +204,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end">
+            android:gravity="end"
+            android:layout_marginTop="8dp">
 
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.AfriNuts.Button.Outlined"
                 android:layout_marginEnd="8dp" />
 
             <Button
@@ -219,7 +220,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save Revenue"
-                android:backgroundTint="@color/primary" />
+                style="@style/Widget.AfriNuts.Button" />
 
         </LinearLayout>
 

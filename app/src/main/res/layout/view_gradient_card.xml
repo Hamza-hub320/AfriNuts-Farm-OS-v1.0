@@ -4,7 +4,7 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
+    style="@style/Widget.AfriNuts.CardView"
     app:cardElevation="8dp"
     android:clickable="true"
     android:focusable="true"
@@ -30,8 +30,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="i"
+                style="@style/Text.Overline"
                 android:textColor="@android:color/white"
-                android:textStyle="bold"
                 android:textSize="14sp" />
 
         </FrameLayout>
@@ -88,8 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Card Title"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                style="@style/Text.H3"
                 android:textColor="@color/primary"
                 android:layout_marginBottom="4dp" />
 
@@ -99,8 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Subtitle"
-                android:textSize="14sp"
-                android:textColor="@color/navy"
+                style="@style/Text.Body.Small"
                 android:layout_marginBottom="8dp"
                 android:visibility="gone" />
 
@@ -117,8 +115,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/cta_background"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="10dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:orientation="horizontal"
@@ -130,14 +130,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Action"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    style="@style/Text.Button"
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="→"
+                    style="@style/Text.Button"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:layout_marginStart="8dp" />

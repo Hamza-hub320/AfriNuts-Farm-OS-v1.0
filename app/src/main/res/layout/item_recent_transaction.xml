@@ -4,25 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="1dp">
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="16dp"
         android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/tvTransactionIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:gravity="center"
             android:text="💰"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:background="@color/warm_grey"
-            android:layout_marginEnd="12dp" />
+            android:backgroundTint="@color/warm_grey"
+            android:layout_marginEnd="16dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Premium Grade Revenue"
-                android:textSize="14sp"
+                style="@style/Text.Body"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark" />
 
@@ -44,8 +46,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mar 15, 2024"
-                android:textSize="12sp"
-                android:textColor="@color/navy" />
+                style="@style/Text.Caption.Small"
+                android:layout_marginTop="4dp" />
 
         </LinearLayout>
 
@@ -54,8 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="+525,000 XAF"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            style="@style/Text.Label"
             android:textColor="@android:color/holo_green_dark" />
 
     </LinearLayout>

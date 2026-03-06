@@ -4,14 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Assign Worker to Task"
+        style="@style/Text.H5"
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Select or enter worker name"
-        android:textSize="14sp"
-        android:textColor="@color/navy"
+        style="@style/Text.Body.Small"
         android:layout_marginBottom="16dp" />
 
     <!-- Existing Worker Dropdown -->
@@ -19,14 +26,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:hint="Select existing worker">
+        style="@style/Widget.AfriNuts.EditText"
+        android:hint="Select existing worker"
+        app:endIconMode="dropdown_menu">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/etWorkerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"
+            style="@style/Text.Body" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -34,25 +43,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="OR"
-        android:textSize="12sp"
+        style="@style/Text.Overline"
         android:textColor="@color/navy"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginVertical="16dp" />
 
     <!-- New Worker Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_marginBottom="24dp"
+        style="@style/Widget.AfriNuts.EditText"
         android:hint="Enter new worker name">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNewWorker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            style="@style/Text.Body" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Note: The dialog's positive/negative buttons are handled in code,
+         so we don't need to add them here -->
 
 </LinearLayout>

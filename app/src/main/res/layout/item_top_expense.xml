@@ -4,8 +4,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingVertical="12dp"
-    android:paddingHorizontal="8dp">
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <TextView
         android:id="@+id/tvTopCategory"
@@ -13,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Land Clearing"
-        android:textSize="14sp"
+        style="@style/Text.Body.Small"
         android:textColor="@color/text_dark" />
 
     <TextView
@@ -21,8 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="5,250,000 XAF"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        style="@style/Text.Label.Small"
         android:textColor="@color/primary"
         android:layout_marginEnd="12dp" />
 
@@ -31,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Jan 2024"
-        android:textSize="12sp"
+        style="@style/Text.Caption.Small"
         android:textColor="@color/navy" />
 
 </LinearLayout>

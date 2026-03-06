@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.repository.WeatherRepository;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.view.View;
+import android.view.MotionEvent;
 import java.text.SimpleDateFormat;
 
 import android.content.Intent;
@@ -162,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
         weatherLoadingText = findViewById(R.id.weatherLoadingText);
         weatherUpdateTime = findViewById(R.id.weatherUpdateTime);
         weatherIconFallback = findViewById(R.id.weatherIconFallback);
-        weatherIcon = findViewById(R.id.weatherIcon);
         weatherTemp = findViewById(R.id.weatherTemp);
         weatherCondition = findViewById(R.id.weatherCondition);
         weatherHumidity = findViewById(R.id.weatherHumidity);
@@ -305,6 +305,73 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupAnimations() {
+        // Animate stats cards on load
+        View[] statsCards = {
+                (View) findViewById(R.id.totalHectaresText).getParent().getParent(),
+                (View) findViewById(R.id.totalTreesText).getParent().getParent(),
+                (View) findViewById(R.id.blocksCountText).getParent().getParent()
+        };
+
+        for (int i = 0; i < statsCards.length; i++) {
+            View card = statsCards[i];
+            if (card == null) continue;
+
+            card.setAlpha(0f);
+            card.setTranslationY(20f);
+            card.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(400)
+                    .setStartDelay(i * 100)
+                    .start();
+        }
+
+        // Animate progress card
+        View progressCard = findViewById(R.id.weatherCard);
+        if (progressCard != null) {
+            progressCard.setAlpha(0f);
+            progressCard.setTranslationY(20f);
+            progressCard.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(400)
+                    .setStartDelay(300)
+                    .start();
+        }
+    }
+
+    // Hover effect for cards (touch feedback)
+    private void setupHoverEffects() {
+        View[] clickableCards = {
+                findViewById(R.id.btnViewBlocksCard),
+                findViewById(R.id.btnAddBlockCard),
+                findViewById(R.id.btnAddExpenseCard),
+                findViewById(R.id.btnViewExpensesCard),
+                findViewById(R.id.btnAddRevenueCard),
+                findViewById(R.id.btnViewRevenueCard),
+                findViewById(R.id.btnExpenseChartsCard),
+                findViewById(R.id.weatherCard)
+        };
+
+        for (View card : clickableCards) {
+            if (card != null) {
+                card.setOnTouchListener((v, event) -> {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            v.animate().scaleX(0.98f).scaleY(0.98f).setDuration(100).start();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                            break;
+                    }
+                    return false;
+                });
+            }
+        }
+    }
+
     private String getNextAvailableBlockName() {
         // 5 rows (A through E) and 7 columns (1 through 7)
         char[] rows = {'A', 'B', 'C', 'D', 'E'};
@@ -434,11 +501,10 @@ public class MainActivity extends AppCompatActivity {
         WeatherResponse.Current current = weather.getCurrent();
         WeatherResponse.Location location = weather.getLocation();
 
-        // Update time - format nicely
+        // Update time
         if (location != null && location.getLocaltime() != null) {
             String timeStr = location.getLocaltime();
             try {
-                // Parse the time from "2026-03-05 20:19" to readable format
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
                 SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault());
                 Date date = inputFormat.parse(timeStr);
@@ -460,12 +526,8 @@ public class MainActivity extends AppCompatActivity {
         weatherWind.setText(String.format(Locale.getDefault(),
                 "💨 %.0f km/h", current.getWindKph()));
 
-        // Set weather icon based on condition
+        // Set weather icon - using fallback only
         setWeatherIconFallback(current.getCondition().getText());
-
-        // Note: The forecast requires a separate API call with 'days' parameter
-        // For now, we'll just show current weather
-        // To add forecast, you'll need to call getWeatherForecast() instead
     }
 
     private void setWeatherIconFallback(String condition) {

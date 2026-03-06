@@ -33,16 +33,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🌰 AfriNuts Export"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:letterSpacing="0.1" />
+                    style="@style/Text.Display"
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="FARM OPERATING SYSTEM"
-                    android:textSize="16sp"
+                    style="@style/Text.Body.Small"
                     android:textColor="@android:color/white"
                     android:alpha="0.9"
                     android:layout_marginTop="4dp" />
@@ -59,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Odienné, Côte d'Ivoire"
-                    android:textSize="14sp"
+                    style="@style/Text.Caption"
                     android:textColor="@android:color/white"
                     android:alpha="0.9" />
 
@@ -73,7 +71,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -101,17 +100,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AfriNuts Odienné"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark" />
+                        style="@style/Text.H3" />
 
                     <TextView
                         android:id="@+id/farmLocationText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Odienné, Côte d'Ivoire"
-                        android:textSize="14sp"
-                        android:textColor="@color/navy" />
+                        style="@style/Text.Body.Small" />
 
                 </LinearLayout>
 
@@ -120,12 +116,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2024"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    style="@style/Text.H6"
                     android:textColor="@color/primary"
                     android:background="@color/warm_grey"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
                     android:layout_marginStart="8dp" />
 
             </LinearLayout>
@@ -147,7 +144,8 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -167,16 +165,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="35"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary" />
+                        style="@style/Text.Stat" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Hectares"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy" />
+                        style="@style/Text.Caption.Small" />
 
                 </LinearLayout>
 
@@ -190,7 +185,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -210,16 +206,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="3,500"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary" />
+                        style="@style/Text.Stat" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Trees"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy" />
+                        style="@style/Text.Caption.Small" />
 
                 </LinearLayout>
 
@@ -232,7 +225,8 @@
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -252,16 +246,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary" />
+                        style="@style/Text.Stat" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Blocks"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy" />
+                        style="@style/Text.Caption.Small" />
 
                 </LinearLayout>
 
@@ -270,91 +261,85 @@
         </LinearLayout>
 
         <!-- Progress Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="Farm Progress"
-                android:textColor="@color/text_dark"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <!-- Planted Blocks Progress -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Planted Blocks"
-                    android:textColor="@color/navy"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/plantedBlocksText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0/35"
-                    android:textColor="@color/primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/plantedProgress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_marginBottom="16dp"
-                android:max="100"
-                android:progress="0"
-                android:progressTint="@color/primary" />
-
-            <!-- Survival Rate -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Avg. Survival Rate"
-                    android:textColor="@color/navy"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/survivalRateText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:textColor="@color/primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Farm Progress"
+                    style="@style/Text.H5" />
+
+                <!-- Planted Blocks Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Planted Blocks"
+                        style="@style/Text.Body.Small" />
+
+                    <TextView
+                        android:id="@+id/plantedBlocksText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0/35"
+                        style="@style/Text.Label"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/plantedProgress"
+                    style="@style/Widget.AfriNuts.ProgressBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginBottom="16dp"
+                    android:max="100"
+                    android:progress="0" />
+
+                <!-- Survival Rate -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Avg. Survival Rate"
+                        style="@style/Text.Body.Small" />
+
+                    <TextView
+                        android:id="@+id/survivalRateText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        style="@style/Text.Label"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
@@ -363,9 +348,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Quick Actions"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_dark"
+            style="@style/Text.H5"
             android:layout_marginBottom="12dp" />
 
         <!-- Row 1 - Block Management -->
@@ -385,6 +368,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -406,8 +390,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Blocks"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -425,6 +408,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -446,8 +430,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Block"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -455,7 +438,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Tasks List (View) - NEW 🌱 -->
+            <!-- Tasks List (View) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnTasksListCard"
                 android:layout_width="0dp"
@@ -464,6 +447,7 @@
                 android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -485,8 +469,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tasks"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -513,6 +496,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -534,8 +518,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Expense"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -553,6 +536,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -574,8 +558,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Expenses"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -592,6 +575,7 @@
                 android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -613,8 +597,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Revenue"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -641,6 +624,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -662,8 +646,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Revenue"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -681,6 +664,7 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -702,8 +686,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Analytics"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -711,7 +694,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add Task - NEW ✅ -->
+            <!-- Add Task -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnAddTaskCard"
                 android:layout_width="0dp"
@@ -720,6 +703,7 @@
                 android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -741,8 +725,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Task"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="4dp" />
 
@@ -769,6 +752,7 @@
                 android:layout_marginEnd="6dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -790,23 +774,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Workers"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add to your Quick Actions grid -->
+            <!-- Profit Dashboard -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnProfitDashboardCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
+                android:layout_marginStart="6dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -826,18 +810,18 @@
 
                     <TextView
                         android:text="Profit"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
+                        style="@style/Text.Overline"
                         android:textColor="@color/primary"
                         android:layout_marginTop="6dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
-        <!-- Weather Card - Enhanced -->
+        <!-- Weather Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/weatherCard"
             android:layout_width="match_parent"
@@ -845,6 +829,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true">
@@ -868,17 +853,14 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="🌤️ Weather - Odienné"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark" />
+                        style="@style/Text.H5" />
 
                     <TextView
                         android:id="@+id/weatherUpdateTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=""
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
+                        style="@style/Text.Caption.Small"
                         android:visibility="gone" />
 
                 </LinearLayout>
@@ -889,8 +871,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Loading weather data..."
-                    android:textSize="14sp"
-                    android:textColor="@color/navy"
+                    style="@style/Text.Body.Small"
                     android:gravity="center"
                     android:padding="16dp" />
 
@@ -909,13 +890,6 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
-
-                        <ImageView
-                            android:id="@+id/weatherIcon"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:contentDescription="Weather icon"
-                            android:visibility="gone" />
 
                         <TextView
                             android:id="@+id/weatherIconFallback"
@@ -937,17 +911,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="32°C"
-                                android:textSize="28sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.Stat.Large" />
 
                             <TextView
                                 android:id="@+id/weatherCondition"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Sunny"
-                                android:textSize="16sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Body.Small" />
 
                         </LinearLayout>
 
@@ -962,16 +933,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="💧 45%"
-                                android:textSize="14sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                             <TextView
                                 android:id="@+id/weatherWind"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="💨 12 km/h"
-                                android:textSize="14sp"
-                                android:textColor="@color/navy" />
+                                style="@style/Text.Caption.Small" />
 
                         </LinearLayout>
 
@@ -982,9 +951,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="3-Day Forecast"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/navy"
+                        style="@style/Text.Label"
                         android:layout_marginBottom="8dp" />
 
                     <LinearLayout
@@ -996,12 +963,13 @@
 
                 </LinearLayout>
 
-                <!-- Refresh Button (hidden by default, shown on error) -->
+                <!-- Refresh Button -->
                 <Button
                     android:id="@+id/btnRefreshWeather"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Retry"
+                    style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/accent"
                     android:visibility="gone"
                     android:layout_marginTop="8dp" />
@@ -1009,7 +977,6 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
-
 
     </LinearLayout>
 

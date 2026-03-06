@@ -1,8 +1,8 @@
 package com.afrinuts.farmos.ui.blocks;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -16,7 +16,6 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,19 +25,15 @@ import java.util.Map;
 
 public class BlocksActivity extends AppCompatActivity {
 
-    private static final String TAG = "BlocksActivity";
-
     private RecyclerView recyclerView;
+    private ExpandableBlockAdapter expandableAdapter;
     private ProgressBar progressBar;
     private TextView emptyView;
     private TextView summaryText;
+    private List<BlockGroup> blockGroups = new ArrayList<>();
 
     private AppDatabase database;
     private FarmEntity currentFarm;
-
-    // New fields for expandable adapter
-    private ExpandableBlockAdapter expandableAdapter;
-    private List<BlockGroup> blockGroups = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +46,7 @@ public class BlocksActivity extends AppCompatActivity {
         // Setup toolbar
         setupToolbar();
 
-        // Get database instance
+        // Initialize database
         database = AppDatabase.getInstance(this);
 
         // Load data
@@ -59,24 +54,28 @@ public class BlocksActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        // Initialize views with correct types
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
-        summaryText = findViewById(R.id.summaryText);
+
+        // FIX: emptyView is a LinearLayout container
+        LinearLayout emptyLayout = findViewById(R.id.emptyView);
+
+        summaryText = findViewById(R.id.summaryText);    // This is a TextView
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        // Floating action button for adding new blocks
+        // Floating action button
         FloatingActionButton fab = findViewById(R.id.fabAdd);
         fab.setOnClickListener(v -> {
             if (currentFarm != null) {
                 String nextBlock = getNextAvailableBlockName();
                 if (nextBlock.equals("FULL")) {
-                    Snackbar.make(v,
+                    android.widget.Toast.makeText(this,
                             "All 35 blocks (A1-E7) have been created. Cannot add more.",
-                            Snackbar.LENGTH_LONG).show();
+                            android.widget.Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -86,8 +85,6 @@ public class BlocksActivity extends AppCompatActivity {
                     loadFarmData();
                 });
                 dialog.show(getSupportFragmentManager(), "BlockDialog");
-            } else {
-                Snackbar.make(v, "Farm not configured", Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -105,7 +102,6 @@ public class BlocksActivity extends AppCompatActivity {
         showLoading(true);
 
         new Thread(() -> {
-            // Get the first farm (we only have one in v1)
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
@@ -142,15 +138,14 @@ public class BlocksActivity extends AppCompatActivity {
                 }
 
                 // Update UI on main thread
-                List<BlockGroup> finalNewGroups = newGroups;
                 runOnUiThread(() -> {
                     showLoading(false);
 
-                    if (finalNewGroups.isEmpty()) {
+                    if (newGroups.isEmpty()) {
                         showEmpty(true);
                     } else {
                         showEmpty(false);
-                        blockGroups = finalNewGroups;
+                        blockGroups = newGroups;
 
                         // Calculate farm summary
                         updateFarmSummary(allBlocks);
@@ -165,41 +160,13 @@ public class BlocksActivity extends AppCompatActivity {
             } else {
                 runOnUiThread(() -> {
                     showLoading(false);
-                    emptyView.setText("No farm configured. Please check database.");
-                    emptyView.setVisibility(View.VISIBLE);
+                    if (emptyView != null) {
+                        emptyView.setText("No farm configured. Please check database.");
+                        emptyView.setVisibility(View.VISIBLE);
+                    }
                 });
             }
         }).start();
-    }
-
-    private String getNextAvailableBlockName() {
-        // 5 rows (A through E) and 7 columns (1 through 7)
-        char[] rows = {'A', 'B', 'C', 'D', 'E'};
-        int columns = 7;
-
-        if (currentFarm == null) return "A1";
-
-        // Get existing block names
-        List<BlockEntity> existingBlocks =
-                database.blockDao().getBlocksByFarmId(currentFarm.getId());
-
-        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
-        for (BlockEntity block : existingBlocks) {
-            existingNames.add(block.getBlockName());
-        }
-
-        // Find first available name in the grid
-        for (char row : rows) {
-            for (int col = 1; col <= columns; col++) {
-                String blockName = row + String.valueOf(col);
-                if (!existingNames.contains(blockName)) {
-                    return blockName;
-                }
-            }
-        }
-
-        // All 35 blocks are already created
-        return "FULL";
     }
 
     private void updateFarmSummary(List<BlockEntity> allBlocks) {
@@ -218,40 +185,64 @@ public class BlocksActivity extends AppCompatActivity {
                 "📊 Farm Summary: %d/%d blocks planted | 🌳 %d/%d trees alive",
                 plantedBlocks, totalBlocks, totalAliveTrees, totalBlocks * 100);
 
-        summaryText.setText(summary);
-        summaryText.setVisibility(View.VISIBLE);
+        if (summaryText != null) {
+            summaryText.setText(summary);
+            summaryText.setVisibility(View.VISIBLE);
+        }
     }
 
     private void openBlockDetail(BlockEntity block) {
-        // Start BlockDetailActivity
         android.content.Intent intent = new android.content.Intent(this, BlockDetailActivity.class);
         intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
         startActivity(intent);
+    }
 
-        Log.d(TAG, "Opening block: " + block.getBlockName());
+    private String getNextAvailableBlockName() {
+        char[] rows = {'A', 'B', 'C', 'D', 'E'};
+        int columns = 7;
+
+        List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
+        for (BlockEntity block : allBlocks) {
+            existingNames.add(block.getBlockName());
+        }
+
+        for (char row : rows) {
+            for (int col = 1; col <= columns; col++) {
+                String blockName = row + String.valueOf(col);
+                if (!existingNames.contains(blockName)) {
+                    return blockName;
+                }
+            }
+        }
+        return "FULL";
     }
 
     private void showLoading(boolean show) {
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (recyclerView != null) {
+            recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void showEmpty(boolean show) {
-        emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        summaryText.setVisibility(show ? View.GONE : View.VISIBLE);
+        LinearLayout emptyLayout = findViewById(R.id.emptyView);
+        if (emptyLayout != null) {
+            emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (recyclerView != null) {
+            recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+        if (summaryText != null) {
+            summaryText.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Reload data when returning to this activity
-        loadFarmData();
     }
 }

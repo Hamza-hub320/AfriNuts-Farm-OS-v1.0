@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_marginBottom="8dp"
-        app:cardCornerRadius="12dp"
+        style="@style/Widget.AfriNuts.CardView"
         app:cardElevation="2dp">
 
         <LinearLayout
@@ -36,17 +36,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Total Expenses"
-                android:textSize="16sp"
+                style="@style/Text.H5"
                 android:textColor="@color/navy" />
 
             <TextView
                 android:id="@+id/totalExpensesText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total: 0 XAF"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary" />
+                android:text="0 XAF"
+                style="@style/Text.Stat" />
 
         </LinearLayout>
 
@@ -68,21 +66,21 @@
             android:layout_height="wrap_content"
             android:text="All Expenses"
             android:checked="true"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipFarmWide"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Farm-Wide"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipByBlock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Per Block"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
     </com.google.android.material.chip.ChipGroup>
 
@@ -96,16 +94,36 @@
         android:visibility="gone" />
 
     <!-- Empty State -->
-    <TextView
+    <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="No expenses found.\nTap + to add your first expense."
-        android:textSize="18sp"
-        android:textColor="@color/navy"
+        android:orientation="vertical"
         android:gravity="center"
-        android:visibility="gone" />
+        android:layout_marginTop="64dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💰"
+            android:textSize="64sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No expenses yet"
+            style="@style/Text.H3"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap + to add your first expense"
+            style="@style/Text.Body.Small"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView

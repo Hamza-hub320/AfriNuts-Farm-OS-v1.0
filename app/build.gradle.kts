@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    // No Kotlin plugin here either
 }
 
 android {
@@ -29,7 +28,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-        // No dataBinding line
     }
 
     compileOptions {
@@ -39,11 +37,11 @@ android {
 }
 
 dependencies {
-
-    // Android Core
+    // Android Core (NO DUPLICATES)
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.11.0")  // ONLY ONCE
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.cardview:cardview:1.0.0")
 
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")

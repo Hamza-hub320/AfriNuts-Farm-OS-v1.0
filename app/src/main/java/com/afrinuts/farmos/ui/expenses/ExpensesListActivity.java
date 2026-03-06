@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -33,7 +34,7 @@ public class ExpensesListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
     private ProgressBar progressBar;
-    private TextView emptyView;
+    private LinearLayout emptyLayout;
     private TextView totalExpensesText;
     private ChipGroup filterChipGroup;
     private Chip chipAll;
@@ -84,7 +85,7 @@ public class ExpensesListActivity extends AppCompatActivity {
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
+        emptyLayout = findViewById(R.id.emptyView);
         totalExpensesText = findViewById(R.id.totalExpensesText);
         filterChipGroup = findViewById(R.id.filterChipGroup);
         chipAll = findViewById(R.id.chipAll);
@@ -92,6 +93,19 @@ public class ExpensesListActivity extends AppCompatActivity {
         chipByBlock = findViewById(R.id.chipByBlock);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setupFab() {
+        FloatingActionButton fabAdd = findViewById(R.id.fabAddExpense);
+        fabAdd.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
+                dialog.setOnExpenseAddedListener(() -> {
+                    loadExpenses(); // Refresh list
+                });
+                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
+            }
+        });
     }
 
     private void setupToolbar() {
@@ -147,7 +161,7 @@ public class ExpensesListActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             progressBar.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.GONE);
+            emptyLayout.setVisibility(View.GONE);
         });
 
         new Thread(() -> {
@@ -167,11 +181,11 @@ public class ExpensesListActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
 
                     if (allExpenses.isEmpty()) {
-                        emptyView.setVisibility(View.VISIBLE);
+                        emptyLayout.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                         totalExpensesText.setText("Total: 0 XAF");
                     } else {
-                        emptyView.setVisibility(View.GONE);
+                        emptyLayout.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
 
                         // Apply current filter

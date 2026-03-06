@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -32,6 +31,7 @@
                 android:text="🚜"
                 android:textSize="24sp"
                 android:background="@color/warm_grey"
+                android:backgroundTint="@color/warm_grey"
                 android:layout_marginEnd="12dp" />
 
             <LinearLayout
@@ -45,8 +45,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Clear Block A1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    style="@style/Text.H5"
                     android:textColor="@color/text_dark" />
 
                 <TextView
@@ -54,8 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Block A1"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption" />
 
             </LinearLayout>
 
@@ -63,13 +61,8 @@
                 android:id="@+id/tvTaskStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="⏳ Pending"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="@drawable/status_background" />
+                style="@style/Widget.AfriNuts.StatusBadge"
+                android:text="⏳ Pending" />
 
         </LinearLayout>
 
@@ -79,8 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Clear land for planting cashew trees"
-            android:textSize="14sp"
-            android:textColor="@color/text_dark"
+            style="@style/Text.Body.Small"
             android:layout_marginBottom="12dp"
             android:maxLines="2"
             android:ellipsize="end" />
@@ -100,8 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="📅 Due: Mar 15, 2024"
-                android:textSize="14sp"
-                android:textColor="@color/navy"
+                style="@style/Text.Caption"
                 android:drawableStart="@android:drawable/ic_menu_today"
                 android:drawablePadding="4dp" />
 
@@ -110,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="⚠️ Overdue"
-                android:textSize="14sp"
+                style="@style/Text.Caption.Small"
                 android:textColor="@android:color/holo_red_dark"
                 android:visibility="gone" />
 

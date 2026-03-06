@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ======================================== -->
+    <!-- Base Application Theme -->
+    <!-- ======================================== -->
+    <style name="Theme.AfriNutsFarmOS" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/olive</item>
+        <item name="colorOnPrimary">@color/text_light</item>
+
+        <!-- Secondary brand colors -->
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/dark_orange</item>
+        <item name="colorOnSecondary">@color/text_light</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/warm_grey</item>
+        <item name="colorOnSurface">@color/text_dark</item>
+        <item name="colorSurfaceVariant">@color/warm_grey</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_dark</item>
+        <item name="android:textColorSecondary">@color/navy</item>
+
+        <!-- Button styling -->
+        <item name="materialButtonStyle">@style/Widget.AfriNuts.Button</item>
+        <item name="cardViewStyle">@style/Widget.AfriNuts.CardView</item>
+
+        <!-- Default font -->
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ======================================== -->
+    <!-- BASE STYLES - These fix your build error -->
+    <!-- ======================================== -->
+
+    <!-- Base Widget Style that Android/ libraries expect -->
+    <style name="Widget" />
+
+    <!-- Base Text Style - all text styles inherit from this -->
+    <style name="Text">
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ======================================== -->
+    <!-- TYPOGRAPHY - All inherit from Text -->
+    <!-- ======================================== -->
+
+    <!-- Display / Hero Text -->
+    <style name="Text.Display" parent="Text">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="Text.Display.Large" parent="Text.Display">
+        <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="Text.Display.Small" parent="Text.Display">
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <!-- Headings -->
+    <style name="Text.H1" parent="Text">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Text.H2" parent="Text">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.H3" parent="Text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.H4" parent="Text">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.H5" parent="Text">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.H6" parent="Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Body Text -->
+    <style name="Text.Body" parent="Text">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Text.Body.Large" parent="Text.Body">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Text.Body.Small" parent="Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/navy</item>
+    </style>
+
+    <!-- Caption / Supporting Text -->
+    <style name="Text.Caption" parent="Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/navy</item>
+    </style>
+
+    <style name="Text.Caption.Small" parent="Text.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#94A3B8</item>
+    </style>
+
+    <!-- Overline / Tiny Text -->
+    <style name="Text.Overline" parent="Text">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <!-- Stats / Numbers -->
+    <style name="Text.Stat" parent="Text">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+    </style>
+
+    <style name="Text.Stat.Large" parent="Text.Stat">
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="Text.Stat.Small" parent="Text.Stat">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- Labels -->
+    <style name="Text.Label" parent="Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Label.Small" parent="Text.Label">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Button Text -->
+    <style name="Text.Button" parent="Text">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- ======================================== -->
+    <!-- WIDGETS - All inherit from Widget.AfriNuts -->
+    <!-- ======================================== -->
+
+    <!-- Base Widget Style -->
+    <style name="Widget.AfriNuts" />
+
+    <!-- Button Style -->
+    <style name="Widget.AfriNuts.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:textAppearance">@style/Text.Button</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="rippleColor">@color/accent</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="Widget.AfriNuts.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textAppearance">@style/Text.Button</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="rippleColor">@color/accent</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- CardView Style -->
+    <style name="Widget.AfriNuts.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardBackgroundColor">@android:color/white</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <!-- Progress Bar Style -->
+    <style name="Widget.AfriNuts.ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressTint">@color/primary</item>
+        <item name="android:progressBackgroundTint">@color/warm_grey</item>
+        <item name="android:minHeight">6dp</item>
+        <item name="android:maxHeight">6dp</item>
+    </style>
+
+    <!-- EditText Style - NEW -->
+    <style name="Widget.AfriNuts.EditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/navy</item>
+        <item name="android:textColorHint">@color/navy</item>
+        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlHighlight">@color/accent</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Chip Style - NEW -->
+    <style name="Widget.AfriNuts.Chip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/warm_grey</item>
+        <item name="chipStrokeColor">@color/primary</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">16dp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="rippleColor">@color/accent</item>
+    </style>
+
+    <!-- Divider Style -->
+    <style name="Widget.AfriNuts.Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/warm_grey</item>
+    </style>
+
+    <!-- Status Badge Style -->
+    <style name="Widget.AfriNuts.StatusBadge">
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/status_background</item>
+    </style>
+
+    <!-- ======================================== -->
+    <!-- GRADIENTS -->
+    <!-- ======================================== -->
+
+    <style name="GradientMain">
+        <item name="android:background">@drawable/gradient_main</item>
+    </style>
+
+    <style name="GradientAlt">
+        <item name="android:background">@drawable/gradient_alt</item>
+    </style>
+
+</resources>

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="12dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -50,16 +50,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat.Small" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -72,7 +69,7 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="12dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -93,16 +90,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat.Small" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Per Ha"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -114,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            app:cardCornerRadius="12dp"
+            style="@style/Widget.AfriNuts.CardView"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -135,16 +129,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.Stat.Small" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Per Tree"
-                    android:textSize="12sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small" />
 
             </LinearLayout>
 
@@ -168,21 +159,21 @@
             android:layout_height="wrap_content"
             android:text="All Time"
             android:checked="true"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipThisYear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="This Year"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipThisMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="This Month"
-            style="@style/Widget.MaterialComponents.Chip.Filter" />
+            style="@style/Widget.AfriNuts.Chip" />
 
     </com.google.android.material.chip.ChipGroup>
 
@@ -202,7 +193,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -215,9 +206,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Expenses by Category"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.H5"
                         android:layout_marginBottom="12dp" />
 
                     <com.github.mikephil.charting.charts.PieChart
@@ -234,7 +223,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -247,9 +236,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Monthly Expenses"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.H5"
                         android:layout_marginBottom="12dp" />
 
                     <com.github.mikephil.charting.charts.BarChart
@@ -266,7 +253,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -279,9 +266,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Top Expenses"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_dark"
+                        style="@style/Text.H5"
                         android:layout_marginBottom="12dp" />
 
                     <LinearLayout

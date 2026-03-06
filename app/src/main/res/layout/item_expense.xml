@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -30,7 +29,7 @@
                 android:layout_height="48dp"
                 android:gravity="center"
                 android:text="💰"
-                android:textSize="24sp"
+                style="@style/Text.H2"
                 android:background="@color/warm_grey"
                 android:layout_marginEnd="12dp" />
 
@@ -45,17 +44,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Land Clearing"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_dark" />
+                    style="@style/Text.H5" />
 
                 <TextView
                     android:id="@+id/tvBlockInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm-Wide"
-                    android:textSize="14sp"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption" />
 
             </LinearLayout>
 
@@ -64,9 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5,250,000 XAF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary" />
+                style="@style/Text.Stat.Small" />
 
         </LinearLayout>
 
@@ -74,7 +68,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/warm_grey"
+            style="@style/Widget.AfriNuts.Divider"
             android:layout_marginBottom="12dp" />
 
         <!-- Bottom Row: Date + Description -->
@@ -89,8 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Jan 15, 2024"
-                android:textSize="14sp"
-                android:textColor="@color/navy"
+                style="@style/Text.Caption"
                 android:drawableStart="@android:drawable/ic_menu_today"
                 android:drawablePadding="4dp"
                 android:layout_marginEnd="16dp" />
@@ -101,8 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Land clearing for 35-hectare plantation"
-                android:textSize="14sp"
-                android:textColor="@color/text_dark"
+                style="@style/Text.Caption"
                 android:maxLines="2"
                 android:ellipsize="end" />
 

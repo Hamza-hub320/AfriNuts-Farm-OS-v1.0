@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:layout_marginBottom="4dp"
-    app:cardCornerRadius="12dp"
+    style="@style/Widget.AfriNuts.CardView"
     app:cardElevation="4dp"
     android:backgroundTint="@color/primary">
 
@@ -24,15 +24,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:id="@+id/rowNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BLOCK A"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                style="@style/Text.H3"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="8dp" />
 
@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="(A1-A7)"
-                android:textSize="14sp"
+                style="@style/Text.Caption"
                 android:textColor="@android:color/white"
                 android:alpha="0.9"
                 android:layout_weight="1" />
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="▼"
-                android:textSize="20sp"
+                style="@style/Text.H4"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
@@ -61,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical">
 
             <TextView
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="🌱 Planted: 5/7"
-                android:textSize="14sp"
+                style="@style/Text.Body.Small"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="📊 Avg: 91%"
-                android:textSize="14sp"
+                style="@style/Text.Body.Small"
                 android:textColor="@android:color/white"
                 android:gravity="center" />
 
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="🌳 500/700"
-                android:textSize="14sp"
+                style="@style/Text.Body.Small"
                 android:textColor="@android:color/white"
                 android:gravity="end" />
 
@@ -98,14 +98,14 @@
         <!-- Progress Bar for visual representation -->
         <ProgressBar
             android:id="@+id/rowProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
+            style="@style/Widget.AfriNuts.ProgressBar"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_marginTop="12dp"
             android:progress="71"
             android:max="100"
             android:progressTint="@android:color/white"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:progressBackgroundTint="@android:color/darker_gray" />
 
     </LinearLayout>
 

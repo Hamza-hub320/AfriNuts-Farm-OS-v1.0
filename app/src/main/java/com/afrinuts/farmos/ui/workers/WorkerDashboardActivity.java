@@ -37,7 +37,7 @@ public class WorkerDashboardActivity extends AppCompatActivity {
     private TextView avgTaskTimeValue;
     private LinearLayout workerCardsContainer;
     private ProgressBar progressBar;
-    private LinearLayout emptyView;
+    private LinearLayout emptyLayout;
 
     private List<WorkerPerformance> workerPerformances = new ArrayList<>();
     private Map<String, List<TaskEntity>> taskCache = new HashMap<>();
@@ -70,7 +70,7 @@ public class WorkerDashboardActivity extends AppCompatActivity {
         avgTaskTimeValue = findViewById(R.id.avgTaskTimeValue);
         workerCardsContainer = findViewById(R.id.workerCardsContainer);
         progressBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
+        emptyLayout = findViewById(R.id.emptyView);
     }
 
     private void setupToolbar() {
@@ -224,11 +224,11 @@ public class WorkerDashboardActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         workerCardsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
-        emptyView.setVisibility(View.GONE);
+        emptyLayout.setVisibility(View.GONE);
     }
 
     private void showEmpty(boolean show) {
-        emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
+        emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         workerCardsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
     }
