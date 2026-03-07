@@ -7,11 +7,22 @@
     android:padding="24dp"
     android:background="@android:color/white">
 
+    <!-- Icon at top -->
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_people"
+        app:tint="@color/primary"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="Worker icon" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Assign Worker to Task"
         style="@style/Text.H5"
+        android:layout_gravity="center"
         android:layout_marginBottom="16dp" />
 
     <TextView
@@ -19,6 +30,7 @@
         android:layout_height="wrap_content"
         android:text="Select or enter worker name"
         style="@style/Text.Body.Small"
+        android:layout_gravity="center"
         android:layout_marginBottom="16dp" />
 
     <!-- Existing Worker Dropdown -->
@@ -28,7 +40,9 @@
         android:layout_marginBottom="16dp"
         style="@style/Widget.AfriNuts.EditText"
         android:hint="Select existing worker"
-        app:endIconMode="dropdown_menu">
+        app:endIconMode="dropdown_menu"
+        app:startIconDrawable="@drawable/ic_people"
+        app:startIconTint="@color/primary">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/etWorkerName"
@@ -54,7 +68,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         style="@style/Widget.AfriNuts.EditText"
-        android:hint="Enter new worker name">
+        android:hint="Enter new worker name"
+        app:startIconDrawable="@drawable/ic_person"
+        app:startIconTint="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNewWorker"
