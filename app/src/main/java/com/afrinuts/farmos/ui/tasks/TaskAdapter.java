@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.tasks;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,17 +52,20 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvTaskIcon;
+        // Changed from TextView to ImageView
+        private ImageView tvTaskIcon;
         private TextView tvTaskTitle;
         private TextView tvTaskScope;
         private TextView tvTaskStatus;
         private TextView tvTaskDescription;
         private TextView tvDueDate;
         private TextView tvOverdueWarning;
+        private View overdueLayout;
         private CardView cardView;
 
         TaskViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Updated to find ImageView
             tvTaskIcon = itemView.findViewById(R.id.tvTaskIcon);
             tvTaskTitle = itemView.findViewById(R.id.tvTaskTitle);
             tvTaskScope = itemView.findViewById(R.id.tvTaskScope);
@@ -69,14 +73,52 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             tvTaskDescription = itemView.findViewById(R.id.tvTaskDescription);
             tvDueDate = itemView.findViewById(R.id.tvDueDate);
             tvOverdueWarning = itemView.findViewById(R.id.tvOverdueWarning);
+            overdueLayout = itemView.findViewById(R.id.overdueLayout);
             cardView = (CardView) itemView;
         }
 
         void bind(TaskWithBlockName item, OnTaskClickListener listener) {
             TaskEntity task = item.getTask();
 
-            // Set task icon based on type
-            tvTaskIcon.setText(task.getType().getIcon());
+            // Set task icon based on type - now using setImageResource instead of setText
+            switch (task.getType()) {
+                case CLEARING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_tractor);
+                    break;
+                case PLOWING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_grain);
+                    break;
+                case PLANTING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_grass);
+                    break;
+                case REPLACEMENT:
+                    tvTaskIcon.setImageResource(R.drawable.ic_sync);
+                    break;
+                case FERTILIZING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_water_drop);
+                    break;
+                case PRUNING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_cut);
+                    break;
+                case WEEDING:
+                    tvTaskIcon.setImageResource(R.drawable.ic_grass);
+                    break;
+                case HARVEST:
+                    tvTaskIcon.setImageResource(R.drawable.ic_download);
+                    break;
+                case IRRIGATION:
+                    tvTaskIcon.setImageResource(R.drawable.ic_water_drop);
+                    break;
+                case MAINTENANCE:
+                    tvTaskIcon.setImageResource(R.drawable.ic_construction);
+                    break;
+                default:
+                    tvTaskIcon.setImageResource(R.drawable.ic_note);
+                    break;
+            }
+
+            // Apply tint to match brand color
+            tvTaskIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
 
             // Set title and scope
             tvTaskTitle.setText(task.getTitle());
@@ -96,14 +138,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
 
             // Set due date
-            tvDueDate.setText("📅 Due: " + item.getFormattedDueDate());
+            tvDueDate.setText(item.getFormattedDueDate());
 
             // Show overdue warning if needed
             if (item.isOverdue()) {
-                tvOverdueWarning.setVisibility(View.VISIBLE);
+                overdueLayout.setVisibility(View.VISIBLE);
                 tvDueDate.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark));
             } else {
-                tvOverdueWarning.setVisibility(View.GONE);
+                overdueLayout.setVisibility(View.GONE);
                 tvDueDate.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.navy));
             }
 
