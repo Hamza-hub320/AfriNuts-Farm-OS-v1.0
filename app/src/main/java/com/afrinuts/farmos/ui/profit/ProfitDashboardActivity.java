@@ -243,20 +243,20 @@ public class ProfitDashboardActivity extends AppCompatActivity {
             View itemView = getLayoutInflater().inflate(
                     R.layout.item_recent_transaction, recentTransactionsContainer, false);
 
-            // Fix: Change this from TextView to ImageView
-            ImageView tvTransactionIcon = itemView.findViewById(R.id.tvTransactionIcon);
+            // These are all correct - they match your layout
+            ImageView ivTransactionIcon = itemView.findViewById(R.id.ivTransactionIcon);  // Changed from tvTransactionIcon
             TextView tvTransactionDesc = itemView.findViewById(R.id.tvTransactionDesc);
             TextView tvTransactionDate = itemView.findViewById(R.id.tvTransactionDate);
             TextView tvTransactionAmount = itemView.findViewById(R.id.tvTransactionAmount);
 
             // Set icon based on type using ImageView
             if (transaction.isRevenue()) {
-                tvTransactionIcon.setImageResource(R.drawable.ic_attach_money);
-                tvTransactionIcon.setColorFilter(ContextCompat.getColor(this,
+                ivTransactionIcon.setImageResource(R.drawable.ic_attach_money);
+                ivTransactionIcon.setColorFilter(ContextCompat.getColor(this,
                         android.R.color.holo_green_dark));
             } else {
-                tvTransactionIcon.setImageResource(R.drawable.ic_money_off);
-                tvTransactionIcon.setColorFilter(ContextCompat.getColor(this,
+                ivTransactionIcon.setImageResource(R.drawable.ic_money_off);
+                ivTransactionIcon.setColorFilter(ContextCompat.getColor(this,
                         android.R.color.holo_red_dark));
             }
 
