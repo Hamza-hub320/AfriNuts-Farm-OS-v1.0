@@ -14,7 +14,7 @@
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
         app:navigationIconTint="@android:color/white"
-        app:title="Task List" />
+        app:title="Worker Performance" />
 
     <!-- Summary Cards -->
     <ScrollView
@@ -135,11 +135,18 @@
                         android:padding="16dp"
                         android:gravity="center_vertical">
 
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_timer"
+                            app:tint="@color/navy"
+                            android:layout_marginEnd="8dp" />
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="⏱️ Avg. Task Time"
+                            android:text="Avg. Task Time"
                             style="@style/Text.Body.Small" />
 
                         <TextView
@@ -184,11 +191,12 @@
                 android:layout_marginTop="32dp"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="👥"
-                    android:textSize="64sp" />
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_people"
+                    app:tint="@color/warm_grey"
+                    android:contentDescription="No workers" />
 
                 <TextView
                     android:layout_width="wrap_content"
