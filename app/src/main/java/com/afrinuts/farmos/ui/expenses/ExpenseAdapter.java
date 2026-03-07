@@ -78,7 +78,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             // Set category icon based on expense category
             switch (expense.getCategory()) {
                 case LAND_CLEARING:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
+                    ivCategoryIcon.setImageResource(R.drawable.ic_clear);
                     break;
                 case PLOWING:
                     ivCategoryIcon.setImageResource(R.drawable.ic_grain);
@@ -105,7 +105,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
                     ivCategoryIcon.setImageResource(R.drawable.ic_construction);
                     break;
                 case MAINTENANCE:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
+                    ivCategoryIcon.setImageResource(R.drawable.ic_maintenance);
                     break;
                 case PROCESSING_CENTER:
                     ivCategoryIcon.setImageResource(R.drawable.ic_factory);

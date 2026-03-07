@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnProfitDashboardCard;
 
     private WeatherRepository weatherRepository;
+    private WeatherResponse currentWeather;
     private LinearLayout weatherContent;
     private TextView weatherLoadingText;
     private TextView weatherUpdateTime;
@@ -300,9 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnRefreshWeather.setOnClickListener(v -> loadWeatherData());
 
-        weatherCard.setOnClickListener(v -> {
-            Toast.makeText(this, "Detailed weather forecast coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        setupWeatherClick();
     }
 
     private void setupAnimations() {
@@ -493,7 +492,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void displayWeather(WeatherResponse weather) {
+private void displayWeather(WeatherResponse weather) {
+        this.currentWeather = weather;
         weatherLoadingText.setVisibility(View.GONE);
         weatherContent.setVisibility(View.VISIBLE);
 
@@ -577,6 +577,21 @@ public class MainActivity extends AppCompatActivity {
             tvRain.setText(day.getDay().getDailyChanceOfRain() + "%");
 
             forecastContainer.addView(dayView);
+        }
+    }
+
+    private void setupWeatherClick() {
+        weatherCard.setOnClickListener(v -> {
+            showWeatherForecastDialog();
+        });
+    }
+
+    private void showWeatherForecastDialog() {
+        if (currentWeather != null) {
+            WeatherForecastDialog dialog = WeatherForecastDialog.newInstance(currentWeather);
+            dialog.show(getSupportFragmentManager(), "WeatherForecastDialog");
+        } else {
+            Toast.makeText(this, "Weather data not available yet", Toast.LENGTH_SHORT).show();
         }
     }
 
