@@ -80,7 +80,8 @@
                 android:background="@drawable/icon_background"
                 android:padding="12dp"
                 android:visibility="gone"
-                android:src="@drawable/ic_farm" />
+                android:src="@drawable/ic_farm"
+                app:tint="@color/primary" />
 
             <!-- Title -->
             <TextView
@@ -133,14 +134,13 @@
                     style="@style/Text.Button"
                     android:textColor="@android:color/white" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="→"
-                    style="@style/Text.Button"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp" />
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_arrow_forward"
+                    app:tint="@android:color/white"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Arrow" />
 
             </LinearLayout>
 
