@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Expense Analytics" />
 
     <!-- Summary Cards Row -->
     <LinearLayout
@@ -39,11 +40,12 @@
                 android:gravity="center"
                 android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="💰"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/primary"
+                    android:contentDescription="Total expenses" />
 
                 <TextView
                     android:id="@+id/totalExpensesValue"
@@ -79,11 +81,12 @@
                 android:gravity="center"
                 android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📏"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_straighten"
+                    app:tint="@color/primary"
+                    android:contentDescription="Cost per hectare" />
 
                 <TextView
                     android:id="@+id/costPerHectareValue"
@@ -118,11 +121,12 @@
                 android:gravity="center"
                 android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🌳"
-                    android:textSize="24sp" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_park"
+                    app:tint="@color/primary"
+                    android:contentDescription="Cost per tree" />
 
                 <TextView
                     android:id="@+id/costPerTreeValue"
