@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.revenue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,7 +52,7 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
 
     static class RevenueViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvQualityIcon;
+        private ImageView tvQualityIcon;  // Changed from TextView to ImageView
         private TextView tvQuality;
         private TextView tvSource;
         private TextView tvAmount;
@@ -63,7 +64,7 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
 
         RevenueViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvQualityIcon = itemView.findViewById(R.id.tvQualityIcon);
+            tvQualityIcon = itemView.findViewById(R.id.tvQualityIcon);  // Now ImageView
             tvQuality = itemView.findViewById(R.id.tvQuality);
             tvSource = itemView.findViewById(R.id.tvSource);
             tvAmount = itemView.findViewById(R.id.tvAmount);
@@ -77,29 +78,43 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
         void bind(RevenueWithBlockName item, OnRevenueClickListener listener) {
             RevenueEntity revenue = item.getRevenue();
 
-            // Set quality icon and name
-            tvQualityIcon.setText(revenue.getQuality().getIcon());
+            // Set quality icon - using ImageView instead of TextView
+            switch (revenue.getQuality()) {
+                case PREMIUM:
+                    tvQualityIcon.setImageResource(R.drawable.ic_star);
+                    tvQualityIcon.setImageTintList(
+                            android.content.res.ColorStateList.valueOf(
+                                    itemView.getContext().getColor(R.color.accent)));
+                    break;
+                case STANDARD:
+                    tvQualityIcon.setImageResource(R.drawable.ic_check_circle);
+                    tvQualityIcon.setImageTintList(
+                            android.content.res.ColorStateList.valueOf(
+                                    itemView.getContext().getColor(R.color.primary)));
+                    break;
+                case PROCESSING:
+                    tvQualityIcon.setImageResource(R.drawable.ic_settings);
+                    tvQualityIcon.setImageTintList(
+                            android.content.res.ColorStateList.valueOf(
+                                    itemView.getContext().getColor(R.color.navy)));
+                    break;
+            }
+
             tvQuality.setText(revenue.getQuality().getDisplayName() + " Grade");
-
-            // Set source (block or processing center)
             tvSource.setText(item.getSourceDisplay());
-
-            // Set amount
             tvAmount.setText(item.getFormattedAmount());
 
-            // Set quantity and price
-            tvQuantity.setText("📦 " + item.getFormattedQuantity());
-            tvPrice.setText("💰 " + String.format(Locale.getDefault(),
+            // Set quantity and price - removed emojis, now using icons from layout
+            tvQuantity.setText(item.getFormattedQuantity());
+            tvPrice.setText(String.format(Locale.getDefault(),
                     "%,.0f XAF/kg", revenue.getPricePerKg()));
 
-            // Set date
-            tvDate.setText("📅 " + item.getFormattedDate());
+            tvDate.setText(item.getFormattedDate());
 
-            // Set buyer (or placeholder)
             if (revenue.getBuyer() != null && !revenue.getBuyer().isEmpty()) {
-                tvBuyer.setText("👤 " + revenue.getBuyer());
+                tvBuyer.setText(revenue.getBuyer());
             } else {
-                tvBuyer.setText("👤 No buyer");
+                tvBuyer.setText("No buyer");
             }
 
             // Click listener - Open Revenue Detail Activity
