@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Task Details" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,15 +41,16 @@
                     android:padding="20dp"
                     android:gravity="center_vertical">
 
-                    <TextView
+                    <ImageView
                         android:id="@+id/tvTaskIcon"
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:gravity="center"
-                        android:text="🚜"
-                        android:textSize="32sp"
+                        android:src="@drawable/ic_tractor"
+                        app:tint="@color/primary"
                         android:background="@color/warm_grey"
-                        android:layout_marginEnd="16dp" />
+                        android:padding="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Task icon" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -109,9 +111,12 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="⏳ PENDING"
+                            android:text="PENDING"
                             style="@style/Text.H4"
-                            android:textColor="@color/primary" />
+                            android:textColor="@color/primary"
+                            android:drawableStart="@drawable/ic_hourglass_empty"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/primary" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnUpdateStatus"
@@ -119,11 +124,13 @@
                             android:layout_height="wrap_content"
                             android:text="Update"
                             style="@style/Widget.AfriNuts.Button"
-                            android:backgroundTint="@color/accent" />
+                            android:backgroundTint="@color/accent"
+                            app:icon="@drawable/ic_sync"
+                            app:iconTint="@android:color/white" />
 
                     </LinearLayout>
 
-                    <!-- Status Timeline -->
+                    <!-- Status Timeline (kept as is - these are custom views) -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -210,7 +217,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Block A1"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body.Small"
+                            android:drawableStart="@drawable/ic_inventory"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/navy" />
 
                     </LinearLayout>
 
@@ -233,7 +243,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 15, 2024"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body.Small"
+                            android:drawableStart="@drawable/ic_today"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/navy" />
 
                     </LinearLayout>
 
@@ -259,7 +272,10 @@
                             android:layout_weight="1"
                             android:text=""
                             style="@style/Text.Body.Small"
-                            android:textColor="@color/primary" />
+                            android:textColor="@color/primary"
+                            android:drawableStart="@drawable/ic_check_circle"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/primary" />
 
                     </LinearLayout>
 
@@ -279,7 +295,10 @@
                         style="@style/Text.Body.Small"
                         android:background="@color/warm_grey"
                         android:padding="12dp"
-                        android:minLines="3" />
+                        android:minLines="3"
+                        android:drawableStart="@drawable/ic_note"
+                        android:drawablePadding="8dp"
+                        app:drawableTint="@color/navy" />
 
                 </LinearLayout>
 
@@ -311,7 +330,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Worker Assignment"
-                            style="@style/Text.H5" />
+                            style="@style/Text.H5"
+                            android:drawableStart="@drawable/ic_people"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/primary" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAssignWorker"
@@ -319,7 +341,9 @@
                             android:layout_height="wrap_content"
                             android:text="Assign"
                             style="@style/Widget.AfriNuts.Button"
-                            android:backgroundTint="@color/primary" />
+                            android:backgroundTint="@color/primary"
+                            app:icon="@drawable/ic_add"
+                            app:iconTint="@android:color/white" />
 
                     </LinearLayout>
 
@@ -348,6 +372,9 @@
                             android:text="John Doe"
                             style="@style/Text.H6"
                             android:textColor="@color/primary"
+                            android:drawableStart="@drawable/ic_person"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/primary"
                             android:layout_marginBottom="4dp" />
 
                         <TextView
@@ -355,7 +382,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Assigned: Mar 10, 2024"
-                            style="@style/Text.Caption.Small" />
+                            style="@style/Text.Caption.Small"
+                            android:drawableStart="@drawable/ic_today"
+                            android:drawablePadding="8dp"
+                            app:drawableTint="@color/navy" />
 
                     </LinearLayout>
 
@@ -365,7 +395,10 @@
                         android:layout_height="wrap_content"
                         android:text="Assignment History"
                         style="@style/Text.Label"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="12dp"
+                        android:drawableStart="@drawable/ic_history"
+                        android:drawablePadding="8dp"
+                        app:drawableTint="@color/navy" />
 
                     <LinearLayout
                         android:id="@+id/assignmentHistoryContainer"
@@ -406,7 +439,8 @@
                     android:text="Edit"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/accent"
-                    app:icon="@android:drawable/ic_menu_edit"
+                    app:icon="@drawable/ic_edit"
+                    app:iconTint="@android:color/white"
                     app:iconGravity="textStart" />
 
                 <Button
@@ -417,7 +451,8 @@
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
-                    app:icon="@android:drawable/ic_menu_delete"
+                    app:icon="@drawable/ic_delete"
+                    app:iconTint="@android:color/white"
                     app:iconGravity="textStart" />
 
             </LinearLayout>
@@ -433,8 +468,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_edit"
+        android:src="@drawable/ic_sync"
         android:contentDescription="Update status"
-        app:backgroundTint="@color/accent" />
+        app:backgroundTint="@color/accent"
+        app:tint="@android:color/white" />
 
 </LinearLayout>
