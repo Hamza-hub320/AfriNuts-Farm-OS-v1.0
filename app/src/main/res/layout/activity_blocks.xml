@@ -25,14 +25,11 @@
         style="@style/Widget.AfriNuts.CardView"
         app:cardElevation="2dp">
 
-        <TextView
-            android:id="@+id/summaryText"
+        <LinearLayout
+            android:id="@+id/summaryLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Loading summary..."
-            style="@style/Text.Body"
-            android:textColor="@color/text_dark"
+            android:orientation="vertical"
             android:visibility="gone" />
 
     </androidx.cardview.widget.CardView>

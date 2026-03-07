@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Farm Summary"
+            style="@style/Text.H5"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Blocks Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_inventory"
+                app:tint="@color/primary"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/blocksPlantedText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0/35 blocks planted"
+                    style="@style/Text.Body" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <ProgressBar
+                        android:id="@+id/blocksProgress"
+                        style="@style/Widget.AfriNuts.ProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:progress="0"
+                        android:max="100" />
+
+                    <TextView
+                        android:id="@+id/blocksPercentText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text="0%"
+                        style="@style/Text.Caption.Small"
+                        android:textColor="@color/primary"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginTop="-16dp" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Trees Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_park"
+                app:tint="@color/primary"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/treesAliveText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0/3500 trees alive"
+                    style="@style/Text.Body" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <ProgressBar
+                        android:id="@+id/treesProgress"
+                        style="@style/Widget.AfriNuts.ProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:progress="0"
+                        android:max="100" />
+
+                    <TextView
+                        android:id="@+id/treesPercentText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text="0%"
+                        style="@style/Text.Caption.Small"
+                        android:textColor="@color/primary"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginTop="-16dp" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

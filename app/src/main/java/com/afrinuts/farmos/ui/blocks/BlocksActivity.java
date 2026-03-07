@@ -28,8 +28,8 @@ public class BlocksActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ExpandableBlockAdapter expandableAdapter;
     private ProgressBar progressBar;
-    private TextView emptyView;
-    private TextView summaryText;
+    private LinearLayout emptyView;
+    private LinearLayout summaryLayout;  // Now this is the container inside CardView
     private List<BlockGroup> blockGroups = new ArrayList<>();
 
     private AppDatabase database;
@@ -54,14 +54,10 @@ public class BlocksActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // Initialize views with correct types
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-
-        // FIX: emptyView is a LinearLayout container
-        LinearLayout emptyLayout = findViewById(R.id.emptyView);
-
-        summaryText = findViewById(R.id.summaryText);    // This is a TextView
+        emptyView = findViewById(R.id.emptyView);
+        summaryLayout = findViewById(R.id.summaryLayout);  // This is the container inside CardView
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -105,10 +101,9 @@ public class BlocksActivity extends AppCompatActivity {
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
-                // Get all blocks for this farm
                 List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
 
-                // Group blocks by row (first character of block name)
+                // Group blocks by row
                 Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
                 for (BlockEntity block : allBlocks) {
                     String row = block.getBlockName().substring(0, 1);
@@ -125,7 +120,6 @@ public class BlocksActivity extends AppCompatActivity {
                 for (String row : rows) {
                     if (groupedBlocks.containsKey(row)) {
                         BlockGroup group = new BlockGroup(row);
-                        // Sort blocks by number (A1, A2, A3, etc.)
                         List<BlockEntity> blocksForRow = groupedBlocks.get(row);
                         blocksForRow.sort((b1, b2) -> {
                             String num1 = b1.getBlockName().substring(1);
@@ -146,11 +140,8 @@ public class BlocksActivity extends AppCompatActivity {
                     } else {
                         showEmpty(false);
                         blockGroups = newGroups;
-
-                        // Calculate farm summary
                         updateFarmSummary(allBlocks);
 
-                        // Setup expandable adapter
                         expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
                             openBlockDetail(block);
                         });
@@ -161,7 +152,6 @@ public class BlocksActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     showLoading(false);
                     if (emptyView != null) {
-                        emptyView.setText("No farm configured. Please check database.");
                         emptyView.setVisibility(View.VISIBLE);
                     }
                 });
@@ -173,6 +163,7 @@ public class BlocksActivity extends AppCompatActivity {
         int totalBlocks = allBlocks.size();
         int plantedBlocks = 0;
         int totalAliveTrees = 0;
+        int totalExpectedTrees = totalBlocks * 100;
 
         for (BlockEntity block : allBlocks) {
             if (block.isPlanted()) {
@@ -181,14 +172,35 @@ public class BlocksActivity extends AppCompatActivity {
             }
         }
 
-        String summary = String.format(Locale.getDefault(),
-                "📊 Farm Summary: %d/%d blocks planted | 🌳 %d/%d trees alive",
-                plantedBlocks, totalBlocks, totalAliveTrees, totalBlocks * 100);
+        if (summaryLayout == null) return;
 
-        if (summaryText != null) {
-            summaryText.setText(summary);
-            summaryText.setVisibility(View.VISIBLE);
-        }
+        summaryLayout.removeAllViews();
+        summaryLayout.setVisibility(View.VISIBLE);
+
+        View summaryView = getLayoutInflater().inflate(R.layout.item_farm_summary, summaryLayout, false);
+
+        TextView blocksPlantedText = summaryView.findViewById(R.id.blocksPlantedText);
+        TextView treesAliveText = summaryView.findViewById(R.id.treesAliveText);
+        ProgressBar blocksProgress = summaryView.findViewById(R.id.blocksProgress);
+        ProgressBar treesProgress = summaryView.findViewById(R.id.treesProgress);
+        TextView blocksPercentText = summaryView.findViewById(R.id.blocksPercentText);
+        TextView treesPercentText = summaryView.findViewById(R.id.treesPercentText);
+
+        int blocksPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
+        int treesPercent = totalExpectedTrees > 0 ? (totalAliveTrees * 100 / totalExpectedTrees) : 0;
+
+        blocksPlantedText.setText(String.format(Locale.getDefault(),
+                "%d/%d blocks planted", plantedBlocks, totalBlocks));
+        treesAliveText.setText(String.format(Locale.getDefault(),
+                "%d/%d trees alive", totalAliveTrees, totalExpectedTrees));
+
+        blocksProgress.setProgress(blocksPercent);
+        treesProgress.setProgress(treesPercent);
+
+        blocksPercentText.setText(blocksPercent + "%");
+        treesPercentText.setText(treesPercent + "%");
+
+        summaryLayout.addView(summaryView);
     }
 
     private void openBlockDetail(BlockEntity block) {
@@ -225,18 +237,26 @@ public class BlocksActivity extends AppCompatActivity {
         if (recyclerView != null) {
             recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+        if (summaryLayout != null) {
+            summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
+        }
     }
 
     private void showEmpty(boolean show) {
-        LinearLayout emptyLayout = findViewById(R.id.emptyView);
-        if (emptyLayout != null) {
-            emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (emptyView != null) {
+            emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
         }
         if (recyclerView != null) {
             recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
-        if (summaryText != null) {
-            summaryText.setVisibility(show ? View.GONE : View.VISIBLE);
+        if (summaryLayout != null) {
+            summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
         }
     }
 
