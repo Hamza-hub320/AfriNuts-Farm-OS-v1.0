@@ -58,11 +58,12 @@
         android:gravity="center"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📦"
-            android:textSize="64sp" />
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_inventory"
+            app:tint="@color/warm_grey"
+            android:contentDescription="Empty blocks" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -97,9 +98,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
+        android:src="@drawable/ic_add"
         android:contentDescription="Add new block"
         app:backgroundTint="@color/accent"
-        app:fabSize="normal" />
+        app:fabSize="normal"
+        app:tint="@android:color/white" />
 
 </LinearLayout>
