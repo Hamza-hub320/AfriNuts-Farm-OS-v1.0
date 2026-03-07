@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Expense Details" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,15 +41,16 @@
                     android:gravity="center_vertical"
                     android:padding="20dp">
 
-                    <TextView
+                    <ImageView
                         android:id="@+id/tvCategoryIcon"
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:gravity="center"
-                        android:text="💰"
-                        android:textSize="32sp"
+                        android:src="@drawable/ic_attach_money"
+                        app:tint="@color/primary"
                         android:background="@color/warm_grey"
-                        android:layout_marginEnd="16dp" />
+                        android:padding="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Category icon" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -108,7 +110,7 @@
                     android:hint="Date"
                     android:focusable="false"
                     android:clickable="true"
-                    android:drawableEnd="@android:drawable/ic_menu_today"
+                    android:drawableEnd="@drawable/ic_today"
                     android:enabled="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -121,7 +123,9 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.EditText"
-                android:hint="Select Block">
+                android:hint="Select Block"
+                app:endIconMode="dropdown_menu"
+                app:endIconDrawable="@drawable/ic_arrow_drop_down">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/tvBlockSelector"
@@ -129,8 +133,7 @@
                     android:layout_height="wrap_content"
                     android:text="Farm-Wide"
                     android:focusable="false"
-                    android:clickable="true"
-                    android:drawableEnd="@android:drawable/ic_menu_more" />
+                    android:clickable="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -170,8 +173,9 @@
                     android:text="Edit"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/accent"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="textStart" />
+                    app:icon="@drawable/ic_edit"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
@@ -182,8 +186,9 @@
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/primary"
-                    app:icon="@android:drawable/ic_menu_save"
+                    app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
+                    app:iconTint="@android:color/white"
                     android:visibility="gone" />
 
                 <Button
@@ -194,8 +199,9 @@
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
-                    app:icon="@android:drawable/ic_menu_delete"
-                    app:iconGravity="textStart" />
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
 
             </LinearLayout>
 
@@ -210,8 +216,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_edit"
+        android:src="@drawable/ic_edit"
         android:contentDescription="Edit expense"
-        app:backgroundTint="@color/accent" />
+        app:backgroundTint="@color/accent"
+        app:tint="@android:color/white" />
 
 </LinearLayout>
