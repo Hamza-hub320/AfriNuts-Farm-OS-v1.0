@@ -44,11 +44,11 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         int cumulative = 0;
         for (BlockGroup group : blockGroups) {
             if (position == cumulative) {
-                return true; // This is a header
+                return true;
             }
-            cumulative += 1; // Add header
+            cumulative += 1;
             if (group.isExpanded()) {
-                cumulative += group.getBlocks().size(); // Add expanded items
+                cumulative += group.getBlocks().size();
             }
         }
         return false;
@@ -134,11 +134,11 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         return count;
     }
 
-    // Header ViewHolder - UPDATED to use ImageView for expandIcon
+    // Header ViewHolder
     class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView rowNameText;
         TextView rowRangeText;
-        ImageView expandIcon;  // Changed from TextView to ImageView
+        ImageView expandIcon;
         TextView plantedCountText;
         TextView survivalRateText;
         TextView treesText;
@@ -149,7 +149,7 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             super(itemView);
             rowNameText = itemView.findViewById(R.id.rowNameText);
             rowRangeText = itemView.findViewById(R.id.rowRangeText);
-            expandIcon = itemView.findViewById(R.id.expandIcon);  // Now ImageView
+            expandIcon = itemView.findViewById(R.id.expandIcon);
             plantedCountText = itemView.findViewById(R.id.plantedCountText);
             survivalRateText = itemView.findViewById(R.id.survivalRateText);
             treesText = itemView.findViewById(R.id.treesText);
@@ -161,7 +161,6 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             rowNameText.setText("BLOCK " + group.getRowName());
             rowRangeText.setText("(" + group.getRowRange() + ")");
 
-            // Update stats with icons in text
             int planted = group.getPlantedCount();
             int total = group.getTotalBlocks();
             plantedCountText.setText(String.format("Planted: %d/%d", planted, total));
@@ -176,7 +175,6 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             int progress = expected > 0 ? (alive * 100 / expected) : 0;
             rowProgressBar.setProgress(progress);
 
-            // Update expand/collapse icon
             if (group.isExpanded()) {
                 expandIcon.setImageResource(R.drawable.ic_expand_less);
             } else {
@@ -190,18 +188,18 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    // Block ViewHolder - UPDATED to use ImageView for expandIcon
+    // Block ViewHolder - FIXED: Removed statsIcon reference
     static class BlockViewHolder extends RecyclerView.ViewHolder {
         private View expandableContent;
         private View expandHeader;
-        private ImageView expandIcon;  // Changed from TextView to ImageView
+        private ImageView expandIcon;
         private boolean isExpanded = false;
 
         BlockViewHolder(@NonNull View itemView) {
             super(itemView);
             expandableContent = itemView.findViewById(R.id.expandableContent);
             expandHeader = itemView.findViewById(R.id.expandHeader);
-            expandIcon = itemView.findViewById(R.id.expandIcon);  // Now ImageView
+            expandIcon = itemView.findViewById(R.id.expandIcon);
         }
 
         void bind(BlockEntity block, OnBlockClickListener listener) {
@@ -212,7 +210,6 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             TextView replacementText = itemView.findViewById(R.id.replacementText);
             TextView survivalText = itemView.findViewById(R.id.survivalText);
             ProgressBar survivalProgress = itemView.findViewById(R.id.survivalProgress);
-            ImageView statsIcon = itemView.findViewById(R.id.statsIcon);
 
             blockNameText.setText(block.getBlockName());
             statusText.setText(block.getStatus().getDisplayName());
@@ -252,14 +249,12 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             if (block.isPlanted()) {
                 statsText.setText(String.format("Alive: %d | Dead: %d",
                         block.getAliveTrees(), block.getDeadTrees()));
-                statsIcon.setImageResource(R.drawable.ic_park);
 
                 replacementText.setText(block.getReplacementCount() + " trees");
                 survivalProgress.setProgress((int) block.getSurvivalRate());
                 survivalText.setText(String.format("%.1f%%", block.getSurvivalRate()));
             } else {
                 statsText.setText(block.getStatus().getDisplayName() + " - No trees yet");
-                statsIcon.setImageResource(R.drawable.ic_hourglass_empty);
 
                 replacementText.setText("—");
                 survivalProgress.setProgress(0);
