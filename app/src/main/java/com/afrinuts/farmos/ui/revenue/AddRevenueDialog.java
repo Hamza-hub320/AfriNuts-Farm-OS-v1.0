@@ -2,12 +2,15 @@ package com.afrinuts.farmos.ui.revenue;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -151,23 +154,72 @@ public class AddRevenueDialog extends DialogFragment {
         layoutBlockSelector.setVisibility(View.VISIBLE);
     }
 
-    private void setupQualityDropdown() {
-        RevenueEntity.QualityGrade[] grades = RevenueEntity.QualityGrade.values();
-        String[] gradeNames = new String[grades.length];
+    // Custom adapter for quality grade dropdown with icons
+    private class QualityGradeAdapter extends ArrayAdapter<RevenueEntity.QualityGrade> {
 
-        for (int i = 0; i < grades.length; i++) {
-            gradeNames[i] = grades[i].getIcon() + " " + grades[i].getDisplayName() +
-                    " - " + grades[i].getDescription();
+        public QualityGradeAdapter(Context context, List<RevenueEntity.QualityGrade> grades) {
+            super(context, 0, grades);
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                gradeNames
-        );
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            return createViewFromResource(position, convertView, parent, R.layout.item_quality_dropdown);
+        }
 
+        @Override
+        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            return createViewFromResource(position, convertView, parent, R.layout.item_quality_dropdown);
+        }
+
+        private View createViewFromResource(int position, View convertView, ViewGroup parent, int resource) {
+            View view = convertView;
+            if (view == null) {
+                view = LayoutInflater.from(getContext()).inflate(resource, parent, false);
+            }
+
+            RevenueEntity.QualityGrade grade = getItem(position);
+
+            ImageView iconView = view.findViewById(R.id.qualityIcon);
+            TextView titleView = view.findViewById(R.id.qualityTitle);
+            TextView descriptionView = view.findViewById(R.id.qualityDescription);
+
+            if (grade != null) {
+                // Set icon based on quality grade
+                int iconRes = getIconForQuality(grade);
+                iconView.setImageResource(iconRes);
+                iconView.setColorFilter(getContext().getColor(R.color.primary));
+
+                titleView.setText(grade.getDisplayName() + " Grade");
+                descriptionView.setText(grade.getDescription());
+            }
+
+            return view;
+        }
+
+        private int getIconForQuality(RevenueEntity.QualityGrade grade) {
+            switch (grade) {
+                case PREMIUM:
+                    return R.drawable.ic_star;
+                case STANDARD:
+                    return R.drawable.ic_check_circle;
+                case PROCESSING:
+                    return R.drawable.ic_factory;
+                default:
+                    return R.drawable.ic_star;
+            }
+        }
+    }
+
+    private void setupQualityDropdown() {
+        RevenueEntity.QualityGrade[] grades = RevenueEntity.QualityGrade.values();
+        List<RevenueEntity.QualityGrade> gradeList = new ArrayList<>();
+        for (RevenueEntity.QualityGrade grade : grades) {
+            gradeList.add(grade);
+        }
+
+        QualityGradeAdapter adapter = new QualityGradeAdapter(requireContext(), gradeList);
         etQuality.setAdapter(adapter);
-        etQuality.setText(gradeNames[0], false); // Default to Premium
     }
 
     private void setupDatePicker() {
@@ -341,23 +393,12 @@ public class AddRevenueDialog extends DialogFragment {
         }
 
         // Validate quality
-        String qualityStr = etQuality.getText().toString().trim();
-        if (TextUtils.isEmpty(qualityStr)) {
-            etQuality.setError("Quality grade is required");
-            return;
-        }
-
-        // Parse quality
-        RevenueEntity.QualityGrade selectedQuality = null;
-        for (RevenueEntity.QualityGrade grade : RevenueEntity.QualityGrade.values()) {
-            if (qualityStr.contains(grade.getDisplayName())) {
-                selectedQuality = grade;
-                break;
-            }
-        }
+        RevenueEntity.QualityGrade selectedQuality =
+                (RevenueEntity.QualityGrade) etQuality.getAdapter().getItem(
+                        etQuality.getListSelection());
 
         if (selectedQuality == null) {
-            Toast.makeText(getContext(), "Invalid quality grade", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please select a quality grade", Toast.LENGTH_SHORT).show();
             return;
         }
 
