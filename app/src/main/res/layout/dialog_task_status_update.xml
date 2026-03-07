@@ -11,12 +11,15 @@
         android:id="@+id/tvCurrentStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Current: ⏳ PENDING"
+        android:text="Current: PENDING"
         style="@style/Text.H5"
         android:textColor="@color/primary"
         android:gravity="center"
         android:background="@color/warm_grey"
         android:padding="12dp"
+        android:drawableStart="@drawable/ic_hourglass_empty"
+        android:drawablePadding="8dp"
+        app:drawableTint="@color/primary"
         android:layout_marginBottom="24dp" />
 
     <!-- RadioGroup for Status Selection -->
@@ -31,41 +34,53 @@
             android:id="@+id/rbPending"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⏳ PENDING"
+            android:text="PENDING"
             style="@style/Text.Body"
             android:paddingVertical="12dp"
             android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary" />
+            android:buttonTint="@color/primary"
+            android:drawableStart="@drawable/ic_hourglass_empty"
+            android:drawablePadding="8dp"
+            app:drawableTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbInProgress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔄 IN PROGRESS"
+            android:text="IN PROGRESS"
             style="@style/Text.Body"
             android:paddingVertical="12dp"
             android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary" />
+            android:buttonTint="@color/primary"
+            android:drawableStart="@drawable/ic_sync"
+            android:drawablePadding="8dp"
+            app:drawableTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbCompleted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="✅ COMPLETED"
+            android:text="COMPLETED"
             style="@style/Text.Body"
             android:paddingVertical="12dp"
             android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary" />
+            android:buttonTint="@color/primary"
+            android:drawableStart="@drawable/ic_check_circle"
+            android:drawablePadding="8dp"
+            app:drawableTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbCancelled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="❌ CANCELLED"
+            android:text="CANCELLED"
             style="@style/Text.Body"
             android:paddingVertical="12dp"
             android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary" />
+            android:buttonTint="@color/primary"
+            android:drawableStart="@drawable/ic_cancel"
+            android:drawablePadding="8dp"
+            app:drawableTint="@color/primary" />
 
     </RadioGroup>
 
