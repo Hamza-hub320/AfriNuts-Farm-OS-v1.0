@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Profit Dashboard" />
 
     <!-- Date Range Selector -->
     <HorizontalScrollView
@@ -93,12 +94,27 @@
                         android:orientation="horizontal"
                         android:layout_marginBottom="12dp">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="💰 Total Revenue"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_attach_money"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total Revenue"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/totalRevenueValue"
@@ -116,12 +132,27 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="💸 Total Expenses"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_money_off"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total Expenses"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/totalExpensesValue"
@@ -146,12 +177,27 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="📊 Net Profit"
-                            style="@style/Text.H5" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_trending_up"
+                                app:tint="@color/primary"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Net Profit"
+                                style="@style/Text.H5" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/netProfitValue"
@@ -213,11 +259,12 @@
                             android:gravity="center"
                             android:padding="8dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="📏"
-                                android:textSize="24sp" />
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_straighten"
+                                app:tint="@color/primary"
+                                android:layout_marginBottom="4dp" />
 
                             <TextView
                                 android:id="@+id/profitPerHectare"
@@ -243,11 +290,12 @@
                             android:gravity="center"
                             android:padding="8dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="🌳"
-                                android:textSize="24sp" />
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_park"
+                                app:tint="@color/primary"
+                                android:layout_marginBottom="4dp" />
 
                             <TextView
                                 android:id="@+id/profitPerTree"
@@ -273,11 +321,12 @@
                             android:gravity="center"
                             android:padding="8dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="📊"
-                                android:textSize="24sp" />
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_trending_up"
+                                app:tint="@color/primary"
+                                android:layout_marginBottom="4dp" />
 
                             <TextView
                                 android:id="@+id/marginPercent"
@@ -325,16 +374,30 @@
                 android:visibility="gone" />
 
             <!-- Empty State -->
-            <TextView
+            <LinearLayout
                 android:id="@+id/emptyView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="No transactions found"
-                style="@style/Text.H3"
-                android:textColor="@color/navy"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:visibility="gone" />
+                android:layout_marginTop="32dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_inventory"
+                    app:tint="@color/warm_grey"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No transactions found"
+                    style="@style/Text.H3"
+                    android:textColor="@color/navy" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
