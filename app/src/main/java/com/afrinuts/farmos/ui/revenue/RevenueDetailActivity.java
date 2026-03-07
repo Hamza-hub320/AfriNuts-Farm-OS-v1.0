@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,7 +20,6 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import android.view.MenuItem;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -34,7 +35,8 @@ public class RevenueDetailActivity extends AppCompatActivity {
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
 
-    private TextView tvQualityIcon;
+    // UI Elements - Updated types to match layout
+    private ImageView tvQualityIcon;  // Changed from TextView to ImageView
     private TextView tvQualityGrade;
     private TextView tvSource;
     private TextView tvQuantity;
@@ -44,6 +46,7 @@ public class RevenueDetailActivity extends AppCompatActivity {
     private TextView tvBuyer;
     private TextView tvNotes;
     private Button btnDelete;
+    private LinearLayout notesLayout;  // Added for notes section visibility
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -77,7 +80,7 @@ public class RevenueDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tvQualityIcon = findViewById(R.id.tvQualityIcon);
+        tvQualityIcon = findViewById(R.id.tvQualityIcon);  // Now ImageView
         tvQualityGrade = findViewById(R.id.tvQualityGrade);
         tvSource = findViewById(R.id.tvSource);
         tvQuantity = findViewById(R.id.tvQuantity);
@@ -86,6 +89,7 @@ public class RevenueDetailActivity extends AppCompatActivity {
         tvHarvestDate = findViewById(R.id.tvHarvestDate);
         tvBuyer = findViewById(R.id.tvBuyer);
         tvNotes = findViewById(R.id.tvNotes);
+        notesLayout = findViewById(R.id.notesLayout);  // Initialize notes layout
         btnDelete = findViewById(R.id.btnDelete);
 
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -120,7 +124,26 @@ public class RevenueDetailActivity extends AppCompatActivity {
     }
 
     private void displayRevenueData() {
-        tvQualityIcon.setText(revenue.getQuality().getIcon());
+        // Set quality icon based on grade
+        switch (revenue.getQuality()) {
+            case PREMIUM:
+                tvQualityIcon.setImageResource(R.drawable.ic_star);
+                tvQualityIcon.setColorFilter(getColor(R.color.accent));
+                break;
+            case STANDARD:
+                tvQualityIcon.setImageResource(R.drawable.ic_check_circle);
+                tvQualityIcon.setColorFilter(getColor(R.color.primary));
+                break;
+            case PROCESSING:
+                tvQualityIcon.setImageResource(R.drawable.ic_construction);
+                tvQualityIcon.setColorFilter(getColor(R.color.navy));
+                break;
+            default:
+                tvQualityIcon.setImageResource(R.drawable.ic_star);
+                tvQualityIcon.setColorFilter(getColor(R.color.accent));
+                break;
+        }
+
         tvQualityGrade.setText(revenue.getQuality().getDisplayName() + " Grade");
 
         if (revenue.getBlockId() != null) {
@@ -131,7 +154,7 @@ public class RevenueDetailActivity extends AppCompatActivity {
         }
 
         tvQuantity.setText(String.format(Locale.getDefault(), "%.1f kg", revenue.getQuantityKg()));
-        tvPricePerKg.setText(String.format(Locale.getDefault(), "%,.0f XAF/kg", revenue.getPricePerKg()));
+        tvPricePerKg.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getPricePerKg()));
         tvTotalAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount()));
         tvHarvestDate.setText(dateFormat.format(revenue.getHarvestDate()));
 
@@ -143,9 +166,9 @@ public class RevenueDetailActivity extends AppCompatActivity {
 
         if (revenue.getNotes() != null && !revenue.getNotes().isEmpty()) {
             tvNotes.setText(revenue.getNotes());
-            tvNotes.setVisibility(View.VISIBLE);
+            notesLayout.setVisibility(View.VISIBLE);
         } else {
-            tvNotes.setVisibility(View.GONE);
+            notesLayout.setVisibility(View.GONE);
         }
     }
 
