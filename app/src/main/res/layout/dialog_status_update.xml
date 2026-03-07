@@ -36,13 +36,14 @@
         android:layout_marginBottom="16dp" />
 
     <!-- Arrow indicating progression -->
-    <TextView
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="▼"
-        android:textSize="24sp"
-        android:textColor="@color/accent"
-        android:gravity="center"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_arrow_drop_down"
+        app:tint="@color/accent"
+        android:rotation="270"
+        android:contentDescription="Progress arrow"
         android:layout_marginBottom="16dp" />
 
     <!-- Next Status Label -->
@@ -71,7 +72,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         style="@style/Widget.AfriNuts.EditText"
-        >
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_today"
+        app:endIconTint="@color/navy">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etDate"
@@ -79,8 +82,7 @@
             android:layout_height="wrap_content"
             android:hint="Select Date"
             android:focusable="false"
-            android:clickable="true"
-            android:drawableEnd="@android:drawable/ic_menu_today" />
+            android:clickable="true" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
