@@ -46,13 +46,13 @@
                 android:alpha="0.9"
                 android:layout_weight="1" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/expandIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="▼"
-                style="@style/Text.H4"
-                android:textColor="@android:color/white" />
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                app:tint="@android:color/white"
+                android:contentDescription="Expand/Collapse" />
 
         </LinearLayout>
 
@@ -69,29 +69,35 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🌱 Planted: 5/7"
+                android:text="Planted: 5/7"
                 style="@style/Text.Body.Small"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:drawableStart="@drawable/ic_grass"
+                android:drawablePadding="4dp" />
 
             <TextView
                 android:id="@+id/survivalRateText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="📊 Avg: 91%"
+                android:text="Avg: 91%"
                 style="@style/Text.Body.Small"
                 android:textColor="@android:color/white"
-                android:gravity="center" />
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_bar_chart"
+                android:drawablePadding="4dp" />
 
             <TextView
                 android:id="@+id/treesText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🌳 500/700"
+                android:text="500/700"
                 style="@style/Text.Body.Small"
                 android:textColor="@android:color/white"
-                android:gravity="end" />
+                android:gravity="end"
+                android:drawableStart="@drawable/ic_park"
+                android:drawablePadding="4dp" />
 
         </LinearLayout>
 
