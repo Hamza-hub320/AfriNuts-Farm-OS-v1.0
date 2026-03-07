@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.profit;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -242,16 +243,21 @@ public class ProfitDashboardActivity extends AppCompatActivity {
             View itemView = getLayoutInflater().inflate(
                     R.layout.item_recent_transaction, recentTransactionsContainer, false);
 
-            TextView tvTransactionIcon = itemView.findViewById(R.id.tvTransactionIcon);
+            // Fix: Change this from TextView to ImageView
+            ImageView tvTransactionIcon = itemView.findViewById(R.id.tvTransactionIcon);
             TextView tvTransactionDesc = itemView.findViewById(R.id.tvTransactionDesc);
             TextView tvTransactionDate = itemView.findViewById(R.id.tvTransactionDate);
             TextView tvTransactionAmount = itemView.findViewById(R.id.tvTransactionAmount);
 
-            // Set icon based on type
+            // Set icon based on type using ImageView
             if (transaction.isRevenue()) {
-                tvTransactionIcon.setText("💰");
+                tvTransactionIcon.setImageResource(R.drawable.ic_attach_money);
+                tvTransactionIcon.setColorFilter(ContextCompat.getColor(this,
+                        android.R.color.holo_green_dark));
             } else {
-                tvTransactionIcon.setText("💸");
+                tvTransactionIcon.setImageResource(R.drawable.ic_money_off);
+                tvTransactionIcon.setColorFilter(ContextCompat.getColor(this,
+                        android.R.color.holo_red_dark));
             }
 
             tvTransactionDesc.setText(transaction.getDescription());
@@ -266,13 +272,11 @@ public class ProfitDashboardActivity extends AppCompatActivity {
             // Add click listener to navigate to original item
             itemView.setOnClickListener(v -> {
                 if (transaction.isRevenue()) {
-                    // Navigate to RevenueDetailActivity
                     android.content.Intent intent = new android.content.Intent(
                             this, com.afrinuts.farmos.ui.revenue.RevenueDetailActivity.class);
                     intent.putExtra("revenue_id", transaction.getId());
                     startActivity(intent);
                 } else {
-                    // Navigate to ExpenseDetailActivity
                     android.content.Intent intent = new android.content.Intent(
                             this, com.afrinuts.farmos.ui.expenses.ExpenseDetailActivity.class);
                     intent.putExtra("expense_id", transaction.getId());
