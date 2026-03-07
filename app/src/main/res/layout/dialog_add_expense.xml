@@ -42,7 +42,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             style="@style/Widget.AfriNuts.EditText"
-            app:endIconMode="dropdown_menu">
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etCategory"
@@ -59,7 +60,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             style="@style/Widget.AfriNuts.EditText"
-            app:endIconMode="clear_text">
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:endIconTint="@color/primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDate"
@@ -67,8 +70,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Date"
                 android:focusable="false"
-                android:clickable="true"
-                android:drawableEnd="@android:drawable/ic_menu_today" />
+                android:clickable="true" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,7 +108,8 @@
             android:layout_marginBottom="12dp"
             android:visibility="gone"
             style="@style/Widget.AfriNuts.EditText"
-            app:endIconMode="dropdown_menu">
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etBlock"
@@ -155,7 +158,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save Expense"
-                style="@style/Widget.AfriNuts.Button" />
+                style="@style/Widget.AfriNuts.Button"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white" />
 
         </LinearLayout>
 

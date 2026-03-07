@@ -100,7 +100,6 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_today"
-                            android:tint="@color/primary"
                             app:tint="@color/primary"
                             android:layout_marginEnd="8dp" />
 
@@ -218,7 +217,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_grass"
-                            android:tint="@color/primary"
+                            
                             app:tint="@color/primary"
                             android:layout_marginEnd="8dp" />
 
@@ -301,7 +300,7 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@drawable/ic_park"
-                                android:tint="@color/primary"
+                                
                                 app:tint="@color/primary"
                                 android:layout_marginEnd="4dp" />
 
@@ -326,7 +325,6 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@drawable/ic_heart_broken"
-                                android:tint="@color/accent"
                                 app:tint="@color/accent"
                                 android:layout_marginEnd="4dp" />
 
@@ -371,7 +369,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_note"
-                            android:tint="@color/primary"
+                            
                             app:tint="@color/primary"
                             android:layout_marginEnd="8dp" />
 

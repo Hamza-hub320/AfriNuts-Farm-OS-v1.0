@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Expenses" />
 
     <!-- Total Expenses Card -->
     <androidx.cardview.widget.CardView
@@ -30,6 +31,13 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_attach_money"
+                app:tint="@color/primary"
+                android:layout_marginEnd="8dp" />
 
             <TextView
                 android:layout_width="0dp"
@@ -87,10 +95,12 @@
     <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
+        style="@style/Widget.AfriNuts.ProgressBar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"
+        android:indeterminate="true"
         android:visibility="gone" />
 
     <!-- Empty State -->
@@ -103,11 +113,12 @@
         android:layout_marginTop="64dp"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💰"
-            android:textSize="64sp" />
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_attach_money"
+            app:tint="@color/warm_grey"
+            android:contentDescription="No expenses" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -142,8 +153,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
+        android:src="@drawable/ic_add"
         android:contentDescription="Add expense"
-        app:backgroundTint="@color/accent" />
+        app:backgroundTint="@color/accent"
+        app:tint="@android:color/white" />
 
 </LinearLayout>

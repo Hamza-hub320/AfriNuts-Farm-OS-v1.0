@@ -171,7 +171,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_straighten"
-                        android:tint="@color/primary"
                         app:tint="@color/primary" />
 
                     <TextView
@@ -213,7 +212,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_park"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -254,7 +253,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_inventory"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -400,7 +399,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_view_list"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -441,7 +440,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_add"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -481,7 +480,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_grass"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -531,7 +530,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_money_off"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -572,7 +571,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_bar_chart"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -612,7 +611,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_download"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -662,7 +661,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_view_list"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -703,7 +702,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_trending_up"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -743,7 +742,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_check_circle"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -793,7 +792,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:src="@drawable/ic_people"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -832,7 +831,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:src="@drawable/ic_trending_up"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -879,7 +878,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_wb_sunny"
-                        android:tint="@color/primary"
+                        
                         app:tint="@color/primary"
                         android:layout_marginEnd="8dp" />
 
@@ -980,7 +979,6 @@
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
                                     android:src="@drawable/ic_water_drop"
-                                    android:tint="@color/navy"
                                     app:tint="@color/navy"
                                     android:layout_marginEnd="4dp" />
 
@@ -1003,7 +1001,6 @@
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
                                     android:src="@drawable/ic_air"
-                                    android:tint="@color/navy"
                                     app:tint="@color/navy"
                                     android:layout_marginEnd="4dp" />
 

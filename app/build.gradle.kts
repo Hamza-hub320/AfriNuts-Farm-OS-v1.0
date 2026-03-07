@@ -39,7 +39,7 @@ android {
 dependencies {
     // Android Core (NO DUPLICATES)
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")  // ONLY ONCE
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.cardview:cardview:1.0.0")
 
@@ -70,4 +70,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // Material Icons (Extended for more icon options)
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 }

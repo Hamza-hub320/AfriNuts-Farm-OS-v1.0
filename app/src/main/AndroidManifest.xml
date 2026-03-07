@@ -10,12 +10,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_logo_afrinuts"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_logo_afrinuts"
         android:supportsRtl="true"
         android:theme="@style/Theme.AfriNutsFarmOS"
-        android:usesCleartextTraffic="true"> <!-- Add this for development if API uses HTTP -->
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".MainActivity"

@@ -57,7 +57,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.AfriNuts.EditText">
+            style="@style/Widget.AfriNuts.EditText"
+            app:endIconMode="clear_text"
+            app:endIconDrawable="@drawable/ic_today">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etHarvestDate"
@@ -65,8 +67,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Harvest Date"
                 android:focusable="false"
-                android:clickable="true"
-                android:drawableEnd="@android:drawable/ic_menu_today" />
+                android:clickable="true" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -84,7 +85,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Per Block"
-                style="@style/Widget.AfriNuts.Button.Outlined" />
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                app:icon="@drawable/ic_inventory"
+                app:iconGravity="textStart" />
 
             <Button
                 android:id="@+id/btnProcessingCenter"
@@ -92,7 +95,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Processing Center"
-                style="@style/Widget.AfriNuts.Button.Outlined" />
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                app:icon="@drawable/ic_business"
+                app:iconGravity="textStart" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -105,13 +110,16 @@
             android:visibility="visible"
             style="@style/Widget.AfriNuts.EditText"
             android:hint="Select Block"
-            app:endIconMode="dropdown_menu">
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etBlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:drawableStart="@drawable/ic_inventory"
+                android:drawablePadding="8dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -122,13 +130,16 @@
             android:layout_marginBottom="12dp"
             style="@style/Widget.AfriNuts.EditText"
             android:hint="Quality Grade"
-            app:endIconMode="dropdown_menu">
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/etQuality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:drawableStart="@drawable/ic_star"
+                android:drawablePadding="8dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -137,13 +148,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            style="@style/Widget.AfriNuts.EditText">
+            style="@style/Widget.AfriNuts.EditText"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etBuyer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Buyer (optional)" />
+                android:hint="Buyer (optional)"
+                android:drawableStart="@drawable/ic_person"
+                android:drawablePadding="8dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -160,7 +174,10 @@
                 android:layout_height="wrap_content"
                 android:hint="Notes (optional)"
                 android:inputType="textMultiLine"
-                android:minLines="2" />
+                android:minLines="2"
+                android:drawableStart="@drawable/ic_note"
+                android:drawablePadding="8dp"
+                android:drawableTint="@color/navy" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -180,6 +197,13 @@
                 android:padding="16dp"
                 android:gravity="center_vertical"
                 android:background="@color/warm_grey">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/primary"
+                    android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -213,14 +237,18 @@
                 android:layout_height="wrap_content"
                 android:text="Cancel"
                 style="@style/Widget.AfriNuts.Button.Outlined"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"
+                app:icon="@drawable/ic_cancel"
+                app:iconGravity="textStart" />
 
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save Revenue"
-                style="@style/Widget.AfriNuts.Button" />
+                style="@style/Widget.AfriNuts.Button"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart" />
 
         </LinearLayout>
 
