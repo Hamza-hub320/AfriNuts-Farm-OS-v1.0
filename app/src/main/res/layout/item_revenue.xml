@@ -23,16 +23,16 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <TextView
+            <ImageView
                 android:id="@+id/tvQualityIcon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:gravity="center"
-                android:text="⭐"
-                style="@style/Text.Display.Small"
+                android:src="@drawable/ic_star"
+                app:tint="@color/accent"
                 android:background="@color/warm_grey"
                 android:padding="8dp"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"
+                android:contentDescription="Quality icon" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -75,25 +75,53 @@
             android:padding="12dp"
             android:layout_marginBottom="12dp">
 
-            <TextView
-                android:id="@+id/tvQuantity"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="📦 350 kg"
-                style="@style/Text.Caption"
-                android:drawableStart="@android:drawable/ic_menu_gallery"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvPrice"
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_inventory"
+                    app:tint="@color/navy"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="Quantity" />
+
+                <TextView
+                    android:id="@+id/tvQuantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="350 kg"
+                    style="@style/Text.Caption" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="💰 1,500 XAF/kg"
-                style="@style/Text.Caption"
-                android:drawableStart="@android:drawable/ic_menu_send"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/navy"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="Price" />
+
+                <TextView
+                    android:id="@+id/tvPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1,500 XAF/kg"
+                    style="@style/Text.Caption" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -104,26 +132,53 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvDate"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="📅 Mar 15, 2024"
-                style="@style/Text.Caption.Small"
-                android:drawableStart="@android:drawable/ic_menu_today"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvBuyer"
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_today"
+                    app:tint="@color/navy"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="Date" />
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mar 15, 2024"
+                    style="@style/Text.Caption.Small" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="👤 Olam"
-                style="@style/Text.Caption.Small"
-                android:gravity="end"
-                android:drawableEnd="@android:drawable/ic_menu_myplaces"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/navy"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="Buyer" />
+
+                <TextView
+                    android:id="@+id/tvBuyer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Olam"
+                    style="@style/Text.Caption.Small" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
