@@ -238,10 +238,18 @@
     <style name="Widget.AfriNuts.Chip" parent="Widget.MaterialComponents.Chip.Filter">
         <item name="chipBackgroundColor">@color/warm_grey</item>
         <item name="chipStrokeColor">@color/primary</item>
-        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeWidth">0dp</item>
         <item name="chipCornerRadius">16dp</item>
         <item name="android:textColor">@color/navy</item>
-        <item name="rippleColor">@color/accent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="chipIconSize">18dp</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="android:minHeight">36dp</item>
     </style>
 
     <!-- Divider Style -->

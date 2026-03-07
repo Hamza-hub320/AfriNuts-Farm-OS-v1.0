@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_weight="1"
@@ -19,12 +20,15 @@
         android:textSize="12sp"
         android:layout_marginBottom="4dp" />
 
-    <TextView
+    <!-- Weather Icon - Will be set dynamically in code based on condition -->
+    <ImageView
         android:id="@+id/forecastIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="☀️"
-        android:textSize="24sp" />
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_wb_sunny"
+        app:tint="@color/accent"
+        android:contentDescription="Weather icon"
+        android:layout_marginBottom="4dp" />
 
     <TextView
         android:id="@+id/forecastTemp"
@@ -34,12 +38,29 @@
         style="@style/Text.Stat.Small"
         android:layout_marginTop="4dp" />
 
-    <TextView
-        android:id="@+id/forecastRain"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0%"
-        style="@style/Text.Caption.Small"
-        android:textColor="@color/navy" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="2dp">
+
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/ic_water_drop"
+            app:tint="@color/navy"
+            android:contentDescription="Rain chance"
+            android:layout_marginEnd="2dp" />
+
+        <TextView
+            android:id="@+id/forecastRain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0%"
+            style="@style/Text.Caption.Small"
+            android:textColor="@color/navy" />
+
+    </LinearLayout>
 
 </LinearLayout>

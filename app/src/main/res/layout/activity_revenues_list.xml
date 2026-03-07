@@ -112,22 +112,26 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:scrollbars="none">
+        android:layout_marginBottom="12dp"
+        android:scrollbars="none"
+        android:fadingEdgeLength="20dp"
+        android:requiresFadingEdge="horizontal">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="12dp"
+            android:paddingVertical="4dp"
             app:singleSelection="true"
-            app:selectionRequired="true">
+            app:selectionRequired="true"
+            app:chipSpacing="8dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Revenue"
+                android:text="Revenue"
                 android:checked="true"
                 style="@style/Widget.AfriNuts.Chip" />
 
@@ -135,14 +139,14 @@
                 android:id="@+id/chipBlocks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="From Blocks"
+                android:text="Blocks"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipProcessing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Processing Center"
+                android:text="Processing"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
@@ -152,6 +156,7 @@
                 android:text="Premium"
                 app:chipIcon="@drawable/ic_star"
                 app:chipIconTint="@color/accent"
+                app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
@@ -161,6 +166,7 @@
                 android:text="Standard"
                 app:chipIcon="@drawable/ic_check_circle"
                 app:chipIconTint="@color/primary"
+                app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>

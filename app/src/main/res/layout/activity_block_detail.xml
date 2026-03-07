@@ -420,8 +420,9 @@
                     android:text="Edit"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/accent"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="textStart" />
+                    app:icon="@drawable/ic_edit"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
@@ -432,8 +433,9 @@
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/primary"
-                    app:icon="@android:drawable/ic_menu_save"
+                    app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
+                    app:iconTint="@android:color/white"
                     android:visibility="gone" />
 
                 <Button
@@ -444,8 +446,9 @@
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
-                    app:icon="@android:drawable/ic_menu_delete"
-                    app:iconGravity="textStart" />
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
 
             </LinearLayout>
 

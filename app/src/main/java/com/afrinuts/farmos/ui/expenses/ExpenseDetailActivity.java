@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +43,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     private AppDatabase database;
 
     // UI Elements
-    private TextView tvCategoryIcon;
+    private ImageView tvCategoryIcon;  // Changed from TextView to ImageView
     private TextView tvCategoryName;
     private TextView tvBlockInfo;
     private TextInputEditText etAmount;
@@ -94,7 +95,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         }
 
         // Category display
-        tvCategoryIcon = findViewById(R.id.tvCategoryIcon);
+        tvCategoryIcon = findViewById(R.id.tvCategoryIcon);  // Now ImageView
         tvCategoryName = findViewById(R.id.tvCategoryName);
         tvBlockInfo = findViewById(R.id.tvBlockInfo);
 
@@ -191,8 +192,10 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     }
 
     private void displayExpenseData() {
-        // Set category icon and name
-        tvCategoryIcon.setText(expense.getCategory().getIcon());
+        // Set category icon and name - UPDATED for ImageView
+        // Map expense category to appropriate icon
+        int iconRes = getIconForCategory(expense.getCategory());
+        tvCategoryIcon.setImageResource(iconRes);
         tvCategoryName.setText(expense.getCategory().getDisplayName());
 
         // Set block info
@@ -215,6 +218,37 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         // Set description
         if (expense.getDescription() != null) {
             etDescription.setText(expense.getDescription());
+        }
+    }
+
+    // Helper method to map expense category to icon
+    private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {
+        switch (category) {
+            case LAND_CLEARING:
+                return R.drawable.ic_clear;
+            case PLOWING:
+                return R.drawable.ic_grain;
+            case SEEDLINGS:
+                return R.drawable.ic_grass;
+            case LABOR:
+                return R.drawable.ic_people;
+            case SECURITY:
+                return R.drawable.ic_security;
+            case FENCING:
+                return R.drawable.ic_fence;
+            case PROCESSING_CENTER:
+                return R.drawable.ic_factory;
+            case FERTILIZER:
+                return R.drawable.ic_fertilizer;
+            case IRRIGATION:
+                return R.drawable.ic_water_drop;
+            case EQUIPMENT:
+                return R.drawable.ic_construction;
+            case MAINTENANCE:
+                return R.drawable.ic_maintenance;
+            case OTHER:
+            default:
+                return R.drawable.ic_attach_money;
         }
     }
 

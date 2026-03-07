@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -151,19 +153,76 @@ public class AddTaskDialog extends DialogFragment {
 
     private void setupTaskTypeDropdown() {
         TaskEntity.TaskType[] types = TaskEntity.TaskType.values();
-        String[] typeNames = new String[types.length];
 
-        for (int i = 0; i < types.length; i++) {
-            typeNames[i] = types[i].getIcon() + " " + types[i].getDisplayName();
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        // Create a custom adapter that shows icons and text
+        ArrayAdapter<TaskEntity.TaskType> adapter = new ArrayAdapter<TaskEntity.TaskType>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                typeNames
-        );
+                types) {
+
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view;
+
+                TaskEntity.TaskType type = getItem(position);
+                // Map enum to icon resource
+                int iconRes = getIconForTaskType(type);
+
+                // Set compound drawable (icon) on the left
+                textView.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0);
+                textView.setCompoundDrawablePadding(16);
+                textView.setText(type.getDisplayName());
+
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view;
+
+                TaskEntity.TaskType type = getItem(position);
+                int iconRes = getIconForTaskType(type);
+
+                textView.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0);
+                textView.setCompoundDrawablePadding(16);
+                textView.setText(type.getDisplayName());
+
+                return view;
+            }
+        };
 
         etTaskType.setAdapter(adapter);
+    }
+
+    private int getIconForTaskType(TaskEntity.TaskType type) {
+        switch (type) {
+            case CLEARING:
+                return R.drawable.ic_tractor;
+            case PLOWING:
+                return R.drawable.ic_grain;
+            case PLANTING:
+                return R.drawable.ic_grass;
+            case REPLACEMENT:
+                return R.drawable.ic_sync;
+            case FERTILIZING:
+                return R.drawable.ic_water_drop;
+            case PRUNING:
+                return R.drawable.ic_cut;
+            case WEEDING:
+                return R.drawable.ic_grass;
+            case HARVEST:
+                return R.drawable.ic_download;
+            case IRRIGATION:
+                return R.drawable.ic_water_drop;
+            case MAINTENANCE:
+                return R.drawable.ic_construction;
+            case OTHER:
+            default:
+                return R.drawable.ic_note;
+        }
     }
 
     private void setupDatePicker() {
