@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.expenses;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,7 +51,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
     static class ExpenseViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvCategoryIcon;
+        // Changed from TextView to ImageView
+        private ImageView ivCategoryIcon;
         private TextView tvCategory;
         private TextView tvBlockInfo;
         private TextView tvAmount;
@@ -60,7 +62,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
         ExpenseViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvCategoryIcon = itemView.findViewById(R.id.tvCategoryIcon);
+            // Updated to use ivCategoryIcon instead of tvCategoryIcon
+            ivCategoryIcon = itemView.findViewById(R.id.ivCategoryIcon);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvBlockInfo = itemView.findViewById(R.id.tvBlockInfo);
             tvAmount = itemView.findViewById(R.id.tvAmount);
@@ -72,8 +75,47 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         void bind(ExpenseWithBlockName item, OnExpenseClickListener listener) {
             ExpenseEntity expense = item.getExpense();
 
-            // Set category icon and name
-            tvCategoryIcon.setText(expense.getCategory().getIcon());
+            // Set category icon based on expense category
+            switch (expense.getCategory()) {
+                case LAND_CLEARING:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
+                    break;
+                case PLOWING:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_grain);
+                    break;
+                case SEEDLINGS:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_grass);
+                    break;
+                case LABOR:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_people);
+                    break;
+                case SECURITY:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_security);
+                    break;
+                case FENCING:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_fence);
+                    break;
+                case FERTILIZER:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_fertilizer);
+                    break;
+                case IRRIGATION:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_water_drop);
+                    break;
+                case EQUIPMENT:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
+                    break;
+                case MAINTENANCE:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
+                    break;
+                case PROCESSING_CENTER:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_factory);
+                    break;
+                default:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_attach_money);
+                    break;
+            }
+
+            // Set category name
             tvCategory.setText(expense.getCategory().getDisplayName());
 
             // Set block info
