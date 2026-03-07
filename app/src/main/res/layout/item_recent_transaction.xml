@@ -15,16 +15,16 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/tvTransactionIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:gravity="center"
-            android:text="💰"
-            android:textSize="24sp"
+            android:src="@drawable/ic_attach_money"
+            app:tint="@color/primary"
             android:background="@color/warm_grey"
-            android:backgroundTint="@color/warm_grey"
-            android:layout_marginEnd="16dp" />
+            android:padding="12dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="Transaction icon" />
 
         <LinearLayout
             android:layout_width="0dp"
