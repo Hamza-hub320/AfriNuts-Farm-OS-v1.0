@@ -13,7 +13,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
         app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        app:navigationIconTint="@android:color/white"
+        app:title="Revenue Details" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,15 +41,16 @@
                     android:gravity="center_vertical"
                     android:padding="20dp">
 
-                    <TextView
+                    <ImageView
                         android:id="@+id/tvQualityIcon"
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:gravity="center"
-                        android:text="⭐"
-                        android:textSize="32sp"
+                        android:src="@drawable/ic_star"
+                        app:tint="@color/accent"
                         android:background="@color/warm_grey"
-                        android:layout_marginEnd="16dp" />
+                        android:padding="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Quality grade icon" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -91,13 +93,28 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Harvest Details"
-                        style="@style/Text.H4"
-                        android:textColor="@color/text_dark"
-                        android:layout_marginBottom="16dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_grain"
+                            app:tint="@color/primary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Harvest Details"
+                            style="@style/Text.H4"
+                            android:textColor="@color/text_dark" />
+
+                    </LinearLayout>
 
                     <!-- Quantity -->
                     <LinearLayout
@@ -112,13 +129,29 @@
                             android:text="Quantity:"
                             style="@style/Text.Label" />
 
-                        <TextView
-                            android:id="@+id/tvQuantity"
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="350 kg"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_weight"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="4dp"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tvQuantity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="350 kg"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -135,13 +168,28 @@
                             android:text="Price/kg:"
                             style="@style/Text.Label" />
 
-                        <TextView
-                            android:id="@+id/tvPricePerKg"
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="1,500 XAF"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_attach_money"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="4dp" />
+
+                            <TextView
+                                android:id="@+id/tvPricePerKg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1,500 XAF"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -153,6 +201,13 @@
                         android:layout_marginBottom="12dp"
                         android:background="@color/warm_grey"
                         android:padding="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calculator"
+                            app:tint="@color/primary"
+                            android:layout_marginEnd="8dp" />
 
                         <TextView
                             android:layout_width="120dp"
@@ -167,7 +222,8 @@
                             android:layout_weight="1"
                             android:text="525,000 XAF"
                             style="@style/Text.Stat"
-                            android:textColor="@color/primary" />
+                            android:textColor="@color/primary"
+                            android:gravity="end" />
 
                     </LinearLayout>
 
@@ -184,13 +240,28 @@
                             android:text="Harvest Date:"
                             style="@style/Text.Label" />
 
-                        <TextView
-                            android:id="@+id/tvHarvestDate"
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Mar 15, 2024"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_today"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="4dp" />
+
+                            <TextView
+                                android:id="@+id/tvHarvestDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Mar 15, 2024"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -207,27 +278,58 @@
                             android:text="Buyer:"
                             style="@style/Text.Label" />
 
-                        <TextView
-                            android:id="@+id/tvBuyer"
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Olam"
-                            style="@style/Text.Body" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_person"
+                                app:tint="@color/navy"
+                                android:layout_marginEnd="4dp" />
+
+                            <TextView
+                                android:id="@+id/tvBuyer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Olam"
+                                style="@style/Text.Body" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
                     <!-- Notes (if available) -->
-                    <TextView
-                        android:id="@+id/tvNotes"
+                    <LinearLayout
+                        android:id="@+id/notesLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Premium quality harvest from Block A1"
-                        style="@style/Text.Body.Small"
+                        android:orientation="horizontal"
                         android:background="@color/warm_grey"
                         android:padding="12dp"
-                        android:minLines="2"
-                        android:visibility="gone" />
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_note"
+                            app:tint="@color/navy"
+                            android:layout_marginEnd="8dp"
+                            android:layout_gravity="top" />
+
+                        <TextView
+                            android:id="@+id/tvNotes"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Premium quality harvest from Block A1"
+                            style="@style/Text.Body.Small" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -241,6 +343,9 @@
                 android:text="Delete Revenue Record"
                 style="@style/Widget.AfriNuts.Button"
                 android:backgroundTint="@android:color/holo_red_dark"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp" />
 
