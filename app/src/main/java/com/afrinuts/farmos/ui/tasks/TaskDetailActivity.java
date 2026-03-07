@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.tasks;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;  // Add this import
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +39,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     private AppDatabase database;
 
     // UI Elements
-    private TextView tvTaskIcon;
+    private ImageView tvTaskIcon;  // Changed from TextView to ImageView
     private TextView tvTaskTitle;
     private TextView tvTaskType;
     private TextView tvCurrentStatus;
@@ -104,7 +105,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
 
         // Header
-        tvTaskIcon = findViewById(R.id.tvTaskIcon);
+        tvTaskIcon = findViewById(R.id.tvTaskIcon);  // Now this is an ImageView
         tvTaskTitle = findViewById(R.id.tvTaskTitle);
         tvTaskType = findViewById(R.id.tvTaskType);
 
@@ -176,8 +177,11 @@ public class TaskDetailActivity extends AppCompatActivity {
     }
 
     private void displayTaskData() {
-        // Header
-        tvTaskIcon.setText(task.getType().getIcon());
+        // Header - Set icon based on task type
+        int iconRes = getTaskIcon(task.getType());
+        tvTaskIcon.setImageResource(iconRes);
+        tvTaskIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary));
+
         tvTaskTitle.setText(task.getTitle());
         tvTaskType.setText(task.getType().getDisplayName());
 
@@ -207,6 +211,35 @@ public class TaskDetailActivity extends AppCompatActivity {
             tvDescription.setText(task.getDescription());
         } else {
             tvDescription.setText("No description provided");
+        }
+    }
+
+    private int getTaskIcon(TaskEntity.TaskType type) {
+        switch (type) {
+            case CLEARING:
+                return R.drawable.ic_tractor;
+            case PLOWING:
+                return R.drawable.ic_grain;
+            case PLANTING:
+                return R.drawable.ic_grass;
+            case REPLACEMENT:
+                return R.drawable.ic_sync;
+            case FERTILIZING:
+                return R.drawable.ic_water_drop;
+            case PRUNING:
+                return R.drawable.ic_cut;
+            case WEEDING:
+                return R.drawable.ic_grass;
+            case HARVEST:
+                return R.drawable.ic_download;
+            case IRRIGATION:
+                return R.drawable.ic_water_drop;
+            case MAINTENANCE:
+                return R.drawable.ic_construction;
+            case OTHER:
+                return R.drawable.ic_note;
+            default:
+                return R.drawable.ic_note;
         }
     }
 
