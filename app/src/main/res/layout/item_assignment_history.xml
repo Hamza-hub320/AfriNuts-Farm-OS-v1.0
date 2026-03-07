@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -7,12 +8,21 @@
     android:background="@color/warm_grey"
     android:layout_marginBottom="8dp">
 
+    <!-- Worker and Duration Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_marginBottom="4dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_person"
+            app:tint="@color/primary"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Worker" />
 
         <TextView
             android:id="@+id/tvHistoryWorker"
@@ -22,6 +32,14 @@
             android:text="John Doe"
             style="@style/Text.Label"
             android:textColor="@color/primary" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_timer"
+            app:tint="@color/navy"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="Duration" />
 
         <TextView
             android:id="@+id/tvHistoryDuration"
@@ -33,12 +51,38 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvHistoryDates"
+    <!-- Dates Row -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mar 10 → Mar 12, 2024"
-        style="@style/Text.Caption.Small"
-        android:textColor="@color/navy" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_today"
+            app:tint="@color/navy"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Date" />
+
+        <TextView
+            android:id="@+id/tvHistoryDates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mar 10 → Mar 12, 2024"
+            style="@style/Text.Caption.Small"
+            android:textColor="@color/navy" />
+
+        <!-- Right arrow icon for visual flair -->
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_arrow_forward"
+            app:tint="@color/navy"
+            android:layout_marginHorizontal="4dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
 </LinearLayout>

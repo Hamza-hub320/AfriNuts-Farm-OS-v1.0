@@ -522,9 +522,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Set humidity and wind
         weatherHumidity.setText(String.format(Locale.getDefault(),
-                "💧 %d%%", current.getHumidity()));
+                " %d%%", current.getHumidity()));
         weatherWind.setText(String.format(Locale.getDefault(),
-                "💨 %.0f km/h", current.getWindKph()));
+                " %.0f km/h", current.getWindKph()));
 
         // Set weather icon - using fallback only
         setWeatherIconFallback(current.getCondition().getText());
