@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header with Gradient Background -->
+        <!-- Header with Gradient Background - Compact -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,41 +23,54 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:orientation="vertical"
-                android:gravity="center"
+                android:layout_height="wrap_content"
                 android:background="@drawable/gradient_main"
-                android:padding="20dp">
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingVertical="16dp"
+                android:paddingHorizontal="20dp">
 
+                <!-- Logo -->
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_logo_afrinuts_round"
+                    android:contentDescription="AfriNuts Logo"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Title -->
                 <TextView
+                    style="@style/Text.H2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🌰 AfriNuts Export"
-                    style="@style/Text.Display"
-                    android:textColor="@android:color/white" />
+                    android:text="AfriNuts Export"
+                    android:textColor="@android:color/white"
+                    android:layout_marginBottom="2dp" />
 
+                <!-- Subtitle -->
                 <TextView
+                    style="@style/Text.Caption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="FARM OPERATING SYSTEM"
-                    style="@style/Text.Body.Small"
                     android:textColor="@android:color/white"
                     android:alpha="0.9"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginBottom="12dp" />
 
+                <!-- Divider -->
                 <View
-                    android:layout_width="60dp"
-                    android:layout_height="3dp"
+                    android:layout_width="40dp"
+                    android:layout_height="2dp"
                     android:background="@android:color/white"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="8dp" />
 
+                <!-- Location -->
                 <TextView
                     android:id="@+id/locationText"
+                    style="@style/Text.Caption.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Odienné, Côte d'Ivoire"
-                    style="@style/Text.Caption"
                     android:textColor="@android:color/white"
                     android:alpha="0.9" />
 
@@ -154,11 +167,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📏"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_straighten"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:id="@+id/totalHectaresText"
@@ -195,11 +209,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌳"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_park"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:id="@+id/totalTreesText"
@@ -235,11 +250,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📦"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_inventory"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:id="@+id/blocksCountText"
@@ -380,11 +396,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📋"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_view_list"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -420,11 +437,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="➕"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_add"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -459,11 +477,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌱"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_grass"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -508,11 +527,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="💸"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_money_off"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -548,11 +568,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📊"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_bar_chart"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -587,11 +608,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📥"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_download"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -636,11 +658,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📋"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_view_list"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -676,11 +699,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📈"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_trending_up"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -715,11 +739,12 @@
                     android:gravity="center"
                     android:padding="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="✅"
-                        android:textSize="24sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_check_circle"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -764,11 +789,12 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="👥"
-                        android:textSize="26sp" />
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_people"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -802,19 +828,20 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <TextView
-                        android:text="📈"
-                        android:textSize="26sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_trending_up"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Profit"
                         style="@style/Text.Overline"
                         android:textColor="@color/primary"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_marginTop="6dp" />
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
@@ -848,11 +875,19 @@
                     android:gravity="center_vertical"
                     android:layout_marginBottom="12dp">
 
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_wb_sunny"
+                        android:tint="@color/primary"
+                        app:tint="@color/primary"
+                        android:layout_marginEnd="8dp" />
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="🌤️ Weather - Odienné"
+                        android:text="Weather - Odienné"
                         style="@style/Text.H5" />
 
                     <TextView
@@ -891,13 +926,19 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
 
+                        <ImageView
+                            android:id="@+id/weatherIcon"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:visibility="gone" />
+
                         <TextView
                             android:id="@+id/weatherIconFallback"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:gravity="center"
                             android:text="☀️"
-                            android:textSize="40sp" />
+                            android:textSize="32sp" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -928,19 +969,52 @@
                             android:orientation="vertical"
                             android:gravity="end">
 
-                            <TextView
-                                android:id="@+id/weatherHumidity"
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="💧 45%"
-                                style="@style/Text.Caption.Small" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="4dp">
 
-                            <TextView
-                                android:id="@+id/weatherWind"
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_water_drop"
+                                    android:tint="@color/navy"
+                                    app:tint="@color/navy"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:id="@+id/weatherHumidity"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="45%"
+                                    style="@style/Text.Caption.Small" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="💨 12 km/h"
-                                style="@style/Text.Caption.Small" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_air"
+                                    android:tint="@color/navy"
+                                    app:tint="@color/navy"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:id="@+id/weatherWind"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="12 km/h"
+                                    style="@style/Text.Caption.Small" />
+
+                            </LinearLayout>
 
                         </LinearLayout>
 
