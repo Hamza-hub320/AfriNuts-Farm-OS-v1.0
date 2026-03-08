@@ -78,6 +78,13 @@
             android:name=".ui.workers.WorkerDetailActivity"
             android:parentActivityName=".ui.workers.WorkerDashboardActivity" />
 
+        <activity
+            android:name=".ui.users.UsersListActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.users.UserDetailActivity"
+            android:parentActivityName=".ui.users.UsersListActivity" />
+
     </application>
 
 </manifest>
