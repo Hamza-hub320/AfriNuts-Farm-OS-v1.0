@@ -13,6 +13,7 @@ import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
+import com.afrinuts.farmos.data.local.dao.UserDao;
 import com.afrinuts.farmos.data.local.dao.WeatherDao;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
@@ -20,6 +21,7 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
 
 /**
@@ -34,7 +36,8 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 RevenueEntity.class,
                 TaskEntity.class,
                 TaskAssignmentHistoryEntity.class,
-                WeatherCacheEntity.class
+                WeatherCacheEntity.class,
+                UserEntity.class
 
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
@@ -57,6 +60,8 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract WeatherDao weatherDao();
 
+    public abstract UserDao userDao();
+
     private static volatile AppDatabase INSTANCE;
 
     public static AppDatabase getInstance(Context context) {
@@ -73,7 +78,8 @@ public abstract class AppDatabase extends RoomDatabase {
                             .fallbackToDestructiveMigration()
                             // .addMigrations(new Migration1To2(), new Migration2To3(),
                             //               new Migration3To4(), new Migration4To5(),
-                            //               new Migration5To6(), new Migration6To7())
+                            //               new Migration5To6(), new Migration6To7(),
+                            //               new Migration7To8())
                             .build();
                 }
             }

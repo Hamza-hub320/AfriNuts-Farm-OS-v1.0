@@ -1,0 +1,30 @@
+.
+├── README.md
+├── app
+│   ├── build.gradle.kts
+│   ├── proguard-rules.pro
+│   └── src
+│       ├── main
+│       │   ├── AndroidManifest.xml
+│       │   ├── java
+│       │   └── res
+│       └── test
+│           └── java
+├── build.gradle.kts
+├── docs
+│   ├── DATABASE_SCHEMA.md
+│   └── ERD.md
+├── gradle
+│   ├── gradle-daemon-jvm.properties
+│   ├── libs.versions.toml
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradle.properties
+├── gradlew
+├── gradlew.bat
+├── local.properties
+├── project_structure.txt
+└── settings.gradle.kts
+
+11 directories, 17 files
