@@ -2,10 +2,13 @@ package com.afrinuts.farmos.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +20,8 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.utils.AuthUtils;
+import com.afrinuts.farmos.utils.SessionManager;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -37,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvSelectUser;
     private View userSelectorDivider;
+    private HorizontalScrollView userScrollView;
     private LinearLayout userChipsContainer;
 
     private List<UserEntity> users;
@@ -64,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         tvSelectUser = findViewById(R.id.tvSelectUser);
         userSelectorDivider = findViewById(R.id.userSelectorDivider);
+        userScrollView = findViewById(R.id.userScrollView);
         userChipsContainer = findViewById(R.id.userChipsContainer);
 
         btnLogin.setOnClickListener(v -> attemptLogin());
@@ -107,6 +114,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void displayUserChips() {
+        if (userChipsContainer == null) return;
+
         userChipsContainer.removeAllViews();
 
         for (UserEntity user : users) {
@@ -117,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
             chip.setChipBackgroundColorResource(R.color.warm_grey);
             chip.setTextColor(getColor(R.color.text_dark));
             chip.setChipStrokeColorResource(R.color.primary);
-            chip.setChipStrokeWidth(1);
+            chip.setChipStrokeWidth(1.0f);
             chip.setClickable(true);
             chip.setCheckable(true);
             chip.setChecked(false);
@@ -141,16 +150,21 @@ public class LoginActivity extends AppCompatActivity {
 
         tvSelectUser.setVisibility(View.VISIBLE);
         userSelectorDivider.setVisibility(View.VISIBLE);
-        userChipsContainer.setVisibility(View.VISIBLE);
+        userScrollView.setVisibility(View.VISIBLE);
     }
 
     private void updateLoginFieldsForUser(UserEntity user) {
+        if (user == null) return;
+
         if (user.getAuthMethod() == UserEntity.AuthMethod.PIN) {
             // PIN mode
             layoutEmailPin.setHint("Enter PIN");
             etEmailPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
             layoutPassword.setVisibility(View.GONE);
             isPinMode = true;
+
+            // Clear any previous values
+            etEmailPin.setText("");
         } else {
             // Email/Password mode
             layoutEmailPin.setHint("Email");
@@ -161,7 +175,10 @@ public class LoginActivity extends AppCompatActivity {
             // Pre-fill email if available
             if (user.getEmail() != null) {
                 etEmailPin.setText(user.getEmail());
+            } else {
+                etEmailPin.setText("");
             }
+            etPassword.setText("");
         }
     }
 
@@ -193,43 +210,46 @@ public class LoginActivity extends AppCompatActivity {
             if (isPinMode) {
                 // Verify PIN
                 String hashedPin = AuthUtils.hash(emailPin);
-                authenticated = hashedPin.equals(selectedUser.getPinHash());
+                authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
             } else {
                 // Verify email and password
                 if (emailPin.equals(selectedUser.getEmail())) {
                     String hashedPassword = AuthUtils.hash(password);
-                    authenticated = hashedPassword.equals(selectedUser.getPasswordHash());
+                    authenticated = hashedPassword != null &&
+                            hashedPassword.equals(selectedUser.getPasswordHash());
                 }
             }
 
-            if (authenticated) {
-                // Update last login
-                selectedUser.setLastLoginAt(System.currentTimeMillis());
-                database.userDao().update(selectedUser);
+            boolean finalAuthenticated = authenticated;
+            runOnUiThread(() -> {
+                if (finalAuthenticated) {
+                    // Update last login
+                    selectedUser.setLastLoginAt(System.currentTimeMillis());
 
-                // Store logged in user (you can use SharedPreferences or a global state)
-                getSharedPreferences("auth", MODE_PRIVATE)
-                        .edit()
-                        .putLong("logged_in_user_id", selectedUser.getId())
-                        .putString("user_role", selectedUser.getRole().name())
-                        .apply();
+                    new Thread(() -> {
+                        database.userDao().update(selectedUser);
 
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                });
-            } else {
-                runOnUiThread(() -> {
+                        // Create login session
+                        SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                        sessionManager.createLoginSession(selectedUser);
+
+                        runOnUiThread(() -> {
+                            Toast.makeText(LoginActivity.this,
+                                    "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        });
+                    }).start();
+                } else {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Login");
-                    Toast.makeText(this,
+                    Toast.makeText(LoginActivity.this,
                             isPinMode ? "Invalid PIN" : "Invalid email or password",
                             Toast.LENGTH_SHORT).show();
-                });
-            }
+                }
+            });
         }).start();
     }
 }

@@ -41,6 +41,11 @@ import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.utils.DataSeeder;
 import com.google.gson.Gson;
 
+import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
+import com.afrinuts.farmos.utils.SessionManager;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -101,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout forecastContainer;
     private Button btnRefreshWeather;
     private CardView weatherCard;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
+
+        sessionManager = new SessionManager(this);
 
         // Initialize views
         initViews();
@@ -576,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-private void displayWeather(WeatherResponse weather) {
+    private void displayWeather(WeatherResponse weather) {
         this.currentWeather = weather;
         weatherLoadingText.setVisibility(View.GONE);
         weatherContent.setVisibility(View.VISIBLE);

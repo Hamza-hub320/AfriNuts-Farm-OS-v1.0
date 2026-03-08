@@ -75,13 +75,15 @@
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
+                    <!-- HorizontalScrollView with unique ID -->
                     <HorizontalScrollView
+                        android:id="@+id/userScrollView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
-                        android:visibility="gone"
-                        android:id="@+id/userChipsContainer">
+                        android:visibility="gone">
 
+                        <!-- LinearLayout with different ID -->
                         <LinearLayout
                             android:id="@+id/userChipsContainer"
                             android:layout_width="wrap_content"
@@ -135,7 +137,7 @@
                         style="@style/Widget.AfriNuts.Button"
                         android:layout_marginBottom="8dp" />
 
-                    <!-- Forgot PIN/Password (for future use) -->
+                    <!-- Forgot PIN/Password -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

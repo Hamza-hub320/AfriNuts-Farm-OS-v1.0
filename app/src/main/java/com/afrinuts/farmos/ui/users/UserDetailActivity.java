@@ -26,6 +26,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.afrinuts.farmos.utils.SessionManager;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import android.text.InputType;
+import android.text.TextUtils;
+import com.google.android.material.textfield.TextInputEditText;
+
+
 public class UserDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_USER_ID = "user_id";
@@ -33,6 +40,8 @@ public class UserDetailActivity extends AppCompatActivity {
     private long userId;
     private UserEntity user;
     private AppDatabase database;
+
+    private SessionManager sessionManager;
 
     // UI Elements
     private TextView tvUserInitials;
@@ -79,6 +88,15 @@ public class UserDetailActivity extends AppCompatActivity {
         // Initialize views
         initViews();
 
+        sessionManager = new SessionManager(this);
+
+        // Check if current user can edit this user
+        if (!sessionManager.isOwner()) {
+            btnEdit.setVisibility(View.GONE);
+            btnDeactivate.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+        }
+
         // Setup toolbar
         setupToolbar();
 
@@ -113,10 +131,7 @@ public class UserDetailActivity extends AppCompatActivity {
         btnEmail = findViewById(R.id.btnEmail);
 
         // Setup click listeners
-        btnEdit.setOnClickListener(v -> {
-            // TODO: Implement edit mode
-            Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
-        });
+        btnEdit.setOnClickListener(v -> showEditUserDialog());
 
         btnDeactivate.setOnClickListener(v -> toggleUserStatus());
 
@@ -268,6 +283,67 @@ public class UserDetailActivity extends AppCompatActivity {
     private void showResetPinDialog() {
         // In a real app, this would open a dialog to set a new PIN
         Toast.makeText(this, "Reset PIN coming soon", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showEditUserDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_user, null);
+
+        TextInputEditText etName = dialogView.findViewById(R.id.etName);
+        TextInputEditText etPhone = dialogView.findViewById(R.id.etPhone);
+        TextInputEditText etEmail = dialogView.findViewById(R.id.etEmail);
+        TextInputEditText etNewPassword = dialogView.findViewById(R.id.etNewPassword);
+        TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
+
+        etName.setText(user.getName());
+        etPhone.setText(user.getPhone());
+        if (user.getEmail() != null) {
+            etEmail.setText(user.getEmail());
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Edit User")
+                .setView(dialogView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String newName = etName.getText().toString().trim();
+                    String newPhone = etPhone.getText().toString().trim();
+                    String newEmail = etEmail.getText().toString().trim();
+                    String newPassword = etNewPassword.getText().toString().trim();
+                    String confirmPassword = etConfirmPassword.getText().toString().trim();
+
+                    if (TextUtils.isEmpty(newName)) {
+                        Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    user.setName(newName);
+                    user.setPhone(newPhone);
+
+                    if (user.getAuthMethod() == UserEntity.AuthMethod.PASSWORD) {
+                        user.setEmail(newEmail);
+
+                        if (!TextUtils.isEmpty(newPassword)) {
+                            if (newPassword.length() < 6) {
+                                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (!newPassword.equals(confirmPassword)) {
+                                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            user.setPasswordHash(AuthUtils.hash(newPassword));
+                        }
+                    }
+
+                    new Thread(() -> {
+                        database.userDao().update(user);
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "User updated successfully", Toast.LENGTH_SHORT).show();
+                            displayUserData();
+                        });
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
