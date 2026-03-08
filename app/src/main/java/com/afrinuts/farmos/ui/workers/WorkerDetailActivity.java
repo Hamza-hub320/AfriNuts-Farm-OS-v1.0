@@ -1,8 +1,10 @@
 package com.afrinuts.farmos.ui.workers;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -102,30 +105,50 @@ public class WorkerDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Worker Performance");
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
+            getSupportActionBar().setTitle("Worker Details");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadWorkerData() {
         new Thread(() -> {
-            // Get all assignments for this worker
-            assignments = database.taskDao().getActiveAssignmentsForWorker(workerName);
-            // Also need to add a method to get all assignments for a worker
-            // For now, we'll use a workaround
+            // Get all assignments
             List<TaskAssignmentHistoryEntity> allAssignments = database.taskDao().getAllAssignments();
             List<TaskAssignmentHistoryEntity> workerAssignments = new ArrayList<>();
 
+            // Filter assignments for this worker
             for (TaskAssignmentHistoryEntity assignment : allAssignments) {
                 if (assignment.getAssignedTo().equals(workerName)) {
                     workerAssignments.add(assignment);
+                    // Cache tasks
+                    TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
+                    if (task != null) {
+                        taskCache.put(assignment.getTaskId(), task);
+                    }
                 }
             }
             assignments = workerAssignments;
 
-            // Load block names
-            List<BlockEntity> blocks = database.blockDao().getAllBlocks();
-            for (BlockEntity block : blocks) {
-                blockNameMap.put(block.getId(), block.getBlockName());
+            // Load block names using getBlocksByFarmId instead of getAllBlocks
+            // Get the first farm (assuming you have one farm)
+            com.afrinuts.farmos.data.local.entity.FarmEntity farm = database.farmDao().getFirstFarm();
+            if (farm != null) {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                for (BlockEntity block : blocks) {
+                    blockNameMap.put(block.getId(), block.getBlockName());
+                }
             }
 
             runOnUiThread(() -> {
@@ -171,7 +194,12 @@ public class WorkerDetailActivity extends AppCompatActivity {
         completionRateValue.setText(String.format(Locale.getDefault(), "%.0f%%", completionRate));
 
         totalTimeValue.setText(totalHours + "h");
-        avgTimeValue.setText(avgHours + "h " + avgMinutes + "m");
+
+        if (avgHours > 0) {
+            avgTimeValue.setText(avgHours + "h " + avgMinutes + "m");
+        } else {
+            avgTimeValue.setText(avgMinutes + "m");
+        }
 
         efficiencyProgress.setProgress((int) completionRate);
     }
@@ -181,7 +209,7 @@ public class WorkerDetailActivity extends AppCompatActivity {
         Map<String, Integer> typeIconMap = new HashMap<>();
 
         for (TaskAssignmentHistoryEntity assignment : assignments) {
-            TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
+            TaskEntity task = taskCache.get(assignment.getTaskId());
             if (task != null) {
                 String typeName = task.getType().getDisplayName();
                 typeCount.put(typeName, typeCount.getOrDefault(typeName, 0) + 1);
@@ -194,6 +222,8 @@ public class WorkerDetailActivity extends AppCompatActivity {
             maxCount = Math.max(maxCount, count);
         }
 
+        taskTypesContainer.removeAllViews();
+
         for (Map.Entry<String, Integer> entry : typeCount.entrySet()) {
             View chipView = getLayoutInflater().inflate(
                     R.layout.item_task_type_chip, taskTypesContainer, false);
@@ -203,7 +233,12 @@ public class WorkerDetailActivity extends AppCompatActivity {
             TextView countView = chipView.findViewById(R.id.taskTypeCount);
             ProgressBar progressBar = chipView.findViewById(R.id.taskTypeProgress);
 
-            iconView.setImageResource(typeIconMap.get(entry.getKey()));
+            Integer iconRes = typeIconMap.get(entry.getKey());
+            if (iconRes != null) {
+                iconView.setImageResource(iconRes);
+                iconView.setColorFilter(ContextCompat.getColor(this, R.color.primary));
+            }
+
             nameView.setText(entry.getKey());
             countView.setText(String.valueOf(entry.getValue()));
 
@@ -237,8 +272,10 @@ public class WorkerDetailActivity extends AppCompatActivity {
         int limit = Math.min(5, sorted.size());
         sorted = sorted.subList(0, limit);
 
+        recentTasksContainer.removeAllViews();
+
         for (TaskAssignmentHistoryEntity assignment : sorted) {
-            TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
+            TaskEntity task = taskCache.get(assignment.getTaskId());
             if (task == null) continue;
 
             View taskView = getLayoutInflater().inflate(
@@ -269,7 +306,11 @@ public class WorkerDetailActivity extends AppCompatActivity {
 
             if (task.getBlockId() != null) {
                 String blockName = blockNameMap.get(task.getBlockId());
-                taskBlockInfo.setText("Block " + blockName);
+                if (blockName != null) {
+                    taskBlockInfo.setText("Block " + blockName);
+                } else {
+                    taskBlockInfo.setText("Unknown Block");
+                }
             } else {
                 taskBlockInfo.setText("Farm-Wide");
             }
@@ -283,6 +324,7 @@ public class WorkerDetailActivity extends AppCompatActivity {
     private void showEmptyState() {
         noTasksText.setVisibility(View.VISIBLE);
         recentTasksContainer.setVisibility(View.GONE);
+        taskTypesContainer.setVisibility(View.GONE);
 
         workerStatsText.setText("No tasks assigned yet");
         completionRateBadge.setText("0%");
@@ -292,14 +334,5 @@ public class WorkerDetailActivity extends AppCompatActivity {
         totalTimeValue.setText("0h");
         avgTimeValue.setText("0h");
         efficiencyProgress.setProgress(0);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

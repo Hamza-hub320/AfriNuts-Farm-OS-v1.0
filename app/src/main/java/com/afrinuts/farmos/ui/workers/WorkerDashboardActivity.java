@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.workers;
 
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -11,7 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.ui.workers.WorkerDetailActivity;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -78,8 +81,21 @@ public class WorkerDashboardActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Worker Performance");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadWorkerData() {
@@ -88,8 +104,7 @@ public class WorkerDashboardActivity extends AppCompatActivity {
         new Thread(() -> {
             // Get all task assignments
             List<TaskAssignmentHistoryEntity> allAssignments =
-                    database.taskDao().getAllAssignments(); // You'll need to add this method to TaskDao
-
+                    database.taskDao().getAllAssignments();
             if (allAssignments.isEmpty()) {
                 runOnUiThread(() -> {
                     showLoading(false);
@@ -209,12 +224,11 @@ public class WorkerDashboardActivity extends AppCompatActivity {
                 taskTypeContainer.addView(chip);
             }
 
-            // Add click listener to show worker details
+            // Navigate to worker detail screen
             cardView.setOnClickListener(v -> {
-                // TODO: Show worker detail view with all their tasks
-                android.widget.Toast.makeText(this,
-                        "Worker details coming soon",
-                        android.widget.Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(WorkerDashboardActivity.this, WorkerDetailActivity.class);
+                intent.putExtra(WorkerDetailActivity.EXTRA_WORKER_NAME, worker.getWorkerName());
+                startActivity(intent);
             });
 
             workerCardsContainer.addView(cardView);
@@ -231,14 +245,5 @@ public class WorkerDashboardActivity extends AppCompatActivity {
         emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         workerCardsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

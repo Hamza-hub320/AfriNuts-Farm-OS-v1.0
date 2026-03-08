@@ -136,12 +136,14 @@
         <item name="android:letterSpacing">0.05</item>
     </style>
 
-    <!-- Stats / Numbers -->
+    <!-- Stats / Numbers - Better for large values -->
     <style name="Text.Stat" parent="Text">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="Text.Stat.Large" parent="Text.Stat">
@@ -150,6 +152,14 @@
 
     <style name="Text.Stat.Small" parent="Text.Stat">
         <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <!-- Add this for very large numbers -->
+    <style name="Text.Stat.Compact" parent="Text.Stat">
+        <item name="android:textSize">18sp</item>
+        <item name="android:letterSpacing">-0.03</item>
+        <item name="android:maxWidth">100dp</item>
     </style>
 
     <!-- Labels -->

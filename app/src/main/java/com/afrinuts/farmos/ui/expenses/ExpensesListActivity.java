@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.expenses;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -113,8 +115,31 @@ public class ExpensesListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Farm Expenses");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == android.R.id.home) {
+            // Navigate to MainActivity
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            return true;
+        } else if (itemId == R.id.action_sort_date) {
+            sortExpensesByDate();
+            return true;
+        } else if (itemId == R.id.action_sort_amount) {
+            sortExpensesByAmount();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupFilters() {
@@ -248,23 +273,6 @@ public class ExpensesListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_expenses, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        } else if (item.getItemId() == R.id.action_sort_date) {
-            // Sort by date
-            sortExpensesByDate();
-            return true;
-        } else if (item.getItemId() == R.id.action_sort_amount) {
-            // Sort by amount
-            sortExpensesByAmount();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void sortExpensesByDate() {

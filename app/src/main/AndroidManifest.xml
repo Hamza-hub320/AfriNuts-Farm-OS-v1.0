@@ -74,6 +74,10 @@
             android:name=".ui.weather.WeatherActivity"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.workers.WorkerDetailActivity"
+            android:parentActivityName=".ui.workers.WorkerDashboardActivity" />
+
     </application>
 
 </manifest>

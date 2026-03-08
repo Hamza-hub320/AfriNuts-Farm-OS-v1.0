@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.expenses;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -60,7 +62,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     private LinearLayout topExpensesContainer;
     private ChipGroup chartFilterGroup;
 
-    private String currentFilter = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
+    private String currentFilter = "ALL_TIME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,9 @@ public class ExpenseChartsActivity extends AppCompatActivity {
 
         // Load data
         loadData();
+
+        // Setup toolbar with home icon
+        setupToolbar();
     }
 
     private void initViews() {
@@ -102,8 +107,21 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Expense Analytics");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupFilters() {
@@ -215,9 +233,26 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         double costPerHa = total / hectares;
         double costPerTree = total / trees;
 
-        totalExpensesValue.setText(String.format(Locale.getDefault(), "%,.0f XAF", total));
-        costPerHectareValue.setText(String.format(Locale.getDefault(), "%,.0f XAF", costPerHa));
-        costPerTreeValue.setText(String.format(Locale.getDefault(), "%,.0f XAF", costPerTree));
+        // Format numbers with abbreviations for very large values
+        String totalFormatted = formatLargeNumber(total);
+        String perHaFormatted = formatLargeNumber(costPerHa);
+        String perTreeFormatted = formatLargeNumber(costPerTree);
+
+        totalExpensesValue.setText(totalFormatted);
+        costPerHectareValue.setText(perHaFormatted);
+        costPerTreeValue.setText(perTreeFormatted);
+    }
+
+    private String formatLargeNumber(double value) {
+        if (value >= 1_000_000_000) {
+            return String.format(Locale.getDefault(), "%.1fB", value / 1_000_000_000);
+        } else if (value >= 1_000_000) {
+            return String.format(Locale.getDefault(), "%.1fM", value / 1_000_000);
+        } else if (value >= 1_000) {
+            return String.format(Locale.getDefault(), "%.1fK", value / 1_000);
+        } else {
+            return String.format(Locale.getDefault(), "%.0f", value);
+        }
     }
 
     private void updatePieChart(List<ExpenseEntity> expenses) {
@@ -471,15 +506,5 @@ public class ExpenseChartsActivity extends AppCompatActivity {
 
             topExpensesContainer.addView(itemView);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
     }
 }

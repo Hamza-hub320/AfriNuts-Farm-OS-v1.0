@@ -39,4 +39,7 @@ public interface BlockDao {
 
     @Query("SELECT AVG(survivalRate) FROM blocks WHERE farmId = :farmId")
     double getAverageSurvivalRate(long farmId);
+
+    @Query("SELECT * FROM blocks ORDER BY blockName ASC")
+    List<BlockEntity> getAllBlocks();
 }
