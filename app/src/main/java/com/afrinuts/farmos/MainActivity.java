@@ -1,4 +1,5 @@
 package com.afrinuts.farmos;
+import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
@@ -6,6 +7,7 @@ import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
 import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
+import com.afrinuts.farmos.ui.users.UsersListActivity;
 import com.afrinuts.farmos.ui.weather.WeatherActivity;
 import com.afrinuts.farmos.ui.weather.WeatherForecastDialog;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
@@ -43,11 +45,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+
+import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
+
+import com.afrinuts.farmos.ui.auth.LoginActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AfriNutsFarmOS";
 
     // UI Elements
+    private CardView btnUsersCard;
     private TextView farmNameText;
     private TextView farmLocationText;
     private TextView plantingYearText;
@@ -92,6 +105,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check if user is logged in
+        long loggedInUserId = getSharedPreferences("auth", MODE_PRIVATE)
+                .getLong("logged_in_user_id", -1);
+
+        if (loggedInUserId == -1) {
+
+            // No logged-in user → redirect to login
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         // Initialize views
@@ -111,6 +140,48 @@ public class MainActivity extends AppCompatActivity {
 
         weatherRepository = new WeatherRepository(this);
         loadWeatherData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (item.getItemId() == R.id.action_logout) {
+            logout();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Logout", (dialog, which) -> {
+
+                    // Clear saved user session
+                    getSharedPreferences("auth", MODE_PRIVATE)
+                            .edit()
+                            .clear()
+                            .apply();
+
+                    // Navigate to Login
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    startActivity(intent);
+                    finish();
+
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void ensureFarmExists() {
@@ -141,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        btnUsersCard = findViewById(R.id.btnUsersCard);
         farmNameText = findViewById(R.id.farmNameText);
         farmLocationText = findViewById(R.id.farmLocationText);
         plantingYearText = findViewById(R.id.plantingYearText);
@@ -305,6 +377,15 @@ public class MainActivity extends AppCompatActivity {
         btnRefreshWeather.setOnClickListener(v -> loadWeatherData());
 
         setupWeatherClick();
+
+        btnUsersCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, UsersListActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupAnimations() {

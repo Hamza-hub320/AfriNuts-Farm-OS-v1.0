@@ -1,10 +1,8 @@
 package com.afrinuts.farmos.data.local.entity;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;  // Add this import
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
-
-import com.afrinuts.farmos.data.local.converter.Converters;
 
 @Entity(tableName = "users")
 public class UserEntity {
@@ -18,9 +16,9 @@ public class UserEntity {
     private String email;
 
     // Authentication fields
-    private String passwordHash;     // For email/password login (SHA-256)
-    private String pinHash;          // For PIN login (SHA-256)
-    private AuthMethod authMethod;   // How they login
+    private String passwordHash;
+    private String pinHash;
+    private AuthMethod authMethod;
 
     private long lastLoginAt;
     private long createdAt;
@@ -36,7 +34,7 @@ public class UserEntity {
         private final String displayName;
         private final String icon;
         private final String description;
-        private final int accessLevel; // Higher = more access
+        private final int accessLevel;
 
         UserRole(String displayName, String icon, String description, int accessLevel) {
             this.displayName = displayName;
@@ -70,7 +68,26 @@ public class UserEntity {
         public String getDescription() { return description; }
     }
 
-    // Constructor for email/password users
+    // Main constructor for Room (annotate this one)
+    public UserEntity(long id, String name, UserRole role, String phone, String email,
+                      String passwordHash, String pinHash, AuthMethod authMethod,
+                      long lastLoginAt, long createdAt, long updatedAt, boolean isActive) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.pinHash = pinHash;
+        this.authMethod = authMethod;
+        this.lastLoginAt = lastLoginAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isActive = isActive;
+    }
+
+    // Constructor for email/password users - MARK AS IGNORE
+    @Ignore
     public UserEntity(String name, UserRole role, String phone, String email, String passwordHash) {
         this.name = name;
         this.role = role;
@@ -84,7 +101,8 @@ public class UserEntity {
         this.updatedAt = now;
     }
 
-    // Constructor for PIN users (workers)
+    // Constructor for PIN users - MARK AS IGNORE
+    @Ignore
     public UserEntity(String name, UserRole role, String phone, String pinHash) {
         this.name = name;
         this.role = role;

@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.blocks;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -82,7 +83,7 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHol
         ProgressBar survivalProgress;
         LinearLayout expandableContent;
         LinearLayout expandHeader;
-        TextView expandIcon;
+        ImageView expandIcon;  // Changed from TextView to ImageView
         LinearLayout notesSection;
 
         public BlockViewHolder(@NonNull View itemView) {
@@ -99,7 +100,7 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHol
             survivalProgress = itemView.findViewById(R.id.survivalProgress);
             expandableContent = itemView.findViewById(R.id.expandableContent);
             expandHeader = itemView.findViewById(R.id.expandHeader);
-            expandIcon = itemView.findViewById(R.id.expandIcon);
+            expandIcon = itemView.findViewById(R.id.expandIcon);  // Now works with ImageView
             notesSection = itemView.findViewById(R.id.notesSection);
         }
 
@@ -145,14 +146,14 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHol
                 survivalProgress.setProgress((int) survivalRate);
                 survivalText.setText(String.format(Locale.getDefault(), "%.1f%%", survivalRate));
 
-                String stats = String.format("🌱 Alive: %d | 💀 Dead: %d",
+                String stats = String.format("Alive: %d | Dead: %d",
                         block.getAliveTrees(), block.getDeadTrees());
                 statsText.setText(stats);
 
             } else {
 
                 // For non-planted blocks, show different stats
-                statsText.setText("⏳ " + block.getStatus().getDisplayName() + " - No trees yet");
+                statsText.setText(block.getStatus().getDisplayName() + " - No trees yet");
                 replacementText.setText("—");
                 survivalProgress.setProgress(0);
                 survivalText.setText("—");
@@ -169,15 +170,14 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.BlockViewHol
             // Handle expand/collapse
             if (isExpanded) {
                 expandableContent.setVisibility(View.VISIBLE);
-                expandIcon.setText("▲");
+                expandIcon.setImageResource(R.drawable.ic_expand_less); // Collapse icon (▲)
             } else {
                 expandableContent.setVisibility(View.GONE);
-                expandIcon.setText("▼");
+                expandIcon.setImageResource(R.drawable.ic_expand_more); // Expand icon (▼)
             }
 
             // Card click listener
             cardView.setOnClickListener(v -> {
-                // Pass the block ID to detail activity
                 android.content.Context context = itemView.getContext();
                 android.content.Intent intent = new android.content.Intent(context, BlockDetailActivity.class);
                 intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());

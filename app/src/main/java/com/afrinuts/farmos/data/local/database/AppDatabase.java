@@ -41,7 +41,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
 
                 // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
-        version = 7,
+        version = 8,
         exportSchema = true
 )
 @TypeConverters({Converters.class})

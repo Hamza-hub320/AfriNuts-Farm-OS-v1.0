@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,9 +35,9 @@ public class AddUserDialog extends DialogFragment {
     private TextInputEditText etEmail;
     private MaterialAutoCompleteTextView etRole;
     private MaterialButtonToggleGroup toggleAuthMethod;
-    private TextInputLayout layoutPassword;
+    private LinearLayout layoutPassword;
     private TextInputEditText etPassword;
-    private TextInputLayout layoutPin;
+    private LinearLayout layoutPin;
     private TextInputEditText etPin;
     private TextInputEditText etConfirmPin;
 

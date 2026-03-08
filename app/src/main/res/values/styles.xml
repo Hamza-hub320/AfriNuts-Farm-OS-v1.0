@@ -199,6 +199,7 @@
         <item name="android:paddingBottom">12dp</item>
     </style>
 
+    <!-- Outlined Button Style -->
     <style name="Widget.AfriNuts.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:textAppearance">@style/Text.Button</item>
         <item name="strokeColor">@color/primary</item>
@@ -209,6 +210,17 @@
         <item name="android:paddingRight">16dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Small Button Style - ADD THIS -->
+    <style name="Widget.AfriNuts.Button.Small" parent="Widget.AfriNuts.Button">
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:minHeight">32dp</item>
+        <item name="cornerRadius">6dp</item>
     </style>
 
     <!-- CardView Style -->
@@ -227,7 +239,17 @@
         <item name="android:maxHeight">6dp</item>
     </style>
 
-    <!-- EditText Style - NEW -->
+    <!-- Chip Style -->
+    <style name="Widget.AfriNuts.Chip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="android:textAppearance">@style/Text.Caption.Small</item>
+        <item name="chipBackgroundColor">@color/warm_grey</item>
+        <item name="chipStrokeColor">@color/primary</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="rippleColor">@color/accent</item>
+        <item name="chipCornerRadius">16dp</item>
+    </style>
+
+    <!-- EditText Style -->
     <style name="Widget.AfriNuts.EditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/primary</item>
         <item name="boxStrokeWidth">1dp</item>
@@ -236,30 +258,6 @@
         <item name="android:textColorHint">@color/navy</item>
         <item name="colorControlActivated">@color/primary</item>
         <item name="colorControlHighlight">@color/accent</item>
-        <item name="android:textColor">@color/text_dark</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-    </style>
-
-    <!-- Chip Style - NEW -->
-    <style name="Widget.AfriNuts.Chip" parent="Widget.MaterialComponents.Chip.Filter">
-        <item name="chipBackgroundColor">@color/warm_grey</item>
-        <item name="chipStrokeColor">@color/primary</item>
-        <item name="chipStrokeWidth">0dp</item>
-        <item name="chipCornerRadius">16dp</item>
-        <item name="android:textColor">@color/navy</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:paddingTop">6dp</item>
-        <item name="android:paddingBottom">6dp</item>
-        <item name="chipIconSize">18dp</item>
-        <item name="chipStartPadding">8dp</item>
-        <item name="chipEndPadding">8dp</item>
-        <item name="android:minHeight">36dp</item>
     </style>
 
     <!-- Divider Style -->
