@@ -70,6 +70,10 @@
             android:name=".ui.revenue.RevenueDetailActivity"
             android:parentActivityName=".ui.revenue.RevenuesListActivity" />
 
+        <activity
+            android:name=".ui.weather.WeatherActivity"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>

@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,9 +24,10 @@ import java.util.Locale;
 
 public class WeatherForecastDialog extends DialogFragment {
 
-    private static final String ARG_WEATHER = "weather";
+    private static final String ARG_WEATHER_JSON = "weather_json";
 
     private WeatherResponse weather;
+    private Gson gson = new Gson();
 
     private TextView tvLocation;
     private TextView tvLastUpdated;
@@ -41,7 +43,8 @@ public class WeatherForecastDialog extends DialogFragment {
     public static WeatherForecastDialog newInstance(WeatherResponse weather) {
         WeatherForecastDialog dialog = new WeatherForecastDialog();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_WEATHER, weather);
+        // Convert to JSON string for passing
+        args.putString(ARG_WEATHER_JSON, new Gson().toJson(weather));
         dialog.setArguments(args);
         return dialog;
     }
@@ -50,7 +53,8 @@ public class WeatherForecastDialog extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            weather = (WeatherResponse) getArguments().getSerializable(ARG_WEATHER);
+            String weatherJson = getArguments().getString(ARG_WEATHER_JSON);
+            weather = gson.fromJson(weatherJson, WeatherResponse.class);
         }
     }
 
@@ -60,7 +64,10 @@ public class WeatherForecastDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_weather_forecast, null);
 
         initViews(view);
-        displayWeatherData();
+
+        if (weather != null) {
+            displayWeatherData();
+        }
 
         return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Weather Forecast")

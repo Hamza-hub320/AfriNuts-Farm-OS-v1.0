@@ -6,6 +6,8 @@ import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
 import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
+import com.afrinuts.farmos.ui.weather.WeatherActivity;
+import com.afrinuts.farmos.ui.weather.WeatherForecastDialog;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
 import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
 
@@ -35,6 +37,7 @@ import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.blocks.BlockDialog;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.utils.DataSeeder;
+import com.google.gson.Gson;
 
 import java.util.Date;
 import java.util.List;
@@ -582,7 +585,21 @@ private void displayWeather(WeatherResponse weather) {
 
     private void setupWeatherClick() {
         weatherCard.setOnClickListener(v -> {
-            showWeatherForecastDialog();
+
+            if (currentWeather != null) {
+
+                Intent intent = new Intent(this, WeatherActivity.class);
+                intent.putExtra("weather_json", new Gson().toJson(currentWeather));
+                startActivity(intent);
+
+            } else {
+
+                Toast.makeText(
+                        this,
+                        "Weather data not available yet",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 
