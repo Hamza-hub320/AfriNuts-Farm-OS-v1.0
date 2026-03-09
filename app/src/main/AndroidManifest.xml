@@ -10,9 +10,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_logo_afrinuts"
+        android:icon="@mipmap/ic_logo_afrinuts"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_logo_afrinuts"
+        android:roundIcon="@mipmap/ic_logo_afrinuts"
         android:supportsRtl="true"
         android:theme="@style/Theme.AfriNutsFarmOS"
         android:usesCleartextTraffic="true">
@@ -94,6 +94,26 @@
         <activity
             android:name=".ui.users.UserDetailActivity"
             android:parentActivityName=".ui.users.UsersListActivity" />
+
+        <!-- Add file provider for camera photos -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Add photo activities -->
+        <activity
+            android:name=".ui.photos.PhotoGalleryActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.photos.PhotoDetailActivity"
+            android:parentActivityName=".ui.photos.PhotoGalleryActivity" />
 
     </application>
 

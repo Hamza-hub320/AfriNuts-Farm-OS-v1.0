@@ -21,6 +21,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -63,6 +64,10 @@ public class BlockDetailActivity extends BaseActivity {
 
     // Notes
     private TextInputEditText etNotes;
+
+    // Photo gallery
+    private LinearLayout btnPhotoGallery;
+    private TextView tvPhotoCount;
 
     // Edit mode
     private boolean isEditMode = false;
@@ -136,6 +141,10 @@ public class BlockDetailActivity extends BaseActivity {
         // Notes
         etNotes = findViewById(R.id.etNotes);
 
+        // Photo gallery
+        btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
+        tvPhotoCount = findViewById(R.id.tvPhotoCount);
+
         // Buttons
         btnEdit = findViewById(R.id.btnEdit);
         btnSave = findViewById(R.id.btnSave);
@@ -147,6 +156,13 @@ public class BlockDetailActivity extends BaseActivity {
         fabEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
+
+        // Open photo gallery
+        btnPhotoGallery.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PhotoGalleryActivity.class);
+            intent.putExtra("block_id", blockId);
+            startActivity(intent);
+        });
 
         // Make fields read-only initially
         // setFieldsEditable(false);
@@ -181,6 +197,7 @@ public class BlockDetailActivity extends BaseActivity {
             runOnUiThread(() -> {
                 if (block != null) {
                     displayBlockData();
+                    loadPhotoCount();
                     setFieldsEditable(false);  // Now block is not null!
 
                     // If user is investor, hide edit buttons
@@ -475,6 +492,15 @@ public class BlockDetailActivity extends BaseActivity {
             runOnUiThread(() -> {
                 Toast.makeText(this, "Block deleted", Toast.LENGTH_SHORT).show();
                 finish(); // Go back to blocks list
+            });
+        }).start();
+    }
+
+    private void loadPhotoCount() {
+        new Thread(() -> {
+            int count = database.photoDao().getPhotoCountForBlock(blockId);
+            runOnUiThread(() -> {
+                tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
             });
         }).start();
     }
