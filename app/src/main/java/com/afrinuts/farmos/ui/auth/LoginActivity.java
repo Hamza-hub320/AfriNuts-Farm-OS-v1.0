@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -121,8 +122,17 @@ public class LoginActivity extends AppCompatActivity {
         for (UserEntity user : users) {
             if (!user.isActive()) continue; // Skip inactive users
 
+            // Create chip with vector icon
             Chip chip = new Chip(this);
-            chip.setText(user.getDisplayRole() + " " + user.getName());
+            chip.setText(user.getName());
+
+            // Set icon based on role
+            int iconResId = getRoleIcon(user.getRole());
+            chip.setChipIconResource(iconResId);
+            chip.setChipIconTint(ContextCompat.getColorStateList(this, R.color.primary));
+            chip.setChipIconVisible(true);
+
+            // Style the chip
             chip.setChipBackgroundColorResource(R.color.warm_grey);
             chip.setTextColor(getColor(R.color.text_dark));
             chip.setChipStrokeColorResource(R.color.primary);
@@ -151,6 +161,21 @@ public class LoginActivity extends AppCompatActivity {
         tvSelectUser.setVisibility(View.VISIBLE);
         userSelectorDivider.setVisibility(View.VISIBLE);
         userScrollView.setVisibility(View.VISIBLE);
+    }
+
+    private int getRoleIcon(UserEntity.UserRole role) {
+        switch (role) {
+            case OWNER:
+                return R.drawable.ic_star;
+            case MANAGER:
+                return R.drawable.ic_assignment;
+            case WORKER:
+                return R.drawable.ic_person;
+            case INVESTOR:
+                return R.drawable.ic_trending_up;
+            default:
+                return R.drawable.ic_person;
+        }
     }
 
     private void updateLoginFieldsForUser(UserEntity user) {
@@ -229,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
                     new Thread(() -> {
                         database.userDao().update(selectedUser);
 
-                        // Create login session
+                        // Store logged in user
                         SessionManager sessionManager = new SessionManager(LoginActivity.this);
                         sessionManager.createLoginSession(selectedUser);
 

@@ -3,6 +3,8 @@ package com.afrinuts.farmos.ui.users;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -11,37 +13,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.utils.AuthUtils;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.afrinuts.farmos.utils.SessionManager;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import android.text.InputType;
-import android.text.TextUtils;
-import com.google.android.material.textfield.TextInputEditText;
-
-
-public class UserDetailActivity extends AppCompatActivity {
+public class UserDetailActivity extends BaseActivity {
 
     public static final String EXTRA_USER_ID = "user_id";
 
     private long userId;
     private UserEntity user;
     private AppDatabase database;
-
-    private SessionManager sessionManager;
 
     // UI Elements
     private TextView tvUserInitials;
@@ -70,8 +65,14 @@ public class UserDetailActivity extends AppCompatActivity {
     private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MMM dd, yyyy, hh:mm a", Locale.getDefault());
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Only Owners can access UserDetailActivity
+        return sessionManager.isOwner();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_user_detail);
 
         // Get user ID from intent
@@ -87,15 +88,6 @@ public class UserDetailActivity extends AppCompatActivity {
 
         // Initialize views
         initViews();
-
-        sessionManager = new SessionManager(this);
-
-        // Check if current user can edit this user
-        if (!sessionManager.isOwner()) {
-            btnEdit.setVisibility(View.GONE);
-            btnDeactivate.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-        }
 
         // Setup toolbar
         setupToolbar();
@@ -132,11 +124,8 @@ public class UserDetailActivity extends AppCompatActivity {
 
         // Setup click listeners
         btnEdit.setOnClickListener(v -> showEditUserDialog());
-
         btnDeactivate.setOnClickListener(v -> toggleUserStatus());
-
         btnDelete.setOnClickListener(v -> confirmDelete());
-
         btnResetPin.setOnClickListener(v -> showResetPinDialog());
 
         btnCall.setOnClickListener(v -> {
@@ -226,10 +215,6 @@ public class UserDetailActivity extends AppCompatActivity {
 
         tvAuthMethod.setText(user.getAuthMethod().getIcon() + " " +
                 user.getAuthMethod().getDisplayName());
-
-        // Show/hide delete button based on role (only owners can delete)
-        // This is simplified - in production, check current user's role
-        btnDelete.setVisibility(View.GONE); // Hide for now
     }
 
     private String getAccessLevelDescription(int level) {

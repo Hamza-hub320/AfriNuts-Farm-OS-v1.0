@@ -9,11 +9,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.workers.WorkerDetailActivity;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
@@ -23,13 +23,12 @@ import com.google.android.material.chip.Chip;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class WorkerDashboardActivity extends AppCompatActivity {
+public class WorkerDashboardActivity extends BaseActivity {
 
     private AppDatabase database;
 
@@ -44,6 +43,12 @@ public class WorkerDashboardActivity extends AppCompatActivity {
 
     private List<WorkerPerformance> workerPerformances = new ArrayList<>();
     private Map<String, List<TaskEntity>> taskCache = new HashMap<>();
+
+    @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access Worker Dashboard, Investors cannot
+        return !sessionManager.isInvestor();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

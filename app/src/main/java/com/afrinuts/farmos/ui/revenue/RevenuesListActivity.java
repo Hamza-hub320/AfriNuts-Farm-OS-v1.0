@@ -10,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +20,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class RevenuesListActivity extends AppCompatActivity {
+public class RevenuesListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private RevenueAdapter adapter;
@@ -50,9 +50,20 @@ public class RevenuesListActivity extends AppCompatActivity {
     private String currentFilter = "ALL"; // ALL, BLOCKS, PROCESSING, PREMIUM, STANDARD
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Investors cannot view revenue data
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_revenues_list);
+
+        // If we get here, user has permission (Owner or Manager)
+
+        // Initialize database
+        database = AppDatabase.getInstance(this);
 
         // Initialize views
         initViews();
@@ -60,13 +71,10 @@ public class RevenuesListActivity extends AppCompatActivity {
         // Setup toolbar
         setupToolbar();
 
-        // Initialize database
-        database = AppDatabase.getInstance(this);
-
         // Setup filter listeners
         setupFilters();
 
-        // Setup FAB
+        // Setup FAB (only show for users who can add data)
         setupFab();
 
         // Load data
@@ -164,15 +172,23 @@ public class RevenuesListActivity extends AppCompatActivity {
 
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.fabAddRevenue);
-        fab.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
-                dialog.setOnRevenueAddedListener(() -> {
-                    loadData(); // Refresh list
-                });
-                dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
-            }
-        });
+
+        // Only show FAB for users who can add data (Owners and Managers)
+        if (sessionManager.canEditData()) {
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
+                    dialog.setOnRevenueAddedListener(() -> {
+                        loadData(); // Refresh list
+                    });
+                    dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
+                }
+            });
+        } else {
+            // Investors cannot add revenue
+            fab.setVisibility(View.GONE);
+        }
     }
 
     private void loadData() {
@@ -251,10 +267,10 @@ public class RevenuesListActivity extends AppCompatActivity {
 
         // Update adapter
         adapter = new RevenueAdapter(filteredRevenues, revenue -> {
-            // TODO: Open RevenueDetailActivity
-            android.widget.Toast.makeText(this,
-                    "Revenue detail coming soon",
-                    android.widget.Toast.LENGTH_SHORT).show();
+            // Navigate to RevenueDetailActivity
+            Intent intent = new Intent(this, RevenueDetailActivity.class);
+            intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
+            startActivity(intent);
         });
 
         recyclerView.setAdapter(adapter);

@@ -8,7 +8,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,15 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public class UsersListActivity extends AppCompatActivity {
+public class UsersListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private UserAdapter adapter;
@@ -42,18 +41,26 @@ public class UsersListActivity extends AppCompatActivity {
     private String currentFilter = "ALL"; // ALL, OWNERS, MANAGERS, WORKERS, INVESTORS
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Only Owners can access UsersList
+        return sessionManager.isOwner();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_users_list);
+
+        // If we get here, user has permission (Owner only)
+
+        // Initialize database
+        database = AppDatabase.getInstance(this);
 
         // Initialize views
         initViews();
 
         // Setup toolbar
         setupToolbar();
-
-        // Initialize database
-        database = AppDatabase.getInstance(this);
 
         // Setup filter listeners
         setupFilters();
@@ -211,10 +218,10 @@ public class UsersListActivity extends AppCompatActivity {
         }
 
         adapter = new UserAdapter(filteredUsers, user -> {
-            // TODO: Open UserDetailActivity
-            android.widget.Toast.makeText(this,
-                    "User details for " + user.getName() + " coming soon",
-                    android.widget.Toast.LENGTH_SHORT).show();
+            // Navigate to UserDetailActivity
+            android.content.Intent intent = new android.content.Intent(this, UserDetailActivity.class);
+            intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getId());
+            startActivity(intent);
         });
 
         recyclerView.setAdapter(adapter);

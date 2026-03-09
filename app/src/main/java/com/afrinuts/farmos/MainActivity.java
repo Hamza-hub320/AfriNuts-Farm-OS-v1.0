@@ -1,4 +1,5 @@
 package com.afrinuts.farmos;
+
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
@@ -35,36 +36,30 @@ import androidx.cardview.widget.CardView;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.blocks.BlockDialog;
-import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.utils.DataSeeder;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.gson.Gson;
 
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.afrinuts.farmos.utils.SessionManager;
+import androidx.annotation.NonNull;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.appbar.MaterialToolbar;
+
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-
-import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
-
-import androidx.annotation.NonNull;
-
-import com.afrinuts.farmos.ui.auth.LoginActivity;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AfriNutsFarmOS";
 
     // UI Elements
+    private MaterialToolbar toolbar;
     private CardView btnUsersCard;
     private TextView farmNameText;
     private TextView farmLocationText;
@@ -106,30 +101,24 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout forecastContainer;
     private Button btnRefreshWeather;
     private CardView weatherCard;
+
     private SessionManager sessionManager;
+    private UserEntity currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize session manager
+        sessionManager = new SessionManager(this);
+
         // Check if user is logged in
-        long loggedInUserId = getSharedPreferences("auth", MODE_PRIVATE)
-                .getLong("logged_in_user_id", -1);
-
-        if (loggedInUserId == -1) {
-
-            // No logged-in user → redirect to login
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-            startActivity(intent);
-            finish();
+        if (!sessionManager.isLoggedIn()) {
+            redirectToLogin();
             return;
         }
 
         setContentView(R.layout.activity_main);
-
-        sessionManager = new SessionManager(this);
 
         // Initialize views
         initViews();
@@ -137,17 +126,51 @@ public class MainActivity extends AppCompatActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
+        // Load current user
+        loadCurrentUser();
+
         // FIRST: Ensure farm exists
         ensureFarmExists();
 
         // THEN: Load farm data
         loadFarmData();
 
+        // Setup role-based UI
+        setupRoleBasedUI();
+
         // Setup click listeners
         setupClickListeners();
 
+        // Setup animations and effects
+        setupAnimations();
+        setupHoverEffects();
+
+        // Load weather data
         weatherRepository = new WeatherRepository(this);
         loadWeatherData();
+    }
+
+    private void loadCurrentUser() {
+        new Thread(() -> {
+            long userId = sessionManager.getUserId();
+            if (userId != -1) {
+                currentUser = database.userDao().getUserById(userId);
+            }
+            runOnUiThread(() -> {
+                if (currentUser == null) {
+                    // User not found in database, logout
+                    sessionManager.logout();
+                    redirectToLogin();
+                }
+            });
+        }).start();
+    }
+
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -158,38 +181,46 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
         if (item.getItemId() == R.id.action_logout) {
-            logout();
+            showLogoutDialog();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    private void logout() {
-
+    private void showLogoutDialog() {
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Logout")
                 .setMessage("Are you sure you want to logout?")
                 .setPositiveButton("Logout", (dialog, which) -> {
-
-                    // Clear saved user session
-                    getSharedPreferences("auth", MODE_PRIVATE)
-                            .edit()
-                            .clear()
-                            .apply();
-
-                    // Navigate to Login
-                    Intent intent = new Intent(this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                    startActivity(intent);
-                    finish();
-
+                    sessionManager.logout();
+                    redirectToLogin();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void setupRoleBasedUI() {
+        // Team card - only visible to Owner
+        if (!sessionManager.isOwner()) {
+            btnUsersCard.setVisibility(View.GONE);
+        }
+
+        // Add operation cards - only Owners and Managers can add
+        if (!sessionManager.canEditData()) {
+            btnAddBlockCard.setVisibility(View.GONE);
+            btnAddExpenseCard.setVisibility(View.GONE);
+            btnAddRevenueCard.setVisibility(View.GONE);
+            btnAddTaskCard.setVisibility(View.GONE);
+        }
+
+        // Workers Dashboard - hide from Investors
+        if (sessionManager.isInvestor()) {
+            btnWorkerAnalyticsCard.setVisibility(View.GONE);
+        }
+
+        // Profit Dashboard and Charts - visible to all
+        // No change needed - these are visible to everyone
     }
 
     private void ensureFarmExists() {
@@ -220,6 +251,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        btnUsersCard = findViewById(R.id.btnUsersCard);
+        farmNameText = findViewById(R.id.farmNameText);
         btnUsersCard = findViewById(R.id.btnUsersCard);
         farmNameText = findViewById(R.id.farmNameText);
         farmLocationText = findViewById(R.id.farmLocationText);
@@ -263,13 +298,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Loading farm data... Please try again", Toast.LENGTH_SHORT).show();
-                loadFarmData(); // Retry loading
+                loadFarmData();
             }
         });
 
         btnAddBlockCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                // Get next available block name
+            if (currentFarm != null && sessionManager.canEditData()) {
                 String nextBlock = getNextAvailableBlockName();
 
                 if (nextBlock.equals("FULL")) {
@@ -282,25 +316,25 @@ public class MainActivity extends AppCompatActivity {
                 BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
                 dialog.setNextBlockName(nextBlock);
                 dialog.setOnBlockAddedListener(() -> {
-                    loadFarmData(); // Refresh data
+                    loadFarmData();
                     Toast.makeText(this, "Block " + nextBlock + " added successfully!",
                             Toast.LENGTH_SHORT).show();
                 });
                 dialog.show(getSupportFragmentManager(), "BlockDialog");
             } else {
-                Toast.makeText(this, "Farm not configured. Please restart app.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "You don't have permission to add blocks", Toast.LENGTH_SHORT).show();
             }
         });
+
         btnAddExpenseCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
+            if (currentFarm != null && sessionManager.canEditData()) {
                 AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
                 dialog.setOnExpenseAddedListener(() -> {
                     Toast.makeText(this, "Expense added!", Toast.LENGTH_SHORT).show();
-                    // Optionally refresh some summary
                 });
                 dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
             } else {
-                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "You don't have permission to add expenses", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -323,14 +357,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddRevenueCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
+            if (currentFarm != null && sessionManager.canEditData()) {
                 AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
                 dialog.setOnRevenueAddedListener(() -> {
                     Toast.makeText(this, "Revenue added!", Toast.LENGTH_SHORT).show();
                 });
                 dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
             } else {
-                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "You don't have permission to add revenue", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -353,21 +387,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAddTaskCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
+            if (currentFarm != null && sessionManager.canEditData()) {
                 AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
                 dialog.setOnTaskAddedListener(() -> {
                     Toast.makeText(this, "Task created successfully!", Toast.LENGTH_SHORT).show();
                 });
                 dialog.show(getSupportFragmentManager(), "AddTaskDialog");
             } else {
-                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "You don't have permission to add tasks", Toast.LENGTH_SHORT).show();
             }
         });
 
         btnWorkerAnalyticsCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
+            if (currentFarm != null && !sessionManager.isInvestor()) {
                 Intent intent = new Intent(MainActivity.this, WorkerDashboardActivity.class);
                 startActivity(intent);
+            } else if (sessionManager.isInvestor()) {
+                Toast.makeText(this, "Investors cannot view worker analytics", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }
@@ -387,9 +423,11 @@ public class MainActivity extends AppCompatActivity {
         setupWeatherClick();
 
         btnUsersCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
+            if (currentFarm != null && sessionManager.isOwner()) {
                 Intent intent = new Intent(MainActivity.this, UsersListActivity.class);
                 startActivity(intent);
+            } else if (!sessionManager.isOwner()) {
+                Toast.makeText(this, "Only owners can access team management", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }
@@ -399,9 +437,12 @@ public class MainActivity extends AppCompatActivity {
     private void setupAnimations() {
         // Animate stats cards on load
         View[] statsCards = {
-                (View) findViewById(R.id.totalHectaresText).getParent().getParent(),
-                (View) findViewById(R.id.totalTreesText).getParent().getParent(),
-                (View) findViewById(R.id.blocksCountText).getParent().getParent()
+                findViewById(R.id.totalHectaresText).getParent().getParent() instanceof View ?
+                        (View) findViewById(R.id.totalHectaresText).getParent().getParent() : null,
+                findViewById(R.id.totalTreesText).getParent().getParent() instanceof View ?
+                        (View) findViewById(R.id.totalTreesText).getParent().getParent() : null,
+                findViewById(R.id.blocksCountText).getParent().getParent() instanceof View ?
+                        (View) findViewById(R.id.blocksCountText).getParent().getParent() : null
         };
 
         for (int i = 0; i < statsCards.length; i++) {
@@ -704,6 +745,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadFarmData(); // Refresh data when returning to activity
+        loadFarmData();
+
+        // Refresh user data
+        if (sessionManager.isLoggedIn()) {
+            loadCurrentUser();
+        }
     }
 }

@@ -11,7 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.MainActivity;
@@ -20,6 +19,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class RevenueDetailActivity extends AppCompatActivity {
+public class RevenueDetailActivity extends BaseActivity {
 
     public static final String EXTRA_REVENUE_ID = "revenue_id";
 
@@ -37,8 +37,8 @@ public class RevenueDetailActivity extends AppCompatActivity {
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
 
-    // UI Elements - Updated types to match layout
-    private ImageView tvQualityIcon;  // Changed from TextView to ImageView
+    // UI Elements
+    private ImageView tvQualityIcon;
     private TextView tvQualityGrade;
     private TextView tvSource;
     private TextView tvQuantity;
@@ -47,15 +47,30 @@ public class RevenueDetailActivity extends AppCompatActivity {
     private TextView tvHarvestDate;
     private TextView tvBuyer;
     private TextView tvNotes;
+    private LinearLayout notesLayout;
     private Button btnDelete;
-    private LinearLayout notesLayout;  // Added for notes section visibility
+    private MaterialButton btnEdit;  // Keep this if it exists in your layout
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+
+    @Override
+    protected boolean checkRoleAccess() {
+        // Investors cannot view revenue details
+        return !sessionManager.isInvestor();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_revenue_detail);
+
+        // Check if user has permission
+        if (!checkRoleAccess()) {
+            Toast.makeText(this, "You don't have permission to view revenue details",
+                    Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         // Get revenue ID from intent
         revenueId = getIntent().getLongExtra(EXTRA_REVENUE_ID, -1);
@@ -74,6 +89,9 @@ public class RevenueDetailActivity extends AppCompatActivity {
         // Setup toolbar
         setupToolbar();
 
+        // Setup role-based UI
+        setupRoleBasedUI();
+
         // Load data
         loadData();
     }
@@ -82,7 +100,7 @@ public class RevenueDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tvQualityIcon = findViewById(R.id.tvQualityIcon);  // Now ImageView
+        tvQualityIcon = findViewById(R.id.tvQualityIcon);
         tvQualityGrade = findViewById(R.id.tvQualityGrade);
         tvSource = findViewById(R.id.tvSource);
         tvQuantity = findViewById(R.id.tvQuantity);
@@ -91,10 +109,20 @@ public class RevenueDetailActivity extends AppCompatActivity {
         tvHarvestDate = findViewById(R.id.tvHarvestDate);
         tvBuyer = findViewById(R.id.tvBuyer);
         tvNotes = findViewById(R.id.tvNotes);
-        notesLayout = findViewById(R.id.notesLayout);  // Initialize notes layout
+        notesLayout = findViewById(R.id.notesLayout);
         btnDelete = findViewById(R.id.btnDelete);
 
+        // Try to find btnEdit if it exists in your layout
+        btnEdit = findViewById(R.id.btnEdit);
+
         btnDelete.setOnClickListener(v -> confirmDelete());
+
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                // Navigate to edit mode or open edit dialog
+                Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void setupToolbar() {
@@ -105,6 +133,18 @@ public class RevenueDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Revenue Details");
+        }
+    }
+
+    private void setupRoleBasedUI() {
+        // Only Owners and Managers can edit/delete
+        if (sessionManager.canEditData()) {
+            if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
+            if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
+        } else {
+            // Investors - view only (if they somehow get here, but they shouldn't)
+            if (btnEdit != null) btnEdit.setVisibility(View.GONE);
+            if (btnDelete != null) btnDelete.setVisibility(View.GONE);
         }
     }
 

@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;  // Add this import
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
@@ -22,6 +21,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TaskDetailActivity extends AppCompatActivity {
+public class TaskDetailActivity extends BaseActivity {
 
     public static final String EXTRA_TASK_ID = "task_id";
 
@@ -42,7 +42,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     private AppDatabase database;
 
     // UI Elements
-    private ImageView tvTaskIcon;  // Changed from TextView to ImageView
+    private ImageView tvTaskIcon;
     private TextView tvTaskTitle;
     private TextView tvTaskType;
     private TextView tvCurrentStatus;
@@ -73,8 +73,14 @@ public class TaskDetailActivity extends AppCompatActivity {
     private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access task details, Investors cannot
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_task_detail);
 
         // Get task ID from intent
@@ -108,7 +114,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
 
         // Header
-        tvTaskIcon = findViewById(R.id.tvTaskIcon);  // Now this is an ImageView
+        tvTaskIcon = findViewById(R.id.tvTaskIcon);
         tvTaskTitle = findViewById(R.id.tvTaskTitle);
         tvTaskType = findViewById(R.id.tvTaskType);
 
@@ -145,6 +151,25 @@ public class TaskDetailActivity extends AppCompatActivity {
         btnAssignWorker.setOnClickListener(v -> showAssignWorkerDialog());
         btnEdit.setOnClickListener(v -> enableEditMode());
         btnDelete.setOnClickListener(v -> confirmDelete());
+
+        // Apply role-based UI visibility
+        setupRoleBasedUI();
+    }
+
+    private void setupRoleBasedUI() {
+        // Investors cannot edit or delete
+        if (sessionManager.isInvestor()) {
+            btnEdit.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            fabStatus.setVisibility(View.GONE);
+            btnUpdateStatus.setVisibility(View.GONE);
+            btnAssignWorker.setVisibility(View.GONE);
+        }
+
+        // Managers can edit but not delete (optional - you can adjust)
+        if (sessionManager.isManager()) {
+            btnDelete.setVisibility(View.GONE); // Optional: Managers can't delete
+        }
     }
 
     private void setupToolbar() {

@@ -10,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +20,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class ExpensesListActivity extends AppCompatActivity {
+public class ExpensesListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
@@ -52,9 +52,17 @@ public class ExpensesListActivity extends AppCompatActivity {
     private String currentFilter = "ALL"; // ALL, FARM_WIDE, BLOCK_SPECIFIC
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access Expenses, Investors cannot
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_expenses_list);
+
+        // If we get here, user has permission (Owner or Manager)
 
         // Initialize views
         initViews();
@@ -71,17 +79,11 @@ public class ExpensesListActivity extends AppCompatActivity {
         // Setup filter listeners
         setupFilters();
 
-        // Setup FAB to add new expense
-        FloatingActionButton fabAdd = findViewById(R.id.fabAddExpense);
-        fabAdd.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
-                dialog.setOnExpenseAddedListener(() -> {
-                    loadExpenses(); // Refresh list
-                });
-                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
-            }
-        });
+        // Setup FAB
+        setupFab();
+
+        // Setup home intent for toolbar navigation
+        setupHomeIntent();
     }
 
     private void initViews() {
@@ -99,15 +101,22 @@ public class ExpensesListActivity extends AppCompatActivity {
 
     private void setupFab() {
         FloatingActionButton fabAdd = findViewById(R.id.fabAddExpense);
-        fabAdd.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
-                dialog.setOnExpenseAddedListener(() -> {
-                    loadExpenses(); // Refresh list
-                });
-                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
-            }
-        });
+
+        // Only show FAB if user can edit (Owners and Managers can edit)
+        if (sessionManager.canEditData()) {
+            fabAdd.setVisibility(View.VISIBLE);
+            fabAdd.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
+                    dialog.setOnExpenseAddedListener(() -> {
+                        loadExpenses(); // Refresh list
+                    });
+                    dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
+                }
+            });
+        } else {
+            fabAdd.setVisibility(View.GONE);
+        }
     }
 
     private void setupToolbar() {
@@ -119,6 +128,10 @@ public class ExpensesListActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Farm Expenses");
         }
+    }
+
+    private void setupHomeIntent() {
+        // This is handled in onOptionsItemSelected
     }
 
     @Override
@@ -247,11 +260,10 @@ public class ExpensesListActivity extends AppCompatActivity {
 
         // Update adapter
         adapter = new ExpenseAdapter(filteredExpenses, expense -> {
-            // TODO: Open ExpenseDetailActivity
-            // For now, show toast
-            android.widget.Toast.makeText(this,
-                    "Edit expense coming soon",
-                    android.widget.Toast.LENGTH_SHORT).show();
+            // Open ExpenseDetailActivity
+            Intent intent = new Intent(ExpensesListActivity.this, ExpenseDetailActivity.class);
+            intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
+            startActivity(intent);
         });
 
         recyclerView.setAdapter(adapter);

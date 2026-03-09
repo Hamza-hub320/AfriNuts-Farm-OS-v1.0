@@ -131,7 +131,8 @@ public class ProfitAnalytics {
                     true,
                     revenue.getHarvestDate(),
                     revenue.getTotalAmount(),
-                    revenue.getQuality().getIcon() + " " + revenue.getQuality().getDisplayName(),
+                    revenue.getQuality().getDisplayName(), // Just the name, no icon
+                    revenue.getQuality().getIconResId(),   // Pass the icon resource ID
                     revenue.getBlockId()
             ));
         }
@@ -142,7 +143,8 @@ public class ProfitAnalytics {
                     false,
                     expense.getDate(),
                     -expense.getAmount(),
-                    expense.getCategory().getIcon() + " " + expense.getCategory().getDisplayName(),
+                    expense.getCategory().getDisplayName(), // Just the name, no icon
+                    expense.getCategory().getIconResId(),   // Pass the icon resource ID
                     expense.getBlockId()
             ));
         }
@@ -156,19 +158,57 @@ public class ProfitAnalytics {
     }
 
     // Getters
-    public double getTotalRevenue() { return totalRevenue; }
-    public double getTotalExpenses() { return totalExpenses; }
-    public double getNetProfit() { return netProfit; }
-    public double getProfitMargin() { return profitMargin; }
-    public double getRevenuePerHectare() { return revenuePerHectare; }
-    public double getExpensePerHectare() { return expensePerHectare; }
-    public double getProfitPerHectare() { return profitPerHectare; }
-    public double getRevenuePerTree() { return revenuePerTree; }
-    public double getExpensePerTree() { return expensePerTree; }
-    public double getProfitPerTree() { return profitPerTree; }
-    public Map<String, Double> getMonthlyProfit() { return monthlyProfit; }
-    public Map<String, Double> getProfitByBlock() { return profitByBlock; }
-    public List<ProfitTransaction> getRecentTransactions() { return recentTransactions; }
+    public double getTotalRevenue() {
+        return totalRevenue;
+    }
+
+    public double getTotalExpenses() {
+        return totalExpenses;
+    }
+
+    public double getNetProfit() {
+        return netProfit;
+    }
+
+    public double getProfitMargin() {
+        return profitMargin;
+    }
+
+    public double getRevenuePerHectare() {
+        return revenuePerHectare;
+    }
+
+    public double getExpensePerHectare() {
+        return expensePerHectare;
+    }
+
+    public double getProfitPerHectare() {
+        return profitPerHectare;
+    }
+
+    public double getRevenuePerTree() {
+        return revenuePerTree;
+    }
+
+    public double getExpensePerTree() {
+        return expensePerTree;
+    }
+
+    public double getProfitPerTree() {
+        return profitPerTree;
+    }
+
+    public Map<String, Double> getMonthlyProfit() {
+        return monthlyProfit;
+    }
+
+    public Map<String, Double> getProfitByBlock() {
+        return profitByBlock;
+    }
+
+    public List<ProfitTransaction> getRecentTransactions() {
+        return recentTransactions;
+    }
 
     public static class ProfitTransaction {
         private long id;
@@ -176,24 +216,48 @@ public class ProfitAnalytics {
         private long date;
         private double amount;
         private String description;
+        private int iconResId; // Add this
         private Long blockId;
 
         public ProfitTransaction(long id, boolean isRevenue, long date,
-                                 double amount, String description, Long blockId) {
+                                 double amount, String description,
+                                 int iconResId, Long blockId) { // Add parameter
             this.id = id;
             this.isRevenue = isRevenue;
             this.date = date;
             this.amount = amount;
             this.description = description;
+            this.iconResId = iconResId; // Store it
             this.blockId = blockId;
         }
 
-        public long getId() { return id; }
-        public boolean isRevenue() { return isRevenue; }
-        public long getDate() { return date; }
-        public double getAmount() { return amount; }
-        public String getDescription() { return description; }
-        public Long getBlockId() { return blockId; }
+        public long getId() {
+            return id;
+        }
+
+        public boolean isRevenue() {
+            return isRevenue;
+        }
+
+        public long getDate() {
+            return date;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public int getIconResId() {
+            return iconResId;
+        } // Add getter
+
+        public Long getBlockId() {
+            return blockId;
+        }
 
         public String getFormattedDate() {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());

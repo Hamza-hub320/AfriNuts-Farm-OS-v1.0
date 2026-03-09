@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.MainActivity;
@@ -23,6 +22,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -35,7 +35,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class ExpenseDetailActivity extends AppCompatActivity {
+public class ExpenseDetailActivity extends BaseActivity {
 
     public static final String EXTRA_EXPENSE_ID = "expense_id";
 
@@ -46,7 +46,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     private AppDatabase database;
 
     // UI Elements
-    private ImageView tvCategoryIcon;  // Changed from TextView to ImageView
+    private ImageView tvCategoryIcon;
     private TextView tvCategoryName;
     private TextView tvBlockInfo;
     private TextInputEditText etAmount;
@@ -64,8 +64,24 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     private Calendar selectedDate = Calendar.getInstance();
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Only Owners and Managers can access expense details
+        // Investors cannot view/edit expenses
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check if user has permission (if not, activity will finish)
+        if (!checkRoleAccess()) {
+            Toast.makeText(this, "You don't have permission to view expenses",
+                    Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_expense_detail);
 
         // Get expense ID from intent
@@ -87,6 +103,20 @@ public class ExpenseDetailActivity extends AppCompatActivity {
 
         // Load data
         loadData();
+
+        // Apply role-based UI restrictions
+        applyRoleBasedRestrictions();
+    }
+
+    private void applyRoleBasedRestrictions() {
+        // Investors shouldn't be here, but just in case
+        if (sessionManager.isInvestor()) {
+            finish();
+            return;
+        }
+
+        // Managers can view but edit permissions may vary
+        // You can add specific restrictions here if needed
     }
 
     private void initViews() {
@@ -98,7 +128,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         }
 
         // Category display
-        tvCategoryIcon = findViewById(R.id.tvCategoryIcon);  // Now ImageView
+        tvCategoryIcon = findViewById(R.id.tvCategoryIcon);
         tvCategoryName = findViewById(R.id.tvCategoryName);
         tvBlockInfo = findViewById(R.id.tvBlockInfo);
 
@@ -208,8 +238,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     }
 
     private void displayExpenseData() {
-        // Set category icon and name - UPDATED for ImageView
-        // Map expense category to appropriate icon
+        // Set category icon and name
         int iconRes = getIconForCategory(expense.getCategory());
         tvCategoryIcon.setImageResource(iconRes);
         tvCategoryName.setText(expense.getCategory().getDisplayName());
@@ -279,6 +308,13 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     }
 
     private void enableEditMode(boolean enable) {
+        // Only Owners and Managers can edit
+        if (!sessionManager.canEditData()) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "You don't have permission to edit", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
         isEditMode = enable;
 
         // Toggle button visibility
@@ -307,6 +343,12 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     }
 
     private void showBlockSelectorDialog() {
+        if (!sessionManager.canEditData()) {
+            Toast.makeText(this, "You don't have permission to change block",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String[] blockOptions = new String[allBlocks.size() + 1];
         blockOptions[0] = "Farm-Wide";
 
@@ -384,6 +426,13 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     }
 
     private void confirmDelete() {
+        // Only Owners can delete
+        if (!sessionManager.isOwner()) {
+            Toast.makeText(this, "Only owners can delete expenses",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Expense")
                 .setMessage("Are you sure you want to delete this expense? This action cannot be undone.")

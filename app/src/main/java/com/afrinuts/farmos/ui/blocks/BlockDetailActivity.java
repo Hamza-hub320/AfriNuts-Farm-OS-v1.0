@@ -14,13 +14,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class BlockDetailActivity extends AppCompatActivity {
+public class BlockDetailActivity extends BaseActivity {
 
     public static final String EXTRA_BLOCK_ID = "block_id";
 
@@ -72,8 +72,14 @@ public class BlockDetailActivity extends AppCompatActivity {
     private FloatingActionButton fabEdit;
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access Block details, Investors cannot
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_block_detail);
 
         // Get block ID from intent
@@ -176,6 +182,13 @@ public class BlockDetailActivity extends AppCompatActivity {
                 if (block != null) {
                     displayBlockData();
                     setFieldsEditable(false);  // Now block is not null!
+
+                    // If user is investor, hide edit buttons
+                    if (sessionManager.isInvestor()) {
+                        btnEdit.setVisibility(View.GONE);
+                        btnDelete.setVisibility(View.GONE);
+                        fabEdit.setVisibility(View.GONE);
+                    }
                 } else {
                     Toast.makeText(this, "Block not found", Toast.LENGTH_SHORT).show();
                     finish();
@@ -295,6 +308,13 @@ public class BlockDetailActivity extends AppCompatActivity {
     }
 
     private void enableEditMode(boolean enable) {
+        // Only Owners and Managers can edit
+        if (!sessionManager.canEditData()) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "You don't have permission to edit", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
         isEditMode = enable;
 
         // Toggle visibility of edit/save buttons
@@ -431,6 +451,13 @@ public class BlockDetailActivity extends AppCompatActivity {
     }
 
     private void confirmDelete() {
+        // Only Owners can delete
+        if (!sessionManager.isOwner()) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Only owners can delete blocks", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Block")
                 .setMessage("Are you sure you want to delete " + block.getBlockName() + "? This action cannot be undone.")

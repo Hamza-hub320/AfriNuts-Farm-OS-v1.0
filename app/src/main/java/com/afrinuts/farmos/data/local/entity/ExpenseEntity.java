@@ -5,6 +5,7 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
+import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.converter.Converters;
 
 @Entity(tableName = "expenses",
@@ -38,40 +39,32 @@ public class ExpenseEntity {
     private long updatedAt;
 
     public enum ExpenseCategory {
-        LAND_CLEARING("Land Clearing", "🚜", "35 hectares plantation"),
-        PLOWING("Plowing", "🌾", "35 hectares"),
-        SEEDLINGS("Seedlings", "🌱", "3,500 trees + replacements"),
-        LABOR("Labor", "👥", "Supervision & workers"),
-        SECURITY("Security", "🛡️", "1 year guard service"),
-        FENCING("Fencing", "⛓️", "Perimeter fence - 35 hectares"),
-        PROCESSING_CENTER("Processing Center", "🏭", "15 hectares - separate"),
-        FERTILIZER("Fertilizer", "🧪", null),
-        IRRIGATION("Irrigation", "💧", null),
-        EQUIPMENT("Equipment", "🔧", null),
-        MAINTENANCE("Maintenance", "🔨", null),
-        OTHER("Other", "📦", null);
+        LAND_CLEARING("Land Clearing", "35 hectares plantation", R.drawable.ic_construction),
+        PLOWING("Plowing", "35 hectares", R.drawable.ic_grain),
+        SEEDLINGS("Seedlings", "3,500 trees + replacements", R.drawable.ic_grass),
+        LABOR("Labor", "Supervision & workers", R.drawable.ic_people),
+        SECURITY("Security", "1 year guard service", R.drawable.ic_security),
+        FENCING("Fencing", "Perimeter fence - 35 hectares", R.drawable.ic_fence),
+        PROCESSING_CENTER("Processing Center", "15 hectares - separate", R.drawable.ic_factory),
+        FERTILIZER("Fertilizer", null, R.drawable.ic_fertilizer),
+        IRRIGATION("Irrigation", null, R.drawable.ic_water_drop),
+        EQUIPMENT("Equipment", null, R.drawable.ic_construction),
+        MAINTENANCE("Maintenance", null, R.drawable.ic_maintenance),
+        OTHER("Other", null, R.drawable.ic_more_horiz);
 
         private final String displayName;
-        private final String icon;
         private final String defaultDescription;
+        private final int iconResId; // Store vector icon resource ID
 
-        ExpenseCategory(String displayName, String icon, String defaultDescription) {
+        ExpenseCategory(String displayName, String defaultDescription, int iconResId) {
             this.displayName = displayName;
-            this.icon = icon;
             this.defaultDescription = defaultDescription;
+            this.iconResId = iconResId;
         }
 
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public String getIcon() {
-            return icon;
-        }
-
-        public String getDefaultDescription() {
-            return defaultDescription;
-        }
+        public String getDisplayName() { return displayName; }
+        public String getDefaultDescription() { return defaultDescription; }
+        public int getIconResId() { return iconResId; } // New getter for vector icon
     }
 
     // Constructor

@@ -8,16 +8,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.ui.users.UserDetailActivity;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
@@ -61,6 +58,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         private TextView userPhone;
         private TextView userEmail;
         private CardView cardView;
+        private ImageView roleIcon;
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,45 +69,71 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             userPhone = itemView.findViewById(R.id.userPhone);
             userEmail = itemView.findViewById(R.id.userEmail);
             cardView = (CardView) itemView;
+            roleIcon = itemView.findViewById(R.id.roleIcon);
         }
 
         void bind(UserEntity user, OnUserClickListener listener) {
             // Set avatar with initials
             userAvatar.setImageResource(R.drawable.ic_person);
-            userAvatar.setImageTintList(null); // Reset tint for avatar
+            userAvatar.setImageTintList(null);
 
             userName.setText(user.getName());
-            userRole.setText(user.getDisplayRole());
+
+            // Set role with vector icon
+            UserEntity.UserRole role = user.getRole();
+            int roleIconRes = getRoleIcon(role);
+            String roleText = role.getDisplayName();
+
+            // Set role icon and text
+            if (roleIcon != null) {
+                roleIcon.setImageResource(roleIconRes);
+                roleIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                roleIcon.setVisibility(View.VISIBLE);
+            }
+            userRole.setText(roleText);
 
             // Set status indicator
             if (user.isActive()) {
                 userStatus.setImageResource(R.drawable.ic_check_circle);
-                userStatus.setImageTintList(
-                        android.content.res.ColorStateList.valueOf(
-                                itemView.getContext().getColor(R.color.primary)));
+                userStatus.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                userStatus.setVisibility(View.VISIBLE);
             } else {
                 userStatus.setImageResource(R.drawable.ic_cancel);
-                userStatus.setImageTintList(
-                        android.content.res.ColorStateList.valueOf(
-                                itemView.getContext().getColor(android.R.color.holo_red_dark)));
+                userStatus.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark));
+                userStatus.setVisibility(View.VISIBLE);
             }
 
             // Set contact info
-            userPhone.setText(user.getPhone() != null ? user.getPhone() : "No phone");
+            String phone = user.getPhone();
+            userPhone.setText(phone != null && !phone.isEmpty() ? phone : "No phone");
 
+            // Set email based on auth method
             if (user.getAuthMethod() == UserEntity.AuthMethod.PASSWORD) {
-                userEmail.setText(user.getEmail() != null ? user.getEmail() : "No email");
+                String email = user.getEmail();
+                userEmail.setText(email != null && !email.isEmpty() ? email : "No email");
             } else {
-                userEmail.setText("🔢 PIN User");
+                userEmail.setText("PIN User");
             }
 
             // Click listener
-            cardView.setOnClickListener(v -> {
-                android.content.Context context = itemView.getContext();
-                android.content.Intent intent = new android.content.Intent(context, UserDetailActivity.class);
-                intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getId());
-                context.startActivity(intent);
-            });
+            cardView.setOnClickListener(v -> listener.onUserClick(user));
+        }
+
+        private int getRoleIcon(UserEntity.UserRole role) {
+            if (role == null) return R.drawable.ic_person;
+
+            switch (role) {
+                case OWNER:
+                    return R.drawable.ic_star;
+                case MANAGER:
+                    return R.drawable.ic_assignment;
+                case WORKER:
+                    return R.drawable.ic_person;
+                case INVESTOR:
+                    return R.drawable.ic_trending_up;
+                default:
+                    return R.drawable.ic_person;
+            }
         }
     }
 }

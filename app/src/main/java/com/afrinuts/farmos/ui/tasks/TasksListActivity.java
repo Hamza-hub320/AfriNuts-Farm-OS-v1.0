@@ -10,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +20,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class TasksListActivity extends AppCompatActivity {
+public class TasksListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
@@ -51,9 +51,17 @@ public class TasksListActivity extends AppCompatActivity {
     private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, COMPLETED, OVERDUE
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access tasks, Investors cannot
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // This will trigger role check
         setContentView(R.layout.activity_tasks_list);
+
+        // If we get here, user has permission (Owner or Manager)
 
         // Initialize views
         initViews();
@@ -67,7 +75,7 @@ public class TasksListActivity extends AppCompatActivity {
         // Setup filter listeners
         setupFilters();
 
-        // Setup FAB
+        // Setup FAB - Only Owners and Managers can add tasks
         setupFab();
 
         // Load data
@@ -166,19 +174,26 @@ public class TasksListActivity extends AppCompatActivity {
 
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.fabAddTask);
-        fab.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
-                dialog.setOnTaskAddedListener(() -> {
-                    loadData(); // Refresh list
-                });
-                dialog.show(getSupportFragmentManager(), "AddTaskDialog");
-            } else {
-                android.widget.Toast.makeText(this,
-                        "Farm not configured",
-                        android.widget.Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        // Only show FAB if user can edit (Owners and Managers)
+        if (sessionManager.canEditData()) {
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
+                    dialog.setOnTaskAddedListener(() -> {
+                        loadData(); // Refresh list
+                    });
+                    dialog.show(getSupportFragmentManager(), "AddTaskDialog");
+                } else {
+                    android.widget.Toast.makeText(this,
+                            "Farm not configured",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            fab.setVisibility(View.GONE);
+        }
     }
 
     private void loadData() {
@@ -282,10 +297,10 @@ public class TasksListActivity extends AppCompatActivity {
 
         // Update adapter
         adapter = new TaskAdapter(filteredTasks, task -> {
-            // TODO: Open TaskDetailActivity
-            android.widget.Toast.makeText(this,
-                    "Task detail coming soon",
-                    android.widget.Toast.LENGTH_SHORT).show();
+            // Open TaskDetailActivity
+            Intent intent = new Intent(this, TaskDetailActivity.class);
+            intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, task.getId());
+            startActivity(intent);
         });
 
         recyclerView.setAdapter(adapter);

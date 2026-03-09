@@ -4,6 +4,8 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+import com.afrinuts.farmos.R;
+
 @Entity(tableName = "revenues",
         foreignKeys = {
                 @ForeignKey(
@@ -41,23 +43,23 @@ public class RevenueEntity {
     private long updatedAt;
 
     public enum QualityGrade {
-        PREMIUM("Premium", "⭐", "Best quality, large nuts"),
-        STANDARD("Standard", "✓", "Good quality, medium nuts"),
-        PROCESSING("Processing", "⚙️", "For processing, smaller nuts");
+        PREMIUM("Premium", "Premium Grade", R.drawable.ic_star),
+        STANDARD("Standard", "Standard Grade", R.drawable.ic_check_circle),
+        PROCESSING("Processing", "For processing", R.drawable.ic_factory);
 
         private final String displayName;
-        private final String icon;
         private final String description;
+        private final int iconResId; // Store vector icon resource ID
 
-        QualityGrade(String displayName, String icon, String description) {
+        QualityGrade(String displayName, String description, int iconResId) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
+            this.iconResId = iconResId;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
+        public int getIconResId() { return iconResId; } // New getter for vector icon
     }
 
     // Constructor

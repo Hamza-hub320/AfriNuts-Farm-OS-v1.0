@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -24,6 +23,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddUserDialog extends DialogFragment {
 
@@ -70,7 +72,7 @@ public class AddUserDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_user, null);
 
         initViews(view);
-        setupRoleDropdown();
+        setupRoleDropdown(); // This now uses the new implementation
         setupAuthMethodToggle();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -107,25 +109,44 @@ public class AddUserDialog extends DialogFragment {
         layoutPassword.setVisibility(View.GONE);
     }
 
+    // NEW: Setup role dropdown with vector icons
     private void setupRoleDropdown() {
-        UserEntity.UserRole[] roles = UserEntity.UserRole.values();
-        String[] roleNames = new String[roles.length];
+        // Create role items with vector icons
+        List<RoleItem> roleItems = new ArrayList<>();
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.OWNER,
+                "Owner",
+                R.drawable.ic_star
+        ));
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.MANAGER,
+                "Manager",
+                R.drawable.ic_assignment
+        ));
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.WORKER,
+                "Worker",
+                R.drawable.ic_person
+        ));
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.INVESTOR,
+                "Investor",
+                R.drawable.ic_trending_up
+        ));
 
-        for (int i = 0; i < roles.length; i++) {
-            roleNames[i] = roles[i].getIcon() + " " + roles[i].getDisplayName();
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                roleNames
-        );
-
+        RoleAdapter adapter = new RoleAdapter(requireContext(), roleItems);
         etRole.setAdapter(adapter);
-        etRole.setText(roleNames[2], false); // Default to Worker
+
+        // Set default selection (Worker)
+        etRole.setText(roleItems.get(2).getDisplayName(), false);
 
         etRole.setOnItemClickListener((parent, view, position, id) -> {
-            selectedRole = roles[position];
+            RoleItem selectedItem = (RoleItem) parent.getItemAtPosition(position);
+            selectedRole = selectedItem.getRole();
+
+            // Update the text to show the display name
+            etRole.setText(selectedItem.getDisplayName(), false);
+
             // Workers default to PIN, others default to Password
             if (selectedRole == UserEntity.UserRole.WORKER) {
                 toggleAuthMethod.check(R.id.btnPin);

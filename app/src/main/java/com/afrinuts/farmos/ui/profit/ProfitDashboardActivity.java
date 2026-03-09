@@ -9,8 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.afrinuts.farmos.MainActivity;
@@ -20,8 +18,10 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class ProfitDashboardActivity extends AppCompatActivity {
+public class ProfitDashboardActivity extends BaseActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
@@ -50,6 +50,12 @@ public class ProfitDashboardActivity extends AppCompatActivity {
     private LinearLayout recentTransactionsContainer;
 
     private String currentDateRange = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
+
+    @Override
+    protected boolean checkRoleAccess() {
+        // Everyone can view profit dashboard (owners, managers, investors)
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +79,7 @@ public class ProfitDashboardActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         dateRangeChipGroup = findViewById(R.id.dateRangeChipGroup);
@@ -88,7 +94,7 @@ public class ProfitDashboardActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -101,9 +107,11 @@ public class ProfitDashboardActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            // Navigate back to MainActivity with proper flags
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -258,22 +266,18 @@ public class ProfitDashboardActivity extends AppCompatActivity {
             View itemView = getLayoutInflater().inflate(
                     R.layout.item_recent_transaction, recentTransactionsContainer, false);
 
-            // These are all correct - they match your layout
-            ImageView ivTransactionIcon = itemView.findViewById(R.id.ivTransactionIcon);  // Changed from tvTransactionIcon
+            ImageView ivTransactionIcon = itemView.findViewById(R.id.ivTransactionIcon);
             TextView tvTransactionDesc = itemView.findViewById(R.id.tvTransactionDesc);
             TextView tvTransactionDate = itemView.findViewById(R.id.tvTransactionDate);
             TextView tvTransactionAmount = itemView.findViewById(R.id.tvTransactionAmount);
 
-            // Set icon based on type using ImageView
-            if (transaction.isRevenue()) {
-                ivTransactionIcon.setImageResource(R.drawable.ic_attach_money);
-                ivTransactionIcon.setColorFilter(ContextCompat.getColor(this,
-                        android.R.color.holo_green_dark));
-            } else {
-                ivTransactionIcon.setImageResource(R.drawable.ic_money_off);
-                ivTransactionIcon.setColorFilter(ContextCompat.getColor(this,
-                        android.R.color.holo_red_dark));
-            }
+            // Set icon using the resource ID from the transaction
+            ivTransactionIcon.setImageResource(transaction.getIconResId());
+
+            // Set tint based on transaction type
+            int tintColor = ContextCompat.getColor(this,
+                    transaction.isRevenue() ? R.color.primary : android.R.color.holo_red_dark);
+            ivTransactionIcon.setColorFilter(tintColor);
 
             tvTransactionDesc.setText(transaction.getDescription());
             tvTransactionDate.setText(transaction.getFormattedDate());
@@ -284,15 +288,15 @@ public class ProfitDashboardActivity extends AppCompatActivity {
             int color = ContextCompat.getColor(this, transaction.getAmountColor());
             tvTransactionAmount.setTextColor(color);
 
-            // Add click listener to navigate to original item
+            // Add click listener
             itemView.setOnClickListener(v -> {
                 if (transaction.isRevenue()) {
-                    android.content.Intent intent = new android.content.Intent(
+                    Intent intent = new Intent(
                             this, com.afrinuts.farmos.ui.revenue.RevenueDetailActivity.class);
                     intent.putExtra("revenue_id", transaction.getId());
                     startActivity(intent);
                 } else {
-                    android.content.Intent intent = new android.content.Intent(
+                    Intent intent = new Intent(
                             this, com.afrinuts.farmos.ui.expenses.ExpenseDetailActivity.class);
                     intent.putExtra("expense_id", transaction.getId());
                     startActivity(intent);
@@ -301,5 +305,14 @@ public class ProfitDashboardActivity extends AppCompatActivity {
 
             recentTransactionsContainer.addView(itemView);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Navigate back to MainActivity
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 }

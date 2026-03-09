@@ -9,7 +9,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +18,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -27,22 +27,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class BlocksActivity extends AppCompatActivity {
+public class BlocksActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ExpandableBlockAdapter expandableAdapter;
     private ProgressBar progressBar;
     private LinearLayout emptyView;
-    private LinearLayout summaryLayout;  // Now this is the container inside CardView
+    private LinearLayout summaryLayout;
+    private FloatingActionButton fabAdd;
     private List<BlockGroup> blockGroups = new ArrayList<>();
 
     private AppDatabase database;
     private FarmEntity currentFarm;
 
     @Override
+    protected boolean checkRoleAccess() {
+        // Managers and Owners can access, Investors cannot
+        return !sessionManager.isInvestor();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocks);
+
+        // If we get here, user has permission (Owner or Manager)
 
         // Initialize views
         initViews();
@@ -53,6 +62,9 @@ public class BlocksActivity extends AppCompatActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
+        // Setup role-based UI
+        setupRoleBasedUI();
+
         // Load data
         loadFarmData();
     }
@@ -61,32 +73,12 @@ public class BlocksActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         emptyView = findViewById(R.id.emptyView);
-        summaryLayout = findViewById(R.id.summaryLayout);  // This is the container inside CardView
+        summaryLayout = findViewById(R.id.summaryLayout);
+        fabAdd = findViewById(R.id.fabAdd);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-
-        // Floating action button
-        FloatingActionButton fab = findViewById(R.id.fabAdd);
-        fab.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                String nextBlock = getNextAvailableBlockName();
-                if (nextBlock.equals("FULL")) {
-                    android.widget.Toast.makeText(this,
-                            "All 35 blocks (A1-E7) have been created. Cannot add more.",
-                            android.widget.Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
-                dialog.setNextBlockName(nextBlock);
-                dialog.setOnBlockAddedListener(() -> {
-                    loadFarmData();
-                });
-                dialog.show(getSupportFragmentManager(), "BlockDialog");
-            }
-        });
     }
 
     private void setupToolbar() {
@@ -95,15 +87,21 @@ public class BlocksActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home); // Add this line
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Farm Blocks");
         }
+    }
+
+    private void setupRoleBasedUI() {
+        // Only Owners and Managers can add blocks (Investors already blocked)
+        // But Managers can add blocks, so FAB stays visible
+        // No additional restrictions needed for BlocksActivity
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Navigate to MainActivity instead of just finishing
+            // Navigate to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -222,7 +220,7 @@ public class BlocksActivity extends AppCompatActivity {
     }
 
     private void openBlockDetail(BlockEntity block) {
-        android.content.Intent intent = new android.content.Intent(this, BlockDetailActivity.class);
+        Intent intent = new Intent(this, BlockDetailActivity.class);
         intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
         startActivity(intent);
     }
