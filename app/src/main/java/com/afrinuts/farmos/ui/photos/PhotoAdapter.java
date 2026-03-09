@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -83,6 +84,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 Glide.with(itemView.getContext())
                         .load(imageFile)
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .placeholder(R.drawable.ic_photo_placeholder)
                         .error(R.drawable.ic_photo_error)
                         .into(ivPhoto);
@@ -90,8 +92,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 ivPhoto.setImageResource(R.drawable.ic_photo_error);
             }
 
-            // Set type icon
-            ivTypeIcon.setImageResource(photo.getType().getIconResId());
+            // Set type icon using the entity's method
+            ivTypeIcon.setImageResource(photo.getIconResId());
 
             // Set caption (or placeholder)
             if (photo.getCaption() != null && !photo.getCaption().isEmpty()) {

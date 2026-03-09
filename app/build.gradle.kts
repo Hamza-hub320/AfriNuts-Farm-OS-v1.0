@@ -73,4 +73,8 @@ dependencies {
 
     // Material Icons (Extended for more icon options)
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

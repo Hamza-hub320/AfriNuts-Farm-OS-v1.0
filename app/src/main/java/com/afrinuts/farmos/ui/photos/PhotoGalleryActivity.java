@@ -8,8 +8,10 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
@@ -20,7 +22,10 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +42,7 @@ public class PhotoGalleryActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
-    private View emptyView;
+    private LinearLayout emptyView;
     private FloatingActionButton fabAddPhoto;
 
     private AppDatabase database;
@@ -94,7 +99,9 @@ public class PhotoGalleryActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(getToolbarTitle());
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
+            getSupportActionBar().setTitle("Blocks Details");
         }
     }
 
@@ -107,10 +114,10 @@ public class PhotoGalleryActivity extends BaseActivity {
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        adapter = new PhotoAdapter(photos, photo -> {
+        adapter = new PhotoAdapter(photo -> {
             // Open photo detail
             Intent intent = new Intent(this, PhotoDetailActivity.class);
-            intent.putExtra("photo_id", photo.getId());
+            intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
@@ -123,7 +130,7 @@ public class PhotoGalleryActivity extends BaseActivity {
     private void showPhotoSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Add Photo")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
@@ -184,9 +191,10 @@ public class PhotoGalleryActivity extends BaseActivity {
                 savePhotoToDatabase(currentPhotoPath);
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImageUri = data.getData();
-                // Handle gallery image
-                String imagePath = getPathFromUri(selectedImageUri);
-                savePhotoToDatabase(imagePath);
+                // Handle gallery image - you'll need to implement getPathFromUri
+                // For now, just show a message
+                Toast.makeText(this, "Gallery picker coming soon", Toast.LENGTH_SHORT).show();
+                // savePhotoToDatabase(imagePath);
             }
         }
     }
@@ -197,12 +205,12 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void showCaptionDialog(String imagePath) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle("Add Caption");
 
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint("Enter caption...");
-        builder.setView(input);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_caption_input, null);
+        TextInputEditText input = dialogView.findViewById(R.id.etCaption);
+        builder.setView(dialogView);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String caption = input.getText().toString().trim();
@@ -236,24 +244,23 @@ public class PhotoGalleryActivity extends BaseActivity {
         builder.show();
     }
 
-    private String getPathFromUri(Uri uri) {
-        // Implement based on your needs
-        return uri.getPath();
-    }
-
     private void loadPhotos() {
         new Thread(() -> {
-            long farmId = database.farmDao().getFirstFarm().getId();
+            List<PhotoEntity> loadedPhotos;
 
             if (blockId != -1) {
-                photos = database.photoDao().getPhotosByBlockId(blockId);
+                loadedPhotos = database.photoDao().getPhotosByBlockId(blockId);
             } else if (taskId != -1) {
-                photos = database.photoDao().getPhotosByTaskId(taskId);
+                loadedPhotos = database.photoDao().getPhotosByTaskId(taskId);
             } else if (expenseId != -1) {
-                photos = database.photoDao().getPhotosByExpenseId(expenseId);
+                loadedPhotos = database.photoDao().getPhotosByExpenseId(expenseId);
             } else {
-                photos = database.photoDao().getPhotosByFarmId(farmId);
+                long farmId = database.farmDao().getFirstFarm().getId();
+                loadedPhotos = database.photoDao().getPhotosByFarmId(farmId);
             }
+
+            photos.clear();
+            photos.addAll(loadedPhotos);
 
             runOnUiThread(() -> {
                 adapter.updatePhotos(photos);
@@ -282,6 +289,7 @@ public class PhotoGalleryActivity extends BaseActivity {
             return true;
         } else if (item.getItemId() == R.id.action_delete_all) {
             // Implement delete all
+            Toast.makeText(this, "Delete all coming soon", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);

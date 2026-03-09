@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
@@ -23,6 +21,8 @@ import com.afrinuts.farmos.ui.BaseActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -104,7 +104,9 @@ public class PhotoDetailActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Photo Details");
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
+            getSupportActionBar().setTitle("Blocks Details");
         }
     }
 
@@ -132,6 +134,8 @@ public class PhotoDetailActivity extends BaseActivity {
                     .placeholder(R.drawable.ic_photo_placeholder)
                     .error(R.drawable.ic_photo_error)
                     .into(ivFullPhoto);
+        } else {
+            ivFullPhoto.setImageResource(R.drawable.ic_photo_error);
         }
 
         // Set caption
@@ -152,18 +156,21 @@ public class PhotoDetailActivity extends BaseActivity {
             tvLocation.setText("📍 Location not available");
         }
 
-        // Set type
-        tvType.setText(photo.getType().getDisplayName());
+        // Set type - FIXED: Use getTypeDisplayName() instead of getType()
+        tvType.setText(photo.getTypeDisplayName());
     }
 
     private void showEditCaptionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle("Edit Caption");
 
-        final EditText input = new EditText(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_caption_input, null);
+        TextInputEditText input = dialogView.findViewById(R.id.etCaption);
         input.setText(photo.getCaption());
-        input.setSelection(input.getText().length());
-        builder.setView(input);
+        if (input.getText() != null) {
+            input.setSelection(input.getText().length());
+        }
+        builder.setView(dialogView);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String newCaption = input.getText().toString().trim();

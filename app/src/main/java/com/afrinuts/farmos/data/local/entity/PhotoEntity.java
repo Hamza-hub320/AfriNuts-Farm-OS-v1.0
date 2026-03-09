@@ -47,27 +47,16 @@ public class PhotoEntity {
     private long takenAt;      // When the photo was taken
     private double latitude;    // GPS coordinates (optional)
     private double longitude;   // GPS coordinates (optional)
+    private String photoType;   // Store type as string: "BLOCK", "TASK", "EXPENSE", "GENERAL"
 
     private long createdAt;
     private long updatedAt;
 
-    public enum PhotoType {
-        BLOCK("Block", R.drawable.ic_photo_block),
-        TASK("Task", R.drawable.ic_photo_task),
-        EXPENSE("Expense", R.drawable.ic_photo_expense),
-        GENERAL("General", R.drawable.ic_photo);
-
-        private final String displayName;
-        private final int iconResId;
-
-        PhotoType(String displayName, int iconResId) {
-            this.displayName = displayName;
-            this.iconResId = iconResId;
-        }
-
-        public String getDisplayName() { return displayName; }
-        public int getIconResId() { return iconResId; }
-    }
+    // Constants for photo types (use these instead of enum with resources)
+    public static final String TYPE_BLOCK = "BLOCK";
+    public static final String TYPE_TASK = "TASK";
+    public static final String TYPE_EXPENSE = "EXPENSE";
+    public static final String TYPE_GENERAL = "GENERAL";
 
     public PhotoEntity(long farmId, Long blockId, Long taskId, Long expenseId,
                        String filePath, String caption, long takenAt) {
@@ -80,6 +69,17 @@ public class PhotoEntity {
         this.takenAt = takenAt;
         this.latitude = 0;
         this.longitude = 0;
+
+        // Determine photo type based on which ID is present
+        if (blockId != null) {
+            this.photoType = TYPE_BLOCK;
+        } else if (taskId != null) {
+            this.photoType = TYPE_TASK;
+        } else if (expenseId != null) {
+            this.photoType = TYPE_EXPENSE;
+        } else {
+            this.photoType = TYPE_GENERAL;
+        }
 
         long now = System.currentTimeMillis();
         this.createdAt = now;
@@ -94,13 +94,22 @@ public class PhotoEntity {
     public void setFarmId(long farmId) { this.farmId = farmId; }
 
     public Long getBlockId() { return blockId; }
-    public void setBlockId(Long blockId) { this.blockId = blockId; }
+    public void setBlockId(Long blockId) {
+        this.blockId = blockId;
+        updatePhotoType();
+    }
 
     public Long getTaskId() { return taskId; }
-    public void setTaskId(Long taskId) { this.taskId = taskId; }
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+        updatePhotoType();
+    }
 
     public Long getExpenseId() { return expenseId; }
-    public void setExpenseId(Long expenseId) { this.expenseId = expenseId; }
+    public void setExpenseId(Long expenseId) {
+        this.expenseId = expenseId;
+        updatePhotoType();
+    }
 
     public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) {
@@ -138,16 +147,58 @@ public class PhotoEntity {
         this.updatedAt = System.currentTimeMillis();
     }
 
+    public String getPhotoType() { return photoType; }
+    public void setPhotoType(String photoType) {
+        this.photoType = photoType;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
-    public PhotoType getType() {
-        if (blockId != null) return PhotoType.BLOCK;
-        if (taskId != null) return PhotoType.TASK;
-        if (expenseId != null) return PhotoType.EXPENSE;
-        return PhotoType.GENERAL;
+    private void updatePhotoType() {
+        if (blockId != null) {
+            this.photoType = TYPE_BLOCK;
+        } else if (taskId != null) {
+            this.photoType = TYPE_TASK;
+        } else if (expenseId != null) {
+            this.photoType = TYPE_EXPENSE;
+        } else {
+            this.photoType = TYPE_GENERAL;
+        }
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    // Helper method to get display name for UI (to be used in adapter)
+    public String getTypeDisplayName() {
+        switch (photoType) {
+            case TYPE_BLOCK:
+                return "Block Photo";
+            case TYPE_TASK:
+                return "Task Photo";
+            case TYPE_EXPENSE:
+                return "Expense Photo";
+            case TYPE_GENERAL:
+            default:
+                return "Photo";
+        }
+    }
+
+    // Helper method to get icon resource ID (to be used in UI layer)
+    public int getIconResId() {
+        switch (photoType) {
+            case TYPE_BLOCK:
+                return com.afrinuts.farmos.R.drawable.ic_photo_block;
+            case TYPE_TASK:
+                return com.afrinuts.farmos.R.drawable.ic_photo_task;
+            case TYPE_EXPENSE:
+                return com.afrinuts.farmos.R.drawable.ic_photo_expense;
+            case TYPE_GENERAL:
+            default:
+                return com.afrinuts.farmos.R.drawable.ic_photo;
+        }
     }
 }

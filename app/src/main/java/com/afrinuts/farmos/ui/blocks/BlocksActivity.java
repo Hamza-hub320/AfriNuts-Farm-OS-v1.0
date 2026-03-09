@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -20,6 +21,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +67,9 @@ public class BlocksActivity extends BaseActivity {
         // Setup role-based UI
         setupRoleBasedUI();
 
+        // Setup FAB click listener
+        setupFabClickListener();
+
         // Load data
         loadFarmData();
     }
@@ -96,6 +101,38 @@ public class BlocksActivity extends BaseActivity {
         // Only Owners and Managers can add blocks (Investors already blocked)
         // But Managers can add blocks, so FAB stays visible
         // No additional restrictions needed for BlocksActivity
+    }
+
+    // FIX: Add this method to set up FAB click listener
+    private void setupFabClickListener() {
+        if (fabAdd != null) {
+            fabAdd.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    // Get next available block name
+                    String nextBlock = getNextAvailableBlockName();
+
+                    if (nextBlock.equals("FULL")) {
+                        Snackbar.make(v,
+                                "All 35 blocks (A1-E7) have been created. Cannot add more.",
+                                Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
+                    dialog.setNextBlockName(nextBlock);
+                    dialog.setOnBlockAddedListener(() -> {
+                        loadFarmData(); // Refresh data
+                        Toast.makeText(this, "Block " + nextBlock + " added successfully!",
+                                Toast.LENGTH_SHORT).show();
+                    });
+                    dialog.show(getSupportFragmentManager(), "BlockDialog");
+                } else {
+                    Toast.makeText(this, "Farm not configured. Please try again.",
+                            Toast.LENGTH_LONG).show();
+                    loadFarmData(); // Retry loading
+                }
+            });
+        }
     }
 
     @Override
