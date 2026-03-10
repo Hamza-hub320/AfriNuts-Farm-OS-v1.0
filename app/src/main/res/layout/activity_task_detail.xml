@@ -113,10 +113,7 @@
                             android:layout_weight="1"
                             android:text="PENDING"
                             style="@style/Text.H4"
-                            android:textColor="@color/primary"
-                            android:drawableStart="@drawable/ic_hourglass_empty"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/primary" />
+                            android:textColor="@color/primary" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnUpdateStatus"
@@ -130,7 +127,7 @@
 
                     </LinearLayout>
 
-                    <!-- Status Timeline (kept as is - these are custom views) -->
+                    <!-- Status Timeline -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -198,7 +195,7 @@
                         style="@style/Text.H5"
                         android:layout_marginBottom="16dp" />
 
-                    <!-- Block -->
+                    <!-- Block - FIXED: Removed drawable from TextView, will handle in code -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -217,14 +214,11 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Block A1"
-                            style="@style/Text.Body.Small"
-                            android:drawableStart="@drawable/ic_inventory"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/navy" />
+                            style="@style/Text.Body.Small" />
 
                     </LinearLayout>
 
-                    <!-- Due Date -->
+                    <!-- Due Date - FIXED: Removed drawable -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -243,14 +237,11 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 15, 2024"
-                            style="@style/Text.Body.Small"
-                            android:drawableStart="@drawable/ic_today"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/navy" />
+                            style="@style/Text.Body.Small" />
 
                     </LinearLayout>
 
-                    <!-- Completed Date (if completed) -->
+                    <!-- Completed Date (if completed) - FIXED: Removed drawable -->
                     <LinearLayout
                         android:id="@+id/layoutCompletedDate"
                         android:layout_width="match_parent"
@@ -272,14 +263,11 @@
                             android:layout_weight="1"
                             android:text=""
                             style="@style/Text.Body.Small"
-                            android:textColor="@color/primary"
-                            android:drawableStart="@drawable/ic_check_circle"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/primary" />
+                            android:textColor="@color/primary" />
 
                     </LinearLayout>
 
-                    <!-- Description -->
+                    <!-- Description - FIXED: Removed drawable -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -295,16 +283,13 @@
                         style="@style/Text.Body.Small"
                         android:background="@color/warm_grey"
                         android:padding="12dp"
-                        android:minLines="3"
-                        android:drawableStart="@drawable/ic_note"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="@color/navy" />
+                        android:minLines="3" />
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Assignment Card -->
+            <!-- Assignment Card - FIXED: Removed drawables from TextViews -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -330,10 +315,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Worker Assignment"
-                            style="@style/Text.H5"
-                            android:drawableStart="@drawable/ic_people"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/primary" />
+                            style="@style/Text.H5" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAssignWorker"
@@ -347,7 +329,7 @@
 
                     </LinearLayout>
 
-                    <!-- Current Assignment -->
+                    <!-- Current Assignment - FIXED: Removed drawables -->
                     <LinearLayout
                         android:id="@+id/layoutCurrentAssignment"
                         android:layout_width="match_parent"
@@ -372,9 +354,6 @@
                             android:text="John Doe"
                             style="@style/Text.H6"
                             android:textColor="@color/primary"
-                            android:drawableStart="@drawable/ic_person"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/primary"
                             android:layout_marginBottom="4dp" />
 
                         <TextView
@@ -382,10 +361,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Assigned: Mar 10, 2024"
-                            style="@style/Text.Caption.Small"
-                            android:drawableStart="@drawable/ic_today"
-                            android:drawablePadding="8dp"
-                            app:drawableTint="@color/navy" />
+                            style="@style/Text.Caption.Small" />
 
                     </LinearLayout>
 
@@ -395,10 +371,7 @@
                         android:layout_height="wrap_content"
                         android:text="Assignment History"
                         style="@style/Text.Label"
-                        android:layout_marginBottom="12dp"
-                        android:drawableStart="@drawable/ic_history"
-                        android:drawablePadding="8dp"
-                        app:drawableTint="@color/navy" />
+                        android:layout_marginBottom="12dp" />
 
                     <LinearLayout
                         android:id="@+id/assignmentHistoryContainer"

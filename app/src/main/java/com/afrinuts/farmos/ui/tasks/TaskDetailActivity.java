@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -178,7 +177,7 @@ public class TaskDetailActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Task Details");
         }
     }
@@ -186,12 +185,19 @@ public class TaskDetailActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Navigate back to TasksListActivity
+        Intent intent = new Intent(this, TasksListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 
     private void loadData() {
@@ -267,7 +273,7 @@ public class TaskDetailActivity extends BaseActivity {
             case REPLACEMENT:
                 return R.drawable.ic_sync;
             case FERTILIZING:
-                return R.drawable.ic_water_drop;
+                return R.drawable.ic_fertilizer;
             case PRUNING:
                 return R.drawable.ic_cut;
             case WEEDING:
@@ -286,7 +292,8 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void updateStatusDisplay() {
-        tvCurrentStatus.setText(task.getStatus().getIcon() + " " + task.getStatus().getDisplayName());
+        // Use display name only, no icon in text
+        tvCurrentStatus.setText(task.getStatus().getDisplayName());
 
         // Update status dots
         switch (task.getStatus()) {

@@ -70,7 +70,8 @@
 
         <activity
             android:name=".ui.tasks.TaskDetailActivity"
-            android:parentActivityName=".ui.tasks.TasksListActivity" />
+            android:parentActivityName=".ui.tasks.TasksListActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.workers.WorkerDashboardActivity"
@@ -114,6 +115,11 @@
         <activity
             android:name=".ui.photos.PhotoDetailActivity"
             android:parentActivityName=".ui.photos.PhotoGalleryActivity" />
+
+        <activity
+            android:name=".ui.reports.ReportsActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false" />
 
     </application>
 

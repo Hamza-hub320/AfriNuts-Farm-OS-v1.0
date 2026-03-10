@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -35,6 +37,7 @@ public class TaskStatusUpdateDialog extends DialogFragment {
     private RadioButton rbCompleted;
     private RadioButton rbCancelled;
     private TextView tvCurrentStatus;
+    private ImageView ivCurrentStatusIcon;
 
     public interface OnStatusUpdatedListener {
         void onStatusUpdated(TaskEntity.TaskStatus newStatus);
@@ -99,11 +102,16 @@ public class TaskStatusUpdateDialog extends DialogFragment {
         rbCompleted = view.findViewById(R.id.rbCompleted);
         rbCancelled = view.findViewById(R.id.rbCancelled);
         tvCurrentStatus = view.findViewById(R.id.tvCurrentStatus);
+        ivCurrentStatusIcon = view.findViewById(R.id.ivCurrentStatusIcon);
     }
 
     private void setCurrentStatus() {
-        tvCurrentStatus.setText("Current: " + currentStatus.getIcon() + " " +
-                currentStatus.getDisplayName());
+        // Set icon using helper
+        ivCurrentStatusIcon.setImageResource(TaskIconHelper.getStatusIconResId(currentStatus));
+        ivCurrentStatusIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary));
+
+        // Set text
+        tvCurrentStatus.setText("Current: " + currentStatus.getDisplayName());
 
         // Pre-select the current status
         switch (currentStatus) {

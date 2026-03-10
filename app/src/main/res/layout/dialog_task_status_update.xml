@@ -6,81 +6,74 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Current Status Display -->
-    <TextView
-        android:id="@+id/tvCurrentStatus"
+    <!-- Current Status with Icon -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Current: PENDING"
-        style="@style/Text.H5"
-        android:textColor="@color/primary"
-        android:gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:background="@color/warm_grey"
         android:padding="12dp"
-        android:drawableStart="@drawable/ic_hourglass_empty"
-        android:drawablePadding="8dp"
-        app:drawableTint="@color/primary"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp">
 
-    <!-- RadioGroup for Status Selection -->
+        <ImageView
+            android:id="@+id/ivCurrentStatusIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:tint="@color/primary"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvCurrentStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current: PENDING"
+            style="@style/Text.H6"
+            android:textColor="@color/primary" />
+
+    </LinearLayout>
+
     <RadioGroup
         android:id="@+id/radioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="8dp">
+        android:orientation="vertical">
 
         <RadioButton
             android:id="@+id/rbPending"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="PENDING"
-            style="@style/Text.Body"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary"
-            android:drawableStart="@drawable/ic_hourglass_empty"
-            android:drawablePadding="8dp"
-            app:drawableTint="@color/primary" />
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:buttonTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbInProgress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="IN PROGRESS"
-            style="@style/Text.Body"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary"
-            android:drawableStart="@drawable/ic_sync"
-            android:drawablePadding="8dp"
-            app:drawableTint="@color/primary" />
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:buttonTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbCompleted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="COMPLETED"
-            style="@style/Text.Body"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary"
-            android:drawableStart="@drawable/ic_check_circle"
-            android:drawablePadding="8dp"
-            app:drawableTint="@color/primary" />
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:buttonTint="@color/primary" />
 
         <RadioButton
             android:id="@+id/rbCancelled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CANCELLED"
-            style="@style/Text.Body"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="8dp"
-            android:buttonTint="@color/primary"
-            android:drawableStart="@drawable/ic_cancel"
-            android:drawablePadding="8dp"
-            app:drawableTint="@color/primary" />
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:buttonTint="@color/primary" />
 
     </RadioGroup>
 

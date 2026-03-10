@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <!-- For external storage root (not recommended) -->
     <external-path
         name="external_files"
         path="." />
+
+    <!-- For app-specific external files directory -->
     <external-files-path
-        name="external_files"
-        path="Pictures" />
+        name="app_files"
+        path="." />
+
+    <!-- For app-specific external files directory with explicit path -->
+    <external-files-path
+        name="app_specific_files"
+        path="files" />
+
+    <!-- For cache directory -->
     <cache-path
         name="cache"
         path="/" />
+
+    <!-- For files directory (internal storage) -->
+    <files-path
+        name="internal_files"
+        path="." />
 </paths>

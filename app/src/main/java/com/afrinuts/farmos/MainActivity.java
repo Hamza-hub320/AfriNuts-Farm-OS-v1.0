@@ -4,6 +4,7 @@ import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
+import com.afrinuts.farmos.ui.reports.ReportsActivity;
 import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
 import com.afrinuts.farmos.ui.tasks.TasksListActivity;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private CardView btnAddTaskCard;
     private CardView btnWorkerAnalyticsCard;
     private CardView btnProfitDashboardCard;
+    private CardView btnReportsCard;
 
     private WeatherRepository weatherRepository;
     private WeatherResponse currentWeather;
@@ -277,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
         btnAddTaskCard = findViewById(R.id.btnAddTaskCard);
         btnWorkerAnalyticsCard = findViewById(R.id.btnWorkerAnalyticsCard);
         btnProfitDashboardCard = findViewById(R.id.btnProfitDashboardCard);
+        btnReportsCard = findViewById(R.id.btnReportsCard);
 
         weatherContent = findViewById(R.id.weatherContent);
         weatherLoadingText = findViewById(R.id.weatherLoadingText);
@@ -412,6 +415,15 @@ public class MainActivity extends AppCompatActivity {
         btnProfitDashboardCard.setOnClickListener(v -> {
             if (currentFarm != null) {
                 Intent intent = new Intent(MainActivity.this, ProfitDashboardActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnReportsCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, ReportsActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();

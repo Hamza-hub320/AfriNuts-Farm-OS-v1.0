@@ -77,4 +77,10 @@ dependencies {
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // PDF Generation
+    implementation("com.itextpdf:itext7-core:7.2.5")
+
+    // For file sharing
+    implementation("androidx.core:core:1.12.0")
 }

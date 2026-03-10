@@ -41,51 +41,45 @@ public class TaskEntity {
     private long updatedAt;
 
     public enum TaskStatus {
-        PENDING("Pending", "⏳", "Not started"),
-        IN_PROGRESS("In Progress", "🔄", "Currently being worked on"),
-        COMPLETED("Completed", "✅", "Finished successfully"),
-        CANCELLED("Cancelled", "❌", "No longer needed");
+        PENDING("Pending", "Not started"),
+        IN_PROGRESS("In Progress", "Currently being worked on"),
+        COMPLETED("Completed", "Finished successfully"),
+        CANCELLED("Cancelled", "No longer needed");
 
         private final String displayName;
-        private final String icon;
         private final String description;
 
-        TaskStatus(String displayName, String icon, String description) {
+        TaskStatus(String displayName, String description) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
     }
 
     public enum TaskType {
-        CLEARING("Land Clearing", "🚜", "Clear land for planting"),
-        PLOWING("Plowing", "🌾", "Prepare soil"),
-        PLANTING("Planting", "🌱", "Plant cashew trees"),
-        REPLACEMENT("Replacement", "🔄", "Replace dead trees"),
-        FERTILIZING("Fertilizing", "🧪", "Apply fertilizer"),
-        PRUNING("Pruning", "✂️", "Prune trees"),
-        WEEDING("Weeding", "🌿", "Remove weeds"),
-        HARVEST("Harvest", "🪣", "Harvest cashews"),
-        IRRIGATION("Irrigation", "💧", "Water management"),
-        MAINTENANCE("Maintenance", "🔧", "General maintenance"),
-        OTHER("Other", "📌", "Miscellaneous tasks");
+        CLEARING("Land Clearing", "Clear land for planting"),
+        PLOWING("Plowing", "Prepare soil"),
+        PLANTING("Planting", "Plant cashew trees"),
+        REPLACEMENT("Replacement", "Replace dead trees"),
+        FERTILIZING("Fertilizing", "Apply fertilizer"),
+        PRUNING("Pruning", "Prune trees"),
+        WEEDING("Weeding", "Remove weeds"),
+        HARVEST("Harvest", "Harvest cashews"),
+        IRRIGATION("Irrigation", "Water management"),
+        MAINTENANCE("Maintenance", "General maintenance"),
+        OTHER("Other", "Miscellaneous tasks");
 
         private final String displayName;
-        private final String icon;
         private final String description;
 
-        TaskType(String displayName, String icon, String description) {
+        TaskType(String displayName, String description) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
     }
 
@@ -184,7 +178,7 @@ public class TaskEntity {
         if (blockId == null) {
             return "Farm-Wide";
         } else {
-            return "Block #" + blockId; // Will be replaced with actual block name
+            return "Block #" + blockId;
         }
     }
 }

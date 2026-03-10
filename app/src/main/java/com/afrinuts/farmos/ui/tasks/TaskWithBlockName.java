@@ -38,11 +38,11 @@ public class TaskWithBlockName {
 
     public String getStatusIcon() {
         switch (task.getStatus()) {
-            case PENDING: return "⏳";
-            case IN_PROGRESS: return "🔄";
-            case COMPLETED: return "✅";
-            case CANCELLED: return "❌";
-            default: return "📌";
+            case PENDING: return "";
+            case IN_PROGRESS: return "";
+            case COMPLETED: return "";
+            case CANCELLED: return "";
+            default: return "";
         }
     }
 

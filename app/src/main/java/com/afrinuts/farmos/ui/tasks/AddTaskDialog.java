@@ -9,12 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -54,6 +56,9 @@ public class AddTaskDialog extends DialogFragment {
     private MaterialAutoCompleteTextView etBlock;
     private TextInputEditText etDueDate;
     private TextInputEditText etStatus;
+
+    // Store the selected task type
+    private TaskEntity.TaskType selectedTaskType = null;
 
     private Calendar dueDateCalendar = Calendar.getInstance();
     private boolean isFarmWide = true; // Default to farm-wide
@@ -154,7 +159,7 @@ public class AddTaskDialog extends DialogFragment {
     private void setupTaskTypeDropdown() {
         TaskEntity.TaskType[] types = TaskEntity.TaskType.values();
 
-        // Create a custom adapter that shows icons and text
+        // Create a custom adapter that shows vector icons and text
         ArrayAdapter<TaskEntity.TaskType> adapter = new ArrayAdapter<TaskEntity.TaskType>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
@@ -163,38 +168,38 @@ public class AddTaskDialog extends DialogFragment {
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                TextView textView = (TextView) view;
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext())
+                            .inflate(R.layout.item_task_type_dropdown, parent, false);
+                }
 
                 TaskEntity.TaskType type = getItem(position);
-                // Map enum to icon resource
-                int iconRes = getIconForTaskType(type);
 
-                // Set compound drawable (icon) on the left
-                textView.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0);
-                textView.setCompoundDrawablePadding(16);
+                ImageView iconView = convertView.findViewById(R.id.typeIcon);
+                TextView textView = convertView.findViewById(R.id.typeName);
+
+                // Set vector icon
+                iconView.setImageResource(getIconForTaskType(type));
+                iconView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary));
+
+                // Set text
                 textView.setText(type.getDisplayName());
 
-                return view;
+                return convertView;
             }
 
             @Override
             public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView textView = (TextView) view;
-
-                TaskEntity.TaskType type = getItem(position);
-                int iconRes = getIconForTaskType(type);
-
-                textView.setCompoundDrawablesWithIntrinsicBounds(iconRes, 0, 0, 0);
-                textView.setCompoundDrawablePadding(16);
-                textView.setText(type.getDisplayName());
-
-                return view;
+                return getView(position, convertView, parent);
             }
         };
 
         etTaskType.setAdapter(adapter);
+
+        // Set item click listener to capture the selected type
+        etTaskType.setOnItemClickListener((parent, view, position, id) -> {
+            selectedTaskType = types[position];
+        });
     }
 
     private int getIconForTaskType(TaskEntity.TaskType type) {
@@ -208,7 +213,7 @@ public class AddTaskDialog extends DialogFragment {
             case REPLACEMENT:
                 return R.drawable.ic_sync;
             case FERTILIZING:
-                return R.drawable.ic_water_drop;
+                return R.drawable.ic_fertilizer;
             case PRUNING:
                 return R.drawable.ic_cut;
             case WEEDING:
@@ -300,24 +305,9 @@ public class AddTaskDialog extends DialogFragment {
             return;
         }
 
-        // Validate task type
-        String typeStr = etTaskType.getText().toString().trim();
-        if (TextUtils.isEmpty(typeStr)) {
-            etTaskType.setError("Task type is required");
-            return;
-        }
-
-        // Parse task type
-        TaskEntity.TaskType selectedType = null;
-        for (TaskEntity.TaskType type : TaskEntity.TaskType.values()) {
-            if (typeStr.contains(type.getDisplayName())) {
-                selectedType = type;
-                break;
-            }
-        }
-
-        if (selectedType == null) {
-            Toast.makeText(getContext(), "Invalid task type", Toast.LENGTH_SHORT).show();
+        // Validate task type was selected
+        if (selectedTaskType == null) {
+            Toast.makeText(getContext(), "Please select a task type", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -356,7 +346,7 @@ public class AddTaskDialog extends DialogFragment {
                 blockId,
                 title,
                 description.isEmpty() ? null : description,
-                selectedType,
+                selectedTaskType,  // Use the stored selected type
                 TaskEntity.TaskStatus.PENDING,
                 dueDate
         );
