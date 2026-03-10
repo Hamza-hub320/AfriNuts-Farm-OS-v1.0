@@ -387,7 +387,7 @@
             style="@style/Text.H5"
             android:layout_marginBottom="12dp" />
 
-        <!-- Row 1 - Block Management -->
+        <!-- ROW 1 - Blocks & Tasks -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -395,7 +395,7 @@
             android:layout_marginBottom="8dp"
             android:weightSum="3">
 
-            <!-- View Blocks -->
+            <!-- Blocks (View) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnViewBlocksCard"
                 android:layout_width="0dp"
@@ -420,7 +420,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_view_list"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -461,7 +460,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_add"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -476,7 +474,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Tasks List (View) -->
+            <!-- Tasks (View) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnTasksListCard"
                 android:layout_width="0dp"
@@ -501,7 +499,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_grass"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -518,7 +515,135 @@
 
         </LinearLayout>
 
-        <!-- Row 2 - Financial Management -->
+        <!-- ROW 2 - Task Management & Team -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:weightSum="3">
+
+            <!-- Add Task -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnAddTaskCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add Task"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Workers -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnWorkerAnalyticsCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_people"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Workers"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Team -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnUsersCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_people"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Team"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <!-- ROW 3 - Expenses & Revenue -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -551,7 +676,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_money_off"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -566,7 +690,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- View Expenses -->
+            <!-- Expenses (View) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnViewExpensesCard"
                 android:layout_width="0dp"
@@ -592,7 +716,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_bar_chart"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -607,63 +730,13 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add Revenue -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddRevenueCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_download"
-                        
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add Revenue"
-                        style="@style/Text.Overline"
-                        android:textColor="@color/primary"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- Row 3 - Revenue & Analytics -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:weightSum="3">
-
-            <!-- View Revenue -->
+            <!-- Revenue (View) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnViewRevenueCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
@@ -682,7 +755,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_view_list"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -697,9 +769,58 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Analytics -->
+        </LinearLayout>
+
+        <!-- ROW 4 - Revenue Add & Analytics -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:weightSum="3">
+
+            <!-- Add Revenue -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/btnExpenseChartsCard"
+                android:id="@+id/btnAddRevenueCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_download"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add Revenue"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Profit Dashboard -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnProfitDashboardCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -723,7 +844,45 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_trending_up"
-                        
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Profit"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Analytics (Expense Charts) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnExpenseChartsCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_trending_up"
                         app:tint="@color/primary" />
 
                     <TextView
@@ -738,177 +897,9 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add Task -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddTaskCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_check_circle"
-                        
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add Task"
-                        style="@style/Text.Overline"
-                        android:textColor="@color/primary"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
-        <!-- Row 4 - Management -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:weightSum="3">
-
-            <!-- Worker Analytics -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnWorkerAnalyticsCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_people"
-
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Workers"
-                        style="@style/Text.Overline"
-                        android:textColor="@color/primary"
-                        android:layout_marginTop="6dp" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Team / Users -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnUsersCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_people"
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Team"
-                        style="@style/Text.Overline"
-                        android:textColor="@color/primary"
-                        android:layout_marginTop="6dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Profit Dashboard -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnProfitDashboardCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_trending_up"
-                        
-                        app:tint="@color/primary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Profit"
-                        style="@style/Text.Overline"
-                        android:textColor="@color/primary"
-                        android:layout_marginTop="6dp" />
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- Row 5 - Reports -->
+        <!-- ROW 5 - Reports & Yield -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -955,14 +946,45 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Placeholder -->
+            <!-- Yield (Analytics Dashboard) -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/btnAnalyticsCard"
+                style="@style/Widget.AfriNuts.CardView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:visibility="invisible" />
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
 
-            <!-- Placeholder -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_yield"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yield"
+                        style="@style/Text.Overline"
+                        android:textColor="@color/primary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Placeholder for future (invisible) -->
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

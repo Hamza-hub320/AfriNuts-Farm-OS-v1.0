@@ -1,5 +1,6 @@
 package com.afrinuts.farmos;
 
+import com.afrinuts.farmos.ui.analytics.AnalyticsDashboardActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "AfriNutsFarmOS";
 
     // UI Elements
+    private CardView btnAnalyticsCard;
     private MaterialToolbar toolbar;
     private CardView btnUsersCard;
     private TextView farmNameText;
@@ -280,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
         btnWorkerAnalyticsCard = findViewById(R.id.btnWorkerAnalyticsCard);
         btnProfitDashboardCard = findViewById(R.id.btnProfitDashboardCard);
         btnReportsCard = findViewById(R.id.btnReportsCard);
+        btnAnalyticsCard = findViewById(R.id.btnAnalyticsCard);
 
         weatherContent = findViewById(R.id.weatherContent);
         weatherLoadingText = findViewById(R.id.weatherLoadingText);
@@ -440,6 +443,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             } else if (!sessionManager.isOwner()) {
                 Toast.makeText(this, "Only owners can access team management", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnAnalyticsCard.setOnClickListener(v -> {
+            if (currentFarm != null) {
+                Intent intent = new Intent(MainActivity.this, AnalyticsDashboardActivity.class);
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
             }

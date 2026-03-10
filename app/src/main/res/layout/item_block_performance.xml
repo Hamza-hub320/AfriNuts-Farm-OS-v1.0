@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvRank"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:text="🥇"
+                android:textSize="20sp"
+                android:background="@color/warm_grey"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/tvBlockName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Block A1"
+                style="@style/Text.H5" />
+
+            <ImageView
+                android:id="@+id/ivTrend"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_trending_up"
+                app:tint="@android:color/holo_green_dark" />
+
+        </LinearLayout>
+
+        <!-- Survival Rate -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Survival Rate:"
+                style="@style/Text.Label" />
+
+            <TextView
+                android:id="@+id/tvSurvivalRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="95%"
+                style="@style/Text.Body"
+                android:layout_marginEnd="8dp" />
+
+            <ProgressBar
+                android:id="@+id/progressSurvival"
+                style="@style/Widget.AfriNuts.ProgressBar"
+                android:layout_width="80dp"
+                android:layout_height="6dp"
+                android:progress="95"
+                android:max="100" />
+
+        </LinearLayout>
+
+        <!-- Profit -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Profit:"
+                style="@style/Text.Label" />
+
+            <TextView
+                android:id="@+id/tvProfit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="125,000 XAF"
+                style="@style/Text.Body"
+                android:textColor="@color/primary"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/tvProfitMargin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15%"
+                style="@style/Text.Caption" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

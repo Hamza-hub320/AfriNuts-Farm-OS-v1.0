@@ -2,6 +2,7 @@
 <resources>
     <!-- AfriNuts Brand Colors -->
     <color name="primary">#5A7411</color>        <!-- Primary green -->
+    <color name="primary_light">#E8F0D6</color>  <!-- Light green for highlighting (add this) -->
     <color name="accent">#E04E00</color>         <!-- Accent orange -->
     <color name="dark_orange">#9C3D10</color>    <!-- Dark orange -->
     <color name="secondary">#A0C800</color>      <!-- Secondary green -->
