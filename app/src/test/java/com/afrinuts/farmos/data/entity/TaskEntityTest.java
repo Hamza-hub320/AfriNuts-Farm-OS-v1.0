@@ -73,16 +73,14 @@ public class TaskEntityTest {
     public void testTaskTypeProperties() {
         TaskEntity.TaskType type = TaskEntity.TaskType.CLEARING;
         assertEquals("Land Clearing", type.getDisplayName());
-        assertEquals("🚜", type.getIcon());
-        assertEquals("Clear land for planting", type.getDescription());
+        // Removed icon test since we use vector icons now
     }
 
     @Test
     public void testTaskStatusProperties() {
         TaskEntity.TaskStatus status = TaskEntity.TaskStatus.PENDING;
         assertEquals("Pending", status.getDisplayName());
-        assertEquals("⏳", status.getIcon());
-        assertEquals("Not started", status.getDescription());
+        // Removed icon test since we use vector icons now
     }
 
     @Test

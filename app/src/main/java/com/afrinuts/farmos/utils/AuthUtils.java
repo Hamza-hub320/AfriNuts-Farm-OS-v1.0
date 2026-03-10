@@ -3,7 +3,7 @@ package com.afrinuts.farmos.utils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.regex.Pattern;
 
 public class AuthUtils {
 
@@ -11,10 +11,16 @@ public class AuthUtils {
     private static final int PIN_MIN_LENGTH = 4;
     private static final int PIN_MAX_LENGTH = 6;
 
+    // Email validation pattern (simple but effective)
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
     /**
      * Hash a password or PIN using SHA-256
      */
     public static String hash(String input) {
+        if (input == null) return null;
+
         try {
             MessageDigest digest = MessageDigest.getInstance(SHA_256);
             byte[] hash = digest.digest(input.getBytes());
@@ -35,6 +41,7 @@ public class AuthUtils {
      * Verify a password/PIN against its hash
      */
     public static boolean verify(String input, String hash) {
+        if (input == null || hash == null) return false;
         String inputHash = hash(input);
         return inputHash != null && inputHash.equals(hash);
     }
@@ -62,19 +69,28 @@ public class AuthUtils {
     }
 
     /**
-     * Check if email is valid format
+     * Check if email is valid format (works in unit tests)
      */
     public static boolean isValidEmail(String email) {
-        if (email == null) return false;
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        if (email == null || email.isEmpty()) return false;
+        return EMAIL_PATTERN.matcher(email).matches();
     }
 
     /**
-     * Check if phone is valid (basic Ivorian format)
+     * Check if phone is valid (basic validation - only digits, +, spaces, dashes)
      */
     public static boolean isValidPhone(String phone) {
-        if (phone == null) return false;
-        // Basic validation - can be expanded
-        return phone.matches("^[0-9\\+\\s-]{8,15}$");
+        if (phone == null || phone.isEmpty()) return false;
+
+        // Remove spaces and dashes for length check
+        String cleanPhone = phone.replaceAll("[\\s-]", "");
+
+        // Check if it contains only digits and optional + at start
+        if (!cleanPhone.matches("^\\+?[0-9]+$")) {
+            return false;
+        }
+
+        // Check length (8-15 characters including optional +)
+        return cleanPhone.length() >= 8 && cleanPhone.length() <= 15;
     }
 }

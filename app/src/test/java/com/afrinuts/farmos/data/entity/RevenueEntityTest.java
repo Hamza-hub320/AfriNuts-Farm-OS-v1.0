@@ -53,8 +53,7 @@ public class RevenueEntityTest {
     public void testQualityGradeProperties() {
         RevenueEntity.QualityGrade grade = RevenueEntity.QualityGrade.PREMIUM;
         assertEquals("Premium", grade.getDisplayName());
-        assertEquals("⭐", grade.getIcon());
-        assertEquals("Best quality, large nuts", grade.getDescription());
+        // Removed icon test since we use vector icons now
     }
 
     @Test

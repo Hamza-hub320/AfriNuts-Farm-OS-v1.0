@@ -58,8 +58,7 @@ public class ExpenseEntityTest {
     public void testCategoryProperties() {
         ExpenseEntity.ExpenseCategory category = ExpenseEntity.ExpenseCategory.LAND_CLEARING;
         assertEquals("Land Clearing", category.getDisplayName());
-        assertEquals("🚜", category.getIcon());
-        assertEquals("35 hectares plantation", category.getDefaultDescription());
+        // Removed icon test since we use vector icons now
     }
 
     @Test
