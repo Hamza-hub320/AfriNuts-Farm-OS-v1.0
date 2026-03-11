@@ -20,17 +20,21 @@ import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
     private AppDatabase database;
+
+    private FirebaseManager firebaseManager;
 
     // UI Elements
     private ImageView logoImage;
@@ -56,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         database = AppDatabase.getInstance(this);
+        firebaseManager = FirebaseManager.getInstance();
         initViews();
         loadUsers();
     }
@@ -229,52 +234,70 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setEnabled(false);
         btnLogin.setText("Authenticating...");
 
-        new Thread(() -> {
-            boolean authenticated = false;
+        if (isPinMode) {
+            // PIN users still use local authentication
+            String hashedPin = AuthUtils.hash(emailPin);
+            boolean authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
 
-            if (isPinMode) {
-                // Verify PIN
-                String hashedPin = AuthUtils.hash(emailPin);
-                authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
+            if (authenticated) {
+                selectedUser.setLastLoginAt(System.currentTimeMillis());
+
+                new Thread(() -> {
+                    database.userDao().update(selectedUser);
+
+                    SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                    sessionManager.createLoginSession(selectedUser);
+
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this,
+                                "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
+                        navigateToMain();
+                    });
+                }).start();
             } else {
-                // Verify email and password
-                if (emailPin.equals(selectedUser.getEmail())) {
-                    String hashedPassword = AuthUtils.hash(password);
-                    authenticated = hashedPassword != null &&
-                            hashedPassword.equals(selectedUser.getPasswordHash());
-                }
+                btnLogin.setEnabled(true);
+                btnLogin.setText("Login");
+                Toast.makeText(LoginActivity.this, "Invalid PIN", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            // Email/password users authenticate with Firebase
+            firebaseManager.signInWithEmail(emailPin, password,
+                    new FirebaseManager.AuthCallback() {
+                        @Override
+                        public void onSuccess(FirebaseUser user) {
+                            selectedUser.setLastLoginAt(System.currentTimeMillis());
 
-            boolean finalAuthenticated = authenticated;
-            runOnUiThread(() -> {
-                if (finalAuthenticated) {
-                    // Update last login
-                    selectedUser.setLastLoginAt(System.currentTimeMillis());
+                            new Thread(() -> {
+                                database.userDao().update(selectedUser);
 
-                    new Thread(() -> {
-                        database.userDao().update(selectedUser);
+                                SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                                sessionManager.createLoginSession(selectedUser);
 
-                        // Store logged in user
-                        SessionManager sessionManager = new SessionManager(LoginActivity.this);
-                        sessionManager.createLoginSession(selectedUser);
+                                runOnUiThread(() -> {
+                                    Toast.makeText(LoginActivity.this,
+                                            "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
+                                    navigateToMain();
+                                });
+                            }).start();
+                        }
 
-                        runOnUiThread(() -> {
-                            Toast.makeText(LoginActivity.this,
-                                    "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
-                        });
-                    }).start();
-                } else {
-                    btnLogin.setEnabled(true);
-                    btnLogin.setText("Login");
-                    Toast.makeText(LoginActivity.this,
-                            isPinMode ? "Invalid PIN" : "Invalid email or password",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        }).start();
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() -> {
+                                btnLogin.setEnabled(true);
+                                btnLogin.setText("Login");
+                                Toast.makeText(LoginActivity.this,
+                                        "Authentication failed: " + error, Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
+        }
+    }
+
+    private void navigateToMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

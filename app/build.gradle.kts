@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -89,4 +90,22 @@ dependencies {
 
     // For file sharing
     implementation("androidx.core:core:1.12.0")
+
+    // Firebase BOM (manages versions automatically)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+
+// Firebase Authentication
+    implementation("com.google.firebase:firebase-auth")
+
+// Cloud Firestore
+    implementation("com.google.firebase:firebase-firestore")
+
+// Firebase Storage (for photos)
+    implementation("com.google.firebase:firebase-storage")
+
+// Firebase Cloud Messaging (push notifications)
+    implementation("com.google.firebase:firebase-messaging")
+
+// Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
 }

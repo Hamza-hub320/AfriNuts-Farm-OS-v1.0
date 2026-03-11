@@ -25,6 +25,15 @@ import android.view.MotionEvent;
 import java.text.SimpleDateFormat;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.content.Context;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import com.google.android.material.snackbar.Snackbar;
+import com.afrinuts.farmos.data.sync.SyncService;
+import com.afrinuts.farmos.ui.sync.SyncStatusReceiver;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -109,6 +118,25 @@ public class MainActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private UserEntity currentUser;
 
+    private SyncService syncService;
+    private boolean isBound = false;
+    private SyncStatusReceiver syncReceiver;
+    private MenuItem syncMenuItem;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SyncService.LocalBinder binder = (SyncService.LocalBinder) service;
+            syncService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
+        setupSync();
 
         // Initialize views
         initViews();
@@ -177,15 +206,76 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    private void setupSync() {
+        // Start and bind to SyncService
+        Intent intent = new Intent(this, SyncService.class);
+        startService(intent);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        // Register broadcast receiver
+        syncReceiver = new SyncStatusReceiver(new SyncStatusReceiver.SyncStatusListener() {
+            @Override
+            public void onSyncStatusUpdate(String status) {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setTitle(status);
+                    }
+                });
+            }
+
+            @Override
+            public void onSyncComplete() {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setIcon(R.drawable.ic_sync);
+                        syncMenuItem.setTitle("Sync");
+                    }
+                    Toast.makeText(MainActivity.this,
+                            "Sync completed successfully", Toast.LENGTH_SHORT).show();
+                    loadFarmData();
+                });
+            }
+
+            @Override
+            public void onSyncError(String error) {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setIcon(R.drawable.ic_sync);
+                        syncMenuItem.setTitle("Sync");
+                    }
+                    Snackbar.make(findViewById(android.R.id.content),
+                            "Sync failed: " + error, Snackbar.LENGTH_LONG).show();
+                });
+            }
+        });
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver,
+                new IntentFilter(SyncService.ACTION_SYNC_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver,
+                new IntentFilter(SyncService.ACTION_SYNC_ERROR));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        syncMenuItem = menu.findItem(R.id.action_sync);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
+        if (item.getItemId() == R.id.action_sync) {
+            if (currentFarm != null && isBound && syncService != null) {
+                if (!syncService.isSyncing()) {
+                    syncMenuItem.setIcon(R.drawable.ic_sync_anim);
+                    syncMenuItem.setTitle("Syncing...");
+                    syncService.startFullSync(String.valueOf(currentFarm.getId()));
+                } else {
+                    Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
+                }
+            }
+            return true;
+        } else if (item.getItemId() == R.id.action_logout) {
             showLogoutDialog();
             return true;
         }
@@ -774,6 +864,16 @@ public class MainActivity extends AppCompatActivity {
         // Refresh user data
         if (sessionManager.isLoggedIn()) {
             loadCurrentUser();
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isBound) {
+            unbindService(connection);
+        }
+        if (syncReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(syncReceiver);
         }
     }
 }

@@ -125,6 +125,15 @@
             android:name=".ui.analytics.AnalyticsDashboardActivity"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Add SyncService -->
+        <service
+            android:name=".data.sync.SyncService"
+            android:exported="false" />
+
+        <!-- Add necessary permissions -->
+        <uses-permission android:name="android.permission.INTERNET" />
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     </application>
 
 </manifest>

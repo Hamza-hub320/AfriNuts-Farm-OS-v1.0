@@ -118,7 +118,7 @@
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:src="@drawable/ic_farm"
+                    android:src="@drawable/ic_tractor"
                     android:contentDescription="Farm Icon"
                     app:tint="@color/primary" />
 
@@ -274,7 +274,6 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_inventory"
-                        
                         app:tint="@color/primary" />
 
                     <TextView
@@ -754,7 +753,7 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_view_list"
+                        android:src="@drawable/ic_money_bag"
                         app:tint="@color/primary" />
 
                     <TextView

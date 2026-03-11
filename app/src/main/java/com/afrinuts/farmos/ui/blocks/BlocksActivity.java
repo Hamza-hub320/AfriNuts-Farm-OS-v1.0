@@ -74,6 +74,13 @@ public class BlocksActivity extends BaseActivity {
         loadFarmData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh farm data when returning from BlockDetailActivity
+        loadFarmData();
+    }
+
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);

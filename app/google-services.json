@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "579490867111",
+    "project_id": "afrinuts-farm-os",
+    "storage_bucket": "afrinuts-farm-os.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579490867111:android:5383c572cefaa70325b882",
+        "android_client_info": {
+          "package_name": "com.afrinuts.farmos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaoikPDej5Ys6auUF3b3OqnUwd8vm2Te0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
