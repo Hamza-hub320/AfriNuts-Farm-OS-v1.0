@@ -1,9 +1,12 @@
 package com.afrinuts.farmos.ui.auth;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -31,6 +34,8 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = "LoginActivity";
 
     private AppDatabase database;
 
@@ -98,21 +103,64 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void createDefaultOwner() {
-        // Create a default owner account for first launch
-        String defaultPassword = AuthUtils.hash("admin123");
+        // Default credentials
+        String defaultEmail = "owner@afrinuts.com";
+        String defaultPassword = "admin123";
+
+        // Show progress
+        Toast.makeText(this, "Creating default owner...", Toast.LENGTH_SHORT).show();
+
+        // First, try to create in Firebase Auth
+        firebaseManager.signUpWithEmail(defaultEmail, defaultPassword,
+                new FirebaseManager.AuthCallback() {
+                    @Override
+                    public void onSuccess(FirebaseUser user) {
+                        Log.d(TAG, "Firebase user created: " + user.getUid());
+
+                        // Then create in local database
+                        createLocalUser(defaultEmail, defaultPassword);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "Firebase user creation failed: " + error);
+
+                        // Check if user already exists in Firebase
+                        if (error.contains("email-already-exists")) {
+                            // User already exists, just create local
+                            Toast.makeText(LoginActivity.this,
+                                    "Owner already exists in Firebase", Toast.LENGTH_SHORT).show();
+                            createLocalUser(defaultEmail, defaultPassword);
+                        } else {
+                            Toast.makeText(LoginActivity.this,
+                                    "Firebase error: " + error, Toast.LENGTH_LONG).show();
+                            // Still create local user? Maybe yes for offline-first
+                            createLocalUser(defaultEmail, defaultPassword);
+                        }
+                    }
+                });
+    }
+
+    private void createLocalUser(String email, String password) {
+        String hashedPassword = AuthUtils.hash(password);
         UserEntity owner = new UserEntity(
                 "Farm Owner",
                 UserEntity.UserRole.OWNER,
                 "+225 00 00 00 00",
-                "owner@afrinuts.com",
-                defaultPassword
+                email,
+                hashedPassword
         );
 
         new Thread(() -> {
-            database.userDao().insert(owner);
+            // Check if owner already exists in local DB
+            UserEntity existing = database.userDao().getUserByEmail(email);
+            if (existing == null) {
+                database.userDao().insert(owner);
+            }
+
             runOnUiThread(() -> {
-                Toast.makeText(this,
-                        "Default owner created. Email: owner@afrinuts.com, Password: admin123",
+                Toast.makeText(LoginActivity.this,
+                        "Default owner ready. Email: owner@afrinuts.com, Password: admin123",
                         Toast.LENGTH_LONG).show();
                 loadUsers(); // Reload users
             });

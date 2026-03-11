@@ -12,7 +12,12 @@
           "package_name": "com.afrinuts.farmos"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "579490867111-o85frkuhepsec14bva0hid1htnqa7no2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDaoikPDej5Ys6auUF3b3OqnUwd8vm2Te0"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "579490867111-o85frkuhepsec14bva0hid1htnqa7no2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
