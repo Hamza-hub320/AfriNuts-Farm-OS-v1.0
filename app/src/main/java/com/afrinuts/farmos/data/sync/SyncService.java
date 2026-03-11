@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.File;
 
 public class SyncService extends Service {
     private static final String TAG = "SyncService";
@@ -206,8 +207,41 @@ public class SyncService extends Service {
      */
     private void uploadPhotos() {
         List<PhotoEntity> photos = database.photoDao().getPhotosByFarmId(Long.parseLong(currentFarmId));
+        CountDownLatch latch = new CountDownLatch(photos.size());
+
         for (PhotoEntity photo : photos) {
-            // TODO: Implement uploadPhoto to Firebase Storage
+            File photoFile = new File(photo.getFilePath());
+            if (!photoFile.exists()) {
+                latch.countDown();
+                continue;
+            }
+
+            firebaseManager.uploadPhoto(photoFile, String.valueOf(photo.getId()),
+                    currentFarmId, new FirebaseManager.PhotoUploadCallback() {
+                        @Override
+                        public void onSuccess(String downloadUrl) {
+                            // Save metadata with cloud URL
+                            firebaseManager.savePhotoMetadata(photo, currentFarmId, downloadUrl);
+                            latch.countDown();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Log.e(TAG, "Error uploading photo: " + error);
+                            latch.countDown();
+                        }
+
+                        @Override
+                        public void onProgress(double progress) {
+                            broadcastSyncStatus("Uploading photos: " + (int) progress + "%");
+                        }
+                    });
+        }
+
+        try {
+            latch.await(5, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Photo upload interrupted", e);
         }
     }
 
@@ -314,7 +348,28 @@ public class SyncService extends Service {
      * Download photos from Firebase
      */
     private void downloadPhotos() throws Exception {
-        // TODO: Implement
+        CountDownLatch latch = new CountDownLatch(1);
+        final Exception[] error = new Exception[1];
+
+        firebaseManager.getPhotosForFarm(currentFarmId)
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        // Convert and save to local DB
+                        // Similar to blocks download
+                    }
+                    latch.countDown();
+                })
+                .addOnFailureListener(e -> {
+                    error[0] = e;
+                    latch.countDown();
+                });
+
+        if (!latch.await(30, TimeUnit.SECONDS)) {
+            throw new Exception("Timeout downloading photos");
+        }
+        if (error[0] != null) {
+            throw error[0];
+        }
     }
 
     /**
