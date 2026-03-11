@@ -108,4 +108,7 @@ dependencies {
 
 // Firebase Analytics
     implementation("com.google.firebase:firebase-analytics")
+
+    // WorkManager for background sync
+    implementation("androidx.work:work-runtime:2.9.0")
 }

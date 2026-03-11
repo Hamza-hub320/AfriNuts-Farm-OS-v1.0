@@ -15,6 +15,7 @@ import com.afrinuts.farmos.ui.weather.WeatherActivity;
 import com.afrinuts.farmos.ui.weather.WeatherForecastDialog;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
 import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
+import com.afrinuts.farmos.data.local.entity.SyncEntity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.afrinuts.farmos.data.repository.WeatherRepository;
@@ -33,6 +34,7 @@ import android.content.Context;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.afrinuts.farmos.data.sync.SyncService;
+import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.ui.sync.SyncStatusReceiver;
 import android.os.Bundle;
 import android.util.Log;
@@ -122,6 +124,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isBound = false;
     private SyncStatusReceiver syncReceiver;
     private MenuItem syncMenuItem;
+
+    private SyncManager syncManager;
+    private View offlineBanner;
+    private TextView tvSyncStatus;
+    private boolean isOnline = true;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -151,12 +158,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
-        setupSync();
 
         // Initialize views
         initViews();
 
-        // Initialize database
+        // Initialize database FIRST
         database = AppDatabase.getInstance(this);
 
         // Load current user
@@ -167,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
 
         // THEN: Load farm data
         loadFarmData();
+
+        // Setup sync AFTER database is ready
+        setupSync();
+        setupSyncManager();
 
         // Setup role-based UI
         setupRoleBasedUI();
@@ -253,6 +263,99 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(SyncService.ACTION_SYNC_COMPLETE));
         LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver,
                 new IntentFilter(SyncService.ACTION_SYNC_ERROR));
+    }
+
+    private void setupSyncManager() {
+        String farmId = String.valueOf(currentFarm != null ? currentFarm.getId() : 1);
+
+        syncManager = SyncManager.getInstance(this);
+        syncManager.init(this, farmId, new SyncManager.SyncListener() {
+            @Override
+            public void onSyncStarted() {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setIcon(R.drawable.ic_sync_anim);
+                        syncMenuItem.setTitle("Syncing...");
+                    }
+                    showSnackbar("Syncing...", false);
+                });
+            }
+
+            @Override
+            public void onSyncCompleted(int syncedItems) {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setIcon(R.drawable.ic_sync);
+                        syncMenuItem.setTitle("Sync");
+                    }
+                    showSnackbar("✓ Synced " + syncedItems + " items", true);
+                    loadFarmData();
+                });
+            }
+
+            @Override
+            public void onSyncFailed(String error) {
+                runOnUiThread(() -> {
+                    if (syncMenuItem != null) {
+                        syncMenuItem.setIcon(R.drawable.ic_sync);
+                        syncMenuItem.setTitle("Sync");
+                    }
+                    showSnackbar("⚠️ Sync failed: " + error, true);
+                });
+            }
+
+            @Override
+            public void onOfflineMode() {
+                runOnUiThread(() -> {
+                    isOnline = false;
+                    showOfflineBanner();
+                });
+            }
+
+            @Override
+            public void onOnlineMode() {
+                runOnUiThread(() -> {
+                    isOnline = true;
+                    hideOfflineBanner();
+                });
+            }
+        });
+    }
+
+    private void showOfflineBanner() {
+        if (offlineBanner == null) {
+            offlineBanner = findViewById(R.id.offlineBanner);
+        }
+        if (offlineBanner != null) {
+            offlineBanner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideOfflineBanner() {
+        if (offlineBanner == null) {
+            offlineBanner = findViewById(R.id.offlineBanner);
+        }
+        if (offlineBanner != null) {
+            offlineBanner.setVisibility(View.GONE);
+        }
+    }
+
+    private void showSnackbar(String message, boolean shortDuration) {
+        Snackbar snackbar = Snackbar.make(
+                findViewById(android.R.id.content),
+                message,
+                shortDuration ? Snackbar.LENGTH_SHORT : Snackbar.LENGTH_LONG
+        );
+
+        if (!isOnline) {
+            snackbar.setAction("Retry", v -> {
+                if (syncManager != null) {
+                    syncManager.forceSyncNow();
+                }
+            });
+        }
+
+        snackbar.show();
     }
 
     @Override
@@ -866,6 +969,28 @@ public class MainActivity extends AppCompatActivity {
             loadCurrentUser();
         }
     }
+
+    private void saveBlock(BlockEntity block) {
+        if (database == null || syncManager == null) return;
+
+        new Thread(() -> {
+            if (block.getId() == 0) {
+                long id = database.blockDao().insert(block);
+                block.setId((int) id);
+            } else {
+                database.blockDao().update(block);
+            }
+
+            syncManager.queueForSync(
+                    "block",
+                    block.getId(),
+                    block.getId() == 0 ?
+                            SyncEntity.SyncAction.CREATE :
+                            SyncEntity.SyncAction.UPDATE
+            );
+        }).start();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -874,6 +999,9 @@ public class MainActivity extends AppCompatActivity {
         }
         if (syncReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(syncReceiver);
+        }
+        if (syncManager != null) {
+            syncManager.shutdown();
         }
     }
 }

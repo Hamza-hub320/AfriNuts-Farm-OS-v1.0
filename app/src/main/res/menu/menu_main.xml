@@ -6,6 +6,7 @@
         android:id="@+id/action_sync"
         android:title="Sync"
         android:icon="@drawable/ic_sync"
+        app:iconTint="@android:color/white"
         app:showAsAction="always" />
 
     <item

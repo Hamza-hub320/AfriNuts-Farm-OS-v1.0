@@ -2,9 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Add these permissions -->
+    <!-- ALL PERMISSIONS MUST BE HERE - DIRECT CHILDREN OF MANIFEST -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Camera permission (if you need it) -->
+    <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
+
+    <!-- Storage permission (for older Android versions) -->
+    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
+    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> -->
 
     <application
         android:allowBackup="true"
@@ -92,6 +101,7 @@
         <activity
             android:name=".ui.users.UsersListActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.users.UserDetailActivity"
             android:parentActivityName=".ui.users.UsersListActivity" />
@@ -129,10 +139,6 @@
         <service
             android:name=".data.sync.SyncService"
             android:exported="false" />
-
-        <!-- Add necessary permissions -->
-        <uses-permission android:name="android.permission.INTERNET" />
-        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
         <!-- Add Firebase Messaging Service -->
         <service

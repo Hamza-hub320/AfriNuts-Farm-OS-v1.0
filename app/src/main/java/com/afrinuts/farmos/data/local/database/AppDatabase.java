@@ -13,6 +13,7 @@ import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
+import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
 import com.afrinuts.farmos.data.local.dao.UserDao;
 import com.afrinuts.farmos.data.local.dao.WeatherDao;
@@ -21,6 +22,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -40,11 +42,11 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 TaskAssignmentHistoryEntity.class,
                 WeatherCacheEntity.class,
                 UserEntity.class,
-                PhotoEntity.class
+                PhotoEntity.class,
+                SyncEntity.class
 
-                // We'll add BlockEntity, ExpenseEntity, etc. here as we create them
         },
-        version = 9,
+        version = 10,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -66,6 +68,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
     public abstract PhotoDao photoDao();
 
+    public abstract SyncDao syncDao();
+
     private static volatile AppDatabase INSTANCE;
 
     public static AppDatabase getInstance(Context context) {
@@ -83,7 +87,8 @@ public abstract class AppDatabase extends RoomDatabase {
                             // .addMigrations(new Migration1To2(), new Migration2To3(),
                             //               new Migration3To4(), new Migration4To5(),
                             //               new Migration5To6(), new Migration6To7(),
-                            //               new Migration7To8(), new Migration8To9())
+                            //               new Migration7To8(), new Migration8To9(),
+                            //               new Migration9To10())
                             .build();
                 }
             }
