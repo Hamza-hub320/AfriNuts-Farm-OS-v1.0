@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -189,11 +190,12 @@ public class BlockDetailActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // Navigate back to BlocksActivity
-        Intent intent = new Intent(this, BlocksActivity.class);
+        // Navigate back to MainActivity
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
+        super.onBackPressed(); // Add this line
     }
 
     private void loadBlockData() {
