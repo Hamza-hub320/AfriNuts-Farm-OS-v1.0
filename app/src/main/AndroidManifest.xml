@@ -158,6 +158,10 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary" />
 
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>

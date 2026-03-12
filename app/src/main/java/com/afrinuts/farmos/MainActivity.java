@@ -8,6 +8,7 @@ import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
 import com.afrinuts.farmos.ui.reports.ReportsActivity;
 import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
+import com.afrinuts.farmos.ui.settings.SettingsActivity;
 import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
 import com.afrinuts.farmos.ui.users.UsersListActivity;
@@ -128,6 +129,8 @@ public class MainActivity extends AppCompatActivity {
     private SyncManager syncManager;
     private View offlineBanner;
     private TextView tvSyncStatus;
+
+    private CardView btnSettingsCard;
     private boolean isOnline = true;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -488,6 +491,7 @@ public class MainActivity extends AppCompatActivity {
         forecastContainer = findViewById(R.id.forecastContainer);
         btnRefreshWeather = findViewById(R.id.btnRefreshWeather);
         weatherCard = findViewById(R.id.weatherCard);
+        btnSettingsCard = findViewById(R.id.btnSettingsCard);
     }
 
     private void setupClickListeners() {
@@ -623,6 +627,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnSettingsCard.setOnClickListener(v -> {
+            if (sessionManager.isLoggedIn()) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
             }
         });
 
