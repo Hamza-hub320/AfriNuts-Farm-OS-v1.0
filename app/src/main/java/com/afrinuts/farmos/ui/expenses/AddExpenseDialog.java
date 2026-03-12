@@ -2,7 +2,6 @@ package com.afrinuts.farmos.ui.expenses;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -58,6 +58,12 @@ public class AddExpenseDialog extends DialogFragment {
 
     private Calendar selectedDate = Calendar.getInstance();
     private boolean isFarmWide = true; // Default to farm-wide
+
+    // Store the selected category
+    private ExpenseEntity.ExpenseCategory selectedCategory = null;
+
+    // Store the display names for the dropdown
+    private String[] categoryDisplayNames;
 
     public interface OnExpenseAddedListener {
         void onExpenseAdded();
@@ -145,93 +151,65 @@ public class AddExpenseDialog extends DialogFragment {
         // Default to farm-wide selected
         toggleExpenseType.check(R.id.btnFarmWide);
         layoutBlockSelector.setVisibility(View.GONE);
-
-        // Set default description based on category selection
-        setupCategoryDescriptionListener();
-    }
-
-    // Custom adapter for category dropdown with icons
-    private class CategoryAdapter extends ArrayAdapter<ExpenseEntity.ExpenseCategory> {
-
-        public CategoryAdapter(Context context, List<ExpenseEntity.ExpenseCategory> categories) {
-            super(context, 0, categories);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createViewFromResource(position, convertView, parent, R.layout.item_category_dropdown);
-        }
-
-        @Override
-        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createViewFromResource(position, convertView, parent, R.layout.item_category_dropdown);
-        }
-
-        private View createViewFromResource(int position, View convertView, ViewGroup parent, int resource) {
-            View view = convertView;
-            if (view == null) {
-                view = LayoutInflater.from(getContext()).inflate(resource, parent, false);
-            }
-
-            ExpenseEntity.ExpenseCategory category = getItem(position);
-
-            ImageView iconView = view.findViewById(R.id.categoryIcon);
-            TextView textView = view.findViewById(R.id.categoryName);
-
-            if (category != null) {
-                // Set icon based on category
-                int iconRes = getIconForCategory(category);
-                iconView.setImageResource(iconRes);
-                iconView.setColorFilter(getContext().getColor(R.color.primary));
-
-                textView.setText(category.getDisplayName());
-            }
-
-            return view;
-        }
-
-        private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {
-            switch (category) {
-                case LAND_CLEARING:
-                    return R.drawable.ic_construction;
-                case PLOWING:
-                    return R.drawable.ic_grain;
-                case SEEDLINGS:
-                    return R.drawable.ic_grass;
-                case LABOR:
-                    return R.drawable.ic_people;
-                case SECURITY:
-                    return R.drawable.ic_security;
-                case FENCING:
-                    return R.drawable.ic_fence;
-                case FERTILIZER:
-                    return R.drawable.ic_fertilizer;
-                case IRRIGATION:
-                    return R.drawable.ic_water_drop;
-                case EQUIPMENT:
-                    return R.drawable.ic_construction;
-                case MAINTENANCE:
-                    return R.drawable.ic_construction;
-                case PROCESSING_CENTER:
-                    return R.drawable.ic_factory;
-                case OTHER:
-                    return R.drawable.ic_more_horiz;
-                default:
-                    return R.drawable.ic_attach_money;
-            }
-        }
     }
 
     private void setupCategoryDropdown() {
         ExpenseEntity.ExpenseCategory[] categories = ExpenseEntity.ExpenseCategory.values();
-        List<ExpenseEntity.ExpenseCategory> categoryList = new ArrayList<>();
-        for (ExpenseEntity.ExpenseCategory category : categories) {
-            categoryList.add(category);
+
+        // Create array of display names
+        categoryDisplayNames = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            categoryDisplayNames[i] = categories[i].getDisplayName();
         }
 
-        CategoryAdapter adapter = new CategoryAdapter(requireContext(), categoryList);
+        // Create a simple ArrayAdapter with display names
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                categoryDisplayNames) {
+
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext())
+                            .inflate(R.layout.item_category_dropdown, parent, false);
+                }
+
+                ImageView iconView = convertView.findViewById(R.id.categoryIcon);
+                TextView textView = convertView.findViewById(R.id.categoryName);
+
+                // Get the actual category enum for this position
+                ExpenseEntity.ExpenseCategory category = categories[position];
+
+                // Set vector icon using ExpenseIconHelper
+                iconView.setImageResource(ExpenseIconHelper.getCategoryIconResId(category));
+                iconView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary));
+
+                // Set display name
+                textView.setText(categoryDisplayNames[position]);
+
+                return convertView;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                return getView(position, convertView, parent);
+            }
+        };
+
         etCategory.setAdapter(adapter);
+
+        // Set item click listener to capture the selected category
+        etCategory.setOnItemClickListener((parent, view, position, id) -> {
+            selectedCategory = categories[position];
+
+            // Auto-fill description if available
+            if (selectedCategory.getDefaultDescription() != null &&
+                    TextUtils.isEmpty(etDescription.getText())) {
+                etDescription.setText(selectedCategory.getDefaultDescription());
+            }
+        });
     }
 
     private void setupDatePicker() {
@@ -301,18 +279,6 @@ public class AddExpenseDialog extends DialogFragment {
         }).start();
     }
 
-    private void setupCategoryDescriptionListener() {
-        etCategory.setOnItemClickListener((parent, view, position, id) -> {
-            ExpenseEntity.ExpenseCategory selectedCategory = (ExpenseEntity.ExpenseCategory)
-                    parent.getItemAtPosition(position);
-
-            if (selectedCategory.getDefaultDescription() != null &&
-                    TextUtils.isEmpty(etDescription.getText())) {
-                etDescription.setText(selectedCategory.getDefaultDescription());
-            }
-        });
-    }
-
     private void saveExpense() {
         // Validate amount
         String amountStr = etAmount.getText().toString().trim();
@@ -333,11 +299,7 @@ public class AddExpenseDialog extends DialogFragment {
             return;
         }
 
-        // Validate category
-        ExpenseEntity.ExpenseCategory selectedCategory =
-                (ExpenseEntity.ExpenseCategory) etCategory.getAdapter().getItem(
-                        etCategory.getListSelection());
-
+        // Validate category was selected
         if (selectedCategory == null) {
             Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
             return;

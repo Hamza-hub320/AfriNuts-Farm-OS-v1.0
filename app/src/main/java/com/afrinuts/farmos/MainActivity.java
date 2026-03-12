@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Created farm with ID: " + id);
 
             // Seed initial expenses after farm is created
-            DataSeeder.seedInitialExpenses(this);
+            // DataSeeder.seedInitialExpenses(this);
         } else {
             Log.d(TAG, "Farm already exists with ID: " + existingFarm.getId());
         }

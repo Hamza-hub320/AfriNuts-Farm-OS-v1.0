@@ -335,19 +335,42 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Delete Button -->
-            <Button
-                android:id="@+id/btnDelete"
+            <!-- Action Buttons Section - Add before Delete button -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Delete Revenue Record"
-                style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="@android:color/holo_red_dark"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconTint="@android:color/white"
+                android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Edit"
+                    style="@style/Widget.AfriNuts.Button"
+                    android:backgroundTint="@color/accent"
+                    app:icon="@drawable/ic_edit"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Delete"
+                    style="@style/Widget.AfriNuts.Button"
+                    android:backgroundTint="@android:color/holo_red_dark"
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart"
+                    app:iconTint="@android:color/white" />
+
+            </LinearLayout>
+
+            <!-- Remove the old single Delete button at the bottom -->
 
         </LinearLayout>
 

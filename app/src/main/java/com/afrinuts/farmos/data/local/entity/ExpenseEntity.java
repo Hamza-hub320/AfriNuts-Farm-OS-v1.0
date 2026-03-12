@@ -20,9 +20,9 @@ public class ExpenseEntity {
     @PrimaryKey(autoGenerate = true)
     private long id;
 
-    private long farmId;  // Always link to farm
+    private long farmId;
 
-    private Long blockId;  // Nullable - null means farm-wide expense
+    private Long blockId;
 
     private ExpenseCategory category;
 

@@ -20,6 +20,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -118,10 +119,7 @@ public class RevenueDetailActivity extends BaseActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
 
         if (btnEdit != null) {
-            btnEdit.setOnClickListener(v -> {
-                // Navigate to edit mode or open edit dialog
-                Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
-            });
+            btnEdit.setOnClickListener(v -> openEditDialog());
         }
     }
 
@@ -131,9 +129,18 @@ public class RevenueDetailActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Revenue Details");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupRoleBasedUI() {
@@ -146,17 +153,6 @@ public class RevenueDetailActivity extends BaseActivity {
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
             if (btnDelete != null) btnDelete.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void loadData() {
@@ -235,6 +231,20 @@ public class RevenueDetailActivity extends BaseActivity {
             }
         }
         return null;
+    }
+
+    private void openEditDialog() {
+        if (revenue == null || currentFarm == null) return;
+
+        AddRevenueDialog dialog =
+                AddRevenueDialog.newEditInstance(currentFarm.getId(), revenue.getId());
+
+        dialog.setOnRevenueAddedListener(() -> {
+            // Reload data after editing
+            loadData();
+        });
+
+        dialog.show(getSupportFragmentManager(), "EditRevenueDialog");
     }
 
     private void confirmDelete() {

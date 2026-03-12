@@ -95,7 +95,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     tvTaskIcon.setImageResource(R.drawable.ic_sync);
                     break;
                 case FERTILIZING:
-                    tvTaskIcon.setImageResource(R.drawable.ic_water_drop);
+                    tvTaskIcon.setImageResource(R.drawable.ic_fertilizer);
                     break;
                 case PRUNING:
                     tvTaskIcon.setImageResource(R.drawable.ic_cut);
