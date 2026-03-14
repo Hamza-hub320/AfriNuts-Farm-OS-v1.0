@@ -26,6 +26,9 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -268,7 +271,7 @@ public class AddUserDialog extends DialogFragment {
                 Log.d(TAG, "Firebase user created: " + firebaseUser.getUid());
 
                 // Now create in local database
-                createLocalUser(name, phone, email, password);
+                createLocalUser(name, phone, email, password, firebaseUser.getUid());
             }
 
             @Override
@@ -293,12 +296,16 @@ public class AddUserDialog extends DialogFragment {
         });
     }
 
-    private void createLocalUser(String name, String phone, String email, String password) {
+    private void createLocalUser(String name, String phone, String email, String password, String firebaseUid) {
         executor.execute(() -> {
             String passwordHash = AuthUtils.hash(password);
             UserEntity user = new UserEntity(name, selectedRole, phone, email, passwordHash);
 
             long id = database.userDao().insert(user);
+            user.setId(id);
+
+            // Save to Firestore
+            saveUserToFirestore(user, firebaseUid);
 
             requireActivity().runOnUiThread(() -> {
                 if (id > 0) {
@@ -314,6 +321,31 @@ public class AddUserDialog extends DialogFragment {
                 }
             });
         });
+    }
+
+    private void saveUserToFirestore(UserEntity user, String firebaseUid) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        userMap.put("name", user.getName());
+        userMap.put("role", user.getRole().name());
+        userMap.put("phone", user.getPhone());
+        userMap.put("email", user.getEmail());
+        userMap.put("authMethod", user.getAuthMethod().name());
+        userMap.put("isActive", user.isActive());
+        userMap.put("createdAt", user.getCreatedAt());
+        userMap.put("farmId", "1");
+
+        db.collection("users")
+                .document(firebaseUid)
+                .set(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User saved to Firestore");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error saving user to Firestore", e);
+                });
     }
 
     @Override

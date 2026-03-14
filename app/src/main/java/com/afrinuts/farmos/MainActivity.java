@@ -58,6 +58,8 @@ import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.blocks.BlockDialog;
 import com.afrinuts.farmos.utils.SessionManager;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import android.view.Menu;
@@ -66,6 +68,7 @@ import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -176,13 +179,10 @@ public class MainActivity extends AppCompatActivity {
         // Load current user in background
         loadCurrentUser();
 
-        // FIRST: Ensure farm exists in background
+        // FIRST: Ensure farm exists (runs in background and will trigger farm loading)
         ensureFarmExists();
 
-        // THEN: Load farm data in background
-        loadFarmData();
-
-        // Setup sync AFTER database is ready
+        // Setup sync manager (doesn't require farm yet)
         setupSyncManager();
 
         // Setup role-based UI (UI only, no db calls)
@@ -201,6 +201,98 @@ public class MainActivity extends AppCompatActivity {
         // Load weather data
         weatherRepository = new WeatherRepository(this);
         loadWeatherData();
+    }
+
+    private void loadUsersFromFirestore() {
+        // Safety check - farm must be loaded
+        if (currentFarm == null) {
+            Log.e(TAG, "Cannot load users: farm is null");
+            return;
+        }
+
+        if (!sessionManager.isOwner()) {
+            Log.d(TAG, "Not owner, skipping user sync");
+            return; // Only owner can sync users
+        }
+
+        Log.d(TAG, "Loading users from Firestore for farm: " + currentFarm.getId());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("farmId", String.valueOf(currentFarm.getId()))
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<UserEntity> firestoreUsers = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        UserEntity user = documentToUser(doc);
+                        if (user != null) {
+                            firestoreUsers.add(user);
+                        }
+                    }
+
+                    // Save to local database
+                    databaseExecutor.execute(() -> {
+                        int addedCount = 0;
+                        int updatedCount = 0;
+
+                        for (UserEntity user : firestoreUsers) {
+                            UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
+                            if (existing == null) {
+                                // New user - insert
+                                database.userDao().insert(user);
+                                addedCount++;
+                            } else {
+                                // Update existing user
+                                user.setId(existing.getId()); // Keep the same local ID
+                                database.userDao().update(user);
+                                updatedCount++;
+                            }
+                        }
+
+                        final int finalAddedCount = addedCount;
+                        final int finalUpdatedCount = updatedCount;
+
+                        runOnUiThread(() -> {
+                            Log.d(TAG, "Synced users from Firestore: " +
+                                    finalAddedCount + " added, " + finalUpdatedCount + " updated");
+
+                            // Refresh the current user list
+                            loadCurrentUser();
+                        });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load users from Firestore", e);
+                    Toast.makeText(this,
+                            "Failed to sync users: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private UserEntity documentToUser(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String name = doc.getString("name");
+            String role = doc.getString("role");
+            String phone = doc.getString("phone");
+            String email = doc.getString("email");
+            String authMethod = doc.getString("authMethod");
+            boolean isActive = doc.getBoolean("isActive");
+            long createdAt = doc.getLong("createdAt");
+
+            // Create user with temporary password (not stored in Firestore)
+            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
+                    phone, email, "");
+            user.setId(id);
+            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
+            user.setActive(isActive);
+            user.setCreatedAt(createdAt);
+            return user;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document", e);
+            return null;
+        }
     }
 
     private void loadCurrentUser() {
@@ -394,17 +486,37 @@ public class MainActivity extends AppCompatActivity {
                 FarmEntity odienneFarm = new FarmEntity(
                         "AfriNuts Odienné",
                         "Odienné, Côte d'Ivoire",
-                        35.0,  // total hectares
-                        35.0,  // cashew hectares
-                        100,   // trees per hectare
-                        2024   // planting year
+                        35.0,
+                        35.0,
+                        100,
+                        2024
                 );
 
                 long id = database.farmDao().insert(odienneFarm);
                 Log.d(TAG, "Created farm with ID: " + id);
+
+                // Reload farm after insert
+                existingFarm = database.farmDao().getFirstFarm();
             } else {
                 Log.d(TAG, "Farm already exists with ID: " + existingFarm.getId());
             }
+
+            final FarmEntity farm = existingFarm;
+
+            runOnUiThread(() -> {
+                currentFarm = farm;
+
+                // Now that farm exists, load farm data
+                loadFarmData();
+
+                // Initialize sync listener if user already loaded
+                if (currentUser != null) {
+                    initializeSyncListener();
+                }
+
+                // Now it is safe to sync users
+                loadUsersFromFirestore();
+            });
         });
     }
 

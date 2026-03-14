@@ -288,7 +288,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setText("Authenticating...");
 
         if (isPinMode) {
-            // PIN users still use local authentication
+            // PIN users are local only
             String hashedPin = AuthUtils.hash(emailPin);
             boolean authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
 
@@ -319,19 +319,40 @@ public class LoginActivity extends AppCompatActivity {
             firebaseManager.signInWithEmail(emailPin, password,
                     new FirebaseManager.AuthCallback() {
                         @Override
-                        public void onSuccess(FirebaseUser user) {
-                            selectedUser.setLastLoginAt(System.currentTimeMillis());
-
+                        public void onSuccess(FirebaseUser firebaseUser) {
+                            // Check if user exists in local DB
                             databaseExecutor.execute(() -> {
-                                database.userDao().update(selectedUser);
+                                UserEntity localUser = database.userDao().getUserByEmail(emailPin);
 
-                                SessionManager sessionManager = new SessionManager(LoginActivity.this);
-                                sessionManager.createLoginSession(selectedUser);
+                                if (localUser == null && selectedUser != null) {
+                                    // User exists in Firebase but not locally - save it
+                                    selectedUser.setLastLoginAt(System.currentTimeMillis());
+                                    database.userDao().insert(selectedUser);
+                                    localUser = selectedUser;
+                                }
 
+                                final UserEntity finalUser = localUser != null ? localUser : selectedUser;
                                 runOnUiThread(() -> {
-                                    Toast.makeText(LoginActivity.this,
-                                            "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
-                                    navigateToMain();
+                                    if (finalUser != null) {
+                                        finalUser.setLastLoginAt(System.currentTimeMillis());
+                                        databaseExecutor.execute(() -> {
+                                            database.userDao().update(finalUser);
+                                            SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                                            sessionManager.createLoginSession(finalUser);
+                                            runOnUiThread(() -> {
+                                                Toast.makeText(LoginActivity.this,
+                                                        "Welcome " + finalUser.getName(), Toast.LENGTH_SHORT).show();
+                                                navigateToMain();
+                                            });
+                                        });
+                                    } else {
+                                        // User exists in Firebase but not in local DB and no selected user
+                                        Toast.makeText(LoginActivity.this,
+                                                "Please contact your farm owner to set up your profile",
+                                                Toast.LENGTH_LONG).show();
+                                        btnLogin.setEnabled(true);
+                                        btnLogin.setText("Login");
+                                    }
                                 });
                             });
                         }
