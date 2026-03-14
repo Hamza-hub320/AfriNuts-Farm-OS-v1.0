@@ -11,39 +11,40 @@ android {
         applicationId = "com.afrinuts.farmos"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2  // Increment this for new release
+        versionName = "1.0.1"  // Update version name
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        lint {
-            abortOnError = false
+        // ADD THIS NDK CONFIGURATION
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         }
-
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "ALLOW_MAIN_THREAD", "true")
+        }
         release {
             isMinifyEnabled = false
+            // isShrinkResources = true  // Optional: removes unused resources
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "ALLOW_MAIN_THREAD", "false")
         }
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true  // This enables BuildConfig generation
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    // Test options for JUnit 4
-    testOptions {
-        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -116,4 +117,10 @@ dependencies {
 
     // WorkManager for background sync
     implementation("androidx.work:work-runtime:2.9.0")
+
+    // Add SLF4J for iText logging
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
+
+    implementation("androidx.multidex:multidex:2.0.1")
 }

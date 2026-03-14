@@ -7,6 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
@@ -30,7 +31,6 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
 
 /**
  * Main database configuration for AfriNuts Farm OS.
- * Version 1: Core entities only.
  */
 @Database(
         entities = {
@@ -44,7 +44,6 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 UserEntity.class,
                 PhotoEntity.class,
                 SyncEntity.class
-
         },
         version = 10,
         exportSchema = true
@@ -54,20 +53,13 @@ public abstract class AppDatabase extends RoomDatabase {
 
     // DAO declarations
     public abstract FarmDao farmDao();
-
     public abstract BlockDao blockDao();
-
     public abstract ExpenseDao expenseDao();
-
     public abstract RevenueDao revenueDao();
-
     public abstract TaskDao taskDao();
-
     public abstract WeatherDao weatherDao();
-
     public abstract UserDao userDao();
     public abstract PhotoDao photoDao();
-
     public abstract SyncDao syncDao();
 
     private static volatile AppDatabase INSTANCE;
@@ -76,20 +68,30 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
-                                    context.getApplicationContext(),
-                                    AppDatabase.class,
-                                    "afrinuts_farm_os.db"
-                            )
-                            .allowMainThreadQueries()
-                            // 🔥 This will wipe and recreate the database
-                            .fallbackToDestructiveMigration()
-                            // .addMigrations(new Migration1To2(), new Migration2To3(),
-                            //               new Migration3To4(), new Migration4To5(),
-                            //               new Migration5To6(), new Migration6To7(),
-                            //               new Migration7To8(), new Migration8To9(),
-                            //               new Migration9To10())
-                            .build();
+                    RoomDatabase.Builder<AppDatabase> builder =
+                            Room.databaseBuilder(
+                                            context.getApplicationContext(),
+                                            AppDatabase.class,
+                                            "afrinuts_farm_os.db"
+                                    )
+                                    .addMigrations(
+                                            new Migration1To2(),
+                                            new Migration2To3(),
+                                            new Migration3To4(),
+                                            new Migration4To5(),
+                                            new Migration5To6(),
+                                            new Migration6To7(),
+                                            new Migration7To8(),
+                                            new Migration8To9(),
+                                            new Migration9To10()
+                                    );
+
+                    // Only allow main thread queries in debug builds
+                    if (BuildConfig.ALLOW_MAIN_THREAD) {
+                        builder.allowMainThreadQueries();
+                    }
+
+                    INSTANCE = builder.build();
                 }
             }
         }

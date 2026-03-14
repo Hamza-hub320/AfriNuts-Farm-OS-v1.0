@@ -32,13 +32,15 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     private AppDatabase database;
-
     private FirebaseManager firebaseManager;
 
     // UI Elements
@@ -88,10 +90,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadUsers() {
-        new Thread(() -> {
-            users = database.userDao().getAllUsers();
+        databaseExecutor.execute(() -> {
+            List<UserEntity> userList = database.userDao().getAllUsers();
 
             runOnUiThread(() -> {
+                users = userList;
                 if (users.isEmpty()) {
                     // No users yet - create default owner
                     createDefaultOwner();
@@ -99,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                     displayUserChips();
                 }
             });
-        }).start();
+        });
     }
 
     private void createDefaultOwner() {
@@ -126,15 +129,17 @@ public class LoginActivity extends AppCompatActivity {
                         Log.e(TAG, "Firebase user creation failed: " + error);
 
                         // Check if user already exists in Firebase
-                        if (error.contains("email-already-exists")) {
+                        if (error != null && error.contains("email-already-exists")) {
                             // User already exists, just create local
-                            Toast.makeText(LoginActivity.this,
-                                    "Owner already exists in Firebase", Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() ->
+                                    Toast.makeText(LoginActivity.this,
+                                            "Owner already exists in Firebase", Toast.LENGTH_SHORT).show());
                             createLocalUser(defaultEmail, defaultPassword);
                         } else {
-                            Toast.makeText(LoginActivity.this,
-                                    "Firebase error: " + error, Toast.LENGTH_LONG).show();
-                            // Still create local user? Maybe yes for offline-first
+                            runOnUiThread(() ->
+                                    Toast.makeText(LoginActivity.this,
+                                            "Firebase error: " + error, Toast.LENGTH_LONG).show());
+                            // Still create local user for offline-first
                             createLocalUser(defaultEmail, defaultPassword);
                         }
                     }
@@ -151,7 +156,7 @@ public class LoginActivity extends AppCompatActivity {
                 hashedPassword
         );
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             // Check if owner already exists in local DB
             UserEntity existing = database.userDao().getUserByEmail(email);
             if (existing == null) {
@@ -164,11 +169,11 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 loadUsers(); // Reload users
             });
-        }).start();
+        });
     }
 
     private void displayUserChips() {
-        if (userChipsContainer == null) return;
+        if (userChipsContainer == null || users == null) return;
 
         userChipsContainer.removeAllViews();
 
@@ -290,7 +295,7 @@ public class LoginActivity extends AppCompatActivity {
             if (authenticated) {
                 selectedUser.setLastLoginAt(System.currentTimeMillis());
 
-                new Thread(() -> {
+                databaseExecutor.execute(() -> {
                     database.userDao().update(selectedUser);
 
                     SessionManager sessionManager = new SessionManager(LoginActivity.this);
@@ -301,11 +306,13 @@ public class LoginActivity extends AppCompatActivity {
                                 "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
                         navigateToMain();
                     });
-                }).start();
+                });
             } else {
-                btnLogin.setEnabled(true);
-                btnLogin.setText("Login");
-                Toast.makeText(LoginActivity.this, "Invalid PIN", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    btnLogin.setEnabled(true);
+                    btnLogin.setText("Login");
+                    Toast.makeText(LoginActivity.this, "Invalid PIN", Toast.LENGTH_SHORT).show();
+                });
             }
         } else {
             // Email/password users authenticate with Firebase
@@ -315,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
                         public void onSuccess(FirebaseUser user) {
                             selectedUser.setLastLoginAt(System.currentTimeMillis());
 
-                            new Thread(() -> {
+                            databaseExecutor.execute(() -> {
                                 database.userDao().update(selectedUser);
 
                                 SessionManager sessionManager = new SessionManager(LoginActivity.this);
@@ -326,7 +333,7 @@ public class LoginActivity extends AppCompatActivity {
                                             "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
                                     navigateToMain();
                                 });
-                            }).start();
+                            });
                         }
 
                         @Override
@@ -347,5 +354,11 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

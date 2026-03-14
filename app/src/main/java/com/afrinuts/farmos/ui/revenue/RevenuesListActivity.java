@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RevenuesListActivity extends BaseActivity {
 
@@ -46,6 +48,7 @@ public class RevenuesListActivity extends BaseActivity {
     private List<RevenueWithBlockName> allRevenues = new ArrayList<>();
     private List<RevenueWithBlockName> filteredRevenues = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, BLOCKS, PROCESSING, PREMIUM, STANDARD
 
@@ -194,30 +197,41 @@ public class RevenuesListActivity extends BaseActivity {
     private void loadData() {
         showLoading(true);
 
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
 
-            if (currentFarm != null) {
+            if (farm != null) {
                 // Load all blocks for name mapping
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                blockNameMap.clear();
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
-                    blockNameMap.put(block.getId(), block.getBlockName());
+                    blockMap.put(block.getId(), block.getBlockName());
                 }
 
                 // Load all revenues
-                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
 
-                allRevenues.clear();
+                List<RevenueWithBlockName> revenueList = new ArrayList<>();
                 for (RevenueEntity revenue : revenues) {
                     String blockName = null;
                     if (revenue.getBlockId() != null) {
-                        blockName = blockNameMap.get(revenue.getBlockId());
+                        blockName = blockMap.get(revenue.getBlockId());
                     }
-                    allRevenues.add(new RevenueWithBlockName(revenue, blockName));
+                    revenueList.add(new RevenueWithBlockName(revenue, blockName));
                 }
 
+                // Update UI on main thread
+                final FarmEntity finalFarm = farm;
+                final List<RevenueWithBlockName> finalRevenueList = revenueList;
+                final Map<Long, String> finalBlockMap = blockMap;
+
                 runOnUiThread(() -> {
+                    currentFarm = finalFarm;
+                    allRevenues.clear();
+                    allRevenues.addAll(finalRevenueList);
+                    blockNameMap.clear();
+                    blockNameMap.putAll(finalBlockMap);
+
                     showLoading(false);
 
                     if (allRevenues.isEmpty()) {
@@ -228,8 +242,13 @@ public class RevenuesListActivity extends BaseActivity {
                         updateSummary();
                     }
                 });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    showEmpty(true);
+                });
             }
-        }).start();
+        });
     }
 
     private void applyFilter() {
@@ -330,5 +349,11 @@ public class RevenuesListActivity extends BaseActivity {
                 Double.compare(e2.getRevenue().getQuantityKg(),
                         e1.getRevenue().getQuantityKg()));
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

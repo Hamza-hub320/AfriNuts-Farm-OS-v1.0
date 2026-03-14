@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddRevenueDialog extends DialogFragment {
 
@@ -49,6 +51,7 @@ public class AddRevenueDialog extends DialogFragment {
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextInputEditText etQuantity;
@@ -112,7 +115,7 @@ public class AddRevenueDialog extends DialogFragment {
         database = AppDatabase.getInstance(requireContext());
 
         // Load data in background
-        new Thread(() -> {
+        executor.execute(() -> {
             currentFarm = database.farmDao().getFarmById(farmId);
             allBlocks = database.blockDao().getBlocksByFarmId(farmId);
             if (isEditMode && revenueId != -1) {
@@ -122,7 +125,7 @@ public class AddRevenueDialog extends DialogFragment {
                     selectedQuality = existingRevenue.getQuality();
                 }
             }
-        }).start();
+        });
     }
 
     @NonNull
@@ -273,63 +276,6 @@ public class AddRevenueDialog extends DialogFragment {
         }
     }
 
-    // Custom adapter for block dropdown with visual indicators
-    private class BlockRevenueAdapter extends ArrayAdapter<String> {
-        private List<String> blockNames;
-        private java.util.HashSet<Long> blocksWithRevenue;
-
-        public BlockRevenueAdapter(Context context, List<String> blockNames, java.util.HashSet<Long> blocksWithRevenue) {
-            super(context, 0, blockNames);
-            this.blockNames = blockNames;
-            this.blocksWithRevenue = blocksWithRevenue;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createView(position, convertView, parent);
-        }
-
-        @Override
-        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createView(position, convertView, parent);
-        }
-
-        private View createView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(
-                        R.layout.item_block_revenue_dropdown, parent, false);
-            }
-
-            String blockName = blockNames.get(position);
-            String actualBlockName = blockName.split(" - ")[0];
-
-            TextView tvBlockName = convertView.findViewById(R.id.tvBlockName);
-            TextView tvStatus = convertView.findViewById(R.id.tvStatus);
-            ImageView ivRecorded = convertView.findViewById(R.id.ivRecorded);
-
-            tvBlockName.setText(actualBlockName);
-
-            // Find the block to get its ID and status
-            for (BlockEntity block : allBlocks) {
-                if (block.getBlockName().equals(actualBlockName)) {
-                    tvStatus.setText(block.getStatus().getDisplayName());
-
-                    if (blocksWithRevenue.contains(block.getId())) {
-                        ivRecorded.setVisibility(View.VISIBLE);
-                        convertView.setAlpha(0.6f); // Dim already recorded blocks
-                    } else {
-                        ivRecorded.setVisibility(View.GONE);
-                        convertView.setAlpha(1.0f);
-                    }
-                    break;
-                }
-            }
-
-            return convertView;
-        }
-    }
-
     private void setupQualityDropdown() {
         RevenueEntity.QualityGrade[] grades = RevenueEntity.QualityGrade.values();
         List<RevenueEntity.QualityGrade> gradeList = new ArrayList<>();
@@ -400,94 +346,67 @@ public class AddRevenueDialog extends DialogFragment {
     }
 
     private void loadBlocksForDropdown() {
-        new Thread(() -> {
+        executor.execute(() -> {
             if (allBlocks == null) {
                 allBlocks = database.blockDao().getBlocksByFarmId(farmId);
             }
 
-            // Get blocks that already have revenue
-            List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
-            java.util.HashSet<Long> blocksWithRevenue = new java.util.HashSet<>();
-            for (RevenueEntity revenue : existingRevenues) {
-                if (revenue.getBlockId() != null) {
-                    // In edit mode, allow the current block to not be marked as "recorded"
-                    if (!(isEditMode && existingRevenue != null && revenue.getId() == existingRevenue.getId())) {
-                        blocksWithRevenue.add(revenue.getBlockId());
-                    }
-                }
-            }
-
-            List<String> blockNames = new ArrayList<>();
-            List<BlockEntity> sortedBlocks = new ArrayList<>(allBlocks);
             // Sort blocks naturally (A1, A2, etc.)
+            List<BlockEntity> sortedBlocks = new ArrayList<>(allBlocks);
             sortedBlocks.sort((b1, b2) -> {
                 String num1 = b1.getBlockName().substring(1);
                 String num2 = b2.getBlockName().substring(1);
                 return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
             });
 
+            // Get blocks that already have revenue
+            List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
+            java.util.HashSet<Long> blocksWithRevenue = new java.util.HashSet<>();
+            for (RevenueEntity revenue : existingRevenues) {
+                if (revenue.getBlockId() != null) {
+                    blocksWithRevenue.add(revenue.getBlockId());
+                }
+            }
+
+            List<String> blockNames = new ArrayList<>();
             for (BlockEntity block : sortedBlocks) {
                 String displayName = block.getBlockName() + " - " + block.getStatus().getDisplayName();
-                if (blocksWithRevenue.contains(block.getId())) {
-                    displayName += " ✓ (recorded)";
-                }
                 blockNames.add(displayName);
             }
 
             requireActivity().runOnUiThread(() -> {
-                BlockRevenueAdapter adapter = new BlockRevenueAdapter(
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
                         requireContext(),
-                        blockNames,
-                        blocksWithRevenue
+                        android.R.layout.simple_dropdown_item_1line,
+                        blockNames
                 );
                 etBlock.setAdapter(adapter);
 
-                if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
-                    // Set the block dropdown to the existing revenue's block
+                // Suggest next available block
+                String nextBlock = getNextAvailableBlockForRevenue(sortedBlocks, blocksWithRevenue);
+                if (nextBlock != null && !isEditMode) {
+                    etBlock.setText(nextBlock, false);
+                } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
+                    // Set the block for edit mode
                     for (BlockEntity block : allBlocks) {
                         if (block.getId() == existingRevenue.getBlockId()) {
-                            String displayName = block.getBlockName() + " - " + block.getStatus().getDisplayName();
-                            etBlock.setText(displayName, false);
+                            etBlock.setText(block.getBlockName() + " - " + block.getStatus().getDisplayName(), false);
                             break;
                         }
                     }
-                } else {
-                    // Suggest next available block
-                    String nextBlock = getNextAvailableBlockForRevenue();
-                    if (nextBlock != null) {
-                        etBlock.setText(nextBlock, false);
-                    }
                 }
             });
-        }).start();
+        });
     }
 
-    private String getNextAvailableBlockForRevenue() {
-        if (allBlocks == null || allBlocks.isEmpty()) return null;
+    private String getNextAvailableBlockForRevenue(List<BlockEntity> blocks, java.util.HashSet<Long> blocksWithRevenue) {
+        if (blocks == null || blocks.isEmpty()) return null;
 
-        // Get blocks that already have revenue
-        java.util.HashSet<String> blocksWithRevenue = new java.util.HashSet<>();
-
-        List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
-
-        for (RevenueEntity revenue : existingRevenues) {
-            if (revenue.getBlockId() != null) {
-                for (BlockEntity block : allBlocks) {
-                    if (block.getId() == revenue.getBlockId()) {
-                        blocksWithRevenue.add(block.getBlockName());
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Suggest first block without revenue
-        for (BlockEntity block : allBlocks) {
-            if (!blocksWithRevenue.contains(block.getBlockName())) {
+        for (BlockEntity block : blocks) {
+            if (!blocksWithRevenue.contains(block.getId())) {
                 return block.getBlockName() + " - " + block.getStatus().getDisplayName();
             }
         }
-
         return null;
     }
 
@@ -609,7 +528,7 @@ public class AddRevenueDialog extends DialogFragment {
         // Check for duplicate block revenue (only in add mode)
         if (isPerBlock && blockId != null) {
             Long finalBlockId = blockId;
-            new Thread(() -> {
+            executor.execute(() -> {
                 List<RevenueEntity> existingRevenues = database.revenueDao()
                         .getRevenuesByBlockId(finalBlockId);
 
@@ -630,7 +549,7 @@ public class AddRevenueDialog extends DialogFragment {
                 requireActivity().runOnUiThread(() -> {
                     proceedWithInsert(quantity, price, finalBlockId, buyer, notes, harvestDate);
                 });
-            }).start();
+            });
         } else {
             proceedWithInsert(quantity, price, blockId, buyer, notes, harvestDate);
         }
@@ -639,20 +558,28 @@ public class AddRevenueDialog extends DialogFragment {
     private void proceedWithInsert(double quantity, double price, Long blockId,
                                    String buyer, String notes, long harvestDate) {
 
-        RevenueEntity revenue = new RevenueEntity(
-                farmId,
-                blockId,
-                harvestDate,
-                quantity,
-                price,
-                buyer.isEmpty() ? null : buyer,
-                selectedQuality,
-                notes.isEmpty() ? null : notes
-        );
+        // Create final copies for lambda
+        final long finalFarmId = farmId;
+        final Long finalBlockId = blockId;
+        final double finalQuantity = quantity;
+        final double finalPrice = price;
+        final String finalBuyer = buyer.isEmpty() ? null : buyer;
+        final RevenueEntity.QualityGrade finalQuality = selectedQuality;
+        final String finalNotes = notes.isEmpty() ? null : notes;
+        final long finalHarvestDate = harvestDate;
 
-        Toast.makeText(getContext(), "Saving revenue...", Toast.LENGTH_SHORT).show();
+        executor.execute(() -> {
+            RevenueEntity revenue = new RevenueEntity(
+                    finalFarmId,
+                    finalBlockId,
+                    finalHarvestDate,
+                    finalQuantity,
+                    finalPrice,
+                    finalBuyer,
+                    finalQuality,
+                    finalNotes
+            );
 
-        new Thread(() -> {
             long id = database.revenueDao().insert(revenue);
 
             requireActivity().runOnUiThread(() -> {
@@ -666,7 +593,7 @@ public class AddRevenueDialog extends DialogFragment {
                     Toast.makeText(getContext(), "Error adding revenue", Toast.LENGTH_SHORT).show();
                 }
             });
-        }).start();
+        });
     }
 
     private void updateRevenue() {
@@ -748,20 +675,27 @@ public class AddRevenueDialog extends DialogFragment {
 
         long harvestDate = selectedDate.getTimeInMillis();
 
-        // Update existing revenue
-        existingRevenue.setQuantityKg(quantity);
-        existingRevenue.setPricePerKg(price);
-        existingRevenue.setHarvestDate(harvestDate);
-        existingRevenue.setBlockId(blockId);
-        existingRevenue.setQuality(selectedQuality);
-        existingRevenue.setBuyer(buyer.isEmpty() ? null : buyer);
-        existingRevenue.setNotes(notes.isEmpty() ? null : notes);
-        existingRevenue.setUpdatedAt(System.currentTimeMillis());
+        // Create final copies for lambda
+        final RevenueEntity finalExistingRevenue = existingRevenue;
+        final Long finalBlockId = blockId;
+        final double finalQuantity = quantity;
+        final double finalPrice = price;
+        final String finalBuyer = buyer.isEmpty() ? null : buyer;
+        final RevenueEntity.QualityGrade finalQuality = selectedQuality;
+        final String finalNotes = notes.isEmpty() ? null : notes;
+        final long finalHarvestDate = harvestDate;
 
-        Toast.makeText(getContext(), "Updating revenue...", Toast.LENGTH_SHORT).show();
+        executor.execute(() -> {
+            finalExistingRevenue.setQuantityKg(finalQuantity);
+            finalExistingRevenue.setPricePerKg(finalPrice);
+            finalExistingRevenue.setHarvestDate(finalHarvestDate);
+            finalExistingRevenue.setBlockId(finalBlockId);
+            finalExistingRevenue.setQuality(finalQuality);
+            finalExistingRevenue.setBuyer(finalBuyer);
+            finalExistingRevenue.setNotes(finalNotes);
+            finalExistingRevenue.setUpdatedAt(System.currentTimeMillis());
 
-        new Thread(() -> {
-            database.revenueDao().update(existingRevenue);
+            database.revenueDao().update(finalExistingRevenue);
 
             requireActivity().runOnUiThread(() -> {
                 Toast.makeText(getContext(), "Revenue updated successfully!", Toast.LENGTH_SHORT).show();
@@ -770,6 +704,12 @@ public class AddRevenueDialog extends DialogFragment {
                 }
                 dismiss();
             });
-        }).start();
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }

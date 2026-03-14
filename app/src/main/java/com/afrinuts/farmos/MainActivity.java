@@ -20,6 +20,10 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.afrinuts.farmos.data.repository.WeatherRepository;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.view.View;
@@ -53,7 +57,6 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.blocks.BlockDialog;
-import com.afrinuts.farmos.utils.DataSeeder;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.gson.Gson;
 
@@ -63,16 +66,19 @@ import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.appbar.MaterialToolbar;
 
-
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AfriNutsFarmOS";
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private SyncManager syncManager;
     private CardView btnAnalyticsCard;
     private MaterialToolbar toolbar;
     private CardView btnUsersCard;
@@ -126,12 +132,12 @@ public class MainActivity extends AppCompatActivity {
     private SyncStatusReceiver syncReceiver;
     private MenuItem syncMenuItem;
 
-    private SyncManager syncManager;
     private View offlineBanner;
     private TextView tvSyncStatus;
 
     private CardView btnSettingsCard;
     private boolean isOnline = true;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -145,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
             isBound = false;
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,23 +170,22 @@ public class MainActivity extends AppCompatActivity {
         // Initialize views
         initViews();
 
-        // Initialize database FIRST
+        // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Load current user
+        // Load current user in background
         loadCurrentUser();
 
-        // FIRST: Ensure farm exists
+        // FIRST: Ensure farm exists in background
         ensureFarmExists();
 
-        // THEN: Load farm data
+        // THEN: Load farm data in background
         loadFarmData();
 
         // Setup sync AFTER database is ready
-        setupSync();
         setupSyncManager();
 
-        // Setup role-based UI
+        // Setup role-based UI (UI only, no db calls)
         setupRoleBasedUI();
 
         // Setup click listeners
@@ -191,119 +195,77 @@ public class MainActivity extends AppCompatActivity {
         setupAnimations();
         setupHoverEffects();
 
+        // Setup custom toolbar with sync button
+        setupCustomToolbar();
+
         // Load weather data
         weatherRepository = new WeatherRepository(this);
         loadWeatherData();
     }
 
     private void loadCurrentUser() {
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             long userId = sessionManager.getUserId();
             if (userId != -1) {
-                currentUser = database.userDao().getUserById(userId);
-            }
-            runOnUiThread(() -> {
-                if (currentUser == null) {
-                    // User not found in database, logout
-                    sessionManager.logout();
-                    redirectToLogin();
-                }
-            });
-        }).start();
-    }
-
-    private void redirectToLogin() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    private void setupSync() {
-        // Start and bind to SyncService
-        Intent intent = new Intent(this, SyncService.class);
-        startService(intent);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
-        // Register broadcast receiver
-        syncReceiver = new SyncStatusReceiver(new SyncStatusReceiver.SyncStatusListener() {
-            @Override
-            public void onSyncStatusUpdate(String status) {
+                UserEntity user = database.userDao().getUserById(userId);
                 runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setTitle(status);
+                    currentUser = user;
+                    if (currentUser == null) {
+                        // User not found in database, logout
+                        sessionManager.logout();
+                        redirectToLogin();
+                    } else {
+                        // Initialize sync listener after user is loaded
+                        initializeSyncListener();
                     }
-                });
-            }
-
-            @Override
-            public void onSyncComplete() {
-                runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setIcon(R.drawable.ic_sync);
-                        syncMenuItem.setTitle("Sync");
-                    }
-                    Toast.makeText(MainActivity.this,
-                            "Sync completed successfully", Toast.LENGTH_SHORT).show();
-                    loadFarmData();
-                });
-            }
-
-            @Override
-            public void onSyncError(String error) {
-                runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setIcon(R.drawable.ic_sync);
-                        syncMenuItem.setTitle("Sync");
-                    }
-                    Snackbar.make(findViewById(android.R.id.content),
-                            "Sync failed: " + error, Snackbar.LENGTH_LONG).show();
                 });
             }
         });
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver,
-                new IntentFilter(SyncService.ACTION_SYNC_COMPLETE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(syncReceiver,
-                new IntentFilter(SyncService.ACTION_SYNC_ERROR));
     }
 
-    private void setupSyncManager() {
-        String farmId = String.valueOf(currentFarm != null ? currentFarm.getId() : 1);
+    private void initializeSyncListener() {
+        if (currentFarm == null) {
+            // Wait for farm to be loaded
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (currentFarm != null) {
+                    setupSyncListener();
+                }
+            }, 500);
+        } else {
+            setupSyncListener();
+        }
+    }
 
-        syncManager = SyncManager.getInstance(this);
-        syncManager.init(this, farmId, new SyncManager.SyncListener() {
+    private void setupSyncListener() {
+        if (currentFarm == null || syncManager == null) return;
+
+        syncManager.init(this, String.valueOf(currentFarm.getId()), new SyncManager.SyncListener() {
             @Override
             public void onSyncStarted() {
                 runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setIcon(R.drawable.ic_sync_anim);
-                        syncMenuItem.setTitle("Syncing...");
-                    }
-                    showSnackbar("Syncing...", false);
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, true);
                 });
             }
 
             @Override
             public void onSyncCompleted(int syncedItems) {
                 runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setIcon(R.drawable.ic_sync);
-                        syncMenuItem.setTitle("Sync");
-                    }
-                    showSnackbar("✓ Synced " + syncedItems + " items", true);
-                    loadFarmData();
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, false);
+                    Toast.makeText(MainActivity.this,
+                            "Synced " + syncedItems + " items", Toast.LENGTH_SHORT).show();
+                    loadFarmData(); // Refresh data after sync
                 });
             }
 
             @Override
             public void onSyncFailed(String error) {
                 runOnUiThread(() -> {
-                    if (syncMenuItem != null) {
-                        syncMenuItem.setIcon(R.drawable.ic_sync);
-                        syncMenuItem.setTitle("Sync");
-                    }
-                    showSnackbar("⚠️ Sync failed: " + error, true);
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, false);
+                    Toast.makeText(MainActivity.this,
+                            "Sync failed: " + error, Toast.LENGTH_SHORT).show();
                 });
             }
 
@@ -325,6 +287,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void animateSyncButton(ImageButton button, boolean start) {
+        if (start) {
+            button.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
+                button.setRotation(0);
+                if (syncManager != null && syncManager.isSyncing()) {
+                    animateSyncButton(button, true); // Continue animation
+                }
+            }).start();
+        } else {
+            button.animate().cancel();
+            button.setRotation(0);
+        }
+    }
+
+    private void setupCustomToolbar() {
+        ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+        ImageButton btnLogout = findViewById(R.id.btnToolbarLogout);
+
+        btnSync.setOnClickListener(v -> {
+            if (currentFarm != null && syncManager != null) {
+                if (!syncManager.isSyncing()) {
+                    syncManager.forceSyncNow();
+                } else {
+                    Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btnLogout.setOnClickListener(v -> showLogoutDialog());
+    }
+
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void setupSyncManager() {
+        syncManager = SyncManager.getInstance(this);
+    }
+
     private void showOfflineBanner() {
         if (offlineBanner == null) {
             offlineBanner = findViewById(R.id.offlineBanner);
@@ -341,51 +345,6 @@ public class MainActivity extends AppCompatActivity {
         if (offlineBanner != null) {
             offlineBanner.setVisibility(View.GONE);
         }
-    }
-
-    private void showSnackbar(String message, boolean shortDuration) {
-        Snackbar snackbar = Snackbar.make(
-                findViewById(android.R.id.content),
-                message,
-                shortDuration ? Snackbar.LENGTH_SHORT : Snackbar.LENGTH_LONG
-        );
-
-        if (!isOnline) {
-            snackbar.setAction("Retry", v -> {
-                if (syncManager != null) {
-                    syncManager.forceSyncNow();
-                }
-            });
-        }
-
-        snackbar.show();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        syncMenuItem = menu.findItem(R.id.action_sync);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_sync) {
-            if (currentFarm != null && isBound && syncService != null) {
-                if (!syncService.isSyncing()) {
-                    syncMenuItem.setIcon(R.drawable.ic_sync_anim);
-                    syncMenuItem.setTitle("Syncing...");
-                    syncService.startFullSync(String.valueOf(currentFarm.getId()));
-                } else {
-                    Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
-                }
-            }
-            return true;
-        } else if (item.getItemId() == R.id.action_logout) {
-            showLogoutDialog();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void showLogoutDialog() {
@@ -424,37 +383,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ensureFarmExists() {
-        // Check if farm already exists
-        FarmEntity existingFarm = database.farmDao().getFirstFarm();
+        databaseExecutor.execute(() -> {
+            // Check if farm already exists
+            FarmEntity existingFarm = database.farmDao().getFirstFarm();
 
-        if (existingFarm == null) {
-            Log.d(TAG, "No farm found. Creating default farm...");
+            if (existingFarm == null) {
+                Log.d(TAG, "No farm found. Creating default farm...");
 
-            // Create Odienné farm
-            FarmEntity odienneFarm = new FarmEntity(
-                    "AfriNuts Odienné",
-                    "Odienné, Côte d'Ivoire",
-                    35.0,  // total hectares
-                    35.0,  // cashew hectares
-                    100,   // trees per hectare
-                    2024   // planting year
-            );
+                // Create Odienné farm
+                FarmEntity odienneFarm = new FarmEntity(
+                        "AfriNuts Odienné",
+                        "Odienné, Côte d'Ivoire",
+                        35.0,  // total hectares
+                        35.0,  // cashew hectares
+                        100,   // trees per hectare
+                        2024   // planting year
+                );
 
-            long id = database.farmDao().insert(odienneFarm);
-            Log.d(TAG, "Created farm with ID: " + id);
-
-            // Seed initial expenses after farm is created
-            // DataSeeder.seedInitialExpenses(this);
-        } else {
-            Log.d(TAG, "Farm already exists with ID: " + existingFarm.getId());
-        }
+                long id = database.farmDao().insert(odienneFarm);
+                Log.d(TAG, "Created farm with ID: " + id);
+            } else {
+                Log.d(TAG, "Farm already exists with ID: " + existingFarm.getId());
+            }
+        });
     }
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        btnUsersCard = findViewById(R.id.btnUsersCard);
-        farmNameText = findViewById(R.id.farmNameText);
+
         btnUsersCard = findViewById(R.id.btnUsersCard);
         farmNameText = findViewById(R.id.farmNameText);
         farmLocationText = findViewById(R.id.farmLocationText);
@@ -479,11 +436,13 @@ public class MainActivity extends AppCompatActivity {
         btnProfitDashboardCard = findViewById(R.id.btnProfitDashboardCard);
         btnReportsCard = findViewById(R.id.btnReportsCard);
         btnAnalyticsCard = findViewById(R.id.btnAnalyticsCard);
+        btnSettingsCard = findViewById(R.id.btnSettingsCard);
 
         weatherContent = findViewById(R.id.weatherContent);
         weatherLoadingText = findViewById(R.id.weatherLoadingText);
         weatherUpdateTime = findViewById(R.id.weatherUpdateTime);
         weatherIconFallback = findViewById(R.id.weatherIconFallback);
+        weatherIcon = findViewById(R.id.weatherIcon);
         weatherTemp = findViewById(R.id.weatherTemp);
         weatherCondition = findViewById(R.id.weatherCondition);
         weatherHumidity = findViewById(R.id.weatherHumidity);
@@ -491,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
         forecastContainer = findViewById(R.id.forecastContainer);
         btnRefreshWeather = findViewById(R.id.btnRefreshWeather);
         weatherCard = findViewById(R.id.weatherCard);
-        btnSettingsCard = findViewById(R.id.btnSettingsCard);
     }
 
     private void setupClickListeners() {
@@ -703,7 +661,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Hover effect for cards (touch feedback)
     private void setupHoverEffects() {
         View[] clickableCards = {
                 findViewById(R.id.btnViewBlocksCard),
@@ -735,6 +692,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getNextAvailableBlockName() {
+        if (allBlocks == null) return "A1";
+
         // 5 rows (A through E) and 7 columns (1 through 7)
         char[] rows = {'A', 'B', 'C', 'D', 'E'};
         int columns = 7;
@@ -759,21 +718,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadFarmData() {
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             // Refresh currentFarm from database
-            currentFarm = database.farmDao().getFirstFarm();
+            FarmEntity farm = database.farmDao().getFirstFarm();
 
-            if (currentFarm != null) {
+            if (farm != null) {
                 // Get all blocks
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
 
                 // Calculate stats
-                int totalBlocks = allBlocks.size();
+                int totalBlocks = blocks.size();
                 int plantedBlocks = 0;
                 int totalAliveTrees = 0;
                 double totalSurvivalRate = 0;
 
-                for (BlockEntity block : allBlocks) {
+                for (BlockEntity block : blocks) {
                     if (block.isPlanted()) {
                         plantedBlocks++;
                         totalAliveTrees += block.getAliveTrees();
@@ -792,16 +751,27 @@ public class MainActivity extends AppCompatActivity {
                 final int finalTotalAliveTrees = totalAliveTrees;
                 final double finalAvgSurvivalRate = avgSurvivalRate;
                 final int finalPlantedProgress = plantedProgressValue;
+                final FarmEntity finalFarm = farm;
+                final List<BlockEntity> finalBlocks = blocks;
 
-                runOnUiThread(() -> updateUI(
-                        finalTotalBlocks,
-                        finalPlantedBlocks,
-                        finalTotalAliveTrees,
-                        finalAvgSurvivalRate,
-                        finalPlantedProgress
-                ));
+                runOnUiThread(() -> {
+                    currentFarm = finalFarm;
+                    allBlocks = finalBlocks;
+                    updateUI(
+                            finalTotalBlocks,
+                            finalPlantedBlocks,
+                            finalTotalAliveTrees,
+                            finalAvgSurvivalRate,
+                            finalPlantedProgress
+                    );
+
+                    // Initialize sync listener after farm data is loaded
+                    if (currentFarm != null && currentUser != null) {
+                        setupSyncListener();
+                    }
+                });
             }
-        }).start();
+        });
     }
 
     private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
@@ -841,7 +811,10 @@ public class MainActivity extends AppCompatActivity {
         weatherRepository.getWeatherForecast(new WeatherRepository.WeatherCallback() {
             @Override
             public void onSuccess(WeatherResponse weather) {
-                runOnUiThread(() -> displayWeather(weather));
+                runOnUiThread(() -> {
+                    currentWeather = weather;
+                    displayWeather(weather);
+                });
             }
 
             @Override
@@ -907,69 +880,16 @@ public class MainActivity extends AppCompatActivity {
         weatherIconFallback.setText(icon);
     }
 
-    private void displayForecast(WeatherResponse.Forecast forecast) {
-        if (forecast == null || forecast.getForecastday() == null) return;
-
-        forecastContainer.removeAllViews();
-
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.getDefault());
-
-        for (WeatherResponse.ForecastDay day : forecast.getForecastday()) {
-            View dayView = getLayoutInflater().inflate(R.layout.item_forecast_day, forecastContainer, false);
-
-            TextView tvDay = dayView.findViewById(R.id.forecastDay);
-            TextView tvIcon = dayView.findViewById(R.id.forecastIcon);
-            TextView tvTemp = dayView.findViewById(R.id.forecastTemp);
-            TextView tvRain = dayView.findViewById(R.id.forecastRain);
-
-            try {
-                java.util.Date date = inputFormat.parse(day.getDate());
-                tvDay.setText(outputFormat.format(date));
-            } catch (Exception e) {
-                tvDay.setText("--");
-            }
-
-            String condition = day.getDay().getCondition().getText().toLowerCase();
-            if (condition.contains("rain")) tvIcon.setText("🌧️");
-            else if (condition.contains("cloud")) tvIcon.setText("☁️");
-            else tvIcon.setText("☀️");
-
-            tvTemp.setText(String.format(Locale.getDefault(),
-                    "%.0f°", day.getDay().getAvgtempC()));
-            tvRain.setText(day.getDay().getDailyChanceOfRain() + "%");
-
-            forecastContainer.addView(dayView);
-        }
-    }
-
     private void setupWeatherClick() {
         weatherCard.setOnClickListener(v -> {
-
             if (currentWeather != null) {
-
                 Intent intent = new Intent(this, WeatherActivity.class);
                 intent.putExtra("weather_json", new Gson().toJson(currentWeather));
                 startActivity(intent);
-
             } else {
-
-                Toast.makeText(
-                        this,
-                        "Weather data not available yet",
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(this, "Weather data not available yet", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void showWeatherForecastDialog() {
-        if (currentWeather != null) {
-            WeatherForecastDialog dialog = WeatherForecastDialog.newInstance(currentWeather);
-            dialog.show(getSupportFragmentManager(), "WeatherForecastDialog");
-        } else {
-            Toast.makeText(this, "Weather data not available yet", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -986,7 +906,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveBlock(BlockEntity block) {
         if (database == null || syncManager == null) return;
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             if (block.getId() == 0) {
                 long id = database.blockDao().insert(block);
                 block.setId((int) id);
@@ -1001,7 +921,7 @@ public class MainActivity extends AppCompatActivity {
                             SyncEntity.SyncAction.CREATE :
                             SyncEntity.SyncAction.UPDATE
             );
-        }).start();
+        });
     }
 
     @Override
@@ -1016,5 +936,9 @@ public class MainActivity extends AppCompatActivity {
         if (syncManager != null) {
             syncManager.shutdown();
         }
+        if (weatherRepository != null) {
+            weatherRepository.shutdown();
+        }
+        databaseExecutor.shutdown();
     }
 }

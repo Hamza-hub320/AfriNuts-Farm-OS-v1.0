@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ProfitDashboardActivity extends BaseActivity {
 
@@ -37,6 +39,7 @@ public class ProfitDashboardActivity extends BaseActivity {
     private List<ExpenseEntity> allExpenses = new ArrayList<>();
     private List<BlockEntity> allBlocks = new ArrayList<>();
     private ProfitAnalytics currentAnalytics;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ChipGroup dateRangeChipGroup;
@@ -48,6 +51,7 @@ public class ProfitDashboardActivity extends BaseActivity {
     private TextView profitPerTree;
     private TextView marginPercent;
     private LinearLayout recentTransactionsContainer;
+    private View progressBar;
 
     private String currentDateRange = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
 
@@ -91,6 +95,7 @@ public class ProfitDashboardActivity extends BaseActivity {
         profitPerTree = findViewById(R.id.profitPerTree);
         marginPercent = findViewById(R.id.marginPercent);
         recentTransactionsContainer = findViewById(R.id.recentTransactionsContainer);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     private void setupToolbar() {
@@ -145,20 +150,39 @@ public class ProfitDashboardActivity extends BaseActivity {
     }
 
     private void loadData() {
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        showLoading(true);
 
-            if (currentFarm != null) {
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                allRevenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
-                allExpenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
 
-                runOnUiThread(() -> refreshAnalytics());
+            if (farm != null) {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
+                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
+
+                runOnUiThread(() -> {
+                    currentFarm = farm;
+                    allBlocks.clear();
+                    allBlocks.addAll(blocks);
+                    allRevenues.clear();
+                    allRevenues.addAll(revenues);
+                    allExpenses.clear();
+                    allExpenses.addAll(expenses);
+
+                    showLoading(false);
+                    refreshAnalytics();
+                });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    // Show empty state or error
+                });
             }
-        }).start();
+        });
     }
 
     private void refreshAnalytics() {
+        // This runs on UI thread, but filtering is fast (in-memory operations)
         List<RevenueEntity> filteredRevenues = filterRevenuesByDate(allRevenues);
         List<ExpenseEntity> filteredExpenses = filterExpensesByDate(allExpenses);
 
@@ -233,6 +257,8 @@ public class ProfitDashboardActivity extends BaseActivity {
     }
 
     private void updateUI() {
+        if (currentAnalytics == null) return;
+
         // Summary
         totalRevenueValue.setText(String.format(Locale.getDefault(),
                 "%,.0f XAF", currentAnalytics.getTotalRevenue()));
@@ -258,6 +284,8 @@ public class ProfitDashboardActivity extends BaseActivity {
     }
 
     private void displayRecentTransactions() {
+        if (currentAnalytics == null || currentAnalytics.getRecentTransactions() == null) return;
+
         recentTransactionsContainer.removeAllViews();
 
         for (ProfitAnalytics.ProfitTransaction transaction :
@@ -307,6 +335,15 @@ public class ProfitDashboardActivity extends BaseActivity {
         }
     }
 
+    private void showLoading(boolean show) {
+        if (progressBar != null) {
+            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (recentTransactionsContainer != null) {
+            recentTransactionsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
     @Override
     public void onBackPressed() {
         // Navigate back to MainActivity
@@ -314,5 +351,12 @@ public class ProfitDashboardActivity extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

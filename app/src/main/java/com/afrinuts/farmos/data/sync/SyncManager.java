@@ -34,6 +34,9 @@ public class SyncManager {
     private String currentFarmId;
     private SyncListener listener;
 
+    // Add this field to track sync state
+    private boolean isSyncing = false;
+
     public interface SyncListener {
         void onSyncStarted();
         void onSyncCompleted(int syncedItems);
@@ -116,6 +119,13 @@ public class SyncManager {
     }
 
     /**
+     * Check if sync is currently in progress
+     */
+    public boolean isSyncing() {
+        return isSyncing;
+    }
+
+    /**
      * Trigger auto-sync (respects WorkManager constraints)
      */
     public void triggerAutoSync() {
@@ -150,6 +160,10 @@ public class SyncManager {
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
                     .build();
 
+            // Set syncing flag to true
+            isSyncing = true;
+            if (listener != null) listener.onSyncStarted();
+
             // Enqueue work
             WorkManager.getInstance(context)
                     .beginUniqueWork(UNIQUE_SYNC_WORK, ExistingWorkPolicy.KEEP, syncWork)
@@ -163,8 +177,9 @@ public class SyncManager {
                             if (workInfo == null) return;
 
                             if (workInfo.getState() == WorkInfo.State.RUNNING) {
-                                if (listener != null) listener.onSyncStarted();
+                                // Already syncing
                             } else if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                isSyncing = false;
                                 if (listener != null) {
                                     listener.onSyncCompleted(pendingCount);
                                 }
@@ -172,6 +187,7 @@ public class SyncManager {
                                         .getWorkInfoByIdLiveData(syncWork.getId())
                                         .removeObserver(this);
                             } else if (workInfo.getState() == WorkInfo.State.FAILED) {
+                                isSyncing = false;
                                 if (listener != null) {
                                     listener.onSyncFailed("Sync failed");
                                 }
@@ -204,7 +220,6 @@ public class SyncManager {
                         .setInputData(inputData)
                         .build();
 
-        // Use ExistingPeriodicWorkPolicy instead of ExistingWorkPolicy
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
                         PERIODIC_SYNC_WORK,

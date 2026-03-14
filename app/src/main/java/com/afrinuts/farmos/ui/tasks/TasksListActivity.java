@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TasksListActivity extends BaseActivity {
 
@@ -47,6 +49,7 @@ public class TasksListActivity extends BaseActivity {
     private List<TaskWithBlockName> allTasks = new ArrayList<>();
     private List<TaskWithBlockName> filteredTasks = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, COMPLETED, OVERDUE
 
@@ -199,30 +202,41 @@ public class TasksListActivity extends BaseActivity {
     private void loadData() {
         showLoading(true);
 
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
 
-            if (currentFarm != null) {
+            if (farm != null) {
                 // Load all blocks for name mapping
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                blockNameMap.clear();
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
-                    blockNameMap.put(block.getId(), block.getBlockName());
+                    blockMap.put(block.getId(), block.getBlockName());
                 }
 
                 // Load all tasks
-                List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(currentFarm.getId());
+                List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(farm.getId());
 
-                allTasks.clear();
+                List<TaskWithBlockName> taskList = new ArrayList<>();
                 for (TaskEntity task : tasks) {
                     String blockName = null;
                     if (task.getBlockId() != null) {
-                        blockName = blockNameMap.get(task.getBlockId());
+                        blockName = blockMap.get(task.getBlockId());
                     }
-                    allTasks.add(new TaskWithBlockName(task, blockName));
+                    taskList.add(new TaskWithBlockName(task, blockName));
                 }
 
+                // Update UI on main thread
+                final FarmEntity finalFarm = farm;
+                final List<TaskWithBlockName> finalTaskList = taskList;
+                final Map<Long, String> finalBlockMap = blockMap;
+
                 runOnUiThread(() -> {
+                    currentFarm = finalFarm;
+                    allTasks.clear();
+                    allTasks.addAll(finalTaskList);
+                    blockNameMap.clear();
+                    blockNameMap.putAll(finalBlockMap);
+
                     showLoading(false);
 
                     if (allTasks.isEmpty()) {
@@ -233,8 +247,13 @@ public class TasksListActivity extends BaseActivity {
                         applyFilter();
                     }
                 });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    showEmpty(true);
+                });
             }
-        }).start();
+        });
     }
 
     private void updateSummaryCounts() {
@@ -349,5 +368,11 @@ public class TasksListActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         loadData(); // Refresh data when returning to activity
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlocksActivity extends BaseActivity {
 
@@ -41,6 +43,7 @@ public class BlocksActivity extends BaseActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected boolean checkRoleAccess() {
@@ -110,29 +113,38 @@ public class BlocksActivity extends BaseActivity {
         // No additional restrictions needed for BlocksActivity
     }
 
-    // FIX: Add this method to set up FAB click listener
     private void setupFabClickListener() {
         if (fabAdd != null) {
             fabAdd.setOnClickListener(v -> {
                 if (currentFarm != null) {
-                    // Get next available block name
-                    String nextBlock = getNextAvailableBlockName();
+                    // Show loading on FAB
+                    fabAdd.setEnabled(false);
 
-                    if (nextBlock.equals("FULL")) {
-                        Snackbar.make(v,
-                                "All 35 blocks (A1-E7) have been created. Cannot add more.",
-                                Snackbar.LENGTH_LONG).show();
-                        return;
-                    }
+                    // Get next available block name in background
+                    databaseExecutor.execute(() -> {
+                        String nextBlock = getNextAvailableBlockName();
 
-                    BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
-                    dialog.setNextBlockName(nextBlock);
-                    dialog.setOnBlockAddedListener(() -> {
-                        loadFarmData(); // Refresh data
-                        Toast.makeText(this, "Block " + nextBlock + " added successfully!",
-                                Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> {
+                            fabAdd.setEnabled(true);
+
+                            if (nextBlock.equals("FULL")) {
+                                Snackbar.make(v,
+                                        "All 35 blocks (A1-E7) have been created. Cannot add more.",
+                                        Snackbar.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
+                            dialog.setNextBlockName(nextBlock);
+                            dialog.setOnBlockAddedListener(() -> {
+                                loadFarmData(); // Refresh data
+                                Toast.makeText(BlocksActivity.this,
+                                        "Block " + nextBlock + " added successfully!",
+                                        Toast.LENGTH_SHORT).show();
+                            });
+                            dialog.show(getSupportFragmentManager(), "BlockDialog");
+                        });
                     });
-                    dialog.show(getSupportFragmentManager(), "BlockDialog");
                 } else {
                     Toast.makeText(this, "Farm not configured. Please try again.",
                             Toast.LENGTH_LONG).show();
@@ -157,11 +169,11 @@ public class BlocksActivity extends BaseActivity {
     private void loadFarmData() {
         showLoading(true);
 
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
 
-            if (currentFarm != null) {
-                List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+            if (farm != null) {
+                List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(farm.getId());
 
                 // Group blocks by row
                 Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
@@ -192,15 +204,20 @@ public class BlocksActivity extends BaseActivity {
                 }
 
                 // Update UI on main thread
+                final FarmEntity finalFarm = farm;
+                final List<BlockEntity> finalAllBlocks = allBlocks;
+                final List<BlockGroup> finalNewGroups = newGroups;
+
                 runOnUiThread(() -> {
+                    currentFarm = finalFarm;
                     showLoading(false);
 
-                    if (newGroups.isEmpty()) {
+                    if (finalNewGroups.isEmpty()) {
                         showEmpty(true);
                     } else {
                         showEmpty(false);
-                        blockGroups = newGroups;
-                        updateFarmSummary(allBlocks);
+                        blockGroups = finalNewGroups;
+                        updateFarmSummary(finalAllBlocks);
 
                         expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
                             openBlockDetail(block);
@@ -216,7 +233,7 @@ public class BlocksActivity extends BaseActivity {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void updateFarmSummary(List<BlockEntity> allBlocks) {
@@ -270,14 +287,16 @@ public class BlocksActivity extends BaseActivity {
     }
 
     private String getNextAvailableBlockName() {
-        char[] rows = {'A', 'B', 'C', 'D', 'E'};
-        int columns = 7;
+        if (currentFarm == null) return "A1";
 
         List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
         java.util.HashSet<String> existingNames = new java.util.HashSet<>();
         for (BlockEntity block : allBlocks) {
             existingNames.add(block.getBlockName());
         }
+
+        char[] rows = {'A', 'B', 'C', 'D', 'E'};
+        int columns = 7;
 
         for (char row : rows) {
             for (int col = 1; col <= columns; col++) {
@@ -324,5 +343,11 @@ public class BlocksActivity extends BaseActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

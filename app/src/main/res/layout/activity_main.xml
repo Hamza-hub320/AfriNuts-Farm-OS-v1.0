@@ -12,24 +12,17 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Toolbar Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
+            android:elevation="4dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
             app:cardBackgroundColor="@color/primary">
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@android:color/transparent"
-                app:title="FarmOS"
-                app:titleTextColor="@android:color/white"
-                app:navigationIconTint="@android:color/white"
-                app:menu="@menu/menu_main"
-                app:titleCentered="true" />
+            <include layout="@layout/toolbar_main" />
 
         </androidx.cardview.widget.CardView>
 

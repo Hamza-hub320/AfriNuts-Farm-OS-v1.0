@@ -290,5 +290,4 @@
     <style name="GradientAlt">
         <item name="android:background">@drawable/gradient_alt</item>
     </style>
-
 </resources>

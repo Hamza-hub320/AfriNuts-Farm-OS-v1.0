@@ -40,7 +40,6 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
@@ -51,15 +50,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AnalyticsDashboardActivity extends BaseActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
-    private List<BlockEntity> allBlocks;
-    private List<ExpenseEntity> allExpenses;
-    private List<RevenueEntity> allRevenues;
-    private List<TaskEntity> allTasks;
+    private List<BlockEntity> allBlocks = new ArrayList<>();
+    private List<ExpenseEntity> allExpenses = new ArrayList<>();
+    private List<RevenueEntity> allRevenues = new ArrayList<>();
+    private List<TaskEntity> allTasks = new ArrayList<>();
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TabLayout tabLayout;
@@ -97,7 +99,6 @@ public class AnalyticsDashboardActivity extends BaseActivity {
     private ProgressBar progressBar;
     private LinearLayout emptyView;
 
-    private SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
     private SimpleDateFormat monthFormat = new SimpleDateFormat("MMM yyyy", Locale.getDefault());
 
     @Override
@@ -168,6 +169,15 @@ public class AnalyticsDashboardActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setupTabLayout() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -193,16 +203,28 @@ public class AnalyticsDashboardActivity extends BaseActivity {
     private void loadData() {
         showLoading(true);
 
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
-            if (currentFarm != null) {
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                allExpenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
-                allRevenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
-                allTasks = database.taskDao().getTasksByFarmId(currentFarm.getId());
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+
+            if (farm != null) {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
+                List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(farm.getId());
 
                 runOnUiThread(() -> {
+                    currentFarm = farm;
+                    allBlocks.clear();
+                    allBlocks.addAll(blocks);
+                    allExpenses.clear();
+                    allExpenses.addAll(expenses);
+                    allRevenues.clear();
+                    allRevenues.addAll(revenues);
+                    allTasks.clear();
+                    allTasks.addAll(tasks);
+
                     showLoading(false);
+
                     if (allBlocks.isEmpty() && allRevenues.isEmpty()) {
                         showEmpty(true);
                     } else {
@@ -213,11 +235,22 @@ public class AnalyticsDashboardActivity extends BaseActivity {
                         updateForecast();
                     }
                 });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    showEmpty(true);
+                });
             }
-        }).start();
+        });
     }
 
     private void updateYieldPredictions() {
+        if (allRevenues.isEmpty()) {
+            tvPredictedYield.setText("No data");
+            tvConfidence.setText("0%");
+            return;
+        }
+
         // Current year
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         tvCurrentYear.setText(String.valueOf(currentYear));
@@ -254,29 +287,31 @@ public class AnalyticsDashboardActivity extends BaseActivity {
         tvRecommendation.setText("Consider increasing irrigation during dry months to improve yield.");
 
         // Setup bar chart for yearly yield
-        List<BarEntry> entries = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
-        int index = 0;
+        if (!yearlyYield.isEmpty()) {
+            List<BarEntry> entries = new ArrayList<>();
+            List<String> labels = new ArrayList<>();
+            int index = 0;
 
-        for (Map.Entry<Integer, Double> entry : yearlyYield.entrySet()) {
-            entries.add(new BarEntry(index, entry.getValue().floatValue()));
-            labels.add(String.valueOf(entry.getKey()));
-            index++;
+            for (Map.Entry<Integer, Double> entry : yearlyYield.entrySet()) {
+                entries.add(new BarEntry(index, entry.getValue().floatValue()));
+                labels.add(String.valueOf(entry.getKey()));
+                index++;
+            }
+
+            BarDataSet dataSet = new BarDataSet(entries, "Yearly Yield (kg)");
+            dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+
+            BarData data = new BarData(dataSet);
+            data.setValueTextSize(10f);
+
+            barChartYearlyYield.setData(data);
+            barChartYearlyYield.getDescription().setEnabled(false);
+            barChartYearlyYield.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
+            barChartYearlyYield.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+            barChartYearlyYield.getXAxis().setGranularity(1f);
+            barChartYearlyYield.animateY(1000);
+            barChartYearlyYield.invalidate();
         }
-
-        BarDataSet dataSet = new BarDataSet(entries, "Yearly Yield (kg)");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-
-        BarData data = new BarData(dataSet);
-        data.setValueTextSize(10f);
-
-        barChartYearlyYield.setData(data);
-        barChartYearlyYield.getDescription().setEnabled(false);
-        barChartYearlyYield.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
-        barChartYearlyYield.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        barChartYearlyYield.getXAxis().setGranularity(1f);
-        barChartYearlyYield.animateY(1000);
-        barChartYearlyYield.invalidate();
 
         // Setup pie chart for yield factors
         List<PieEntry> pieEntries = new ArrayList<>();
@@ -318,53 +353,57 @@ public class AnalyticsDashboardActivity extends BaseActivity {
         }
 
         // Revenue line chart
-        List<Entry> revenueEntries = new ArrayList<>();
-        List<String> revenueLabels = new ArrayList<>();
-        int i = 0;
-        for (Map.Entry<String, Float> entry : monthlyRevenue.entrySet()) {
-            revenueEntries.add(new Entry(i, entry.getValue() / 1000f)); // Convert to thousands
-            revenueLabels.add(entry.getKey());
-            i++;
-        }
-
-        LineDataSet revenueDataSet = new LineDataSet(revenueEntries, "Revenue (k XAF)");
-        revenueDataSet.setColor(ContextCompat.getColor(this, R.color.primary));
-        revenueDataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary));
-        revenueDataSet.setLineWidth(2f);
-        revenueDataSet.setCircleRadius(4f);
-        revenueDataSet.setValueTextSize(10f);
-
-        LineData revenueData = new LineData(revenueDataSet);
-        lineChartRevenue.setData(revenueData);
-        lineChartRevenue.getDescription().setEnabled(false);
-        lineChartRevenue.getXAxis().setValueFormatter(new IndexAxisValueFormatter(revenueLabels));
-        lineChartRevenue.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        lineChartRevenue.getXAxis().setGranularity(1f);
-        lineChartRevenue.getAxisLeft().setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return String.format(Locale.getDefault(), "%.0fk", value);
+        if (!monthlyRevenue.isEmpty()) {
+            List<Entry> revenueEntries = new ArrayList<>();
+            List<String> revenueLabels = new ArrayList<>();
+            int i = 0;
+            for (Map.Entry<String, Float> entry : monthlyRevenue.entrySet()) {
+                revenueEntries.add(new Entry(i, entry.getValue() / 1000f)); // Convert to thousands
+                revenueLabels.add(entry.getKey());
+                i++;
             }
-        });
-        lineChartRevenue.animateX(1000);
-        lineChartRevenue.invalidate();
 
-        // Calculate revenue trend
-        if (revenueEntries.size() >= 2) {
-            float first = revenueEntries.get(0).getY();
-            float last = revenueEntries.get(revenueEntries.size() - 1).getY();
-            float change = ((last - first) / first) * 100;
-            tvRevenueTrend.setText(String.format(Locale.getDefault(), "%+.1f%%", change));
-            tvRevenueTrend.setTextColor(ContextCompat.getColor(this,
-                    change >= 0 ? android.R.color.holo_green_dark : android.R.color.holo_red_dark));
+            LineDataSet revenueDataSet = new LineDataSet(revenueEntries, "Revenue (k XAF)");
+            revenueDataSet.setColor(ContextCompat.getColor(this, R.color.primary));
+            revenueDataSet.setCircleColor(ContextCompat.getColor(this, R.color.primary));
+            revenueDataSet.setLineWidth(2f);
+            revenueDataSet.setCircleRadius(4f);
+            revenueDataSet.setValueTextSize(10f);
+
+            LineData revenueData = new LineData(revenueDataSet);
+            lineChartRevenue.setData(revenueData);
+            lineChartRevenue.getDescription().setEnabled(false);
+            lineChartRevenue.getXAxis().setValueFormatter(new IndexAxisValueFormatter(revenueLabels));
+            lineChartRevenue.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+            lineChartRevenue.getXAxis().setGranularity(1f);
+            lineChartRevenue.getAxisLeft().setValueFormatter(new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    return String.format(Locale.getDefault(), "%.0fk", value);
+                }
+            });
+            lineChartRevenue.animateX(1000);
+            lineChartRevenue.invalidate();
+
+            // Calculate revenue trend
+            if (revenueEntries.size() >= 2) {
+                float first = revenueEntries.get(0).getY();
+                float last = revenueEntries.get(revenueEntries.size() - 1).getY();
+                float change = first > 0 ? ((last - first) / first) * 100 : 0;
+                tvRevenueTrend.setText(String.format(Locale.getDefault(), "%+.1f%%", change));
+                tvRevenueTrend.setTextColor(ContextCompat.getColor(this,
+                        change >= 0 ? android.R.color.holo_green_dark : android.R.color.holo_red_dark));
+            }
         }
 
-        // Similar for expenses (simplified for brevity)
+        // Simplified expense trend for now
         tvExpenseTrend.setText("+5.2%");
         tvExpenseTrend.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
     }
 
     private void updateBlockPerformance() {
+        if (allBlocks.isEmpty()) return;
+
         List<BlockPerformance> performances = new ArrayList<>();
 
         for (BlockEntity block : allBlocks) {
@@ -407,46 +446,18 @@ public class AnalyticsDashboardActivity extends BaseActivity {
 
     private void updateForecast() {
         // Simplified forecast data
-        updateForecastCard1("2026", "45,000 kg", "27,000,000 XAF", "+15%");
-        updateForecastCard2("2027", "52,000 kg", "31,200,000 XAF", "+20%");
-        updateForecastCard3("2028", "60,000 kg", "36,000,000 XAF", "+25%");
+        updateForecastCard(cardForecast1, "2026", "45,000 kg", "27,000,000 XAF", "+15%");
+        updateForecastCard(cardForecast2, "2027", "52,000 kg", "31,200,000 XAF", "+20%");
+        updateForecastCard(cardForecast3, "2028", "60,000 kg", "36,000,000 XAF", "+25%");
     }
 
-    private void updateForecastCard1(String year, String yield, String revenue, String growth) {
-        TextView tvYear = cardForecast1.findViewById(R.id.tvForecastYear1);
-        TextView tvYield = cardForecast1.findViewById(R.id.tvForecastYield1);
-        TextView tvRevenue = cardForecast1.findViewById(R.id.tvForecastRevenue1);
-        TextView tvGrowth = cardForecast1.findViewById(R.id.tvForecastGrowth1);
+    private void updateForecastCard(CardView card, String year, String yield, String revenue, String growth) {
+        if (card == null) return;
 
-        if (tvYear != null) tvYear.setText(year);
-        if (tvYield != null) tvYield.setText(yield);
-        if (tvRevenue != null) tvRevenue.setText(revenue);
-        if (tvGrowth != null) {
-            tvGrowth.setText(growth);
-            tvGrowth.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-        }
-    }
-
-    private void updateForecastCard2(String year, String yield, String revenue, String growth) {
-        TextView tvYear = cardForecast2.findViewById(R.id.tvForecastYear2);
-        TextView tvYield = cardForecast2.findViewById(R.id.tvForecastYield2);
-        TextView tvRevenue = cardForecast2.findViewById(R.id.tvForecastRevenue2);
-        TextView tvGrowth = cardForecast2.findViewById(R.id.tvForecastGrowth2);
-
-        if (tvYear != null) tvYear.setText(year);
-        if (tvYield != null) tvYield.setText(yield);
-        if (tvRevenue != null) tvRevenue.setText(revenue);
-        if (tvGrowth != null) {
-            tvGrowth.setText(growth);
-            tvGrowth.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-        }
-    }
-
-    private void updateForecastCard3(String year, String yield, String revenue, String growth) {
-        TextView tvYear = cardForecast3.findViewById(R.id.tvForecastYear3);
-        TextView tvYield = cardForecast3.findViewById(R.id.tvForecastYield3);
-        TextView tvRevenue = cardForecast3.findViewById(R.id.tvForecastRevenue3);
-        TextView tvGrowth = cardForecast3.findViewById(R.id.tvForecastGrowth3);
+        TextView tvYear = card.findViewById(R.id.tvForecastYear1);
+        TextView tvYield = card.findViewById(R.id.tvForecastYield1);
+        TextView tvRevenue = card.findViewById(R.id.tvForecastRevenue1);
+        TextView tvGrowth = card.findViewById(R.id.tvForecastGrowth1);
 
         if (tvYear != null) tvYear.setText(year);
         if (tvYield != null) tvYield.setText(yield);
@@ -459,9 +470,10 @@ public class AnalyticsDashboardActivity extends BaseActivity {
 
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (!show) {
-            contentYield.setVisibility(View.VISIBLE);
-        }
+        contentYield.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentTrends.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentBlocks.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentForecast.setVisibility(show ? View.GONE : View.VISIBLE);
         emptyView.setVisibility(View.GONE);
     }
 
@@ -469,14 +481,14 @@ public class AnalyticsDashboardActivity extends BaseActivity {
         emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
         progressBar.setVisibility(View.GONE);
         contentYield.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentTrends.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentBlocks.setVisibility(show ? View.GONE : View.VISIBLE);
+        contentForecast.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

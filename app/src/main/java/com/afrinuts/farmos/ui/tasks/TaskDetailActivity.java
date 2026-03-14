@@ -198,6 +198,7 @@ public class TaskDetailActivity extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
+        super.onBackPressed();
     }
 
     private void loadData() {

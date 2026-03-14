@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.MainActivity;
@@ -31,6 +30,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlockDetailActivity extends BaseActivity {
 
@@ -39,6 +40,7 @@ public class BlockDetailActivity extends BaseActivity {
     private long blockId;
     private BlockEntity block;
     private AppDatabase database;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextView blockNameText;
@@ -49,7 +51,6 @@ public class BlockDetailActivity extends BaseActivity {
     private TextView clearedDateText;
     private TextView plowedDateText;
     private TextView plantedDateText;
-    // Timeline views - these are LinearLayouts (correct)
     private LinearLayout clearedSection;
     private LinearLayout plowedSection;
     private LinearLayout plantedSection;
@@ -84,7 +85,7 @@ public class BlockDetailActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // This will trigger role check
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_block_detail);
 
         // Get block ID from intent
@@ -121,7 +122,7 @@ public class BlockDetailActivity extends BaseActivity {
         statusBadge = findViewById(R.id.statusBadge);
         farmInfoText = findViewById(R.id.farmInfoText);
 
-        // Timeline sections - these are LinearLayouts inside CardViews
+        // Timeline sections
         clearedSection = findViewById(R.id.clearedSection);
         plowedSection = findViewById(R.id.plowedSection);
         plantedSection = findViewById(R.id.plantedSection);
@@ -163,9 +164,6 @@ public class BlockDetailActivity extends BaseActivity {
             intent.putExtra("block_id", blockId);
             startActivity(intent);
         });
-
-        // Make fields read-only initially
-        // setFieldsEditable(false);
     }
 
     private void setupToolbar() {
@@ -182,7 +180,7 @@ public class BlockDetailActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            onBackPressed(); // This will now call the fixed onBackPressed()
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -190,23 +188,21 @@ public class BlockDetailActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // Navigate back to MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+
         finish();
-        super.onBackPressed(); // Add this line
+        super.onBackPressed();
     }
 
     private void loadBlockData() {
-        new Thread(() -> {
-            block = database.blockDao().getBlockById(blockId);
+        databaseExecutor.execute(() -> {
+            BlockEntity loadedBlock = database.blockDao().getBlockById(blockId);
 
             runOnUiThread(() -> {
+                block = loadedBlock;
                 if (block != null) {
                     displayBlockData();
                     loadPhotoCount();
-                    setFieldsEditable(false);  // Now block is not null!
+                    setFieldsEditable(false);
 
                     // If user is investor, hide edit buttons
                     if (sessionManager.isInvestor()) {
@@ -215,14 +211,17 @@ public class BlockDetailActivity extends BaseActivity {
                         fabEdit.setVisibility(View.GONE);
                     }
                 } else {
-                    Toast.makeText(this, "Block not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BlockDetailActivity.this,
+                            "Block not found", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             });
-        }).start();
+        });
     }
 
     private void displayBlockData() {
+        if (block == null) return;
+
         // Header
         blockNameText.setText(block.getBlockName());
 
@@ -248,35 +247,11 @@ public class BlockDetailActivity extends BaseActivity {
         statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
 
         // Farm info
-        farmInfoText.setText(String.format("Farm: AfriNuts Odienné | Size: %.1f ha", block.getHectareSize()));
+        farmInfoText.setText(String.format("Farm: AfriNuts Odienné | Size: %.1f ha",
+                block.getHectareSize()));
 
         // Timeline - show relevant sections based on status
-        if (block.getClearedDate() != null && block.getClearedDate() > 0) {
-            clearedSection.setVisibility(View.VISIBLE);
-            clearedDateText.setText(formatDate(block.getClearedDate()));
-        } else {
-            clearedSection.setVisibility(block.getStatus().ordinal() >= BlockEntity.BlockStatus.CLEARED.ordinal() ?
-                    View.VISIBLE : View.GONE);
-            clearedDateText.setText("Not recorded");
-        }
-
-        if (block.getPlowedDate() != null && block.getPlowedDate() > 0) {
-            plowedSection.setVisibility(View.VISIBLE);
-            plowedDateText.setText(formatDate(block.getPlowedDate()));
-        } else {
-            plowedSection.setVisibility(block.getStatus().ordinal() >= BlockEntity.BlockStatus.PLOWED.ordinal() ?
-                    View.VISIBLE : View.GONE);
-            plowedDateText.setText("Not recorded");
-        }
-
-        if (block.getPlantedDate() != null && block.getPlantedDate() > 0) {
-            plantedSection.setVisibility(View.VISIBLE);
-            plantedDateText.setText(formatDate(block.getPlantedDate()));
-        } else {
-            plantedSection.setVisibility(block.getStatus().ordinal() >= BlockEntity.BlockStatus.PLANTED.ordinal() ?
-                    View.VISIBLE : View.GONE);
-            plantedDateText.setText("Not recorded");
-        }
+        updateTimelineVisibility();
 
         // Planting details - only visible if planted
         if (block.isPlanted()) {
@@ -304,13 +279,46 @@ public class BlockDetailActivity extends BaseActivity {
         }
     }
 
+    private void updateTimelineVisibility() {
+        if (block == null) return;
+
+        // Cleared section
+        if (block.getClearedDate() != null && block.getClearedDate() > 0) {
+            clearedSection.setVisibility(View.VISIBLE);
+            clearedDateText.setText(formatDate(block.getClearedDate()));
+        } else {
+            clearedSection.setVisibility(block.getStatus().ordinal() >=
+                    BlockEntity.BlockStatus.CLEARED.ordinal() ? View.VISIBLE : View.GONE);
+            clearedDateText.setText("Not recorded");
+        }
+
+        // Plowed section
+        if (block.getPlowedDate() != null && block.getPlowedDate() > 0) {
+            plowedSection.setVisibility(View.VISIBLE);
+            plowedDateText.setText(formatDate(block.getPlowedDate()));
+        } else {
+            plowedSection.setVisibility(block.getStatus().ordinal() >=
+                    BlockEntity.BlockStatus.PLOWED.ordinal() ? View.VISIBLE : View.GONE);
+            plowedDateText.setText("Not recorded");
+        }
+
+        // Planted section
+        if (block.getPlantedDate() != null && block.getPlantedDate() > 0) {
+            plantedSection.setVisibility(View.VISIBLE);
+            plantedDateText.setText(formatDate(block.getPlantedDate()));
+        } else {
+            plantedSection.setVisibility(block.getStatus().ordinal() >=
+                    BlockEntity.BlockStatus.PLANTED.ordinal() ? View.VISIBLE : View.GONE);
+            plantedDateText.setText("Not recorded");
+        }
+    }
+
     private String formatDate(long timestamp) {
         if (timestamp <= 0) return "Not recorded";
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         return sdf.format(timestamp);
     }
 
-    // Add this method to show status update dialog
     private void showStatusUpdateDialog() {
         if (block == null) return;
 
@@ -320,13 +328,13 @@ public class BlockDetailActivity extends BaseActivity {
             this.block = updatedBlock;
 
             // Save to database
-            new Thread(() -> {
+            databaseExecutor.execute(() -> {
                 database.blockDao().update(updatedBlock);
                 runOnUiThread(() -> {
-                    displayBlockData(); // Refresh display
+                    displayBlockData();
                     Toast.makeText(this, "Status updated successfully", Toast.LENGTH_SHORT).show();
                 });
-            }).start();
+            });
         });
 
         dialog.show(getSupportFragmentManager(), "StatusUpdateDialog");
@@ -356,25 +364,7 @@ public class BlockDetailActivity extends BaseActivity {
                     getColor(R.color.accent))); // Highlight to show it's clickable
         } else {
             statusBadge.setOnClickListener(null);
-            // Reset color based on status
-            int statusColor;
-            switch (block.getStatus()) {
-                case NOT_CLEARED:
-                    statusColor = getColor(android.R.color.holo_red_dark);
-                    break;
-                case CLEARED:
-                    statusColor = getColor(android.R.color.holo_orange_dark);
-                    break;
-                case PLOWED:
-                    statusColor = getColor(android.R.color.holo_blue_dark);
-                    break;
-                case PLANTED:
-                    statusColor = getColor(android.R.color.holo_green_dark);
-                    break;
-                default:
-                    statusColor = getColor(R.color.primary);
-            }
-            statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
+            resetStatusBadgeColor();
         }
 
         // Make fields editable
@@ -385,6 +375,29 @@ public class BlockDetailActivity extends BaseActivity {
                     "Edit mode enabled. Click status badge to update block progress.",
                     Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    private void resetStatusBadgeColor() {
+        if (block == null) return;
+
+        int statusColor;
+        switch (block.getStatus()) {
+            case NOT_CLEARED:
+                statusColor = getColor(android.R.color.holo_red_dark);
+                break;
+            case CLEARED:
+                statusColor = getColor(android.R.color.holo_orange_dark);
+                break;
+            case PLOWED:
+                statusColor = getColor(android.R.color.holo_blue_dark);
+                break;
+            case PLANTED:
+                statusColor = getColor(android.R.color.holo_green_dark);
+                break;
+            default:
+                statusColor = getColor(R.color.primary);
+        }
+        statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
     }
 
     private void setFieldsEditable(boolean editable) {
@@ -406,7 +419,7 @@ public class BlockDetailActivity extends BaseActivity {
                 etSurvivalRate.setBackgroundResource(R.drawable.edit_mode_background);
                 etReplacementCount.setBackgroundResource(R.drawable.edit_mode_background);
             } else {
-                etSurvivalRate.setBackgroundResource(0); // Reset to default
+                etSurvivalRate.setBackgroundResource(0);
                 etReplacementCount.setBackgroundResource(0);
             }
         } else {
@@ -415,10 +428,10 @@ public class BlockDetailActivity extends BaseActivity {
     }
 
     private void saveChanges() {
+        if (block == null) return;
+
         // Collect updated values
         String notes = etNotes.getText().toString().trim();
-
-        // Save notes regardless
         block.setNotes(notes.isEmpty() ? null : notes);
 
         // If block is planted, save planting details
@@ -464,15 +477,15 @@ public class BlockDetailActivity extends BaseActivity {
         // Save to database
         Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             database.blockDao().update(block);
 
             runOnUiThread(() -> {
                 Toast.makeText(this, "Changes saved successfully!", Toast.LENGTH_SHORT).show();
                 enableEditMode(false);
-                displayBlockData(); // Refresh display
+                displayBlockData();
             });
-        }).start();
+        });
     }
 
     private void confirmDelete() {
@@ -485,7 +498,8 @@ public class BlockDetailActivity extends BaseActivity {
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Block")
-                .setMessage("Are you sure you want to delete " + block.getBlockName() + "? This action cannot be undone.")
+                .setMessage("Are you sure you want to delete " + block.getBlockName() +
+                        "? This action cannot be undone.")
                 .setPositiveButton("Delete", (dialog, which) -> deleteBlock())
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -494,28 +508,28 @@ public class BlockDetailActivity extends BaseActivity {
     private void deleteBlock() {
         Toast.makeText(this, "Deleting block...", Toast.LENGTH_SHORT).show();
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             database.blockDao().delete(block);
 
             runOnUiThread(() -> {
                 Toast.makeText(this, "Block deleted", Toast.LENGTH_SHORT).show();
-                finish(); // Go back to blocks list
+                finish();
             });
-        }).start();
+        });
     }
 
     private void loadPhotoCount() {
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             int count = database.photoDao().getPhotoCountForBlock(blockId);
             runOnUiThread(() -> {
                 tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
             });
-        }).start();
+        });
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

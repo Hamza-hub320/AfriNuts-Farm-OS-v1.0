@@ -10,6 +10,19 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- ADD THIS HELPER TEXT VIEW -->
+        <TextView
+            android:id="@+id/tvHelperText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note: Email/password changes require the user to update through Settings"
+            android:textSize="12sp"
+            android:textColor="@color/navy"
+            android:padding="16dp"
+            android:background="@color/warm_grey"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
+
         <!-- Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

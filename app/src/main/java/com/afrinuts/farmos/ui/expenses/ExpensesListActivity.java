@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ExpensesListActivity extends BaseActivity {
 
@@ -48,6 +50,7 @@ public class ExpensesListActivity extends BaseActivity {
     private List<ExpenseWithBlockName> allExpenses = new ArrayList<>();
     private List<ExpenseWithBlockName> filteredExpenses = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, FARM_WIDE, BLOCK_SPECIFIC
 
@@ -73,9 +76,6 @@ public class ExpensesListActivity extends BaseActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Load data
-        loadFarmAndBlocks();
-
         // Setup filter listeners
         setupFilters();
 
@@ -84,6 +84,9 @@ public class ExpensesListActivity extends BaseActivity {
 
         // Setup home intent for toolbar navigation
         setupHomeIntent();
+
+        // Load data
+        loadFarmAndBlocks();
     }
 
     private void initViews() {
@@ -179,62 +182,68 @@ public class ExpensesListActivity extends BaseActivity {
     }
 
     private void loadFarmAndBlocks() {
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        showLoading(true);
 
-            if (currentFarm != null) {
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+
+            if (farm != null) {
                 // Load all blocks for name mapping
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
-                    blockNameMap.put(block.getId(), block.getBlockName());
+                    blockMap.put(block.getId(), block.getBlockName());
                 }
 
                 // Load expenses
-                loadExpenses();
-            }
-        }).start();
-    }
+                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
 
-    private void loadExpenses() {
-        runOnUiThread(() -> {
-            progressBar.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-            emptyLayout.setVisibility(View.GONE);
-        });
-
-        new Thread(() -> {
-            if (currentFarm != null) {
-                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
-
-                allExpenses.clear();
+                List<ExpenseWithBlockName> expenseList = new ArrayList<>();
                 for (ExpenseEntity expense : expenses) {
                     String blockName = null;
                     if (expense.getBlockId() != null) {
-                        blockName = blockNameMap.get(expense.getBlockId());
+                        blockName = blockMap.get(expense.getBlockId());
                     }
-                    allExpenses.add(new ExpenseWithBlockName(expense, blockName));
+                    expenseList.add(new ExpenseWithBlockName(expense, blockName));
                 }
 
+                // Update UI on main thread
+                final FarmEntity finalFarm = farm;
+                final List<ExpenseWithBlockName> finalExpenseList = expenseList;
+                final Map<Long, String> finalBlockMap = blockMap;
+
                 runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
+                    currentFarm = finalFarm;
+                    allExpenses.clear();
+                    allExpenses.addAll(finalExpenseList);
+                    blockNameMap.clear();
+                    blockNameMap.putAll(finalBlockMap);
+
+                    showLoading(false);
 
                     if (allExpenses.isEmpty()) {
-                        emptyLayout.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
+                        showEmpty(true);
                         totalExpensesText.setText("Total: 0 XAF");
                     } else {
-                        emptyLayout.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-
-                        // Apply current filter
+                        showEmpty(false);
                         applyFilter();
-
-                        // Update total
                         updateTotal();
                     }
                 });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    showEmpty(true);
+                    totalExpensesText.setText("Total: 0 XAF");
+                });
             }
-        }).start();
+        });
+    }
+
+    private void loadExpenses() {
+        // This method is now handled by loadFarmAndBlocks
+        // Kept for compatibility with FAB callback
+        loadFarmAndBlocks();
     }
 
     private void applyFilter() {
@@ -297,5 +306,23 @@ public class ExpensesListActivity extends BaseActivity {
         filteredExpenses.sort((e1, e2) ->
                 Double.compare(e2.getExpense().getAmount(), e1.getExpense().getAmount()));
         adapter.notifyDataSetChanged();
+    }
+
+    private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        emptyLayout.setVisibility(View.GONE);
+    }
+
+    private void showEmpty(boolean show) {
+        emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

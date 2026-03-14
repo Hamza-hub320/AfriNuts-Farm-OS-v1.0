@@ -29,22 +29,23 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BlockDialog extends DialogFragment {
 
     private String suggestedBlockName;
-
-    public void setNextBlockName(String blockName) {
-        this.suggestedBlockName = blockName;
-    }
-
     private static final String ARG_FARM_ID = "farm_id";
 
     private long farmId;
     private AppDatabase database;
     private FarmEntity currentFarm;
+    private List<BlockEntity> existingBlocks;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private Button btnCancel;
+    private Button btnSave;
     private TextInputEditText etBlockName;
     private TextInputEditText etHectareSize;
     private MaterialAutoCompleteTextView etStatus;
@@ -74,6 +75,10 @@ public class BlockDialog extends DialogFragment {
         return dialog;
     }
 
+    public void setNextBlockName(String blockName) {
+        this.suggestedBlockName = blockName;
+    }
+
     public void setOnBlockAddedListener(OnBlockAddedListener listener) {
         this.listener = listener;
     }
@@ -88,10 +93,11 @@ public class BlockDialog extends DialogFragment {
 
         database = AppDatabase.getInstance(requireContext());
 
-        // Load farm data
-        new Thread(() -> {
+        // Load farm data and existing blocks in background
+        executor.execute(() -> {
             currentFarm = database.farmDao().getFirstFarm();
-        }).start();
+            existingBlocks = database.blockDao().getBlocksByFarmId(farmId);
+        });
     }
 
     @NonNull
@@ -105,19 +111,18 @@ public class BlockDialog extends DialogFragment {
         setupConditionalFields();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add New Block")
                 .setView(view)
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
 
-        // Set up button clicks after dialog is created
         dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
 
-            // We're using custom buttons, so hide the default ones
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
+            positiveButton.setOnClickListener(v -> saveBlock());
+            negativeButton.setOnClickListener(v -> dismiss());
         });
 
         return dialog;
@@ -127,22 +132,17 @@ public class BlockDialog extends DialogFragment {
         etBlockName = view.findViewById(R.id.etBlockName);
         if (suggestedBlockName != null) {
             etBlockName.setText(suggestedBlockName);
-            etBlockName.setEnabled(false); // Optional: lock it to prevent changes
+            etBlockName.setEnabled(false);
             etBlockName.setFocusable(false);
             etBlockName.setBackgroundResource(R.drawable.suggested_block_background);
         }
         etHectareSize = view.findViewById(R.id.etHectareSize);
         etStatus = view.findViewById(R.id.etStatus);
 
-        // Layout containers for conditional visibility
         layoutDate = view.findViewById(R.id.layoutDate);
         layoutPlantingDetails = view.findViewById(R.id.layoutPlantingDetails);
-
-        // Date field (now inside layoutDate)
         etDate = view.findViewById(R.id.etDate);
         dateTextInputLayout = view.findViewById(R.id.layoutDate);
-
-        // Planting details fields
         etSurvivalRate = view.findViewById(R.id.etSurvivalRate);
         etReplacementCount = view.findViewById(R.id.etReplacementCount);
         etNotes = view.findViewById(R.id.etNotes);
@@ -172,7 +172,7 @@ public class BlockDialog extends DialogFragment {
         );
 
         etStatus.setAdapter(adapter);
-        etStatus.setText(statuses[0], false); // Default to first item
+        etStatus.setText(statuses[0], false);
     }
 
     private void setupDatePicker() {
@@ -198,9 +198,7 @@ public class BlockDialog extends DialogFragment {
                 selectedDateCalendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Can't set future date
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-
         datePickerDialog.show();
     }
 
@@ -232,11 +230,8 @@ public class BlockDialog extends DialogFragment {
         boolean isPrePlanting = status == BlockEntity.BlockStatus.CLEARED ||
                 status == BlockEntity.BlockStatus.PLOWED;
 
-        // Handle date layout visibility
         if (isPrePlanting || isPlanted) {
             layoutDate.setVisibility(View.VISIBLE);
-
-            // Update hint based on status
             if (isPrePlanting) {
                 dateTextInputLayout.setHint(status.getDisplayName() + " Date");
             } else {
@@ -246,12 +241,11 @@ public class BlockDialog extends DialogFragment {
             layoutDate.setVisibility(View.GONE);
         }
 
-        // Handle planting details visibility
         layoutPlantingDetails.setVisibility(isPlanted ? View.VISIBLE : View.GONE);
     }
 
     private boolean isBlockNameExists(String blockName) {
-        List<BlockEntity> existingBlocks = database.blockDao().getBlocksByFarmId(farmId);
+        if (existingBlocks == null) return false;
         for (BlockEntity block : existingBlocks) {
             if (block.getBlockName().equalsIgnoreCase(blockName)) {
                 return true;
@@ -268,7 +262,6 @@ public class BlockDialog extends DialogFragment {
         String replacementCountStr = etReplacementCount.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
 
-        // Validate block name
         if (TextUtils.isEmpty(blockName)) {
             etBlockName.setError("Block name is required");
             return;
@@ -283,7 +276,6 @@ public class BlockDialog extends DialogFragment {
             return;
         }
 
-        // Validate hectare size
         if (TextUtils.isEmpty(hectareSizeStr)) {
             etHectareSize.setError("Hectare size is required");
             return;
@@ -301,7 +293,6 @@ public class BlockDialog extends DialogFragment {
             return;
         }
 
-        // Get status enum from display name
         BlockEntity.BlockStatus status = null;
         for (BlockEntity.BlockStatus s : BlockEntity.BlockStatus.values()) {
             if (s.getDisplayName().equals(statusDisplay)) {
@@ -315,7 +306,6 @@ public class BlockDialog extends DialogFragment {
             return;
         }
 
-        // Validate date is present for statuses that require it
         if (status != BlockEntity.BlockStatus.NOT_CLEARED) {
             if (etDate.getText() == null || TextUtils.isEmpty(etDate.getText().toString())) {
                 Toast.makeText(getContext(), "Date is required for " + status.getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -326,9 +316,7 @@ public class BlockDialog extends DialogFragment {
         double survivalRate = 0;
         int replacementCount = 0;
 
-        // Validate planting details if status is PLANTED
         if (status == BlockEntity.BlockStatus.PLANTED) {
-
             if (TextUtils.isEmpty(survivalRateStr)) {
                 etSurvivalRate.setError("Survival rate is required");
                 return;
@@ -346,9 +334,7 @@ public class BlockDialog extends DialogFragment {
             }
 
             try {
-                replacementCount = TextUtils.isEmpty(replacementCountStr)
-                        ? 0
-                        : Integer.parseInt(replacementCountStr);
+                replacementCount = TextUtils.isEmpty(replacementCountStr) ? 0 : Integer.parseInt(replacementCountStr);
                 if (replacementCount < 0) {
                     etReplacementCount.setError("Replacement count cannot be negative");
                     return;
@@ -361,37 +347,32 @@ public class BlockDialog extends DialogFragment {
 
         long selectedDate = selectedDateCalendar.getTimeInMillis();
 
-        Toast.makeText(getContext(), "Saving block...", Toast.LENGTH_SHORT).show();
-
+        // Create final copies for lambda
+        final long finalFarmId = farmId;
+        final String finalBlockName = blockName;
+        final double finalHectareSize = hectareSize;
+        final String finalNotes = notes.isEmpty() ? null : notes;
+        final BlockEntity.BlockStatus finalStatus = status;
+        final long finalSelectedDate = selectedDate;
         final double finalSurvivalRate = survivalRate;
         final int finalReplacementCount = replacementCount;
-        final BlockEntity.BlockStatus finalStatus = status;
 
-        new Thread(() -> {
-            // Create new block with basic info
-            BlockEntity block = new BlockEntity(
-                    farmId,
-                    blockName,
-                    hectareSize,
-                    notes.isEmpty() ? null : notes
-            );
-
-            // Set status and dates based on selection
+        executor.execute(() -> {
+            BlockEntity block = new BlockEntity(finalFarmId, finalBlockName, finalHectareSize, finalNotes);
             block.setStatus(finalStatus);
 
             switch (finalStatus) {
                 case CLEARED:
-                    block.setClearedDate(selectedDate);
+                    block.setClearedDate(finalSelectedDate);
                     break;
                 case PLOWED:
-                    block.setPlowedDate(selectedDate);
+                    block.setPlowedDate(finalSelectedDate);
                     break;
                 case PLANTED:
-                    block.setPlantedDate(selectedDate);
+                    block.setPlantedDate(finalSelectedDate);
                     block.setSurvivalRate(finalSurvivalRate);
                     block.setReplacementCount(finalReplacementCount);
                     break;
-                // NOT_CLEARED: no date set
             }
 
             long id = database.blockDao().insert(block);
@@ -407,7 +388,12 @@ public class BlockDialog extends DialogFragment {
                     Toast.makeText(getContext(), "Error adding block", Toast.LENGTH_SHORT).show();
                 }
             });
+        });
+    }
 
-        }).start();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }

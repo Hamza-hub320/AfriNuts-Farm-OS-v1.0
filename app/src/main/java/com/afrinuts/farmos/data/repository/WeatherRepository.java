@@ -1,6 +1,9 @@
 package com.afrinuts.farmos.data.repository;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
@@ -10,18 +13,23 @@ import com.afrinuts.farmos.data.remote.WeatherService;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 
 public class WeatherRepository {
 
+    private static final String TAG = "WeatherRepository";
     private static final String API_KEY = "14b7945cfe25455a868194701260103";
-    private static final String LOCATION = "Odienne";  // Updated to match API response
+    private static final String LOCATION = "Odienne";
     private static final int FORECAST_DAYS = 3;
 
     private AppDatabase database;
     private WeatherService weatherService;
     private Gson gson;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public WeatherRepository(Context context) {
         this.database = AppDatabase.getInstance(context);
@@ -35,19 +43,19 @@ public class WeatherRepository {
     }
 
     public void getCurrentWeather(WeatherCallback callback) {
-        // Check cache first
-        WeatherCacheEntity cached = database.weatherDao()
-                .getLatestWeather(LOCATION, 0); // 0 = current only
+        executorService.execute(() -> {
+            // Check cache first (this runs on background thread)
+            WeatherCacheEntity cached = database.weatherDao()
+                    .getLatestWeather(LOCATION, 0); // 0 = current only
 
-        if (cached != null && !cached.isExpired()) {
-            // Use cached data
-            WeatherResponse weather = gson.fromJson(cached.getWeatherData(), WeatherResponse.class);
-            callback.onSuccess(weather);
-            return;
-        }
+            if (cached != null && !cached.isExpired()) {
+                // Use cached data
+                WeatherResponse weather = gson.fromJson(cached.getWeatherData(), WeatherResponse.class);
+                mainHandler.post(() -> callback.onSuccess(weather));
+                return;
+            }
 
-        // Fetch from API
-        new Thread(() -> {
+            // Fetch from API
             try {
                 Call<WeatherResponse> call = weatherService.getCurrentWeather(
                         API_KEY, LOCATION, "no");
@@ -64,31 +72,31 @@ public class WeatherRepository {
                     long oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
                     database.weatherDao().deleteOldCache(oneDayAgo);
 
-                    callback.onSuccess(response);
+                    mainHandler.post(() -> callback.onSuccess(response));
                 } else {
-                    callback.onError("Empty response from weather API");
+                    mainHandler.post(() -> callback.onError("Empty response from weather API"));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                callback.onError("Network error: " + e.getMessage());
+                mainHandler.post(() -> callback.onError("Network error: " + e.getMessage()));
             }
-        }).start();
+        });
     }
 
     public void getWeatherForecast(WeatherCallback callback) {
-        // Check cache first
-        WeatherCacheEntity cached = database.weatherDao()
-                .getLatestWeather(LOCATION, FORECAST_DAYS);
+        executorService.execute(() -> {
+            // Check cache first (this runs on background thread)
+            WeatherCacheEntity cached = database.weatherDao()
+                    .getLatestWeather(LOCATION, FORECAST_DAYS);
 
-        if (cached != null && !cached.isExpired()) {
-            // Use cached data
-            WeatherResponse weather = gson.fromJson(cached.getWeatherData(), WeatherResponse.class);
-            callback.onSuccess(weather);
-            return;
-        }
+            if (cached != null && !cached.isExpired()) {
+                // Use cached data
+                WeatherResponse weather = gson.fromJson(cached.getWeatherData(), WeatherResponse.class);
+                mainHandler.post(() -> callback.onSuccess(weather));
+                return;
+            }
 
-        // Fetch from API
-        new Thread(() -> {
+            // Fetch from API
             try {
                 Call<WeatherResponse> call = weatherService.getWeatherForecast(
                         API_KEY, LOCATION, FORECAST_DAYS, "no", "no");
@@ -105,14 +113,18 @@ public class WeatherRepository {
                     long oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
                     database.weatherDao().deleteOldCache(oneDayAgo);
 
-                    callback.onSuccess(response);
+                    mainHandler.post(() -> callback.onSuccess(response));
                 } else {
-                    callback.onError("Empty response from weather API");
+                    mainHandler.post(() -> callback.onError("Empty response from weather API"));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                callback.onError("Network error: " + e.getMessage());
+                mainHandler.post(() -> callback.onError("Network error: " + e.getMessage()));
             }
-        }).start();
+        });
+    }
+
+    public void shutdown() {
+        executorService.shutdown();
     }
 }
