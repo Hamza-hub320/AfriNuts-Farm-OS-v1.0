@@ -30,7 +30,10 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,7 +72,9 @@ public class LoginActivity extends AppCompatActivity {
         database = AppDatabase.getInstance(this);
         firebaseManager = FirebaseManager.getInstance();
         initViews();
-        loadUsers();
+
+        // ✅ SYNC USERS BEFORE LOADING LOCAL USERS
+        syncUsersFromFirestore();
     }
 
     private void initViews() {
@@ -89,7 +94,84 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> attemptLogin());
     }
 
-    private void loadUsers() {
+    // ========================================
+    // AUTO-SYNC USERS FROM FIRESTORE
+    // ========================================
+
+    private void syncUsersFromFirestore() {
+        Log.d(TAG, "Syncing users from Firestore...");
+
+        // IMPORTANT: Use String because farmId is stored as String in Firestore
+        String farmId = "1";
+        Log.d(TAG, "Looking for users with farmId: " + farmId);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("farmId", farmId)  // Now using String, not long
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Log.d(TAG, "Found " + queryDocumentSnapshots.size() + " users with farmId=" + farmId);
+
+                    List<UserEntity> firestoreUsers = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        UserEntity user = documentToUser(doc);
+                        if (user != null) {
+                            firestoreUsers.add(user);
+                        }
+                    }
+
+                    // Save to local database
+                    databaseExecutor.execute(() -> {
+                        int addedCount = 0;
+                        for (UserEntity user : firestoreUsers) {
+                            UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
+                            if (existing == null) {
+                                database.userDao().insert(user);
+                                addedCount++;
+                                Log.d(TAG, "Added user: " + user.getEmail());
+                            }
+                        }
+
+                        final int finalAddedCount = addedCount;
+                        runOnUiThread(() -> {
+                            Log.d(TAG, "Synced " + finalAddedCount + " new users from Firestore");
+                            loadLocalUsers();
+                        });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to sync users from Firestore", e);
+                    loadLocalUsers();
+                });
+    }
+
+    private UserEntity documentToUser(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String name = doc.getString("name");
+            String role = doc.getString("role");
+            String phone = doc.getString("phone");
+            String email = doc.getString("email");
+            String authMethod = doc.getString("authMethod");
+            boolean isActive = doc.getBoolean("isActive");
+            long createdAt = doc.getLong("createdAt");
+            // farmId is read as String but we don't need to store it in UserEntity
+
+            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
+                    phone, email, "");
+            user.setId(id);
+            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
+            user.setActive(isActive);
+            user.setCreatedAt(createdAt);
+            return user;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document", e);
+            return null;
+        }
+    }
+
+    private void loadLocalUsers() {
         databaseExecutor.execute(() -> {
             List<UserEntity> userList = database.userDao().getAllUsers();
 
@@ -104,6 +186,8 @@ public class LoginActivity extends AppCompatActivity {
             });
         });
     }
+
+
 
     private void createDefaultOwner() {
         // Default credentials
@@ -167,7 +251,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this,
                         "Default owner ready. Email: owner@afrinuts.com, Password: admin123",
                         Toast.LENGTH_LONG).show();
-                loadUsers(); // Reload users
+                loadLocalUsers(); // Reload users
             });
         });
     }
@@ -288,7 +372,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setText("Authenticating...");
 
         if (isPinMode) {
-            // PIN users are local only
+            // PIN users still use local authentication
             String hashedPin = AuthUtils.hash(emailPin);
             boolean authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
 
@@ -319,40 +403,19 @@ public class LoginActivity extends AppCompatActivity {
             firebaseManager.signInWithEmail(emailPin, password,
                     new FirebaseManager.AuthCallback() {
                         @Override
-                        public void onSuccess(FirebaseUser firebaseUser) {
-                            // Check if user exists in local DB
+                        public void onSuccess(FirebaseUser user) {
+                            selectedUser.setLastLoginAt(System.currentTimeMillis());
+
                             databaseExecutor.execute(() -> {
-                                UserEntity localUser = database.userDao().getUserByEmail(emailPin);
+                                database.userDao().update(selectedUser);
 
-                                if (localUser == null && selectedUser != null) {
-                                    // User exists in Firebase but not locally - save it
-                                    selectedUser.setLastLoginAt(System.currentTimeMillis());
-                                    database.userDao().insert(selectedUser);
-                                    localUser = selectedUser;
-                                }
+                                SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                                sessionManager.createLoginSession(selectedUser);
 
-                                final UserEntity finalUser = localUser != null ? localUser : selectedUser;
                                 runOnUiThread(() -> {
-                                    if (finalUser != null) {
-                                        finalUser.setLastLoginAt(System.currentTimeMillis());
-                                        databaseExecutor.execute(() -> {
-                                            database.userDao().update(finalUser);
-                                            SessionManager sessionManager = new SessionManager(LoginActivity.this);
-                                            sessionManager.createLoginSession(finalUser);
-                                            runOnUiThread(() -> {
-                                                Toast.makeText(LoginActivity.this,
-                                                        "Welcome " + finalUser.getName(), Toast.LENGTH_SHORT).show();
-                                                navigateToMain();
-                                            });
-                                        });
-                                    } else {
-                                        // User exists in Firebase but not in local DB and no selected user
-                                        Toast.makeText(LoginActivity.this,
-                                                "Please contact your farm owner to set up your profile",
-                                                Toast.LENGTH_LONG).show();
-                                        btnLogin.setEnabled(true);
-                                        btnLogin.setText("Login");
-                                    }
+                                    Toast.makeText(LoginActivity.this,
+                                            "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
+                                    navigateToMain();
                                 });
                             });
                         }

@@ -1,5 +1,6 @@
 package com.afrinuts.farmos;
 
+import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.ui.analytics.AnalyticsDashboardActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
@@ -13,7 +14,6 @@ import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
 import com.afrinuts.farmos.ui.users.UsersListActivity;
 import com.afrinuts.farmos.ui.weather.WeatherActivity;
-import com.afrinuts.farmos.ui.weather.WeatherForecastDialog;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
 import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
@@ -203,97 +203,9 @@ public class MainActivity extends AppCompatActivity {
         loadWeatherData();
     }
 
-    private void loadUsersFromFirestore() {
-        // Safety check - farm must be loaded
-        if (currentFarm == null) {
-            Log.e(TAG, "Cannot load users: farm is null");
-            return;
-        }
-
-        if (!sessionManager.isOwner()) {
-            Log.d(TAG, "Not owner, skipping user sync");
-            return; // Only owner can sync users
-        }
-
-        Log.d(TAG, "Loading users from Firestore for farm: " + currentFarm.getId());
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("users")
-                .whereEqualTo("farmId", String.valueOf(currentFarm.getId()))
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<UserEntity> firestoreUsers = new ArrayList<>();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        UserEntity user = documentToUser(doc);
-                        if (user != null) {
-                            firestoreUsers.add(user);
-                        }
-                    }
-
-                    // Save to local database
-                    databaseExecutor.execute(() -> {
-                        int addedCount = 0;
-                        int updatedCount = 0;
-
-                        for (UserEntity user : firestoreUsers) {
-                            UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
-                            if (existing == null) {
-                                // New user - insert
-                                database.userDao().insert(user);
-                                addedCount++;
-                            } else {
-                                // Update existing user
-                                user.setId(existing.getId()); // Keep the same local ID
-                                database.userDao().update(user);
-                                updatedCount++;
-                            }
-                        }
-
-                        final int finalAddedCount = addedCount;
-                        final int finalUpdatedCount = updatedCount;
-
-                        runOnUiThread(() -> {
-                            Log.d(TAG, "Synced users from Firestore: " +
-                                    finalAddedCount + " added, " + finalUpdatedCount + " updated");
-
-                            // Refresh the current user list
-                            loadCurrentUser();
-                        });
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to load users from Firestore", e);
-                    Toast.makeText(this,
-                            "Failed to sync users: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private UserEntity documentToUser(DocumentSnapshot doc) {
-        try {
-            long id = doc.getLong("id");
-            String name = doc.getString("name");
-            String role = doc.getString("role");
-            String phone = doc.getString("phone");
-            String email = doc.getString("email");
-            String authMethod = doc.getString("authMethod");
-            boolean isActive = doc.getBoolean("isActive");
-            long createdAt = doc.getLong("createdAt");
-
-            // Create user with temporary password (not stored in Firestore)
-            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
-                    phone, email, "");
-            user.setId(id);
-            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
-            user.setActive(isActive);
-            user.setCreatedAt(createdAt);
-            return user;
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting document", e);
-            return null;
-        }
-    }
+    // ========================================
+    // USER & SESSION MANAGEMENT
+    // ========================================
 
     private void loadCurrentUser() {
         databaseExecutor.execute(() -> {
@@ -328,88 +240,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setupSyncListener() {
-        if (currentFarm == null || syncManager == null) return;
-
-        syncManager.init(this, String.valueOf(currentFarm.getId()), new SyncManager.SyncListener() {
-            @Override
-            public void onSyncStarted() {
-                runOnUiThread(() -> {
-                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, true);
-                });
-            }
-
-            @Override
-            public void onSyncCompleted(int syncedItems) {
-                runOnUiThread(() -> {
-                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, false);
-                    Toast.makeText(MainActivity.this,
-                            "Synced " + syncedItems + " items", Toast.LENGTH_SHORT).show();
-                    loadFarmData(); // Refresh data after sync
-                });
-            }
-
-            @Override
-            public void onSyncFailed(String error) {
-                runOnUiThread(() -> {
-                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, false);
-                    Toast.makeText(MainActivity.this,
-                            "Sync failed: " + error, Toast.LENGTH_SHORT).show();
-                });
-            }
-
-            @Override
-            public void onOfflineMode() {
-                runOnUiThread(() -> {
-                    isOnline = false;
-                    showOfflineBanner();
-                });
-            }
-
-            @Override
-            public void onOnlineMode() {
-                runOnUiThread(() -> {
-                    isOnline = true;
-                    hideOfflineBanner();
-                });
-            }
-        });
-    }
-
-    private void animateSyncButton(ImageButton button, boolean start) {
-        if (start) {
-            button.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
-                button.setRotation(0);
-                if (syncManager != null && syncManager.isSyncing()) {
-                    animateSyncButton(button, true); // Continue animation
-                }
-            }).start();
-        } else {
-            button.animate().cancel();
-            button.setRotation(0);
-        }
-    }
-
-    private void setupCustomToolbar() {
-        ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-        ImageButton btnLogout = findViewById(R.id.btnToolbarLogout);
-
-        btnSync.setOnClickListener(v -> {
-            if (currentFarm != null && syncManager != null) {
-                if (!syncManager.isSyncing()) {
-                    syncManager.forceSyncNow();
-                } else {
-                    Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        btnLogout.setOnClickListener(v -> showLogoutDialog());
-    }
-
     private void redirectToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -417,62 +247,9 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void setupSyncManager() {
-        syncManager = SyncManager.getInstance(this);
-    }
-
-    private void showOfflineBanner() {
-        if (offlineBanner == null) {
-            offlineBanner = findViewById(R.id.offlineBanner);
-        }
-        if (offlineBanner != null) {
-            offlineBanner.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideOfflineBanner() {
-        if (offlineBanner == null) {
-            offlineBanner = findViewById(R.id.offlineBanner);
-        }
-        if (offlineBanner != null) {
-            offlineBanner.setVisibility(View.GONE);
-        }
-    }
-
-    private void showLogoutDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Logout", (dialog, which) -> {
-                    sessionManager.logout();
-                    redirectToLogin();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void setupRoleBasedUI() {
-        // Team card - only visible to Owner
-        if (!sessionManager.isOwner()) {
-            btnUsersCard.setVisibility(View.GONE);
-        }
-
-        // Add operation cards - only Owners and Managers can add
-        if (!sessionManager.canEditData()) {
-            btnAddBlockCard.setVisibility(View.GONE);
-            btnAddExpenseCard.setVisibility(View.GONE);
-            btnAddRevenueCard.setVisibility(View.GONE);
-            btnAddTaskCard.setVisibility(View.GONE);
-        }
-
-        // Workers Dashboard - hide from Investors
-        if (sessionManager.isInvestor()) {
-            btnWorkerAnalyticsCard.setVisibility(View.GONE);
-        }
-
-        // Profit Dashboard and Charts - visible to all
-        // No change needed - these are visible to everyone
-    }
+    // ========================================
+    // FARM MANAGEMENT
+    // ========================================
 
     private void ensureFarmExists() {
         databaseExecutor.execute(() -> {
@@ -514,11 +291,307 @@ public class MainActivity extends AppCompatActivity {
                     initializeSyncListener();
                 }
 
-                // Now it is safe to sync users
+                // AUTO-SYNC: Load users from Firestore automatically
                 loadUsersFromFirestore();
             });
         });
     }
+
+    private void loadFarmData() {
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+
+            if (farm != null) {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+
+                int totalBlocks = blocks.size();
+                int plantedBlocks = 0;
+                int totalAliveTrees = 0;
+                double totalSurvivalRate = 0;
+
+                for (BlockEntity block : blocks) {
+                    if (block.isPlanted()) {
+                        plantedBlocks++;
+                        totalAliveTrees += block.getAliveTrees();
+                        totalSurvivalRate += block.getSurvivalRate();
+                    }
+                }
+
+                double avgSurvivalRate = plantedBlocks > 0 ?
+                        totalSurvivalRate / plantedBlocks : 0;
+                int plantedProgressValue = totalBlocks > 0 ?
+                        (plantedBlocks * 100 / totalBlocks) : 0;
+
+                final int finalTotalBlocks = totalBlocks;
+                final int finalPlantedBlocks = plantedBlocks;
+                final int finalTotalAliveTrees = totalAliveTrees;
+                final double finalAvgSurvivalRate = avgSurvivalRate;
+                final int finalPlantedProgress = plantedProgressValue;
+                final FarmEntity finalFarm = farm;
+                final List<BlockEntity> finalBlocks = blocks;
+
+                runOnUiThread(() -> {
+                    currentFarm = finalFarm;
+                    allBlocks = finalBlocks;
+                    updateUI(
+                            finalTotalBlocks,
+                            finalPlantedBlocks,
+                            finalTotalAliveTrees,
+                            finalAvgSurvivalRate,
+                            finalPlantedProgress
+                    );
+
+                    if (currentFarm != null && currentUser != null) {
+                        setupSyncListener();
+                    }
+                });
+            }
+        });
+    }
+
+    private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
+                          double avgSurvivalRate, int plantedProgressValue) {
+
+        if (currentFarm != null) {
+            farmNameText.setText(currentFarm.getName());
+            farmLocationText.setText(currentFarm.getLocation());
+            plantingYearText.setText(String.valueOf(currentFarm.getPlantingYear()));
+
+            totalHectaresText.setText(String.format(Locale.getDefault(),
+                    "%.0f", currentFarm.getTotalHectares()));
+
+            int totalTrees = (int)(currentFarm.getCashewHectares() *
+                    currentFarm.getTreesPerHectare());
+            totalTreesText.setText(String.format(Locale.getDefault(),
+                    "%,d", totalTrees));
+        }
+
+        blocksCountText.setText(String.valueOf(totalBlocks));
+        plantedBlocksText.setText(String.format(Locale.getDefault(),
+                "%d/%d", plantedBlocks, totalBlocks));
+
+        plantedProgress.setProgress(plantedProgressValue);
+
+        survivalRateText.setText(String.format(Locale.getDefault(),
+                "%.0f%%", avgSurvivalRate));
+    }
+
+    private String getNextAvailableBlockName() {
+        if (allBlocks == null) return "A1";
+
+        char[] rows = {'A', 'B', 'C', 'D', 'E'};
+        int columns = 7;
+
+        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
+        for (BlockEntity block : allBlocks) {
+            existingNames.add(block.getBlockName());
+        }
+
+        for (char row : rows) {
+            for (int col = 1; col <= columns; col++) {
+                String blockName = row + String.valueOf(col);
+                if (!existingNames.contains(blockName)) {
+                    return blockName;
+                }
+            }
+        }
+
+        return "FULL";
+    }
+
+    // ========================================
+    // USER SYNC FROM FIRESTORE
+    // ========================================
+
+    private void loadUsersFromFirestore() {
+        // Safety check - farm must be loaded
+        if (currentFarm == null) {
+            Log.e(TAG, "Cannot load users: farm is null");
+            return;
+        }
+
+        Log.d(TAG, "Loading users from Firestore for farm: " + currentFarm.getId());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("farmId", currentFarm.getId())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<UserEntity> firestoreUsers = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        UserEntity user = documentToUser(doc);
+                        if (user != null) {
+                            firestoreUsers.add(user);
+                        }
+                    }
+
+                    // Save to local database
+                    databaseExecutor.execute(() -> {
+                        int addedCount = 0;
+                        int updatedCount = 0;
+
+                        for (UserEntity user : firestoreUsers) {
+                            UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
+                            if (existing == null) {
+                                database.userDao().insert(user);
+                                addedCount++;
+                            } else {
+                                user.setId(existing.getId());
+                                database.userDao().update(user);
+                                updatedCount++;
+                            }
+                        }
+
+                        final int finalAddedCount = addedCount;
+                        final int finalUpdatedCount = updatedCount;
+
+                        runOnUiThread(() -> {
+                            Log.d(TAG, "Synced users from Firestore: " +
+                                    finalAddedCount + " added, " + finalUpdatedCount + " updated");
+                        });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load users from Firestore", e);
+                });
+    }
+
+    private UserEntity documentToUser(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String name = doc.getString("name");
+            String role = doc.getString("role");
+            String phone = doc.getString("phone");
+            String email = doc.getString("email");
+            String authMethod = doc.getString("authMethod");
+            boolean isActive = doc.getBoolean("isActive");
+            long createdAt = doc.getLong("createdAt");
+
+            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
+                    phone, email, "");
+            user.setId(id);
+            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
+            user.setActive(isActive);
+            user.setCreatedAt(createdAt);
+            return user;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document", e);
+            return null;
+        }
+    }
+
+    // ========================================
+    // SYNC MANAGEMENT
+    // ========================================
+
+    private void setupSyncManager() {
+        syncManager = SyncManager.getInstance(this);
+    }
+
+    private void setupSyncListener() {
+        if (currentFarm == null || syncManager == null) return;
+
+        syncManager.init(this, String.valueOf(currentFarm.getId()), new SyncManager.SyncListener() {
+            @Override
+            public void onSyncStarted() {
+                runOnUiThread(() -> {
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, true);
+                });
+            }
+
+            @Override
+            public void onSyncCompleted(int syncedItems) {
+                runOnUiThread(() -> {
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, false);
+                    Toast.makeText(MainActivity.this,
+                            "Synced " + syncedItems + " items", Toast.LENGTH_SHORT).show();
+                    loadFarmData();
+                });
+            }
+
+            @Override
+            public void onSyncFailed(String error) {
+                runOnUiThread(() -> {
+                    ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+                    animateSyncButton(btnSync, false);
+                    Toast.makeText(MainActivity.this,
+                            "Sync failed: " + error, Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onOfflineMode() {
+                runOnUiThread(() -> {
+                    isOnline = false;
+                    showOfflineBanner();
+                });
+            }
+
+            @Override
+            public void onOnlineMode() {
+                runOnUiThread(() -> {
+                    isOnline = true;
+                    hideOfflineBanner();
+                });
+            }
+        });
+    }
+
+    private void animateSyncButton(ImageButton button, boolean start) {
+        if (start) {
+            button.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
+                button.setRotation(0);
+                if (syncManager != null && syncManager.isSyncing()) {
+                    animateSyncButton(button, true);
+                }
+            }).start();
+        } else {
+            button.animate().cancel();
+            button.setRotation(0);
+        }
+    }
+
+    private void setupCustomToolbar() {
+        ImageButton btnSync = findViewById(R.id.btnToolbarSync);
+        ImageButton btnLogout = findViewById(R.id.btnToolbarLogout);
+
+        btnSync.setOnClickListener(v -> {
+            if (currentFarm != null && syncManager != null) {
+                if (!syncManager.isSyncing()) {
+                    syncManager.forceSyncNow();
+                } else {
+                    Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btnLogout.setOnClickListener(v -> showLogoutDialog());
+    }
+
+    private void showOfflineBanner() {
+        if (offlineBanner == null) {
+            offlineBanner = findViewById(R.id.offlineBanner);
+        }
+        if (offlineBanner != null) {
+            offlineBanner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideOfflineBanner() {
+        if (offlineBanner == null) {
+            offlineBanner = findViewById(R.id.offlineBanner);
+        }
+        if (offlineBanner != null) {
+            offlineBanner.setVisibility(View.GONE);
+        }
+    }
+
+    // ========================================
+    // UI INITIALIZATION
+    // ========================================
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
@@ -562,6 +635,23 @@ public class MainActivity extends AppCompatActivity {
         forecastContainer = findViewById(R.id.forecastContainer);
         btnRefreshWeather = findViewById(R.id.btnRefreshWeather);
         weatherCard = findViewById(R.id.weatherCard);
+    }
+
+    private void setupRoleBasedUI() {
+        if (!sessionManager.isOwner()) {
+            btnUsersCard.setVisibility(View.GONE);
+        }
+
+        if (!sessionManager.canEditData()) {
+            btnAddBlockCard.setVisibility(View.GONE);
+            btnAddExpenseCard.setVisibility(View.GONE);
+            btnAddRevenueCard.setVisibility(View.GONE);
+            btnAddTaskCard.setVisibility(View.GONE);
+        }
+
+        if (sessionManager.isInvestor()) {
+            btnWorkerAnalyticsCard.setVisibility(View.GONE);
+        }
     }
 
     private void setupClickListeners() {
@@ -735,7 +825,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupAnimations() {
-        // Animate stats cards on load
         View[] statsCards = {
                 findViewById(R.id.totalHectaresText).getParent().getParent() instanceof View ?
                         (View) findViewById(R.id.totalHectaresText).getParent().getParent() : null,
@@ -759,7 +848,6 @@ public class MainActivity extends AppCompatActivity {
                     .start();
         }
 
-        // Animate progress card
         View progressCard = findViewById(R.id.weatherCard);
         if (progressCard != null) {
             progressCard.setAlpha(0f);
@@ -803,117 +891,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getNextAvailableBlockName() {
-        if (allBlocks == null) return "A1";
-
-        // 5 rows (A through E) and 7 columns (1 through 7)
-        char[] rows = {'A', 'B', 'C', 'D', 'E'};
-        int columns = 7;
-
-        // Get existing block names
-        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
-        for (BlockEntity block : allBlocks) {
-            existingNames.add(block.getBlockName());
-        }
-
-        // Find first available name in the grid
-        for (char row : rows) {
-            for (int col = 1; col <= columns; col++) {
-                String blockName = row + String.valueOf(col);
-                if (!existingNames.contains(blockName)) {
-                    return blockName;
-                }
-            }
-        }
-
-        return "FULL";
-    }
-
-    private void loadFarmData() {
-        databaseExecutor.execute(() -> {
-            // Refresh currentFarm from database
-            FarmEntity farm = database.farmDao().getFirstFarm();
-
-            if (farm != null) {
-                // Get all blocks
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
-
-                // Calculate stats
-                int totalBlocks = blocks.size();
-                int plantedBlocks = 0;
-                int totalAliveTrees = 0;
-                double totalSurvivalRate = 0;
-
-                for (BlockEntity block : blocks) {
-                    if (block.isPlanted()) {
-                        plantedBlocks++;
-                        totalAliveTrees += block.getAliveTrees();
-                        totalSurvivalRate += block.getSurvivalRate();
-                    }
-                }
-
-                double avgSurvivalRate = plantedBlocks > 0 ?
-                        totalSurvivalRate / plantedBlocks : 0;
-                int plantedProgressValue = totalBlocks > 0 ?
-                        (plantedBlocks * 100 / totalBlocks) : 0;
-
-                // Update UI on main thread
-                final int finalTotalBlocks = totalBlocks;
-                final int finalPlantedBlocks = plantedBlocks;
-                final int finalTotalAliveTrees = totalAliveTrees;
-                final double finalAvgSurvivalRate = avgSurvivalRate;
-                final int finalPlantedProgress = plantedProgressValue;
-                final FarmEntity finalFarm = farm;
-                final List<BlockEntity> finalBlocks = blocks;
-
-                runOnUiThread(() -> {
-                    currentFarm = finalFarm;
-                    allBlocks = finalBlocks;
-                    updateUI(
-                            finalTotalBlocks,
-                            finalPlantedBlocks,
-                            finalTotalAliveTrees,
-                            finalAvgSurvivalRate,
-                            finalPlantedProgress
-                    );
-
-                    // Initialize sync listener after farm data is loaded
-                    if (currentFarm != null && currentUser != null) {
-                        setupSyncListener();
-                    }
-                });
-            }
-        });
-    }
-
-    private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
-                          double avgSurvivalRate, int plantedProgressValue) {
-
-        // Farm details
-        if (currentFarm != null) {
-            farmNameText.setText(currentFarm.getName());
-            farmLocationText.setText(currentFarm.getLocation());
-            plantingYearText.setText(String.valueOf(currentFarm.getPlantingYear()));
-
-            totalHectaresText.setText(String.format(Locale.getDefault(),
-                    "%.0f", currentFarm.getTotalHectares()));
-
-            int totalTrees = (int)(currentFarm.getCashewHectares() *
-                    currentFarm.getTreesPerHectare());
-            totalTreesText.setText(String.format(Locale.getDefault(),
-                    "%,d", totalTrees));
-        }
-
-        // Blocks stats
-        blocksCountText.setText(String.valueOf(totalBlocks));
-        plantedBlocksText.setText(String.format(Locale.getDefault(),
-                "%d/%d", plantedBlocks, totalBlocks));
-
-        plantedProgress.setProgress(plantedProgressValue);
-
-        survivalRateText.setText(String.format(Locale.getDefault(),
-                "%.0f%%", avgSurvivalRate));
-    }
+    // ========================================
+    // WEATHER
+    // ========================================
 
     private void loadWeatherData() {
         weatherLoadingText.setVisibility(View.VISIBLE);
@@ -945,11 +925,9 @@ public class MainActivity extends AppCompatActivity {
         weatherLoadingText.setVisibility(View.GONE);
         weatherContent.setVisibility(View.VISIBLE);
 
-        // Current weather
         WeatherResponse.Current current = weather.getCurrent();
         WeatherResponse.Location location = weather.getLocation();
 
-        // Update time
         if (location != null && location.getLocaltime() != null) {
             String timeStr = location.getLocaltime();
             try {
@@ -963,18 +941,15 @@ public class MainActivity extends AppCompatActivity {
             weatherUpdateTime.setVisibility(View.VISIBLE);
         }
 
-        // Set temperature and condition
         weatherTemp.setText(String.format(Locale.getDefault(),
                 "%.0f°C", current.getTempC()));
         weatherCondition.setText(current.getCondition().getText());
 
-        // Set humidity and wind
         weatherHumidity.setText(String.format(Locale.getDefault(),
                 " %d%%", current.getHumidity()));
         weatherWind.setText(String.format(Locale.getDefault(),
                 " %.0f km/h", current.getWindKph()));
 
-        // Set weather icon - using fallback only
         setWeatherIconFallback(current.getCondition().getText());
     }
 
@@ -1004,15 +979,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // ========================================
+    // ACTIVITY LIFECYCLE
+    // ========================================
+
     @Override
     protected void onResume() {
         super.onResume();
         loadFarmData();
 
-        // Refresh user data
         if (sessionManager.isLoggedIn()) {
             loadCurrentUser();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isBound) {
+            unbindService(connection);
+        }
+        if (syncReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(syncReceiver);
+        }
+        if (syncManager != null) {
+            syncManager.shutdown();
+        }
+        if (weatherRepository != null) {
+            weatherRepository.shutdown();
+        }
+        databaseExecutor.shutdown();
+    }
+
+    private void showLogoutDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    sessionManager.logout();
+                    redirectToLogin();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void saveBlock(BlockEntity block) {
@@ -1034,23 +1042,5 @@ public class MainActivity extends AppCompatActivity {
                             SyncEntity.SyncAction.UPDATE
             );
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (isBound) {
-            unbindService(connection);
-        }
-        if (syncReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(syncReceiver);
-        }
-        if (syncManager != null) {
-            syncManager.shutdown();
-        }
-        if (weatherRepository != null) {
-            weatherRepository.shutdown();
-        }
-        databaseExecutor.shutdown();
     }
 }
