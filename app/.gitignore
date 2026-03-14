@@ -1,1 +1,17 @@
 /build
+# Ignore generated APK files
+app/release/
+app/debug/
+*.apk
+*.aab
+
+# Ignore keystore files
+*.jks
+*.keystore
+
+# Ignore crash logs
+crash_log.txt
+*_crash.txt
+
+# Ignore local properties
+local.properties
