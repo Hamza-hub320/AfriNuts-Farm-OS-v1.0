@@ -283,7 +283,6 @@ public class UserDetailActivity extends BaseActivity {
     }
 
     private void confirmDelete() {
-        // Prevent deleting yourself
         boolean isCurrentUser = user.getId() == sessionManager.getUserId();
         if (isCurrentUser) {
             Toast.makeText(this, "You cannot delete your own account", Toast.LENGTH_SHORT).show();
@@ -292,13 +291,20 @@ public class UserDetailActivity extends BaseActivity {
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete User")
-                .setMessage("Are you sure you want to delete " + user.getName() +
-                        "? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> {
+                .setMessage("Delete " + user.getName() + "?\n\n" +
+                        "⚠️ Note: This will remove them from the app, but you must also delete them from Firebase Console:\n" +
+                        "1. Go to Firebase Console\n" +
+                        "2. Authentication → Users\n" +
+                        "3. Find " + user.getEmail() + "\n" +
+                        "4. Click the 3 dots → Delete Account")
+                .setPositiveButton("Delete from App", (dialog, which) -> {
+                    // Delete from local database only
                     executor.execute(() -> {
                         database.userDao().delete(user);
                         runOnUiThread(() -> {
-                            Toast.makeText(this, "User deleted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this,
+                                    "User removed from app. Remember to delete from Firebase Console!",
+                                    Toast.LENGTH_LONG).show();
                             finish();
                         });
                     });

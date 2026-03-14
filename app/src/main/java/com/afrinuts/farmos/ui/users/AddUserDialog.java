@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.users;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -17,19 +18,26 @@ import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddUserDialog extends DialogFragment {
 
+    private static final String TAG = "AddUserDialog";
     private AppDatabase database;
+    private FirebaseManager firebaseManager;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextInputEditText etName;
@@ -64,6 +72,7 @@ public class AddUserDialog extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         database = AppDatabase.getInstance(requireContext());
+        firebaseManager = FirebaseManager.getInstance();
     }
 
     @NonNull
@@ -72,7 +81,7 @@ public class AddUserDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_user, null);
 
         initViews(view);
-        setupRoleDropdown(); // This now uses the new implementation
+        setupRoleDropdown();
         setupAuthMethodToggle();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -109,9 +118,7 @@ public class AddUserDialog extends DialogFragment {
         layoutPassword.setVisibility(View.GONE);
     }
 
-    // NEW: Setup role dropdown with vector icons
     private void setupRoleDropdown() {
-        // Create role items with vector icons
         List<RoleItem> roleItems = new ArrayList<>();
         roleItems.add(new RoleItem(
                 UserEntity.UserRole.OWNER,
@@ -137,17 +144,13 @@ public class AddUserDialog extends DialogFragment {
         RoleAdapter adapter = new RoleAdapter(requireContext(), roleItems);
         etRole.setAdapter(adapter);
 
-        // Set default selection (Worker)
         etRole.setText(roleItems.get(2).getDisplayName(), false);
 
         etRole.setOnItemClickListener((parent, view, position, id) -> {
             RoleItem selectedItem = (RoleItem) parent.getItemAtPosition(position);
             selectedRole = selectedItem.getRole();
-
-            // Update the text to show the display name
             etRole.setText(selectedItem.getDisplayName(), false);
 
-            // Workers default to PIN, others default to Password
             if (selectedRole == UserEntity.UserRole.WORKER) {
                 toggleAuthMethod.check(R.id.btnPin);
                 layoutPin.setVisibility(View.VISIBLE);
@@ -193,8 +196,6 @@ public class AddUserDialog extends DialogFragment {
             return;
         }
 
-        UserEntity user = null;
-
         if (selectedAuthMethod == UserEntity.AuthMethod.PIN) {
             // Validate PIN
             String pin = etPin.getText().toString().trim();
@@ -210,8 +211,8 @@ public class AddUserDialog extends DialogFragment {
                 return;
             }
 
-            String pinHash = AuthUtils.hash(pin);
-            user = new UserEntity(name, selectedRole, phone, pinHash);
+            // PIN users are local only
+            createLocalPinUser(name, phone, pin);
 
         } else {
             // Validate email
@@ -228,16 +229,76 @@ public class AddUserDialog extends DialogFragment {
                 return;
             }
 
-            String passwordHash = AuthUtils.hash(password);
-            user = new UserEntity(name, selectedRole, phone, email, passwordHash);
+            // Create in Firebase FIRST
+            createFirebaseUser(name, phone, email, password);
         }
+    }
 
-        // Save to database
-        Toast.makeText(getContext(), "Adding team member...", Toast.LENGTH_SHORT).show();
+    private void createLocalPinUser(String name, String phone, String pin) {
+        Toast.makeText(getContext(), "Creating PIN user...", Toast.LENGTH_SHORT).show();
 
-        final UserEntity finalUser = user;
-        new Thread(() -> {
-            long id = database.userDao().insert(finalUser);
+        executor.execute(() -> {
+            String pinHash = AuthUtils.hash(pin);
+            UserEntity user = new UserEntity(name, selectedRole, phone, pinHash);
+
+            long id = database.userDao().insert(user);
+
+            requireActivity().runOnUiThread(() -> {
+                if (id > 0) {
+                    Toast.makeText(getContext(),
+                            "PIN user added successfully!", Toast.LENGTH_SHORT).show();
+                    if (listener != null) {
+                        listener.onUserAdded();
+                    }
+                    dismiss();
+                } else {
+                    Toast.makeText(getContext(),
+                            "Error adding PIN user", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void createFirebaseUser(String name, String phone, String email, String password) {
+        Toast.makeText(getContext(), "Creating user in Firebase...", Toast.LENGTH_SHORT).show();
+
+        firebaseManager.signUpWithEmail(email, password, new FirebaseManager.AuthCallback() {
+            @Override
+            public void onSuccess(FirebaseUser firebaseUser) {
+                Log.d(TAG, "Firebase user created: " + firebaseUser.getUid());
+
+                // Now create in local database
+                createLocalUser(name, phone, email, password);
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Firebase creation failed: " + error);
+                requireActivity().runOnUiThread(() -> {
+                    String errorMessage;
+                    if (error.contains("email-already-in-use")) {
+                        errorMessage = "This email is already registered";
+                    } else if (error.contains("invalid-email")) {
+                        errorMessage = "Invalid email format";
+                    } else if (error.contains("weak-password")) {
+                        errorMessage = "Password is too weak";
+                    } else {
+                        errorMessage = "Firebase error: " + error;
+                    }
+
+                    Toast.makeText(getContext(),
+                            errorMessage, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    private void createLocalUser(String name, String phone, String email, String password) {
+        executor.execute(() -> {
+            String passwordHash = AuthUtils.hash(password);
+            UserEntity user = new UserEntity(name, selectedRole, phone, email, passwordHash);
+
+            long id = database.userDao().insert(user);
 
             requireActivity().runOnUiThread(() -> {
                 if (id > 0) {
@@ -249,9 +310,15 @@ public class AddUserDialog extends DialogFragment {
                     dismiss();
                 } else {
                     Toast.makeText(getContext(),
-                            "Error adding team member", Toast.LENGTH_SHORT).show();
+                            "Error adding team member to local database", Toast.LENGTH_SHORT).show();
                 }
             });
-        }).start();
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }
