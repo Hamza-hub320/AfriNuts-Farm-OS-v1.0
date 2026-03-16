@@ -243,10 +243,35 @@ public class BlockDetailActivity extends BaseActivity {
     private BlockEntity documentToBlock(DocumentSnapshot doc) {
         try {
             long id = doc.getLong("id");
-            long farmId = doc.getLong("farmId");
+
+            // Enhanced farmId parsing
+            String farmIdStr = doc.getString("farmId");
+            long farmId = 0;
+            if (farmIdStr != null) {
+                try {
+                    farmId = Long.parseLong(farmIdStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format for block: " + farmIdStr);
+                    return null;
+                }
+            } else {
+                Log.e(TAG, "Missing farmId for block: " + id);
+                return null;
+            }
+
             String blockName = doc.getString("blockName");
+            if (blockName == null) {
+                Log.e(TAG, "Missing blockName for block: " + id);
+                return null;
+            }
+
             double hectareSize = doc.getDouble("hectareSize");
             String status = doc.getString("status");
+            if (status == null) {
+                Log.e(TAG, "Missing status for block: " + id);
+                return null;
+            }
+
             Long clearedDate = doc.getLong("clearedDate");
             Long plowedDate = doc.getLong("plowedDate");
             Long plantedDate = doc.getLong("plantedDate");

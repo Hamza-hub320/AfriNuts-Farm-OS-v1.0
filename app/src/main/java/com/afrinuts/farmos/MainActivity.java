@@ -21,6 +21,10 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.afrinuts.farmos.data.repository.WeatherRepository;
 
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageButton;
@@ -140,6 +144,11 @@ public class MainActivity extends AppCompatActivity {
 
     private CardView btnSettingsCard;
     private boolean isOnline = true;
+
+    private ListenerRegistration blocksListener;
+    private ListenerRegistration expensesListener;
+    private ListenerRegistration revenuesListener;
+    private ListenerRegistration tasksListener;
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -293,8 +302,16 @@ public class MainActivity extends AppCompatActivity {
 
                 // AUTO-SYNC: Load users from Firestore automatically
                 loadUsersFromFirestore();
+
+                setupRealTimeListeners();
             });
         });
+    }
+
+    private void setupRealTimeListeners() {
+        if (currentFarm != null) {
+            startAllListeners();
+        }
     }
 
     private void loadFarmData() {
@@ -413,9 +430,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Loading users from Firestore for farm: " + currentFarm.getId());
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String farmId = String.valueOf(currentFarm.getId());
 
         db.collection("users")
-                .whereEqualTo("farmId", currentFarm.getId())
+                .whereEqualTo("farmId", farmId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<UserEntity> firestoreUsers = new ArrayList<>();
@@ -467,6 +485,7 @@ public class MainActivity extends AppCompatActivity {
             String authMethod = doc.getString("authMethod");
             boolean isActive = doc.getBoolean("isActive");
             long createdAt = doc.getLong("createdAt");
+            String farmId = doc.getString("farmId");
 
             UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
                     phone, email, "");
@@ -474,9 +493,217 @@ public class MainActivity extends AppCompatActivity {
             user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
             user.setActive(isActive);
             user.setCreatedAt(createdAt);
+
             return user;
         } catch (Exception e) {
             Log.e(TAG, "Error converting document", e);
+            return null;
+        }
+    }
+
+    private void startAllListeners() {
+        if (currentFarm == null) {
+            Log.e(TAG, "Cannot start listeners: farm is null");
+            return;
+        }
+
+        String farmId = String.valueOf(currentFarm.getId());  // Convert to String
+        Log.d(TAG, "Starting real-time listeners for farm: " + farmId);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Blocks listener
+        blocksListener = db.collection("blocks")
+                .whereEqualTo("farmId", farmId)  // Now using String
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Blocks listener failed", error);
+                        return;
+                    }
+                    handleDataChanges("blocks", snapshots);
+                });
+
+        // Expenses listener
+        expensesListener = db.collection("expenses")
+                .whereEqualTo("farmId", farmId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Expenses listener failed", error);
+                        return;
+                    }
+                    handleDataChanges("expenses", snapshots);
+                });
+
+        // Revenues listener
+        revenuesListener = db.collection("revenues")
+                .whereEqualTo("farmId", farmId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Revenues listener failed", error);
+                        return;
+                    }
+                    handleDataChanges("revenues", snapshots);
+                });
+
+        // Tasks listener
+        tasksListener = db.collection("tasks")
+                .whereEqualTo("farmId", farmId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Tasks listener failed", error);
+                        return;
+                    }
+                    handleDataChanges("tasks", snapshots);
+                });
+    }
+
+    private void handleDataChanges(String collection, QuerySnapshot snapshots) {
+        if (snapshots == null) return;
+
+        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+            DocumentSnapshot document = dc.getDocument();
+
+            switch (dc.getType()) {
+                case ADDED:
+                    Log.d(TAG, "New " + collection + " added remotely");
+                    handleDocumentAdded(collection, document);
+                    break;
+                case MODIFIED:
+                    Log.d(TAG, collection + " modified remotely");
+                    handleDocumentModified(collection, document);
+                    break;
+                case REMOVED:
+                    Log.d(TAG, collection + " removed remotely");
+                    handleDocumentRemoved(collection, document);
+                    break;
+            }
+        }
+
+        // Refresh UI after database updates
+        runOnUiThread(() -> {
+            switch (collection) {
+                case "blocks":
+                    loadFarmData();
+                    break;
+                case "expenses":
+                case "revenues":
+                case "tasks":
+                    // You can add specific refresh methods here if needed
+                    loadFarmData(); // This will refresh blocks at least
+                    break;
+            }
+        });
+    }
+
+    private void handleDocumentAdded(String collection, DocumentSnapshot doc) {
+        databaseExecutor.execute(() -> {
+            try {
+                switch (collection) {
+                    case "blocks":
+                        BlockEntity block = documentToBlock(doc);
+                        if (block != null) {
+                            database.blockDao().insert(block);
+                            Log.d(TAG, "Added block: " + block.getBlockName());
+                        }
+                        break;
+                    case "expenses":
+                        // You'll need to add documentToExpense() method
+                        break;
+                    case "revenues":
+                        // You'll need to add documentToRevenue() method
+                        break;
+                    case "tasks":
+                        // You'll need to add documentToTask() method
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling added document", e);
+            }
+        });
+    }
+
+    private void handleDocumentModified(String collection, DocumentSnapshot doc) {
+        databaseExecutor.execute(() -> {
+            try {
+                switch (collection) {
+                    case "blocks":
+                        BlockEntity block = documentToBlock(doc);
+                        if (block != null) {
+                            database.blockDao().update(block);
+                            Log.d(TAG, "Updated block: " + block.getBlockName());
+                        }
+                        break;
+                    case "expenses":
+                        // You'll need to add documentToExpense() method
+                        break;
+                    case "revenues":
+                        // You'll need to add documentToRevenue() method
+                        break;
+                    case "tasks":
+                        // You'll need to add documentToTask() method
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling modified document", e);
+            }
+        });
+    }
+
+    private void handleDocumentRemoved(String collection, DocumentSnapshot doc) {
+        databaseExecutor.execute(() -> {
+            try {
+                long id = doc.getLong("id");
+                switch (collection) {
+                    case "blocks":
+                        BlockEntity block = database.blockDao().getBlockById(id);
+                        if (block != null) {
+                            database.blockDao().delete(block);
+                            Log.d(TAG, "Removed block: " + block.getBlockName());
+                        }
+                        break;
+                    case "expenses":
+                        // You'll need to add expense deletion
+                        break;
+                    case "revenues":
+                        // You'll need to add revenue deletion
+                        break;
+                    case "tasks":
+                        // You'll need to add task deletion
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling removed document", e);
+            }
+        });
+    }
+
+    // Add these converter methods if you don't have them
+    private BlockEntity documentToBlock(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = doc.getLong("farmId");
+            String blockName = doc.getString("blockName");
+            double hectareSize = doc.getDouble("hectareSize");
+            String status = doc.getString("status");
+            Long clearedDate = doc.getLong("clearedDate");
+            Long plowedDate = doc.getLong("plowedDate");
+            Long plantedDate = doc.getLong("plantedDate");
+            double survivalRate = doc.getDouble("survivalRate");
+            long replacementCount = doc.getLong("replacementCount");
+            String notes = doc.getString("notes");
+
+            BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes);
+            block.setId(id);
+            block.setStatus(BlockEntity.BlockStatus.valueOf(status));
+            block.setClearedDate(clearedDate);
+            block.setPlowedDate(plowedDate);
+            block.setPlantedDate(plantedDate);
+            block.setSurvivalRate(survivalRate);
+            block.setReplacementCount((int) replacementCount);
+
+            return block;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to block", e);
             return null;
         }
     }
@@ -1087,6 +1314,11 @@ public class MainActivity extends AppCompatActivity {
         if (weatherRepository != null) {
             weatherRepository.shutdown();
         }
+
+        if (blocksListener != null) blocksListener.remove();
+        if (expensesListener != null) expensesListener.remove();
+        if (revenuesListener != null) revenuesListener.remove();
+        if (tasksListener != null) tasksListener.remove();
         databaseExecutor.shutdown();
     }
 

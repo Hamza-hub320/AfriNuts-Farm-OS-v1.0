@@ -166,9 +166,9 @@ public class PhotoDetailActivity extends BaseActivity {
         // Set location (if available)
         if (photo.getLatitude() != 0 && photo.getLongitude() != 0) {
             tvLocation.setText(String.format(Locale.getDefault(),
-                    "📍 %.4f, %.4f", photo.getLatitude(), photo.getLongitude()));
+                    " %.4f, %.4f", photo.getLatitude(), photo.getLongitude()));
         } else {
-            tvLocation.setText("📍 Location not available");
+            tvLocation.setText("Location not available");
         }
 
         // Set type

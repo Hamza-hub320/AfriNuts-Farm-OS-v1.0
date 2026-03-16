@@ -209,19 +209,89 @@ public class RevenueDetailActivity extends BaseActivity {
 
     private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
         try {
-            long id = doc.getLong("id");
-            long farmId = doc.getLong("farmId");
-            Long blockId = doc.getLong("blockId");
-            long harvestDate = doc.getLong("harvestDate");
-            double quantityKg = doc.getDouble("quantityKg");
-            double pricePerKg = doc.getDouble("pricePerKg");
-            double totalAmount = doc.getDouble("totalAmount");
-            String buyer = doc.getString("buyer");
-            String quality = doc.getString("quality");
-            String notes = doc.getString("notes");
-            long createdAt = doc.getLong("createdAt");
-            long updatedAt = doc.getLong("updatedAt");
+            // Required fields - must exist and be valid
+            Long id = doc.getLong("id");
+            if (id == null) {
+                Log.e(TAG, "Missing id for revenue document");
+                return null;
+            }
 
+            // FarmId parsing with error handling
+            String farmIdStr = doc.getString("farmId");
+            long farmId = 0;
+            if (farmIdStr != null) {
+                try {
+                    farmId = Long.parseLong(farmIdStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format for revenue " + id + ": " + farmIdStr);
+                    return null;
+                }
+            } else {
+                Log.e(TAG, "Missing farmId for revenue: " + id);
+                return null;
+            }
+
+            // BlockId is optional - can be null
+            Long blockId = doc.getLong("blockId");
+
+            // Harvest date validation
+            Long harvestDate = doc.getLong("harvestDate");
+            if (harvestDate == null) {
+                Log.e(TAG, "Missing harvestDate for revenue: " + id);
+                return null;
+            }
+
+            // Quantity validation
+            Double quantityKg = doc.getDouble("quantityKg");
+            if (quantityKg == null) {
+                Log.e(TAG, "Missing quantityKg for revenue: " + id);
+                return null;
+            }
+            if (quantityKg <= 0) {
+                Log.e(TAG, "Invalid quantityKg for revenue " + id + ": " + quantityKg);
+                return null;
+            }
+
+            // Price validation
+            Double pricePerKg = doc.getDouble("pricePerKg");
+            if (pricePerKg == null) {
+                Log.e(TAG, "Missing pricePerKg for revenue: " + id);
+                return null;
+            }
+            if (pricePerKg <= 0) {
+                Log.e(TAG, "Invalid pricePerKg for revenue " + id + ": " + pricePerKg);
+                return null;
+            }
+
+            // Total amount (optional - can be calculated)
+            Double totalAmount = doc.getDouble("totalAmount");
+
+            // Buyer is optional
+            String buyer = doc.getString("buyer");
+
+            // Quality validation
+            String quality = doc.getString("quality");
+            if (quality == null) {
+                Log.e(TAG, "Missing quality for revenue: " + id);
+                return null;
+            }
+
+            RevenueEntity.QualityGrade qualityGrade;
+            try {
+                qualityGrade = RevenueEntity.QualityGrade.valueOf(quality);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Invalid quality grade for revenue " + id + ": " + quality);
+                return null;
+            }
+
+            // Notes are optional
+            String notes = doc.getString("notes");
+
+            // Timestamps (optional - will use defaults if missing)
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+
+            // Create revenue entity
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
                     blockId,
@@ -229,16 +299,25 @@ public class RevenueDetailActivity extends BaseActivity {
                     quantityKg,
                     pricePerKg,
                     buyer,
-                    RevenueEntity.QualityGrade.valueOf(quality),
+                    qualityGrade,
                     notes
             );
-            revenue.setId(id);
-            revenue.setCreatedAt(createdAt);
-            revenue.setUpdatedAt(updatedAt);
 
+            revenue.setId(id);
+
+            if (createdAt != null) {
+                revenue.setCreatedAt(createdAt);
+            }
+
+            if (updatedAt != null) {
+                revenue.setUpdatedAt(updatedAt);
+            }
+
+            Log.d(TAG, "Successfully converted revenue: " + id + " - " + quantityKg + "kg");
             return revenue;
+
         } catch (Exception e) {
-            Log.e(TAG, "Error converting document to revenue", e);
+            Log.e(TAG, "Unexpected error converting document to revenue", e);
             return null;
         }
     }

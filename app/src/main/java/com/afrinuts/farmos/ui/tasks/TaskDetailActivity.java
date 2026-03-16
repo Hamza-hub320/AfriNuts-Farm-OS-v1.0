@@ -254,30 +254,81 @@ public class TaskDetailActivity extends BaseActivity {
     private TaskEntity documentToTask(DocumentSnapshot doc) {
         try {
             long id = doc.getLong("id");
-            long farmId = doc.getLong("farmId");
-            Long blockId = doc.getLong("blockId");
+
+            // Enhanced farmId parsing with error handling
+            String farmIdStr = doc.getString("farmId");
+            long farmId = 0;
+            if (farmIdStr != null) {
+                try {
+                    farmId = Long.parseLong(farmIdStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format for task: " + farmIdStr);
+                    return null;
+                }
+            } else {
+                Log.e(TAG, "Missing farmId for task: " + id);
+                return null;
+            }
+
+            Long blockId = doc.getLong("blockId"); // Can be null for farm-wide tasks
+
             String title = doc.getString("title");
-            String description = doc.getString("description");
+            if (title == null) {
+                Log.e(TAG, "Missing title for task: " + id);
+                return null;
+            }
+
+            String description = doc.getString("description"); // Optional
+
             String status = doc.getString("status");
+            if (status == null) {
+                Log.e(TAG, "Missing status for task: " + id);
+                return null;
+            }
+
             String type = doc.getString("type");
+            if (type == null) {
+                Log.e(TAG, "Missing type for task: " + id);
+                return null;
+            }
+
             long dueDate = doc.getLong("dueDate");
-            Long completedDate = doc.getLong("completedDate");
+            Long completedDate = doc.getLong("completedDate"); // Can be null for incomplete tasks
+
+            // Parse enum values with validation
+            TaskEntity.TaskStatus taskStatus;
+            try {
+                taskStatus = TaskEntity.TaskStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Invalid task status: " + status + " for task: " + id);
+                return null;
+            }
+
+            TaskEntity.TaskType taskType;
+            try {
+                taskType = TaskEntity.TaskType.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Invalid task type: " + type + " for task: " + id);
+                return null;
+            }
 
             TaskEntity task = new TaskEntity(
                     farmId,
                     blockId,
                     title,
                     description,
-                    TaskEntity.TaskType.valueOf(type),
-                    TaskEntity.TaskStatus.valueOf(status),
+                    taskType,
+                    taskStatus,
                     dueDate
             );
             task.setId(id);
             task.setCompletedDate(completedDate);
 
+            Log.d(TAG, "Successfully converted task: " + id + " - " + title);
             return task;
+
         } catch (Exception e) {
-            Log.e(TAG, "Error converting document to task", e);
+            Log.e(TAG, "Unexpected error converting document to task", e);
             return null;
         }
     }

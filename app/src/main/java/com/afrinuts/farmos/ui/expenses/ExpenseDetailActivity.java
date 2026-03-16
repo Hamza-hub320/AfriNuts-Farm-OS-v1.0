@@ -262,28 +262,83 @@ public class ExpenseDetailActivity extends BaseActivity {
     private ExpenseEntity documentToExpense(DocumentSnapshot doc) {
         try {
             long id = doc.getLong("id");
-            long farmId = doc.getLong("farmId");
+
+            // Enhanced farmId parsing with validation
+            String farmIdStr = doc.getString("farmId");
+            long farmId = 0;
+            if (farmIdStr != null) {
+                try {
+                    farmId = Long.parseLong(farmIdStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format for expense: " + farmIdStr);
+                    return null;
+                }
+            } else {
+                Log.e(TAG, "Missing farmId for expense: " + id);
+                return null;
+            }
+
+            // BlockId can be null (farm-wide expenses)
             Long blockId = doc.getLong("blockId");
+
+            // Validate required fields
             String category = doc.getString("category");
-            double amount = doc.getDouble("amount");
-            long date = doc.getLong("date");
+            if (category == null) {
+                Log.e(TAG, "Missing category for expense: " + id);
+                return null;
+            }
+
+            // Validate amount
+            Double amountObj = doc.getDouble("amount");
+            if (amountObj == null) {
+                Log.e(TAG, "Missing amount for expense: " + id);
+                return null;
+            }
+            double amount = amountObj;
+
+            // Validate date
+            Long dateObj = doc.getLong("date");
+            if (dateObj == null) {
+                Log.e(TAG, "Missing date for expense: " + id);
+                return null;
+            }
+            long date = dateObj;
+
+            // Optional fields
             String description = doc.getString("description");
             String receiptPath = doc.getString("receiptPath");
-            long createdAt = doc.getLong("createdAt");
+            Long createdAtObj = doc.getLong("createdAt");
+            long createdAt = createdAtObj != null ? createdAtObj : System.currentTimeMillis();
 
-            ExpenseEntity.ExpenseCategory expenseCategory =
-                    ExpenseEntity.ExpenseCategory.valueOf(category);
+            // Parse category enum with validation
+            ExpenseEntity.ExpenseCategory expenseCategory;
+            try {
+                expenseCategory = ExpenseEntity.ExpenseCategory.valueOf(category);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Invalid expense category: " + category + " for expense: " + id);
+                return null;
+            }
 
+            // Create expense entity
             ExpenseEntity expense = new ExpenseEntity(
-                    farmId, blockId, expenseCategory, amount, date, description
+                    farmId,
+                    blockId,
+                    expenseCategory,
+                    amount,
+                    date,
+                    description
             );
+
+            // Set additional fields
             expense.setId(id);
             expense.setReceiptPath(receiptPath);
             expense.setCreatedAt(createdAt);
 
+            Log.d(TAG, "Successfully converted expense: " + id);
             return expense;
+
         } catch (Exception e) {
-            Log.e(TAG, "Error converting document to expense", e);
+            Log.e(TAG, "Unexpected error converting document to expense", e);
             return null;
         }
     }
