@@ -20,7 +20,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.BaseSyncActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TasksListActivity extends BaseActivity {
+public class TasksListActivity extends BaseSyncActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
@@ -100,6 +100,13 @@ public class TasksListActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -232,6 +239,9 @@ public class TasksListActivity extends BaseActivity {
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
+                    if (currentFarm != null) {
+                        startListeningForTasks();
+                    }
                     allTasks.clear();
                     allTasks.addAll(finalTaskList);
                     blockNameMap.clear();
@@ -368,6 +378,52 @@ public class TasksListActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         loadData(); // Refresh data when returning to activity
+    }
+
+    @Override
+    protected void handleTaskAdded(TaskEntity task) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.taskDao().insertTask(task);
+                loadData();
+                showToast("New task assigned");
+            });
+        });
+    }
+
+    @Override
+    protected void handleTaskModified(TaskEntity task) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.taskDao().updateTask(task);
+                loadData();
+            });
+        });
+    }
+
+    @Override
+    protected void handleTaskRemoved(TaskEntity task) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.taskDao().deleteTask(task);
+                loadData();
+            });
+        });
+    }
+
+    // Empty implementations for other BaseSyncActivity handlers
+    @Override protected void handleBlockAdded(BlockEntity b) {}
+    @Override protected void handleBlockModified(BlockEntity b) {}
+    @Override protected void handleBlockRemoved(BlockEntity b) {}
+    @Override protected void handleExpenseAdded(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleExpenseModified(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleExpenseRemoved(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleRevenueAdded(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
+    @Override protected void handleRevenueModified(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
+    @Override protected void handleRevenueRemoved(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
+
+    private void showToast(String message) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -129,14 +129,16 @@ public class SyncManager {
      * Trigger auto-sync (respects WorkManager constraints)
      */
     public void triggerAutoSync() {
+        Log.d(TAG, "triggerAutoSync called");
         if (currentFarmId == null) {
             Log.e(TAG, "No farm ID set, cannot sync");
             return;
         }
 
-        // Check if there's anything to sync
         new Thread(() -> {
             int pendingCount = database.syncDao().getPendingCount();
+            Log.d(TAG, "Pending items to sync: " + pendingCount);
+
             if (pendingCount == 0) {
                 Log.d(TAG, "No pending items to sync");
                 return;
@@ -234,10 +236,10 @@ public class SyncManager {
      * Force immediate sync (manual override)
      */
     public void forceSyncNow() {
+        Log.d(TAG, "forceSyncNow called");
         WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
         triggerAutoSync();
     }
-
     /**
      * Clean up
      */

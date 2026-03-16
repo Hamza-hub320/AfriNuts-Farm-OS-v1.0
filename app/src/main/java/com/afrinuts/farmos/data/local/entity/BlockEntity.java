@@ -3,9 +3,6 @@ package com.afrinuts.farmos.data.local.entity;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
-
-import com.afrinuts.farmos.data.local.converter.Converters;
 
 /**
  * Block entity representing a 1-hectare block in the farm.

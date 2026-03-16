@@ -18,8 +18,11 @@ import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.BaseSyncActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -31,7 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BlocksActivity extends BaseActivity {
+public class BlocksActivity extends BaseSyncActivity {
 
     private RecyclerView recyclerView;
     private ExpandableBlockAdapter expandableAdapter;
@@ -75,6 +78,11 @@ public class BlocksActivity extends BaseActivity {
 
         // Load data
         loadFarmData();
+
+        // Start real-time Firestore listeners
+        if (currentFarm != null) {
+            startListeningForBlocks();
+        }
     }
 
     @Override
@@ -210,6 +218,10 @@ public class BlocksActivity extends BaseActivity {
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
+                    // Ensure Firestore real-time listener starts AFTER farm is loaded
+                    if (currentFarm != null) {
+                        startListeningForBlocks();
+                    }
                     showLoading(false);
 
                     if (finalNewGroups.isEmpty()) {
@@ -343,6 +355,57 @@ public class BlocksActivity extends BaseActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void handleBlockAdded(BlockEntity block) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.blockDao().insert(block);
+                loadFarmData();
+                showToast("New block added: " + block.getBlockName());
+            });
+        });
+    }
+
+    @Override
+    protected void handleBlockModified(BlockEntity block) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.blockDao().update(block);
+                loadFarmData();
+                showToast("Block updated: " + block.getBlockName());
+            });
+        });
+    }
+
+    @Override
+    protected void handleBlockRemoved(BlockEntity block) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.blockDao().delete(block);
+                loadFarmData();
+                showToast("Block removed: " + block.getBlockName());
+            });
+        });
+    }
+
+    @Override protected void handleExpenseAdded(ExpenseEntity e) {}
+    @Override protected void handleExpenseModified(ExpenseEntity e) {}
+    @Override protected void handleExpenseRemoved(ExpenseEntity e) {}
+
+    @Override protected void handleRevenueAdded(RevenueEntity r) {}
+    @Override protected void handleRevenueModified(RevenueEntity r) {}
+    @Override protected void handleRevenueRemoved(RevenueEntity r) {}
+
+    @Override protected void handleTaskAdded(TaskEntity t) {}
+    @Override protected void handleTaskModified(TaskEntity t) {}
+    @Override protected void handleTaskRemoved(TaskEntity t) {}
+
+    private void showToast(String message) {
+        runOnUiThread(() ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        );
     }
 
     @Override

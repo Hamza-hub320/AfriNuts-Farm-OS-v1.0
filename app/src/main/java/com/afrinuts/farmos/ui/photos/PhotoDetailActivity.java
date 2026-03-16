@@ -19,15 +19,18 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PhotoDetailActivity extends BaseActivity {
 
@@ -36,6 +39,7 @@ public class PhotoDetailActivity extends BaseActivity {
     private long photoId;
     private PhotoEntity photo;
     private AppDatabase database;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ImageView ivFullPhoto;
@@ -106,36 +110,47 @@ public class PhotoDetailActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Blocks Details");
+            getSupportActionBar().setTitle("Photo Details");
         }
     }
 
     private void loadPhotoData() {
-        new Thread(() -> {
-            photo = database.photoDao().getPhotoById(photoId);
+        executor.execute(() -> {
+            PhotoEntity loadedPhoto = database.photoDao().getPhotoById(photoId);
 
             runOnUiThread(() -> {
-                if (photo != null) {
+                if (loadedPhoto != null) {
+                    photo = loadedPhoto;
                     displayPhotoData();
                 } else {
                     Toast.makeText(this, "Photo not found", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             });
-        }).start();
+        });
     }
 
     private void displayPhotoData() {
-        // Load full image
+        if (photo == null) return;
+
+        // Load full image with Glide
         File imageFile = new File(photo.getFilePath());
+
+        RequestOptions requestOptions = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_photo_placeholder)
+                .error(R.drawable.ic_photo_error)
+                .centerCrop();
+
         if (imageFile.exists()) {
             Glide.with(this)
                     .load(imageFile)
-                    .placeholder(R.drawable.ic_photo_placeholder)
-                    .error(R.drawable.ic_photo_error)
+                    .apply(requestOptions)
                     .into(ivFullPhoto);
         } else {
+            // File doesn't exist, show error
             ivFullPhoto.setImageResource(R.drawable.ic_photo_error);
+            Toast.makeText(this, "Image file not found", Toast.LENGTH_SHORT).show();
         }
 
         // Set caption
@@ -156,11 +171,13 @@ public class PhotoDetailActivity extends BaseActivity {
             tvLocation.setText("📍 Location not available");
         }
 
-        // Set type - FIXED: Use getTypeDisplayName() instead of getType()
+        // Set type
         tvType.setText(photo.getTypeDisplayName());
     }
 
     private void showEditCaptionDialog() {
+        if (photo == null) return;
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle("Edit Caption");
 
@@ -175,7 +192,7 @@ public class PhotoDetailActivity extends BaseActivity {
         builder.setPositiveButton("Save", (dialog, which) -> {
             String newCaption = input.getText().toString().trim();
 
-            new Thread(() -> {
+            executor.execute(() -> {
                 photo.setCaption(newCaption.isEmpty() ? null : newCaption);
                 database.photoDao().update(photo);
 
@@ -183,7 +200,7 @@ public class PhotoDetailActivity extends BaseActivity {
                     tvCaption.setText(newCaption.isEmpty() ? "No caption" : newCaption);
                     Toast.makeText(this, "Caption updated", Toast.LENGTH_SHORT).show();
                 });
-            }).start();
+            });
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
@@ -191,24 +208,32 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void sharePhoto() {
+        if (photo == null) return;
+
         File imageFile = new File(photo.getFilePath());
         if (!imageFile.exists()) {
             Toast.makeText(this, "Image file not found", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Uri imageUri = FileProvider.getUriForFile(this,
-                "com.afrinuts.farmos.fileprovider",
-                imageFile);
+        try {
+            Uri imageUri = FileProvider.getUriForFile(this,
+                    "com.afrinuts.farmos.fileprovider",
+                    imageFile);
 
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/*");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(shareIntent, "Share Photo"));
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/*");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(shareIntent, "Share Photo"));
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(this, "Error sharing photo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void confirmDelete() {
+        if (photo == null) return;
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Photo")
                 .setMessage("Are you sure you want to delete this photo?")
@@ -218,7 +243,9 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void deletePhoto() {
-        new Thread(() -> {
+        if (photo == null) return;
+
+        executor.execute(() -> {
             // Delete the actual file
             File imageFile = new File(photo.getFilePath());
             if (imageFile.exists()) {
@@ -240,7 +267,7 @@ public class PhotoDetailActivity extends BaseActivity {
                 Toast.makeText(this, "Photo deleted", Toast.LENGTH_SHORT).show();
                 finish();
             });
-        }).start();
+        });
     }
 
     @Override
@@ -262,5 +289,11 @@ public class PhotoDetailActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }

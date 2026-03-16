@@ -2,15 +2,18 @@ package com.afrinuts.farmos.ui.expenses;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -40,6 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ExpenseChartsActivity extends AppCompatActivity {
 
@@ -48,8 +53,10 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     private List<ExpenseEntity> allExpenses;
     private List<BlockEntity> allBlocks;
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TextView totalExpensesValue;
     private TextView costPerHectareValue;
     private TextView costPerTreeValue;
@@ -57,6 +64,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     private BarChart barChart;
     private LinearLayout topExpensesContainer;
     private ChipGroup chartFilterGroup;
+    private View progressBar;
 
     private String currentFilter = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
 
@@ -70,6 +78,9 @@ public class ExpenseChartsActivity extends AppCompatActivity {
 
         // Setup toolbar
         setupToolbar();
+
+        // Setup swipe to refresh
+        setupSwipeRefresh();
 
         // Initialize database
         database = AppDatabase.getInstance(this);
@@ -89,6 +100,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Expense Analytics");
         }
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         totalExpensesValue = findViewById(R.id.totalExpensesValue);
         costPerHectareValue = findViewById(R.id.costPerHectareValue);
         costPerTreeValue = findViewById(R.id.costPerTreeValue);
@@ -96,6 +108,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         barChart = findViewById(R.id.barChart);
         topExpensesContainer = findViewById(R.id.topExpensesContainer);
         chartFilterGroup = findViewById(R.id.chartFilterGroup);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     private void setupToolbar() {
@@ -107,6 +120,48 @@ public class ExpenseChartsActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Expense Analytics");
         }
+    }
+
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            refreshData();
+        });
+
+        // FIXED: Use ContextCompat.getColor() instead of getResources().getColor()
+        swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.primary),
+                ContextCompat.getColor(this, R.color.accent),
+                ContextCompat.getColor(this, android.R.color.holo_orange_dark),
+                ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        );
+    }
+
+    private void refreshData() {
+        // Show refresh indicator
+        swipeRefreshLayout.setRefreshing(true);
+
+        // Reload data
+        loadData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (itemId == R.id.action_refresh) {
+            refreshData();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupFilters() {
@@ -137,22 +192,42 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
+        showLoading(true);
 
-            if (currentFarm != null) {
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+
+            if (farm != null) {
                 // Load all blocks for name mapping
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                for (BlockEntity block : allBlocks) {
-                    blockNameMap.put(block.getId(), block.getBlockName());
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                Map<Long, String> blockMap = new HashMap<>();
+                for (BlockEntity block : blocks) {
+                    blockMap.put(block.getId(), block.getBlockName());
                 }
 
                 // Load all expenses
-                allExpenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
+                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
 
-                runOnUiThread(this::refreshCharts);
+                runOnUiThread(() -> {
+                    currentFarm = farm;
+                    allBlocks = blocks;
+                    blockNameMap = blockMap;
+                    allExpenses = expenses;
+
+                    showLoading(false);
+                    refreshCharts();
+
+                    // Stop refresh animation
+                    swipeRefreshLayout.setRefreshing(false);
+                });
+            } else {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    swipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(ExpenseChartsActivity.this, "Farm data not found", Toast.LENGTH_SHORT).show();
+                });
             }
-        }).start();
+        });
     }
 
     private void refreshCharts() {
@@ -173,6 +248,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private List<ExpenseEntity> filterExpensesByTime(List<ExpenseEntity> expenses) {
+        if (expenses == null) return new ArrayList<>();
         if (currentFilter.equals("ALL_TIME")) {
             return expenses;
         }
@@ -238,6 +314,12 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void updatePieChart(List<ExpenseEntity> expenses) {
+        if (expenses == null || expenses.isEmpty()) {
+            pieChart.clear();
+            pieChart.invalidate();
+            return;
+        }
+
         Map<ExpenseEntity.ExpenseCategory, Double> categoryTotals = new HashMap<>();
 
         for (ExpenseEntity expense : expenses) {
@@ -248,7 +330,6 @@ public class ExpenseChartsActivity extends AppCompatActivity {
 
         ArrayList<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<ExpenseEntity.ExpenseCategory, Double> entry : categoryTotals.entrySet()) {
-            // FIXED: Use getDisplayName() instead of getIcon()
             entries.add(new PieEntry(entry.getValue().floatValue(),
                     entry.getKey().getDisplayName()));
         }
@@ -278,6 +359,12 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void updateBarChart(List<ExpenseEntity> expenses) {
+        if (expenses == null || expenses.isEmpty()) {
+            barChart.clear();
+            barChart.invalidate();
+            return;
+        }
+
         Map<String, Float> monthlyTotals = new HashMap<>();
         SimpleDateFormat sdf = new SimpleDateFormat("MMM yyyy", Locale.getDefault());
 
@@ -333,6 +420,11 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void updateTopExpensesList(List<ExpenseEntity> expenses) {
+        if (expenses == null || expenses.isEmpty()) {
+            topExpensesContainer.removeAllViews();
+            return;
+        }
+
         // Sort expenses by amount (descending)
         List<ExpenseEntity> sorted = new ArrayList<>(expenses);
         sorted.sort((e1, e2) -> Double.compare(e2.getAmount(), e1.getAmount()));
@@ -350,7 +442,6 @@ public class ExpenseChartsActivity extends AppCompatActivity {
             TextView tvAmount = itemView.findViewById(R.id.tvTopAmount);
             TextView tvDate = itemView.findViewById(R.id.tvTopDate);
 
-            // FIXED: Use getDisplayName() instead of getIcon()
             tvCategory.setText(expense.getCategory().getDisplayName());
             tvAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount()));
 
@@ -361,12 +452,15 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+    private void showLoading(boolean show) {
+        if (progressBar != null) {
+            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         }
-        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

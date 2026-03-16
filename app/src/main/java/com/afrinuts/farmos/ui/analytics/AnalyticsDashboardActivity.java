@@ -2,11 +2,13 @@ package com.afrinuts.farmos.ui.analytics;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -161,6 +163,12 @@ public class AnalyticsDashboardActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -170,12 +178,26 @@ public class AnalyticsDashboardActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
+        } else if (item.getItemId() == R.id.action_refresh) {
+            refreshData();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshData() {
+        Toast.makeText(this, "Refreshing analytics data...", Toast.LENGTH_SHORT).show();
+        loadData();
     }
 
     private void setupTabLayout() {

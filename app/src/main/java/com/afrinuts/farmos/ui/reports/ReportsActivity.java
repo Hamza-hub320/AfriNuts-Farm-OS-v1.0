@@ -3,6 +3,8 @@ package com.afrinuts.farmos.ui.reports;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -35,6 +37,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ReportsActivity extends BaseActivity {
 
@@ -44,6 +48,7 @@ public class ReportsActivity extends BaseActivity {
     private List<ExpenseEntity> allExpenses;
     private List<RevenueEntity> allRevenues;
     private List<TaskEntity> allTasks;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private CardView cardFarmSummary;
@@ -103,12 +108,44 @@ public class ReportsActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Reports");
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (item.getItemId() == R.id.action_refresh) {
+            refreshData();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshData() {
+        // Show a toast to indicate refresh
+        Toast.makeText(this, "Refreshing data...", Toast.LENGTH_SHORT).show();
+
+        // Reload farm data
+        loadData();
     }
 
     private void setupDateDefaults() {
@@ -207,16 +244,24 @@ public class ReportsActivity extends BaseActivity {
     }
 
     private void loadData() {
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
-            if (currentFarm != null) {
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                allExpenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
-                allRevenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
-                allTasks = database.taskDao().getTasksByFarmId(currentFarm.getId());
+        databaseExecutor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+            if (farm != null) {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
+                List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(farm.getId());
+
+                runOnUiThread(() -> {
+                    currentFarm = farm;
+                    allBlocks = blocks;
+                    allExpenses = expenses;
+                    allRevenues = revenues;
+                    allTasks = tasks;
+                    updateReportCardsState();
+                });
             }
-            runOnUiThread(this::updateReportCardsState);
-        }).start();
+        });
     }
 
     private void generateReport() {
@@ -229,7 +274,7 @@ public class ReportsActivity extends BaseActivity {
         // Disable interactions
         setViewsEnabled(false);
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             try {
                 List<ExpenseEntity> filteredExpenses = filterExpensesByDate();
                 List<RevenueEntity> filteredRevenues = filterRevenuesByDate();
@@ -276,7 +321,7 @@ public class ReportsActivity extends BaseActivity {
                             Snackbar.LENGTH_LONG).show();
                 });
             }
-        }).start();
+        });
     }
 
     private void setViewsEnabled(boolean enabled) {
@@ -358,5 +403,11 @@ public class ReportsActivity extends BaseActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

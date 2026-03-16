@@ -11,7 +11,7 @@ public class Migration8To9 extends Migration {
 
     @Override
     public void migrate(SupportSQLiteDatabase database) {
-        // Create photos table
+        // Create photos table with ALL columns including photoType
         database.execSQL(
                 "CREATE TABLE IF NOT EXISTS `photos` (" +
                         "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
@@ -25,6 +25,7 @@ public class Migration8To9 extends Migration {
                         "`takenAt` INTEGER NOT NULL, " +
                         "`latitude` REAL NOT NULL DEFAULT 0, " +
                         "`longitude` REAL NOT NULL DEFAULT 0, " +
+                        "`photoType` TEXT, " +  // ADD THIS LINE
                         "`createdAt` INTEGER NOT NULL, " +
                         "`updatedAt` INTEGER NOT NULL, " +
                         "FOREIGN KEY(`farmId`) REFERENCES `farms`(`id`) ON DELETE CASCADE, " +

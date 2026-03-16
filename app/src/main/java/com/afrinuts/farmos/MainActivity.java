@@ -490,14 +490,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSyncListener() {
-        if (currentFarm == null || syncManager == null) return;
+        Log.d(TAG, "setupSyncListener called");
+        Log.d(TAG, "currentFarm: " + (currentFarm != null ? currentFarm.getId() : "null"));
+        Log.d(TAG, "syncManager: " + (syncManager != null ? "not null" : "null"));
+
+        if (currentFarm == null || syncManager == null) {
+            Log.d(TAG, "Cannot setup sync listener - farm or manager null");
+            return;
+        }
 
         syncManager.init(this, String.valueOf(currentFarm.getId()), new SyncManager.SyncListener() {
             @Override
             public void onSyncStarted() {
+                Log.d(TAG, "Sync started");
                 runOnUiThread(() -> {
                     ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, true);
+                    if (btnSync != null) {
+                        animateSyncButton(btnSync, true);
+                    }
                 });
             }
 
@@ -505,18 +515,31 @@ public class MainActivity extends AppCompatActivity {
             public void onSyncCompleted(int syncedItems) {
                 runOnUiThread(() -> {
                     ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, false);
-                    Toast.makeText(MainActivity.this,
-                            "Synced " + syncedItems + " items", Toast.LENGTH_SHORT).show();
+                    if (btnSync != null) {
+                        animateSyncButton(btnSync, false);
+                    }
+
+                    if (syncedItems > 0) {
+                        Toast.makeText(MainActivity.this,
+                                "Synced " + syncedItems + " item" + (syncedItems > 1 ? "s" : ""),
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this,
+                                "All up to date",
+                                Toast.LENGTH_SHORT).show();
+                    }
                     loadFarmData();
                 });
             }
 
             @Override
             public void onSyncFailed(String error) {
+                Log.e(TAG, "Sync failed: " + error);
                 runOnUiThread(() -> {
                     ImageButton btnSync = findViewById(R.id.btnToolbarSync);
-                    animateSyncButton(btnSync, false);
+                    if (btnSync != null) {
+                        animateSyncButton(btnSync, false);
+                    }
                     Toast.makeText(MainActivity.this,
                             "Sync failed: " + error, Toast.LENGTH_SHORT).show();
                 });
@@ -524,6 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onOfflineMode() {
+                Log.d(TAG, "Offline mode");
                 runOnUiThread(() -> {
                     isOnline = false;
                     showOfflineBanner();
@@ -532,6 +556,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onOnlineMode() {
+                Log.d(TAG, "Online mode");
                 runOnUiThread(() -> {
                     isOnline = true;
                     hideOfflineBanner();
@@ -541,16 +566,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void animateSyncButton(ImageButton button, boolean start) {
+        if (button == null) {
+            Log.e(TAG, "animateSyncButton: button is null!");
+            return;
+        }
+
+        Log.d(TAG, "animateSyncButton: start=" + start + ", button=" + button.getId());
+
         if (start) {
-            button.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
-                button.setRotation(0);
-                if (syncManager != null && syncManager.isSyncing()) {
-                    animateSyncButton(button, true);
-                }
-            }).start();
+            // Cancel any existing animations first
+            button.animate().cancel();
+
+            // Start new rotation animation
+            button.animate()
+                    .rotationBy(360)
+                    .setDuration(1000)
+                    .withStartAction(() -> {
+                        Log.d(TAG, "Animation started");
+                        button.setEnabled(false); // Disable while animating
+                    })
+                    .withEndAction(() -> {
+                        Log.d(TAG, "Animation ended, isSyncing=" +
+                                (syncManager != null ? syncManager.isSyncing() : "null"));
+
+                        button.setRotation(0);
+                        button.setEnabled(true); // Re-enable
+
+                        if (syncManager != null && syncManager.isSyncing()) {
+                            Log.d(TAG, "Continuing animation - still syncing");
+                            animateSyncButton(button, true);
+                        }
+                    })
+                    .start();
         } else {
+            Log.d(TAG, "Stopping animation");
             button.animate().cancel();
             button.setRotation(0);
+            button.setEnabled(true);
+            button.setAlpha(1.0f); // Ensure fully visible
         }
     }
 
@@ -558,13 +611,39 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnSync = findViewById(R.id.btnToolbarSync);
         ImageButton btnLogout = findViewById(R.id.btnToolbarLogout);
 
+        if (btnSync == null) {
+            Log.e(TAG, "btnToolbarSync not found in layout!");
+            return;
+        }
+
+        Log.d(TAG, "Sync button found, setting click listener");
+
         btnSync.setOnClickListener(v -> {
+            Log.d(TAG, "Sync button clicked");
+
+            // Visual feedback that button was clicked
+            v.animate().scaleX(0.8f).scaleY(0.8f).setDuration(100)
+                    .withEndAction(() -> {
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                    }).start();
+
             if (currentFarm != null && syncManager != null) {
+                Log.d(TAG, "Farm ID: " + currentFarm.getId());
+
                 if (!syncManager.isSyncing()) {
+                    Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
+
+                    // Force animation to start immediately
+                    ImageButton syncButton = (ImageButton) v;
+                    animateSyncButton(syncButton, true);
+
                     syncManager.forceSyncNow();
                 } else {
                     Toast.makeText(this, "Sync already in progress", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Log.d(TAG, "Cannot sync - farm: " + currentFarm + ", manager: " + syncManager);
+                Toast.makeText(this, "Sync not ready", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.tasks;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,21 +25,30 @@ import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TaskDetailActivity extends BaseActivity {
 
     public static final String EXTRA_TASK_ID = "task_id";
+    private static final String TAG = "TaskDetailActivity";
 
     private long taskId;
     private TaskEntity task;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
+    private FirebaseFirestore firestore;
+    private ListenerRegistration taskListener;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ImageView tvTaskIcon;
@@ -79,7 +89,7 @@ public class TaskDetailActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // This will trigger role check
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
 
         // Get task ID from intent
@@ -90,8 +100,9 @@ public class TaskDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database
+        // Initialize database and Firestore
         database = AppDatabase.getInstance(this);
+        firestore = FirebaseFirestore.getInstance();
 
         // Initialize views
         initViews();
@@ -101,6 +112,9 @@ public class TaskDetailActivity extends BaseActivity {
 
         // Load data
         loadData();
+
+        // Start real-time listener for this task
+        startTaskListener();
     }
 
     private void initViews() {
@@ -167,7 +181,7 @@ public class TaskDetailActivity extends BaseActivity {
 
         // Managers can edit but not delete (optional - you can adjust)
         if (sessionManager.isManager()) {
-            btnDelete.setVisibility(View.GONE); // Optional: Managers can't delete
+            btnDelete.setVisibility(View.GONE);
         }
     }
 
@@ -201,12 +215,79 @@ public class TaskDetailActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    private void loadData() {
-        new Thread(() -> {
-            // Get task
-            task = database.taskDao().getTaskById(taskId);
+    private void startTaskListener() {
+        Log.d(TAG, "Starting real-time listener for task: " + taskId);
 
-            if (task == null) {
+        taskListener = firestore.collection("tasks")
+                .whereEqualTo("id", taskId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Task listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
+                        TaskEntity updatedTask = documentToTask(doc);
+
+                        if (updatedTask != null) {
+                            Log.d(TAG, "Task updated remotely: " + updatedTask.getTitle());
+
+                            // Update local database
+                            databaseExecutor.execute(() -> {
+                                database.taskDao().updateTask(updatedTask);
+
+                                runOnUiThread(() -> {
+                                    task = updatedTask;
+                                    displayTaskData();
+                                    loadAssignmentHistory(); // Refresh assignments
+                                    Toast.makeText(this,
+                                            "Task updated by another user",
+                                            Toast.LENGTH_SHORT).show();
+                                });
+                            });
+                        }
+                    }
+                });
+    }
+
+    private TaskEntity documentToTask(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            String title = doc.getString("title");
+            String description = doc.getString("description");
+            String status = doc.getString("status");
+            String type = doc.getString("type");
+            long dueDate = doc.getLong("dueDate");
+            Long completedDate = doc.getLong("completedDate");
+
+            TaskEntity task = new TaskEntity(
+                    farmId,
+                    blockId,
+                    title,
+                    description,
+                    TaskEntity.TaskType.valueOf(type),
+                    TaskEntity.TaskStatus.valueOf(status),
+                    dueDate
+            );
+            task.setId(id);
+            task.setCompletedDate(completedDate);
+
+            return task;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to task", e);
+            return null;
+        }
+    }
+
+    private void loadData() {
+        databaseExecutor.execute(() -> {
+            // Get task
+            TaskEntity loadedTask = database.taskDao().getTaskById(taskId);
+
+            if (loadedTask == null) {
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Task not found", Toast.LENGTH_SHORT).show();
                     finish();
@@ -215,17 +296,26 @@ public class TaskDetailActivity extends BaseActivity {
             }
 
             // Get farm and blocks for context
-            currentFarm = database.farmDao().getFirstFarm();
-            allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+            FarmEntity farm = database.farmDao().getFirstFarm();
+            List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+
+            final TaskEntity finalTask = loadedTask;
+            final FarmEntity finalFarm = farm;
+            final List<BlockEntity> finalBlocks = blocks;
 
             runOnUiThread(() -> {
+                task = finalTask;
+                currentFarm = finalFarm;
+                allBlocks = finalBlocks;
                 displayTaskData();
                 loadAssignmentHistory();
             });
-        }).start();
+        });
     }
 
     private void displayTaskData() {
+        if (task == null) return;
+
         // Header - Set icon based on task type
         int iconRes = getTaskIcon(task.getType());
         tvTaskIcon.setImageResource(iconRes);
@@ -293,6 +383,8 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void updateStatusDisplay() {
+        if (task == null) return;
+
         // Use display name only, no icon in text
         tvCurrentStatus.setText(task.getStatus().getDisplayName());
 
@@ -342,14 +434,14 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void loadAssignmentHistory() {
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             List<TaskAssignmentHistoryEntity> assignments =
                     database.taskDao().getAssignmentsForTask(taskId);
 
             runOnUiThread(() -> {
                 assignmentHistoryContainer.removeAllViews();
 
-                if (assignments.isEmpty()) {
+                if (assignments == null || assignments.isEmpty()) {
                     tvNoAssignments.setVisibility(View.VISIBLE);
                     layoutCurrentAssignment.setVisibility(View.GONE);
                     return;
@@ -359,7 +451,7 @@ public class TaskDetailActivity extends BaseActivity {
 
                 // Show current assignment (first item, if unassignedAt is null)
                 TaskAssignmentHistoryEntity current = assignments.get(0);
-                if (current.isActive()) {
+                if (current != null && current.isActive()) {
                     layoutCurrentAssignment.setVisibility(View.VISIBLE);
                     tvCurrentWorker.setText(current.getAssignedTo());
                     tvAssignedSince.setText("Assigned: " +
@@ -369,12 +461,12 @@ public class TaskDetailActivity extends BaseActivity {
                 }
 
                 // Show history (skip first if it's current)
-                for (int i = current.isActive() ? 1 : 0; i < assignments.size(); i++) {
+                for (int i = (current != null && current.isActive()) ? 1 : 0; i < assignments.size(); i++) {
                     TaskAssignmentHistoryEntity assignment = assignments.get(i);
                     addAssignmentToHistory(assignment);
                 }
             });
-        }).start();
+        });
     }
 
     private void addAssignmentToHistory(TaskAssignmentHistoryEntity assignment) {
@@ -401,6 +493,8 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void showStatusUpdateDialog() {
+        if (task == null) return;
+
         TaskStatusUpdateDialog dialog = TaskStatusUpdateDialog.newInstance(
                 taskId, task.getTitle(), task.getStatus());
         dialog.setOnStatusUpdatedListener(newStatus -> {
@@ -413,20 +507,22 @@ public class TaskDetailActivity extends BaseActivity {
             }
 
             // Save to database
-            new Thread(() -> {
+            databaseExecutor.execute(() -> {
                 database.taskDao().updateTask(task);
                 runOnUiThread(() -> {
                     updateStatusDisplay();
-                    displayTaskData(); // Refresh to show completed date if needed
+                    displayTaskData();
                     Toast.makeText(this, "Status updated to " + newStatus.getDisplayName(),
                             Toast.LENGTH_SHORT).show();
                 });
-            }).start();
+            });
         });
         dialog.show(getSupportFragmentManager(), "TaskStatusUpdateDialog");
     }
 
     private void showAssignWorkerDialog() {
+        if (task == null) return;
+
         AssignWorkerDialog dialog = AssignWorkerDialog.newInstance(taskId);
         dialog.setOnWorkerAssignedListener(() -> {
             loadAssignmentHistory(); // Refresh assignment history
@@ -435,11 +531,12 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void enableEditMode() {
-        // TODO: Implement edit mode for task details
         Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
     }
 
     private void confirmDelete() {
+        if (task == null) return;
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Task")
                 .setMessage("Are you sure you want to delete \"" + task.getTitle() + "\"? This action cannot be undone.")
@@ -451,24 +548,33 @@ public class TaskDetailActivity extends BaseActivity {
     private void deleteTask() {
         Toast.makeText(this, "Deleting task...", Toast.LENGTH_SHORT).show();
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             database.taskDao().deleteTask(task);
 
             runOnUiThread(() -> {
                 Toast.makeText(this, "Task deleted", Toast.LENGTH_SHORT).show();
-                finish(); // Go back to tasks list
+                finish();
             });
-        }).start();
+        });
     }
 
     private String getBlockName(Long blockId) {
-        if (blockId == null) return null;
+        if (blockId == null || allBlocks == null) return null;
         for (BlockEntity block : allBlocks) {
             if (block.getId() == blockId) {
                 return block.getBlockName();
             }
         }
         return null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (taskListener != null) {
+            taskListener.remove();
+        }
+        databaseExecutor.shutdown();
     }
 
     @Override

@@ -11,7 +11,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_sync"
+        android:src="@drawable/ic_sync_anim"
         android:contentDescription="Sync"
         android:padding="12dp"
         app:tint="@android:color/white"

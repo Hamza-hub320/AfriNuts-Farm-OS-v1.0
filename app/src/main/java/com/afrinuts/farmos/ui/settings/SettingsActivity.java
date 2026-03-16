@@ -6,12 +6,15 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.AuthCredential;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -103,11 +106,50 @@ public class SettingsActivity extends BaseActivity {
         cardChangePin.setOnClickListener(v -> showChangePinDialog());
         cardLanguage.setOnClickListener(v -> showLanguageDialog());
         cardUnits.setOnClickListener(v -> showUnitsDialog());
+
         cardSync.setOnClickListener(v -> {
+            // Animate the card when clicked
+            animateCardClick(cardSync);
+
+            // Show visual feedback
+            Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
+
+            // Start sync
             syncManager.forceSyncNow();
-            Toast.makeText(this, "Sync started", Toast.LENGTH_SHORT).show();
         });
+
         cardAbout.setOnClickListener(v -> showAboutDialog());
+    }
+
+    // Add this method to animate the card click
+    private void animateCardClick(CardView card) {
+        card.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(100)
+                .withEndAction(() -> {
+                    card.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(100)
+                            .start();
+                })
+                .start();
+    }
+
+    // Optional: Add a rotating icon if you have one
+    private void animateSyncIcon(ImageView icon, boolean start) {
+        if (start) {
+            icon.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
+                icon.setRotation(0);
+                if (syncManager != null && syncManager.isSyncing()) {
+                    animateSyncIcon(icon, true);
+                }
+            }).start();
+        } else {
+            icon.animate().cancel();
+            icon.setRotation(0);
+        }
     }
 
     private String getAppVersion() {
@@ -171,39 +213,58 @@ public class SettingsActivity extends BaseActivity {
                         return;
                     }
 
-                    // Verify current password
-                    new Thread(() -> {
-                        UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
+                    // Show progress
+                    Toast.makeText(this, "Verifying current password...", Toast.LENGTH_SHORT).show();
 
-                        if (!AuthUtils.verify(current, user.getPasswordHash())) {
-                            runOnUiThread(() ->
-                                    Toast.makeText(this, "Current password incorrect", Toast.LENGTH_SHORT).show());
-                            return;
-                        }
+                    // Get current Firebase user
+                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (firebaseUser == null) {
+                        Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                        // Update local DB
-                        String newHash = AuthUtils.hash(newPass);
-                        user.setPasswordHash(newHash);
-                        database.userDao().update(user);
+                    // Get user email
+                    String email = firebaseUser.getEmail();
+                    if (email == null) {
+                        Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                        // Update Firebase
-                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                        if (firebaseUser != null) {
-                            firebaseUser.updatePassword(newPass)
-                                    .addOnSuccessListener(aVoid -> {
-                                        runOnUiThread(() ->
-                                                Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show());
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        runOnUiThread(() ->
-                                                Toast.makeText(this, "Firebase update failed: " + e.getMessage(),
-                                                        Toast.LENGTH_LONG).show());
-                                    });
-                        } else {
-                            runOnUiThread(() ->
-                                    Toast.makeText(this, "Password updated locally", Toast.LENGTH_SHORT).show());
-                        }
-                    }).start();
+                    // Re-authenticate with Firebase first
+                    AuthCredential credential = EmailAuthProvider.getCredential(email, current);
+                    firebaseUser.reauthenticate(credential)
+                            .addOnSuccessListener(aVoid -> {
+                                // Current password is correct with Firebase
+                                Toast.makeText(this, "Password verified, updating...", Toast.LENGTH_SHORT).show();
+
+                                // Update Firebase password
+                                firebaseUser.updatePassword(newPass)
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            // Update local database
+                                            new Thread(() -> {
+                                                UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
+                                                String newHash = AuthUtils.hash(newPass);
+                                                user.setPasswordHash(newHash);
+                                                database.userDao().update(user);
+
+                                                runOnUiThread(() -> {
+                                                    Toast.makeText(this,
+                                                            "Password updated successfully!",
+                                                            Toast.LENGTH_SHORT).show();
+                                                });
+                                            }).start();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this,
+                                                    "Failed to update password: " + e.getMessage(),
+                                                    Toast.LENGTH_LONG).show();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this,
+                                        "Current password is incorrect",
+                                        Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .setNegativeButton("Cancel", null)
                 .show();

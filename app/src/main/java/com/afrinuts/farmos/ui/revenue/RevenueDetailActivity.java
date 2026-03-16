@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.revenue;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -23,20 +24,29 @@ import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RevenueDetailActivity extends BaseActivity {
 
     public static final String EXTRA_REVENUE_ID = "revenue_id";
+    private static final String TAG = "RevenueDetailActivity";
 
     private long revenueId;
     private RevenueEntity revenue;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
+    private FirebaseFirestore firestore;
+    private ListenerRegistration revenueListener;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ImageView tvQualityIcon;
@@ -50,7 +60,7 @@ public class RevenueDetailActivity extends BaseActivity {
     private TextView tvNotes;
     private LinearLayout notesLayout;
     private Button btnDelete;
-    private MaterialButton btnEdit;  // Keep this if it exists in your layout
+    private MaterialButton btnEdit;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -81,8 +91,9 @@ public class RevenueDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database
+        // Initialize database and Firestore
         database = AppDatabase.getInstance(this);
+        firestore = FirebaseFirestore.getInstance();
 
         // Initialize views
         initViews();
@@ -95,6 +106,9 @@ public class RevenueDetailActivity extends BaseActivity {
 
         // Load data
         loadData();
+
+        // Start real-time listener for this revenue
+        startRevenueListener();
     }
 
     private void initViews() {
@@ -143,20 +157,106 @@ public class RevenueDetailActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
+    private void startRevenueListener() {
+        Log.d(TAG, "Starting real-time listener for revenue: " + revenueId);
+
+        revenueListener = firestore.collection("revenues")
+                .whereEqualTo("id", revenueId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Revenue listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
+                        RevenueEntity updatedRevenue = documentToRevenue(doc);
+
+                        if (updatedRevenue != null) {
+                            Log.d(TAG, "Revenue updated remotely: " + updatedRevenue.getId());
+
+                            // Update local database
+                            databaseExecutor.execute(() -> {
+                                database.revenueDao().update(updatedRevenue);
+
+                                runOnUiThread(() -> {
+                                    revenue = updatedRevenue;
+                                    displayRevenueData();
+                                    Toast.makeText(this,
+                                            "Revenue updated by another user",
+                                            Toast.LENGTH_SHORT).show();
+                                });
+                            });
+                        }
+                    } else {
+                        // Revenue was deleted remotely
+                        Log.d(TAG, "Revenue no longer exists in Firestore");
+                        runOnUiThread(() -> {
+                            Toast.makeText(this,
+                                    "This revenue has been deleted by another user",
+                                    Toast.LENGTH_LONG).show();
+                            finish();
+                        });
+                    }
+                });
+    }
+
+    private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            long harvestDate = doc.getLong("harvestDate");
+            double quantityKg = doc.getDouble("quantityKg");
+            double pricePerKg = doc.getDouble("pricePerKg");
+            double totalAmount = doc.getDouble("totalAmount");
+            String buyer = doc.getString("buyer");
+            String quality = doc.getString("quality");
+            String notes = doc.getString("notes");
+            long createdAt = doc.getLong("createdAt");
+            long updatedAt = doc.getLong("updatedAt");
+
+            RevenueEntity revenue = new RevenueEntity(
+                    farmId,
+                    blockId,
+                    harvestDate,
+                    quantityKg,
+                    pricePerKg,
+                    buyer,
+                    RevenueEntity.QualityGrade.valueOf(quality),
+                    notes
+            );
+            revenue.setId(id);
+            revenue.setCreatedAt(createdAt);
+            revenue.setUpdatedAt(updatedAt);
+
+            return revenue;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to revenue", e);
+            return null;
+        }
+    }
+
     private void setupRoleBasedUI() {
         // Only Owners and Managers can edit/delete
         if (sessionManager.canEditData()) {
             if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
             if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
         } else {
-            // Investors - view only (if they somehow get here, but they shouldn't)
+            // Investors - view only
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
             if (btnDelete != null) btnDelete.setVisibility(View.GONE);
         }
     }
 
     private void loadData() {
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             revenue = database.revenueDao().getRevenueById(revenueId);
 
             if (revenue == null) {
@@ -171,10 +271,12 @@ public class RevenueDetailActivity extends BaseActivity {
             allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
 
             runOnUiThread(() -> displayRevenueData());
-        }).start();
+        });
     }
 
     private void displayRevenueData() {
+        if (revenue == null) return;
+
         // Set quality icon based on grade
         switch (revenue.getQuality()) {
             case PREMIUM:
@@ -257,12 +359,27 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void deleteRevenue() {
-        new Thread(() -> {
+        Toast.makeText(this, "Deleting revenue...", Toast.LENGTH_SHORT).show();
+
+        databaseExecutor.execute(() -> {
             database.revenueDao().delete(revenue);
+
+            // Note: Firestore deletion will be handled by the sync queue
+            // The revenue will be removed from Firestore by your existing sync mechanism
+
             runOnUiThread(() -> {
                 Toast.makeText(this, "Revenue deleted", Toast.LENGTH_SHORT).show();
                 finish();
             });
-        }).start();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (revenueListener != null) {
+            revenueListener.remove();
+        }
+        databaseExecutor.shutdown();
     }
 }

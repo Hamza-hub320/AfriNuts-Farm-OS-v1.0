@@ -20,7 +20,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.BaseSyncActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RevenuesListActivity extends BaseActivity {
+public class RevenuesListActivity extends BaseSyncActivity {
 
     private RecyclerView recyclerView;
     private RevenueAdapter adapter;
@@ -98,6 +98,12 @@ public class RevenuesListActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -227,6 +233,9 @@ public class RevenuesListActivity extends BaseActivity {
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
+                    if (currentFarm != null) {
+                        startListeningForRevenues();
+                    }
                     allRevenues.clear();
                     allRevenues.addAll(finalRevenueList);
                     blockNameMap.clear();
@@ -349,6 +358,52 @@ public class RevenuesListActivity extends BaseActivity {
                 Double.compare(e2.getRevenue().getQuantityKg(),
                         e1.getRevenue().getQuantityKg()));
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void handleRevenueAdded(RevenueEntity revenue) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.revenueDao().insert(revenue);
+                loadData();
+                showToast("New revenue recorded");
+            });
+        });
+    }
+
+    @Override
+    protected void handleRevenueModified(RevenueEntity revenue) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.revenueDao().update(revenue);
+                loadData();
+            });
+        });
+    }
+
+    @Override
+    protected void handleRevenueRemoved(RevenueEntity revenue) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.revenueDao().delete(revenue);
+                loadData();
+            });
+        });
+    }
+
+    // Empty implementations for other BaseSyncActivity handlers
+    @Override protected void handleBlockAdded(BlockEntity b) {}
+    @Override protected void handleBlockModified(BlockEntity b) {}
+    @Override protected void handleBlockRemoved(BlockEntity b) {}
+    @Override protected void handleExpenseAdded(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleExpenseModified(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleExpenseRemoved(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
+    @Override protected void handleTaskAdded(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
+    @Override protected void handleTaskModified(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
+    @Override protected void handleTaskRemoved(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
+
+    private void showToast(String message) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show();
     }
 
     @Override

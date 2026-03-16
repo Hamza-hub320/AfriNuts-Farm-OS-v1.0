@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // ✅ SYNC USERS BEFORE LOADING LOCAL USERS
         syncUsersFromFirestore();
+        ensureOwnerExists();
     }
 
     private void initViews() {
@@ -171,6 +172,25 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void ensureOwnerExists() {
+        databaseExecutor.execute(() -> {
+            UserEntity owner = database.userDao().getUserByEmail("owner@afrinuts.com");
+            if (owner == null) {
+                // Create owner in local DB if not exists
+                String hashedPassword = AuthUtils.hash("admin123");
+                owner = new UserEntity(
+                        "Farm Owner",
+                        UserEntity.UserRole.OWNER,
+                        "+225 00 00 00 00",
+                        "owner@afrinuts.com",
+                        hashedPassword
+                );
+                database.userDao().insert(owner);
+                Log.d(TAG, "Created owner in local DB");
+            }
+        });
+    }
+
     private void loadLocalUsers() {
         databaseExecutor.execute(() -> {
             List<UserEntity> userList = database.userDao().getAllUsers();
@@ -186,7 +206,6 @@ public class LoginActivity extends AppCompatActivity {
             });
         });
     }
-
 
 
     private void createDefaultOwner() {

@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.workers;
 
 import android.os.Bundle;
 import android.content.Intent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -27,12 +30,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WorkerDashboardActivity extends BaseActivity {
 
     private AppDatabase database;
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TextView totalWorkersValue;
     private TextView totalTasksValue;
     private TextView completionRateValue;
@@ -42,7 +49,6 @@ public class WorkerDashboardActivity extends BaseActivity {
     private LinearLayout emptyLayout;
 
     private List<WorkerPerformance> workerPerformances = new ArrayList<>();
-    private Map<String, List<TaskEntity>> taskCache = new HashMap<>();
 
     @Override
     protected boolean checkRoleAccess() {
@@ -61,6 +67,9 @@ public class WorkerDashboardActivity extends BaseActivity {
         // Setup toolbar
         setupToolbar();
 
+        // Setup swipe to refresh
+        setupSwipeRefresh();
+
         // Initialize database
         database = AppDatabase.getInstance(this);
 
@@ -72,6 +81,7 @@ public class WorkerDashboardActivity extends BaseActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         totalWorkersValue = findViewById(R.id.totalWorkersValue);
         totalTasksValue = findViewById(R.id.totalTasksValue);
         completionRateValue = findViewById(R.id.completionRateValue);
@@ -84,12 +94,46 @@ public class WorkerDashboardActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Worker Performance");
         }
+    }
+
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            refreshData();
+        });
+
+        // Configure colors for the refresh indicator - using ContextCompat.getColor()
+        swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.primary),
+                ContextCompat.getColor(this, R.color.accent),
+                ContextCompat.getColor(this, android.R.color.holo_orange_dark),
+                ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        );
+    }
+
+    private void refreshData() {
+        // Show refresh indicator
+        swipeRefreshLayout.setRefreshing(true);
+
+        // Reload data
+        loadWorkerData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
     }
 
     @Override
@@ -99,6 +143,9 @@ public class WorkerDashboardActivity extends BaseActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             return true;
+        } else if (item.getItemId() == R.id.action_refresh) {
+            refreshData();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -106,13 +153,15 @@ public class WorkerDashboardActivity extends BaseActivity {
     private void loadWorkerData() {
         showLoading(true);
 
-        new Thread(() -> {
+        databaseExecutor.execute(() -> {
             // Get all task assignments
             List<TaskAssignmentHistoryEntity> allAssignments =
                     database.taskDao().getAllAssignments();
+
             if (allAssignments.isEmpty()) {
                 runOnUiThread(() -> {
                     showLoading(false);
+                    swipeRefreshLayout.setRefreshing(false);
                     showEmpty(true);
                 });
                 return;
@@ -129,7 +178,7 @@ public class WorkerDashboardActivity extends BaseActivity {
             }
 
             // Calculate performance for each worker
-            workerPerformances.clear();
+            List<WorkerPerformance> performances = new ArrayList<>();
             for (Map.Entry<String, List<TaskAssignmentHistoryEntity>> entry :
                     workerAssignments.entrySet()) {
                 WorkerPerformance performance = new WorkerPerformance(entry.getKey());
@@ -143,19 +192,31 @@ public class WorkerDashboardActivity extends BaseActivity {
                         performance.getTaskTypes().add(task.getType().getDisplayName());
                     }
                 }
-                workerPerformances.add(performance);
+                performances.add(performance);
             }
 
             // Sort by completed tasks (descending)
-            Collections.sort(workerPerformances,
+            Collections.sort(performances,
                     (w1, w2) -> Integer.compare(w2.getCompletedTasks(), w1.getCompletedTasks()));
 
+            final List<WorkerPerformance> finalPerformances = performances;
+
             runOnUiThread(() -> {
+                workerPerformances.clear();
+                workerPerformances.addAll(finalPerformances);
+
                 showLoading(false);
-                updateOverallStats();
-                displayWorkerCards();
+                swipeRefreshLayout.setRefreshing(false);
+
+                if (workerPerformances.isEmpty()) {
+                    showEmpty(true);
+                } else {
+                    showEmpty(false);
+                    updateOverallStats();
+                    displayWorkerCards();
+                }
             });
-        }).start();
+        });
     }
 
     private void updateOverallStats() {
@@ -218,6 +279,7 @@ public class WorkerDashboardActivity extends BaseActivity {
             tvAvgTime.setText(worker.getFormattedAverageTime());
 
             // Add task type chips
+            taskTypeContainer.removeAllViews();
             for (String taskType : worker.getTaskTypes()) {
                 Chip chip = new Chip(this);
                 chip.setText(taskType);
@@ -250,5 +312,11 @@ public class WorkerDashboardActivity extends BaseActivity {
         emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         workerCardsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseExecutor.shutdown();
     }
 }

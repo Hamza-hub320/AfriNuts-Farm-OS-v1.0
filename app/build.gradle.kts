@@ -123,4 +123,7 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("androidx.multidex:multidex:2.0.1")
+
+    // SwipeRefreshLayout for pull-to-refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }

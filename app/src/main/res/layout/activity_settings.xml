@@ -257,7 +257,7 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_sync"
+                        android:src="@drawable/ic_sync_anim"
                         app:tint="@color/primary"
                         android:layout_marginEnd="16dp" />
 

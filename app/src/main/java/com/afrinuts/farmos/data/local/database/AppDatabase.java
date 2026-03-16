@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.afrinuts.farmos.BuildConfig;
+import com.afrinuts.farmos.BuildConfig;  // ADD THIS IMPORT
 import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
@@ -45,7 +45,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 PhotoEntity.class,
                 SyncEntity.class
         },
-        version = 10,
+        version = 11,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -83,7 +83,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                             new Migration6To7(),
                                             new Migration7To8(),
                                             new Migration8To9(),
-                                            new Migration9To10()
+                                            new Migration9To10(),
+                                            new Migration10To11()
                                     );
 
                     // Only allow main thread queries in debug builds

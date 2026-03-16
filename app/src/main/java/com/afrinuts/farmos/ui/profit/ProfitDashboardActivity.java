@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.profit;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -42,6 +44,7 @@ public class ProfitDashboardActivity extends BaseActivity {
     private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ChipGroup dateRangeChipGroup;
     private TextView totalRevenueValue;
     private TextView totalExpensesValue;
@@ -72,6 +75,9 @@ public class ProfitDashboardActivity extends BaseActivity {
         // Setup toolbar
         setupToolbar();
 
+        // Setup swipe to refresh
+        setupSwipeRefresh();
+
         // Initialize database
         database = AppDatabase.getInstance(this);
 
@@ -86,6 +92,7 @@ public class ProfitDashboardActivity extends BaseActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         dateRangeChipGroup = findViewById(R.id.dateRangeChipGroup);
         totalRevenueValue = findViewById(R.id.totalRevenueValue);
         totalExpensesValue = findViewById(R.id.totalExpensesValue);
@@ -101,6 +108,12 @@ public class ProfitDashboardActivity extends BaseActivity {
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -109,14 +122,45 @@ public class ProfitDashboardActivity extends BaseActivity {
         }
     }
 
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            refreshData();
+        });
+
+        // Configure colors for the refresh indicator - using ContextCompat.getColor()
+        swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.primary),
+                ContextCompat.getColor(this, R.color.accent),
+                ContextCompat.getColor(this, android.R.color.holo_orange_dark),
+                ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        );
+    }
+
+    private void refreshData() {
+        // Show refresh indicator
+        swipeRefreshLayout.setRefreshing(true);
+
+        // Reload data
+        loadData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refresh, menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Navigate back to MainActivity with proper flags
+            // Navigate back to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_refresh) {
+            refreshData();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -171,18 +215,21 @@ public class ProfitDashboardActivity extends BaseActivity {
 
                     showLoading(false);
                     refreshAnalytics();
+
+                    // Stop refresh animation
+                    swipeRefreshLayout.setRefreshing(false);
                 });
             } else {
                 runOnUiThread(() -> {
                     showLoading(false);
-                    // Show empty state or error
+                    swipeRefreshLayout.setRefreshing(false);
                 });
             }
         });
     }
 
     private void refreshAnalytics() {
-        // This runs on UI thread, but filtering is fast (in-memory operations)
+        // Filter data based on selected date range
         List<RevenueEntity> filteredRevenues = filterRevenuesByDate(allRevenues);
         List<ExpenseEntity> filteredExpenses = filterExpensesByDate(allExpenses);
 

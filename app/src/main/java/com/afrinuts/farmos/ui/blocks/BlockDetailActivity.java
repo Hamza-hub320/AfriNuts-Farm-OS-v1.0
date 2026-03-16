@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +27,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,10 +40,13 @@ import java.util.concurrent.Executors;
 public class BlockDetailActivity extends BaseActivity {
 
     public static final String EXTRA_BLOCK_ID = "block_id";
+    private static final String TAG = "BlockDetailActivity";
 
     private long blockId;
     private BlockEntity block;
     private AppDatabase database;
+    private FirebaseFirestore firestore;
+    private ListenerRegistration blockListener;
     private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -96,8 +103,9 @@ public class BlockDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database
+        // Initialize database and Firestore
         database = AppDatabase.getInstance(this);
+        firestore = FirebaseFirestore.getInstance();
 
         // Initialize views
         initViews();
@@ -107,6 +115,9 @@ public class BlockDetailActivity extends BaseActivity {
 
         // Load block data
         loadBlockData();
+
+        // Start real-time listener for this block
+        startBlockListener();
     }
 
     private void initViews() {
@@ -180,7 +191,7 @@ public class BlockDetailActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed(); // This will now call the fixed onBackPressed()
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -188,9 +199,75 @@ public class BlockDetailActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-
         finish();
         super.onBackPressed();
+    }
+
+    private void startBlockListener() {
+        Log.d(TAG, "Starting real-time listener for block: " + blockId);
+
+        blockListener = firestore.collection("blocks")
+                .whereEqualTo("id", blockId)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Block listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
+                        BlockEntity updatedBlock = documentToBlock(doc);
+
+                        if (updatedBlock != null) {
+                            Log.d(TAG, "Block updated remotely: " + updatedBlock.getBlockName());
+
+                            // Update local database
+                            databaseExecutor.execute(() -> {
+                                database.blockDao().update(updatedBlock);
+
+                                runOnUiThread(() -> {
+                                    block = updatedBlock;
+                                    displayBlockData();
+                                    if (!isEditMode) {
+                                        Toast.makeText(this,
+                                                "Block updated by another user",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
+    }
+
+    private BlockEntity documentToBlock(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = doc.getLong("farmId");
+            String blockName = doc.getString("blockName");
+            double hectareSize = doc.getDouble("hectareSize");
+            String status = doc.getString("status");
+            Long clearedDate = doc.getLong("clearedDate");
+            Long plowedDate = doc.getLong("plowedDate");
+            Long plantedDate = doc.getLong("plantedDate");
+            double survivalRate = doc.getDouble("survivalRate");
+            long replacementCount = doc.getLong("replacementCount");
+            String notes = doc.getString("notes");
+
+            BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes);
+            block.setId(id);
+            block.setStatus(BlockEntity.BlockStatus.valueOf(status));
+            block.setClearedDate(clearedDate);
+            block.setPlowedDate(plowedDate);
+            block.setPlantedDate(plantedDate);
+            block.setSurvivalRate(survivalRate);
+            block.setReplacementCount((int) replacementCount);
+
+            return block;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to block", e);
+            return null;
+        }
     }
 
     private void loadBlockData() {
@@ -530,6 +607,9 @@ public class BlockDetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (blockListener != null) {
+            blockListener.remove();
+        }
         databaseExecutor.shutdown();
     }
 }

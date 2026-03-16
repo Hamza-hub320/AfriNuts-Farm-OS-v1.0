@@ -20,7 +20,10 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import android.widget.Toast;
+import com.afrinuts.farmos.ui.BaseSyncActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +36,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ExpensesListActivity extends BaseActivity {
+public class ExpensesListActivity extends BaseSyncActivity {
 
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
@@ -125,6 +128,12 @@ public class ExpensesListActivity extends BaseActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (toolbar.getOverflowIcon() != null) {
+            toolbar.getOverflowIcon().setTint(
+                    getResources().getColor(android.R.color.white)
+            );
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -214,6 +223,9 @@ public class ExpensesListActivity extends BaseActivity {
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
+                    if (currentFarm != null) {
+                        startListeningForExpenses();
+                    }
                     allExpenses.clear();
                     allExpenses.addAll(finalExpenseList);
                     blockNameMap.clear();
@@ -318,6 +330,51 @@ public class ExpensesListActivity extends BaseActivity {
         emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void handleExpenseAdded(ExpenseEntity expense) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.expenseDao().insert(expense);
+                loadFarmAndBlocks();
+                showToast("New expense added");
+            });
+        });
+    }
+
+    @Override
+    protected void handleExpenseModified(ExpenseEntity expense) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.expenseDao().update(expense);
+                loadFarmAndBlocks();
+            });
+        });
+    }
+
+    @Override
+    protected void handleExpenseRemoved(ExpenseEntity expense) {
+        runOnUiThread(() -> {
+            databaseExecutor.execute(() -> {
+                database.expenseDao().delete(expense);
+                loadFarmAndBlocks();
+            });
+        });
+    }
+
+    @Override protected void handleBlockAdded(BlockEntity b) {}
+    @Override protected void handleBlockModified(BlockEntity b) {}
+    @Override protected void handleBlockRemoved(BlockEntity b) {}
+    @Override protected void handleRevenueAdded(RevenueEntity r) {}
+    @Override protected void handleRevenueModified(RevenueEntity r) {}
+    @Override protected void handleRevenueRemoved(RevenueEntity r) {}
+    @Override protected void handleTaskAdded(TaskEntity t) {}
+    @Override protected void handleTaskModified(TaskEntity t) {}
+    @Override protected void handleTaskRemoved(TaskEntity t) {}
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
