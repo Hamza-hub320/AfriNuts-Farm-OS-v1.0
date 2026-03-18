@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,7 +21,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
-import com.afrinuts.farmos.ui.BaseSyncActivity;
+import com.afrinuts.farmos.data.repository.TaskRepository;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TasksListActivity extends BaseSyncActivity {
+public class TasksListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
@@ -46,43 +48,33 @@ public class TasksListActivity extends BaseSyncActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
+    private TaskRepository taskRepository;
+    private long farmId = -1;
     private List<TaskWithBlockName> allTasks = new ArrayList<>();
     private List<TaskWithBlockName> filteredTasks = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, COMPLETED, OVERDUE
 
     @Override
     protected boolean checkRoleAccess() {
-        // Managers and Owners can access tasks, Investors cannot
         return !sessionManager.isInvestor();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // This will trigger role check
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks_list);
 
-        // If we get here, user has permission (Owner or Manager)
-
-        // Initialize views
-        initViews();
-
-        // Setup toolbar
-        setupToolbar();
-
-        // Initialize database
         database = AppDatabase.getInstance(this);
+        taskRepository = new TaskRepository(this, farmId);
 
-        // Setup filter listeners
+        initViews();
+        setupToolbar();
         setupFilters();
-
-        // Setup FAB - Only Owners and Managers can add tasks
         setupFab();
-
-        // Load data
-        loadData();
+        loadFarmData();
     }
 
     private void initViews() {
@@ -120,7 +112,6 @@ public class TasksListActivity extends BaseSyncActivity {
         int itemId = item.getItemId();
 
         if (itemId == android.R.id.home) {
-            // Navigate to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -185,14 +176,13 @@ public class TasksListActivity extends BaseSyncActivity {
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.fabAddTask);
 
-        // Only show FAB if user can edit (Owners and Managers)
         if (sessionManager.canEditData()) {
             fab.setVisibility(View.VISIBLE);
             fab.setOnClickListener(v -> {
                 if (currentFarm != null) {
                     AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
                     dialog.setOnTaskAddedListener(() -> {
-                        loadData(); // Refresh list
+                        loadData();
                     });
                     dialog.show(getSupportFragmentManager(), "AddTaskDialog");
                 } else {
@@ -206,57 +196,16 @@ public class TasksListActivity extends BaseSyncActivity {
         }
     }
 
-    private void loadData() {
+    private void loadFarmData() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
-            FarmEntity farm = database.farmDao().getFirstFarm();
+        executor.execute(() -> {
+            currentFarm = database.farmDao().getFirstFarm();
 
-            if (farm != null) {
-                // Load all blocks for name mapping
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
-                Map<Long, String> blockMap = new HashMap<>();
-                for (BlockEntity block : blocks) {
-                    blockMap.put(block.getId(), block.getBlockName());
-                }
-
-                // Load all tasks
-                List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(farm.getId());
-
-                List<TaskWithBlockName> taskList = new ArrayList<>();
-                for (TaskEntity task : tasks) {
-                    String blockName = null;
-                    if (task.getBlockId() != null) {
-                        blockName = blockMap.get(task.getBlockId());
-                    }
-                    taskList.add(new TaskWithBlockName(task, blockName));
-                }
-
-                // Update UI on main thread
-                final FarmEntity finalFarm = farm;
-                final List<TaskWithBlockName> finalTaskList = taskList;
-                final Map<Long, String> finalBlockMap = blockMap;
-
-                runOnUiThread(() -> {
-                    currentFarm = finalFarm;
-                    if (currentFarm != null) {
-                        startListeningForTasks();
-                    }
-                    allTasks.clear();
-                    allTasks.addAll(finalTaskList);
-                    blockNameMap.clear();
-                    blockNameMap.putAll(finalBlockMap);
-
-                    showLoading(false);
-
-                    if (allTasks.isEmpty()) {
-                        showEmpty(true);
-                    } else {
-                        showEmpty(false);
-                        updateSummaryCounts();
-                        applyFilter();
-                    }
-                });
+            if (currentFarm != null) {
+                farmId = currentFarm.getId();
+                taskRepository = new TaskRepository(TasksListActivity.this, farmId);
+                loadData();
             } else {
                 runOnUiThread(() -> {
                     showLoading(false);
@@ -264,6 +213,53 @@ public class TasksListActivity extends BaseSyncActivity {
                 });
             }
         });
+    }
+
+    private void loadData() {
+        // Load all blocks for name mapping
+        executor.execute(() -> {
+            List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+            Map<Long, String> blockMap = new HashMap<>();
+            for (BlockEntity block : blocks) {
+                blockMap.put(block.getId(), block.getBlockName());
+            }
+
+            final Map<Long, String> finalBlockMap = blockMap;
+
+            runOnUiThread(() -> {
+                blockNameMap.clear();
+                blockNameMap.putAll(finalBlockMap);
+
+                // Use LiveData from repository
+                taskRepository.getAllTasks().observe(this, new Observer<List<TaskEntity>>() {
+                    @Override
+                    public void onChanged(List<TaskEntity> tasks) {
+                        processTasks(tasks);
+                    }
+                });
+            });
+        });
+    }
+
+    private void processTasks(List<TaskEntity> tasks) {
+        allTasks.clear();
+        for (TaskEntity task : tasks) {
+            String blockName = null;
+            if (task.getBlockId() != null) {
+                blockName = blockNameMap.get(task.getBlockId());
+            }
+            allTasks.add(new TaskWithBlockName(task, blockName));
+        }
+
+        showLoading(false);
+
+        if (allTasks.isEmpty()) {
+            showEmpty(true);
+        } else {
+            showEmpty(false);
+            updateSummaryCounts();
+            applyFilter();
+        }
     }
 
     private void updateSummaryCounts() {
@@ -324,9 +320,7 @@ public class TasksListActivity extends BaseSyncActivity {
             }
         }
 
-        // Update adapter
         adapter = new TaskAdapter(filteredTasks, task -> {
-            // Open TaskDetailActivity
             Intent intent = new Intent(this, TaskDetailActivity.class);
             intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, task.getId());
             startActivity(intent);
@@ -377,58 +371,17 @@ public class TasksListActivity extends BaseSyncActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadData(); // Refresh data when returning to activity
-    }
-
-    @Override
-    protected void handleTaskAdded(TaskEntity task) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.taskDao().insertTask(task);
-                loadData();
-                showToast("New task assigned");
-            });
-        });
-    }
-
-    @Override
-    protected void handleTaskModified(TaskEntity task) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.taskDao().updateTask(task);
-                loadData();
-            });
-        });
-    }
-
-    @Override
-    protected void handleTaskRemoved(TaskEntity task) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.taskDao().deleteTask(task);
-                loadData();
-            });
-        });
-    }
-
-    // Empty implementations for other BaseSyncActivity handlers
-    @Override protected void handleBlockAdded(BlockEntity b) {}
-    @Override protected void handleBlockModified(BlockEntity b) {}
-    @Override protected void handleBlockRemoved(BlockEntity b) {}
-    @Override protected void handleExpenseAdded(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleExpenseModified(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleExpenseRemoved(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleRevenueAdded(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
-    @Override protected void handleRevenueModified(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
-    @Override protected void handleRevenueRemoved(com.afrinuts.farmos.data.local.entity.RevenueEntity r) {}
-
-    private void showToast(String message) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show();
+        if (currentFarm != null) {
+            loadData();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        if (taskRepository != null) {
+            taskRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

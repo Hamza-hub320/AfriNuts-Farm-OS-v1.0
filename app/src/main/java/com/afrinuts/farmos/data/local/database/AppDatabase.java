@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.afrinuts.farmos.BuildConfig;  // ADD THIS IMPORT
+import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
@@ -15,6 +15,7 @@ import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
 import com.afrinuts.farmos.data.local.dao.SyncDao;
+import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
 import com.afrinuts.farmos.data.local.dao.UserDao;
 import com.afrinuts.farmos.data.local.dao.WeatherDao;
@@ -39,13 +40,13 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 ExpenseEntity.class,
                 RevenueEntity.class,
                 TaskEntity.class,
-                TaskAssignmentHistoryEntity.class,
+                TaskAssignmentHistoryEntity.class,  // Added this entity
                 WeatherCacheEntity.class,
                 UserEntity.class,
                 PhotoEntity.class,
                 SyncEntity.class
         },
-        version = 11,
+        version = 11,  // Version 11
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -61,6 +62,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
     public abstract PhotoDao photoDao();
     public abstract SyncDao syncDao();
+    public abstract TaskAssignmentDao taskAssignmentDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -84,7 +86,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                             new Migration7To8(),
                                             new Migration8To9(),
                                             new Migration9To10(),
-                                            new Migration10To11()
+                                            new Migration10To11()  // Add the new migration
                                     );
 
                     // Only allow main thread queries in debug builds

@@ -18,13 +18,18 @@ public class TaskAssignmentHistoryEntity {
     @PrimaryKey(autoGenerate = true)
     private long id;
 
+    private long farmId;
     private long taskId;
     private String assignedTo;  // Worker name/ID
     private long assignedAt;
     private Long unassignedAt;  // null if still assigned
 
+    public TaskAssignmentHistoryEntity() {
+    }
+
     // Constructor
-    public TaskAssignmentHistoryEntity(long taskId, String assignedTo, long assignedAt) {
+    public TaskAssignmentHistoryEntity(long farmId, long taskId, String assignedTo, long assignedAt) {
+        this.farmId = farmId;
         this.taskId = taskId;
         this.assignedTo = assignedTo;
         this.assignedAt = assignedAt;
@@ -34,6 +39,9 @@ public class TaskAssignmentHistoryEntity {
     // Getters and Setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
+
+    public long getFarmId() { return farmId; }
+    public void setFarmId(long farmId) { this.farmId = farmId; }
 
     public long getTaskId() { return taskId; }
     public void setTaskId(long taskId) { this.taskId = taskId; }

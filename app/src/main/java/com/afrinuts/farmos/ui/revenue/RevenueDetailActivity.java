@@ -20,8 +20,9 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -44,9 +45,9 @@ public class RevenueDetailActivity extends BaseActivity {
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
-    private FirebaseFirestore firestore;
-    private ListenerRegistration revenueListener;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private RevenueRepository revenueRepository;
+    private long farmId = 1;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ImageView tvQualityIcon;
@@ -66,7 +67,6 @@ public class RevenueDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Investors cannot view revenue details
         return !sessionManager.isInvestor();
     }
 
@@ -75,7 +75,6 @@ public class RevenueDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_revenue_detail);
 
-        // Check if user has permission
         if (!checkRoleAccess()) {
             Toast.makeText(this, "You don't have permission to view revenue details",
                     Toast.LENGTH_LONG).show();
@@ -83,7 +82,6 @@ public class RevenueDetailActivity extends BaseActivity {
             return;
         }
 
-        // Get revenue ID from intent
         revenueId = getIntent().getLongExtra(EXTRA_REVENUE_ID, -1);
         if (revenueId == -1) {
             Toast.makeText(this, "Revenue not found", Toast.LENGTH_SHORT).show();
@@ -91,24 +89,13 @@ public class RevenueDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database and Firestore
         database = AppDatabase.getInstance(this);
-        firestore = FirebaseFirestore.getInstance();
+        revenueRepository = new RevenueRepository(this, farmId);
 
-        // Initialize views
         initViews();
-
-        // Setup toolbar
         setupToolbar();
-
-        // Setup role-based UI
         setupRoleBasedUI();
-
-        // Load data
         loadData();
-
-        // Start real-time listener for this revenue
-        startRevenueListener();
     }
 
     private void initViews() {
@@ -126,8 +113,6 @@ public class RevenueDetailActivity extends BaseActivity {
         tvNotes = findViewById(R.id.tvNotes);
         notesLayout = findViewById(R.id.notesLayout);
         btnDelete = findViewById(R.id.btnDelete);
-
-        // Try to find btnEdit if it exists in your layout
         btnEdit = findViewById(R.id.btnEdit);
 
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -163,188 +148,32 @@ public class RevenueDetailActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    private void startRevenueListener() {
-        Log.d(TAG, "Starting real-time listener for revenue: " + revenueId);
-
-        revenueListener = firestore.collection("revenues")
-                .whereEqualTo("id", revenueId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Revenue listener failed", error);
-                        return;
-                    }
-
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
-                        RevenueEntity updatedRevenue = documentToRevenue(doc);
-
-                        if (updatedRevenue != null) {
-                            Log.d(TAG, "Revenue updated remotely: " + updatedRevenue.getId());
-
-                            // Update local database
-                            databaseExecutor.execute(() -> {
-                                database.revenueDao().update(updatedRevenue);
-
-                                runOnUiThread(() -> {
-                                    revenue = updatedRevenue;
-                                    displayRevenueData();
-                                    Toast.makeText(this,
-                                            "Revenue updated by another user",
-                                            Toast.LENGTH_SHORT).show();
-                                });
-                            });
-                        }
-                    } else {
-                        // Revenue was deleted remotely
-                        Log.d(TAG, "Revenue no longer exists in Firestore");
-                        runOnUiThread(() -> {
-                            Toast.makeText(this,
-                                    "This revenue has been deleted by another user",
-                                    Toast.LENGTH_LONG).show();
-                            finish();
-                        });
-                    }
-                });
-    }
-
-    private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
-        try {
-            // Required fields - must exist and be valid
-            Long id = doc.getLong("id");
-            if (id == null) {
-                Log.e(TAG, "Missing id for revenue document");
-                return null;
-            }
-
-            // FarmId parsing with error handling
-            String farmIdStr = doc.getString("farmId");
-            long farmId = 0;
-            if (farmIdStr != null) {
-                try {
-                    farmId = Long.parseLong(farmIdStr);
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "Invalid farmId format for revenue " + id + ": " + farmIdStr);
-                    return null;
-                }
-            } else {
-                Log.e(TAG, "Missing farmId for revenue: " + id);
-                return null;
-            }
-
-            // BlockId is optional - can be null
-            Long blockId = doc.getLong("blockId");
-
-            // Harvest date validation
-            Long harvestDate = doc.getLong("harvestDate");
-            if (harvestDate == null) {
-                Log.e(TAG, "Missing harvestDate for revenue: " + id);
-                return null;
-            }
-
-            // Quantity validation
-            Double quantityKg = doc.getDouble("quantityKg");
-            if (quantityKg == null) {
-                Log.e(TAG, "Missing quantityKg for revenue: " + id);
-                return null;
-            }
-            if (quantityKg <= 0) {
-                Log.e(TAG, "Invalid quantityKg for revenue " + id + ": " + quantityKg);
-                return null;
-            }
-
-            // Price validation
-            Double pricePerKg = doc.getDouble("pricePerKg");
-            if (pricePerKg == null) {
-                Log.e(TAG, "Missing pricePerKg for revenue: " + id);
-                return null;
-            }
-            if (pricePerKg <= 0) {
-                Log.e(TAG, "Invalid pricePerKg for revenue " + id + ": " + pricePerKg);
-                return null;
-            }
-
-            // Total amount (optional - can be calculated)
-            Double totalAmount = doc.getDouble("totalAmount");
-
-            // Buyer is optional
-            String buyer = doc.getString("buyer");
-
-            // Quality validation
-            String quality = doc.getString("quality");
-            if (quality == null) {
-                Log.e(TAG, "Missing quality for revenue: " + id);
-                return null;
-            }
-
-            RevenueEntity.QualityGrade qualityGrade;
-            try {
-                qualityGrade = RevenueEntity.QualityGrade.valueOf(quality);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Invalid quality grade for revenue " + id + ": " + quality);
-                return null;
-            }
-
-            // Notes are optional
-            String notes = doc.getString("notes");
-
-            // Timestamps (optional - will use defaults if missing)
-            Long createdAt = doc.getLong("createdAt");
-            Long updatedAt = doc.getLong("updatedAt");
-
-            // Create revenue entity
-            RevenueEntity revenue = new RevenueEntity(
-                    farmId,
-                    blockId,
-                    harvestDate,
-                    quantityKg,
-                    pricePerKg,
-                    buyer,
-                    qualityGrade,
-                    notes
-            );
-
-            revenue.setId(id);
-
-            if (createdAt != null) {
-                revenue.setCreatedAt(createdAt);
-            }
-
-            if (updatedAt != null) {
-                revenue.setUpdatedAt(updatedAt);
-            }
-
-            Log.d(TAG, "Successfully converted revenue: " + id + " - " + quantityKg + "kg");
-            return revenue;
-
-        } catch (Exception e) {
-            Log.e(TAG, "Unexpected error converting document to revenue", e);
-            return null;
-        }
-    }
-
     private void setupRoleBasedUI() {
-        // Only Owners and Managers can edit/delete
         if (sessionManager.canEditData()) {
             if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
             if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
         } else {
-            // Investors - view only
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
             if (btnDelete != null) btnDelete.setVisibility(View.GONE);
         }
     }
 
     private void loadData() {
-        databaseExecutor.execute(() -> {
+        executor.execute(() -> {
             revenue = database.revenueDao().getRevenueById(revenueId);
 
             if (revenue == null) {
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Revenue not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RevenueDetailActivity.this,
+                            "Revenue not found", Toast.LENGTH_SHORT).show();
                     finish();
                 });
                 return;
             }
+
+            // Update repository with correct farmId
+            farmId = revenue.getFarmId();
+            revenueRepository = new RevenueRepository(RevenueDetailActivity.this, farmId);
 
             currentFarm = database.farmDao().getFirstFarm();
             allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
@@ -356,7 +185,6 @@ public class RevenueDetailActivity extends BaseActivity {
     private void displayRevenueData() {
         if (revenue == null) return;
 
-        // Set quality icon based on grade
         switch (revenue.getQuality()) {
             case PREMIUM:
                 tvQualityIcon.setImageResource(R.drawable.ic_star);
@@ -421,7 +249,6 @@ public class RevenueDetailActivity extends BaseActivity {
                 AddRevenueDialog.newEditInstance(currentFarm.getId(), revenue.getId());
 
         dialog.setOnRevenueAddedListener(() -> {
-            // Reload data after editing
             loadData();
         });
 
@@ -440,25 +267,32 @@ public class RevenueDetailActivity extends BaseActivity {
     private void deleteRevenue() {
         Toast.makeText(this, "Deleting revenue...", Toast.LENGTH_SHORT).show();
 
-        databaseExecutor.execute(() -> {
-            database.revenueDao().delete(revenue);
+        revenueRepository.deleteRevenue(revenue, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(RevenueDetailActivity.this,
+                            "Revenue deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+            }
 
-            // Note: Firestore deletion will be handled by the sync queue
-            // The revenue will be removed from Firestore by your existing sync mechanism
-
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Revenue deleted", Toast.LENGTH_SHORT).show();
-                finish();
-            });
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(RevenueDetailActivity.this,
+                                "Error deleting revenue: " + error, Toast.LENGTH_LONG).show()
+                );
+            }
         });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (revenueListener != null) {
-            revenueListener.remove();
+        if (revenueRepository != null) {
+            revenueRepository.shutdown();
         }
-        databaseExecutor.shutdown();
+        executor.shutdown();
     }
 }

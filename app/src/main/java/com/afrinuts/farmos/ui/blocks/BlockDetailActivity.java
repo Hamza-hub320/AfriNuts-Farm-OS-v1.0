@@ -15,11 +15,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.repository.BlockRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
@@ -27,13 +29,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,10 +44,10 @@ public class BlockDetailActivity extends BaseActivity {
 
     private long blockId;
     private BlockEntity block;
-    private AppDatabase database;
-    private FirebaseFirestore firestore;
-    private ListenerRegistration blockListener;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private BlockRepository blockRepository;
+    private PhotoRepository photoRepository;
+    private long farmId = 1;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextView blockNameText;
@@ -86,7 +86,6 @@ public class BlockDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Managers and Owners can access Block details, Investors cannot
         return !sessionManager.isInvestor();
     }
 
@@ -95,7 +94,6 @@ public class BlockDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_block_detail);
 
-        // Get block ID from intent
         blockId = getIntent().getLongExtra(EXTRA_BLOCK_ID, -1);
         if (blockId == -1) {
             Toast.makeText(this, "Block not found", Toast.LENGTH_SHORT).show();
@@ -103,37 +101,27 @@ public class BlockDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database and Firestore
-        database = AppDatabase.getInstance(this);
-        firestore = FirebaseFirestore.getInstance();
-
-        // Initialize views
         initViews();
-
-        // Setup toolbar
         setupToolbar();
 
-        // Load block data
-        loadBlockData();
+        // Initialize repositories with long farmId
+        blockRepository = new BlockRepository(this, farmId);
+        photoRepository = new PhotoRepository(this, farmId);
 
-        // Start real-time listener for this block
-        startBlockListener();
+        loadBlockData();
     }
 
     private void initViews() {
-        // Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // Header
         blockNameText = findViewById(R.id.blockNameText);
         statusBadge = findViewById(R.id.statusBadge);
         farmInfoText = findViewById(R.id.farmInfoText);
 
-        // Timeline sections
         clearedSection = findViewById(R.id.clearedSection);
         plowedSection = findViewById(R.id.plowedSection);
         plantedSection = findViewById(R.id.plantedSection);
@@ -142,7 +130,6 @@ public class BlockDetailActivity extends BaseActivity {
         plowedDateText = findViewById(R.id.plowedDateText);
         plantedDateText = findViewById(R.id.plantedDateText);
 
-        // Planting details
         plantingDetailsSection = findViewById(R.id.plantingDetailsSection);
         etSurvivalRate = findViewById(R.id.etSurvivalRate);
         etReplacementCount = findViewById(R.id.etReplacementCount);
@@ -150,26 +137,21 @@ public class BlockDetailActivity extends BaseActivity {
         deadTreesText = findViewById(R.id.deadTreesText);
         survivalProgress = findViewById(R.id.survivalProgress);
 
-        // Notes
         etNotes = findViewById(R.id.etNotes);
 
-        // Photo gallery
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
         tvPhotoCount = findViewById(R.id.tvPhotoCount);
 
-        // Buttons
         btnEdit = findViewById(R.id.btnEdit);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
         fabEdit = findViewById(R.id.fabEdit);
 
-        // Set click listeners
         btnEdit.setOnClickListener(v -> enableEditMode(true));
         fabEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
 
-        // Open photo gallery
         btnPhotoGallery.setOnClickListener(v -> {
             Intent intent = new Intent(this, PhotoGalleryActivity.class);
             intent.putExtra("block_id", blockId);
@@ -203,110 +185,25 @@ public class BlockDetailActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    private void startBlockListener() {
-        Log.d(TAG, "Starting real-time listener for block: " + blockId);
-
-        blockListener = firestore.collection("blocks")
-                .whereEqualTo("id", blockId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Block listener failed", error);
-                        return;
-                    }
-
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
-                        BlockEntity updatedBlock = documentToBlock(doc);
-
-                        if (updatedBlock != null) {
-                            Log.d(TAG, "Block updated remotely: " + updatedBlock.getBlockName());
-
-                            // Update local database
-                            databaseExecutor.execute(() -> {
-                                database.blockDao().update(updatedBlock);
-
-                                runOnUiThread(() -> {
-                                    block = updatedBlock;
-                                    displayBlockData();
-                                    if (!isEditMode) {
-                                        Toast.makeText(this,
-                                                "Block updated by another user",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            });
-                        }
-                    }
-                });
-    }
-
-    private BlockEntity documentToBlock(DocumentSnapshot doc) {
-        try {
-            long id = doc.getLong("id");
-
-            // Enhanced farmId parsing
-            String farmIdStr = doc.getString("farmId");
-            long farmId = 0;
-            if (farmIdStr != null) {
-                try {
-                    farmId = Long.parseLong(farmIdStr);
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "Invalid farmId format for block: " + farmIdStr);
-                    return null;
-                }
-            } else {
-                Log.e(TAG, "Missing farmId for block: " + id);
-                return null;
-            }
-
-            String blockName = doc.getString("blockName");
-            if (blockName == null) {
-                Log.e(TAG, "Missing blockName for block: " + id);
-                return null;
-            }
-
-            double hectareSize = doc.getDouble("hectareSize");
-            String status = doc.getString("status");
-            if (status == null) {
-                Log.e(TAG, "Missing status for block: " + id);
-                return null;
-            }
-
-            Long clearedDate = doc.getLong("clearedDate");
-            Long plowedDate = doc.getLong("plowedDate");
-            Long plantedDate = doc.getLong("plantedDate");
-            double survivalRate = doc.getDouble("survivalRate");
-            long replacementCount = doc.getLong("replacementCount");
-            String notes = doc.getString("notes");
-
-            BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes);
-            block.setId(id);
-            block.setStatus(BlockEntity.BlockStatus.valueOf(status));
-            block.setClearedDate(clearedDate);
-            block.setPlowedDate(plowedDate);
-            block.setPlantedDate(plantedDate);
-            block.setSurvivalRate(survivalRate);
-            block.setReplacementCount((int) replacementCount);
-
-            return block;
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting document to block", e);
-            return null;
-        }
-    }
-
     private void loadBlockData() {
-        databaseExecutor.execute(() -> {
-            BlockEntity loadedBlock = database.blockDao().getBlockById(blockId);
+        blockRepository.getBlockById(blockId).observe(this, new Observer<BlockEntity>() {
+            @Override
+            public void onChanged(BlockEntity loadedBlock) {
+                if (loadedBlock != null) {
+                    block = loadedBlock;
 
-            runOnUiThread(() -> {
-                block = loadedBlock;
-                if (block != null) {
+                    long correctFarmId = block.getFarmId();
+                    if (correctFarmId != farmId) {
+                        farmId = correctFarmId;
+
+                        blockRepository = new BlockRepository(BlockDetailActivity.this, farmId);
+                        photoRepository = new PhotoRepository(BlockDetailActivity.this, farmId);
+                    }
+
                     displayBlockData();
                     loadPhotoCount();
                     setFieldsEditable(false);
 
-                    // If user is investor, hide edit buttons
                     if (sessionManager.isInvestor()) {
                         btnEdit.setVisibility(View.GONE);
                         btnDelete.setVisibility(View.GONE);
@@ -317,17 +214,15 @@ public class BlockDetailActivity extends BaseActivity {
                             "Block not found", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-            });
+            }
         });
     }
 
     private void displayBlockData() {
         if (block == null) return;
 
-        // Header
         blockNameText.setText(block.getBlockName());
 
-        // Status badge
         statusBadge.setText(block.getStatus().getDisplayName());
         int statusColor;
         switch (block.getStatus()) {
@@ -348,14 +243,11 @@ public class BlockDetailActivity extends BaseActivity {
         }
         statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
 
-        // Farm info
         farmInfoText.setText(String.format("Farm: AfriNuts Odienné | Size: %.1f ha",
                 block.getHectareSize()));
 
-        // Timeline - show relevant sections based on status
         updateTimelineVisibility();
 
-        // Planting details - only visible if planted
         if (block.isPlanted()) {
             plantingDetailsSection.setVisibility(View.VISIBLE);
 
@@ -375,7 +267,6 @@ public class BlockDetailActivity extends BaseActivity {
             plantingDetailsSection.setVisibility(View.GONE);
         }
 
-        // Notes
         if (block.getNotes() != null && !block.getNotes().isEmpty()) {
             etNotes.setText(block.getNotes());
         }
@@ -384,7 +275,6 @@ public class BlockDetailActivity extends BaseActivity {
     private void updateTimelineVisibility() {
         if (block == null) return;
 
-        // Cleared section
         if (block.getClearedDate() != null && block.getClearedDate() > 0) {
             clearedSection.setVisibility(View.VISIBLE);
             clearedDateText.setText(formatDate(block.getClearedDate()));
@@ -394,7 +284,6 @@ public class BlockDetailActivity extends BaseActivity {
             clearedDateText.setText("Not recorded");
         }
 
-        // Plowed section
         if (block.getPlowedDate() != null && block.getPlowedDate() > 0) {
             plowedSection.setVisibility(View.VISIBLE);
             plowedDateText.setText(formatDate(block.getPlowedDate()));
@@ -404,7 +293,6 @@ public class BlockDetailActivity extends BaseActivity {
             plowedDateText.setText("Not recorded");
         }
 
-        // Planted section
         if (block.getPlantedDate() != null && block.getPlantedDate() > 0) {
             plantedSection.setVisibility(View.VISIBLE);
             plantedDateText.setText(formatDate(block.getPlantedDate()));
@@ -426,24 +314,33 @@ public class BlockDetailActivity extends BaseActivity {
 
         StatusUpdateDialog dialog = StatusUpdateDialog.newInstance(block);
         dialog.setOnStatusUpdatedListener(updatedBlock -> {
-            // Update the local block object
             this.block = updatedBlock;
 
-            // Save to database
-            databaseExecutor.execute(() -> {
-                database.blockDao().update(updatedBlock);
-                runOnUiThread(() -> {
-                    displayBlockData();
-                    Toast.makeText(this, "Status updated successfully", Toast.LENGTH_SHORT).show();
-                });
-            });
+            if (blockRepository != null) {
+                // Use CompletableFuture pattern with proper error handling
+                blockRepository.updateBlock(updatedBlock)
+                        .thenRun(() -> {
+                            runOnUiThread(() -> {
+                                displayBlockData();
+                                Toast.makeText(BlockDetailActivity.this,
+                                        "Status updated successfully", Toast.LENGTH_SHORT).show();
+                            });
+                        })
+                        .exceptionally(throwable -> {
+                            runOnUiThread(() ->
+                                    Toast.makeText(BlockDetailActivity.this,
+                                            "Error updating status: " + throwable.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
+                            );
+                            return null;
+                        });
+            }
         });
 
         dialog.show(getSupportFragmentManager(), "StatusUpdateDialog");
     }
 
     private void enableEditMode(boolean enable) {
-        // Only Owners and Managers can edit
         if (!sessionManager.canEditData()) {
             Snackbar.make(findViewById(android.R.id.content),
                     "You don't have permission to edit", Snackbar.LENGTH_SHORT).show();
@@ -452,24 +349,21 @@ public class BlockDetailActivity extends BaseActivity {
 
         isEditMode = enable;
 
-        // Toggle visibility of edit/save buttons
         btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
         fabEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
 
-        // Make status badge clickable in edit mode
         statusBadge.setClickable(enable);
         statusBadge.setFocusable(enable);
         if (enable) {
             statusBadge.setOnClickListener(v -> showStatusUpdateDialog());
             statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    getColor(R.color.accent))); // Highlight to show it's clickable
+                    getColor(R.color.accent)));
         } else {
             statusBadge.setOnClickListener(null);
             resetStatusBadgeColor();
         }
 
-        // Make fields editable
         setFieldsEditable(enable);
 
         if (enable) {
@@ -505,18 +399,14 @@ public class BlockDetailActivity extends BaseActivity {
     private void setFieldsEditable(boolean editable) {
         if (block == null) return;
 
-        // Notes are always editable in edit mode
         etNotes.setEnabled(editable);
 
-        // Planting details - ONLY show/edit if block is PLANTED
         if (block.isPlanted()) {
             plantingDetailsSection.setVisibility(View.VISIBLE);
 
-            // Make fields editable based on mode
             etSurvivalRate.setEnabled(editable);
             etReplacementCount.setEnabled(editable);
 
-            // Visual feedback for edit mode
             if (editable) {
                 etSurvivalRate.setBackgroundResource(R.drawable.edit_mode_background);
                 etReplacementCount.setBackgroundResource(R.drawable.edit_mode_background);
@@ -530,13 +420,11 @@ public class BlockDetailActivity extends BaseActivity {
     }
 
     private void saveChanges() {
-        if (block == null) return;
+        if (block == null || blockRepository == null) return;
 
-        // Collect updated values
         String notes = etNotes.getText().toString().trim();
         block.setNotes(notes.isEmpty() ? null : notes);
 
-        // If block is planted, save planting details
         if (block.isPlanted()) {
             String survivalRateStr = etSurvivalRate.getText().toString().trim();
             String replacementCountStr = etReplacementCount.getText().toString().trim();
@@ -571,27 +459,35 @@ public class BlockDetailActivity extends BaseActivity {
                 return;
             }
 
-            // Update block
             block.setSurvivalRate(survivalRate);
             block.setReplacementCount(replacementCount);
         }
 
-        // Save to database
         Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+        btnSave.setEnabled(false);
 
-        databaseExecutor.execute(() -> {
-            database.blockDao().update(block);
-
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Changes saved successfully!", Toast.LENGTH_SHORT).show();
-                enableEditMode(false);
-                displayBlockData();
-            });
-        });
+        // Use CompletableFuture pattern with proper error handling
+        blockRepository.updateBlock(block)
+                .thenRun(() -> {
+                    runOnUiThread(() -> {
+                        Toast.makeText(BlockDetailActivity.this,
+                                "Changes saved successfully!", Toast.LENGTH_SHORT).show();
+                        btnSave.setEnabled(true);
+                        enableEditMode(false);
+                        displayBlockData();
+                    });
+                })
+                .exceptionally(throwable -> {
+                    runOnUiThread(() -> {
+                        Toast.makeText(BlockDetailActivity.this,
+                                "Error saving changes: " + throwable.getMessage(), Toast.LENGTH_LONG).show();
+                        btnSave.setEnabled(true);
+                    });
+                    return null;
+                });
     }
 
     private void confirmDelete() {
-        // Only Owners can delete
         if (!sessionManager.isOwner()) {
             Snackbar.make(findViewById(android.R.id.content),
                     "Only owners can delete blocks", Snackbar.LENGTH_SHORT).show();
@@ -610,31 +506,51 @@ public class BlockDetailActivity extends BaseActivity {
     private void deleteBlock() {
         Toast.makeText(this, "Deleting block...", Toast.LENGTH_SHORT).show();
 
-        databaseExecutor.execute(() -> {
-            database.blockDao().delete(block);
-
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Block deleted", Toast.LENGTH_SHORT).show();
-                finish();
-            });
-        });
+        // Use CompletableFuture pattern with proper error handling
+        blockRepository.deleteBlock(block)
+                .thenRun(() -> {
+                    runOnUiThread(() -> {
+                        Toast.makeText(BlockDetailActivity.this, "Block deleted", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+                })
+                .exceptionally(throwable -> {
+                    runOnUiThread(() ->
+                            Toast.makeText(BlockDetailActivity.this,
+                                    "Error deleting block: " + throwable.getMessage(), Toast.LENGTH_LONG).show()
+                    );
+                    return null;
+                });
     }
 
     private void loadPhotoCount() {
-        databaseExecutor.execute(() -> {
-            int count = database.photoDao().getPhotoCountForBlock(blockId);
-            runOnUiThread(() -> {
-                tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
-            });
-        });
+        if (photoRepository == null) return;
+
+        // Use CompletableFuture pattern with the new async method
+        photoRepository.getPhotoCountForBlockAsync(blockId)  // ← Note the Async suffix
+                .thenAccept(count -> {
+                    runOnUiThread(() -> {
+                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
+                    runOnUiThread(() -> {
+                        tvPhotoCount.setText("0 photos");
+                    });
+                    return null;
+                });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (blockListener != null) {
-            blockListener.remove();
+        if (blockRepository != null) {
+            blockRepository.shutdown();
         }
-        databaseExecutor.shutdown();
+        if (photoRepository != null) {
+            photoRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

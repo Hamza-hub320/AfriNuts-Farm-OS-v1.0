@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +19,9 @@ import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
-import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
-import com.afrinuts.farmos.data.local.entity.RevenueEntity;
-import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
-import com.afrinuts.farmos.ui.BaseSyncActivity;
+import com.afrinuts.farmos.data.repository.BlockRepository;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -34,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BlocksActivity extends BaseSyncActivity {
+public class BlocksActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ExpandableBlockAdapter expandableAdapter;
@@ -44,13 +43,13 @@ public class BlocksActivity extends BaseSyncActivity {
     private FloatingActionButton fabAdd;
     private List<BlockGroup> blockGroups = new ArrayList<>();
 
-    private AppDatabase database;
+    private BlockRepository blockRepository;
     private FarmEntity currentFarm;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private AppDatabase database;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected boolean checkRoleAccess() {
-        // Managers and Owners can access, Investors cannot
         return !sessionManager.isInvestor();
     }
 
@@ -59,36 +58,21 @@ public class BlocksActivity extends BaseSyncActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocks);
 
-        // If we get here, user has permission (Owner or Manager)
-
-        // Initialize views
-        initViews();
-
-        // Setup toolbar
-        setupToolbar();
-
         // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Setup role-based UI
-        setupRoleBasedUI();
-
-        // Setup FAB click listener
+        initViews();
+        setupToolbar();
         setupFabClickListener();
 
-        // Load data
+        // Load farm data (this will initialize repository)
         loadFarmData();
-
-        // Start real-time Firestore listeners
-        if (currentFarm != null) {
-            startListeningForBlocks();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh farm data when returning from BlockDetailActivity
+        // Refresh when returning from detail activity
         loadFarmData();
     }
 
@@ -99,7 +83,6 @@ public class BlocksActivity extends BaseSyncActivity {
         summaryLayout = findViewById(R.id.summaryLayout);
         fabAdd = findViewById(R.id.fabAdd);
 
-        // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
     }
@@ -115,12 +98,6 @@ public class BlocksActivity extends BaseSyncActivity {
         }
     }
 
-    private void setupRoleBasedUI() {
-        // Only Owners and Managers can add blocks (Investors already blocked)
-        // But Managers can add blocks, so FAB stays visible
-        // No additional restrictions needed for BlocksActivity
-    }
-
     private void setupFabClickListener() {
         if (fabAdd != null) {
             fabAdd.setOnClickListener(v -> {
@@ -129,7 +106,7 @@ public class BlocksActivity extends BaseSyncActivity {
                     fabAdd.setEnabled(false);
 
                     // Get next available block name in background
-                    databaseExecutor.execute(() -> {
+                    executor.execute(() -> {
                         String nextBlock = getNextAvailableBlockName();
 
                         runOnUiThread(() -> {
@@ -144,19 +121,14 @@ public class BlocksActivity extends BaseSyncActivity {
 
                             BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
                             dialog.setNextBlockName(nextBlock);
-                            dialog.setOnBlockAddedListener(() -> {
-                                loadFarmData(); // Refresh data
-                                Toast.makeText(BlocksActivity.this,
-                                        "Block " + nextBlock + " added successfully!",
-                                        Toast.LENGTH_SHORT).show();
-                            });
+                            dialog.setOnBlockAddedListener(() -> loadFarmData());
                             dialog.show(getSupportFragmentManager(), "BlockDialog");
                         });
                     });
                 } else {
                     Toast.makeText(this, "Farm not configured. Please try again.",
                             Toast.LENGTH_LONG).show();
-                    loadFarmData(); // Retry loading
+                    loadFarmData();
                 }
             });
         }
@@ -165,7 +137,6 @@ public class BlocksActivity extends BaseSyncActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Navigate to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -177,74 +148,82 @@ public class BlocksActivity extends BaseSyncActivity {
     private void loadFarmData() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
-            FarmEntity farm = database.farmDao().getFirstFarm();
+        executor.execute(() -> {
+            // Get farm from database
+            currentFarm = database.farmDao().getFirstFarm();
 
-            if (farm != null) {
-                List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(farm.getId());
+            if (currentFarm != null) {
+                long farmId = currentFarm.getId();
 
-                // Group blocks by row
-                Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
-                for (BlockEntity block : allBlocks) {
-                    String row = block.getBlockName().substring(0, 1);
-                    if (!groupedBlocks.containsKey(row)) {
-                        groupedBlocks.put(row, new ArrayList<>());
-                    }
-                    groupedBlocks.get(row).add(block);
-                }
+                // Initialize repository with correct farmId
+                blockRepository = new BlockRepository(BlocksActivity.this, farmId);
 
-                // Create BlockGroups in order (A, B, C, D, E)
-                List<BlockGroup> newGroups = new ArrayList<>();
-                String[] rows = {"A", "B", "C", "D", "E"};
-
-                for (String row : rows) {
-                    if (groupedBlocks.containsKey(row)) {
-                        BlockGroup group = new BlockGroup(row);
-                        List<BlockEntity> blocksForRow = groupedBlocks.get(row);
-                        blocksForRow.sort((b1, b2) -> {
-                            String num1 = b1.getBlockName().substring(1);
-                            String num2 = b2.getBlockName().substring(1);
-                            return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
-                        });
-                        group.setBlocks(blocksForRow);
-                        newGroups.add(group);
-                    }
-                }
-
-                // Update UI on main thread
-                final FarmEntity finalFarm = farm;
-                final List<BlockEntity> finalAllBlocks = allBlocks;
-                final List<BlockGroup> finalNewGroups = newGroups;
-
+                // Use LiveData from repository
                 runOnUiThread(() -> {
-                    currentFarm = finalFarm;
-                    // Ensure Firestore real-time listener starts AFTER farm is loaded
-                    if (currentFarm != null) {
-                        startListeningForBlocks();
-                    }
-                    showLoading(false);
-
-                    if (finalNewGroups.isEmpty()) {
-                        showEmpty(true);
-                    } else {
-                        showEmpty(false);
-                        blockGroups = finalNewGroups;
-                        updateFarmSummary(finalAllBlocks);
-
-                        expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
-                            openBlockDetail(block);
-                        });
-                        recyclerView.setAdapter(expandableAdapter);
-                    }
+                    blockRepository.getAllBlocks().observe(this, new Observer<List<BlockEntity>>() {
+                        @Override
+                        public void onChanged(List<BlockEntity> blocks) {
+                            processBlocks(blocks);
+                        }
+                    });
                 });
             } else {
                 runOnUiThread(() -> {
                     showLoading(false);
-                    if (emptyView != null) {
-                        emptyView.setVisibility(View.VISIBLE);
-                    }
+                    if (emptyView != null) emptyView.setVisibility(View.VISIBLE);
                 });
             }
+        });
+    }
+
+    private void processBlocks(List<BlockEntity> allBlocks) {
+        if (allBlocks == null) allBlocks = new ArrayList<>();
+
+        Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
+        for (BlockEntity block : allBlocks) {
+            String row = block.getBlockName().substring(0, 1);
+            if (!groupedBlocks.containsKey(row)) {
+                groupedBlocks.put(row, new ArrayList<>());
+            }
+            groupedBlocks.get(row).add(block);
+        }
+
+        List<BlockGroup> newGroups = new ArrayList<>();
+        String[] rows = {"A", "B", "C", "D", "E"};
+
+        for (String row : rows) {
+            if (groupedBlocks.containsKey(row)) {
+                BlockGroup group = new BlockGroup(row);
+                List<BlockEntity> blocksForRow = groupedBlocks.get(row);
+                blocksForRow.sort((b1, b2) -> {
+                    String num1 = b1.getBlockName().substring(1);
+                    String num2 = b2.getBlockName().substring(1);
+                    return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
+                });
+                group.setBlocks(blocksForRow);
+                newGroups.add(group);
+            }
+        }
+
+        final List<BlockEntity> finalAllBlocks = allBlocks;
+        final List<BlockGroup> finalNewGroups = newGroups;
+
+        runOnUiThread(() -> {
+            if (finalNewGroups.isEmpty()) {
+                showEmpty(true);
+            } else {
+                showEmpty(false);
+                blockGroups = finalNewGroups;
+                updateFarmSummary(finalAllBlocks);
+
+                expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
+                    Intent intent = new Intent(BlocksActivity.this, BlockDetailActivity.class);
+                    intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
+                    startActivity(intent);
+                });
+                recyclerView.setAdapter(expandableAdapter);
+            }
+            showLoading(false);
         });
     }
 
@@ -292,16 +271,11 @@ public class BlocksActivity extends BaseSyncActivity {
         summaryLayout.addView(summaryView);
     }
 
-    private void openBlockDetail(BlockEntity block) {
-        Intent intent = new Intent(this, BlockDetailActivity.class);
-        intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
-        startActivity(intent);
-    }
-
     private String getNextAvailableBlockName() {
-        if (currentFarm == null) return "A1";
+        if (currentFarm == null || blockRepository == null) return "A1";
 
-        List<BlockEntity> allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+        // Use repository to get blocks - this runs on background thread (executor)
+        List<BlockEntity> allBlocks = blockRepository.getBlocksSync();
         java.util.HashSet<String> existingNames = new java.util.HashSet<>();
         for (BlockEntity block : allBlocks) {
             existingNames.add(block.getBlockName());
@@ -322,33 +296,19 @@ public class BlocksActivity extends BaseSyncActivity {
     }
 
     private void showLoading(boolean show) {
-        if (progressBar != null) {
-            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-        if (recyclerView != null) {
-            recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-        if (summaryLayout != null) {
-            summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-        if (emptyView != null) {
-            emptyView.setVisibility(View.GONE);
-        }
+        runOnUiThread(() -> {
+            if (progressBar != null) progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+            if (summaryLayout != null) summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+            if (emptyView != null) emptyView.setVisibility(View.GONE);
+        });
     }
 
     private void showEmpty(boolean show) {
-        if (emptyView != null) {
-            emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-        if (recyclerView != null) {
-            recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-        if (summaryLayout != null) {
-            summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-        if (progressBar != null) {
-            progressBar.setVisibility(View.GONE);
-        }
+        if (emptyView != null) emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        if (summaryLayout != null) summaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -358,59 +318,11 @@ public class BlocksActivity extends BaseSyncActivity {
     }
 
     @Override
-    protected void handleBlockAdded(BlockEntity block) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.blockDao().insert(block);
-                loadFarmData();
-                showToast("New block added: " + block.getBlockName());
-            });
-        });
-    }
-
-    @Override
-    protected void handleBlockModified(BlockEntity block) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.blockDao().update(block);
-                loadFarmData();
-                showToast("Block updated: " + block.getBlockName());
-            });
-        });
-    }
-
-    @Override
-    protected void handleBlockRemoved(BlockEntity block) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.blockDao().delete(block);
-                loadFarmData();
-                showToast("Block removed: " + block.getBlockName());
-            });
-        });
-    }
-
-    @Override protected void handleExpenseAdded(ExpenseEntity e) {}
-    @Override protected void handleExpenseModified(ExpenseEntity e) {}
-    @Override protected void handleExpenseRemoved(ExpenseEntity e) {}
-
-    @Override protected void handleRevenueAdded(RevenueEntity r) {}
-    @Override protected void handleRevenueModified(RevenueEntity r) {}
-    @Override protected void handleRevenueRemoved(RevenueEntity r) {}
-
-    @Override protected void handleTaskAdded(TaskEntity t) {}
-    @Override protected void handleTaskModified(TaskEntity t) {}
-    @Override protected void handleTaskRemoved(TaskEntity t) {}
-
-    private void showToast(String message) {
-        runOnUiThread(() ->
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        );
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        if (blockRepository != null) {
+            blockRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

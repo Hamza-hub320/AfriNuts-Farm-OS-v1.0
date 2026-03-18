@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,7 +21,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
-import com.afrinuts.farmos.ui.BaseSyncActivity;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RevenuesListActivity extends BaseSyncActivity {
+public class RevenuesListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private RevenueAdapter adapter;
@@ -45,43 +47,33 @@ public class RevenuesListActivity extends BaseSyncActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
+    private RevenueRepository revenueRepository;
+    private String farmIdString = "1";
     private List<RevenueWithBlockName> allRevenues = new ArrayList<>();
     private List<RevenueWithBlockName> filteredRevenues = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private String currentFilter = "ALL"; // ALL, BLOCKS, PROCESSING, PREMIUM, STANDARD
+    private String currentFilter = "ALL";
 
     @Override
     protected boolean checkRoleAccess() {
-        // Investors cannot view revenue data
         return !sessionManager.isInvestor();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // This will trigger role check
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_revenues_list);
 
-        // If we get here, user has permission (Owner or Manager)
-
-        // Initialize database
         database = AppDatabase.getInstance(this);
+        revenueRepository = new RevenueRepository(this, currentFarm.getId());
 
-        // Initialize views
         initViews();
-
-        // Setup toolbar
         setupToolbar();
-
-        // Setup filter listeners
         setupFilters();
-
-        // Setup FAB (only show for users who can add data)
         setupFab();
-
-        // Load data
-        loadData();
+        loadFarmAndBlocks();
     }
 
     private void initViews() {
@@ -117,7 +109,6 @@ public class RevenuesListActivity extends BaseSyncActivity {
         int itemId = item.getItemId();
 
         if (itemId == android.R.id.home) {
-            // Navigate to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -182,74 +173,53 @@ public class RevenuesListActivity extends BaseSyncActivity {
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.fabAddRevenue);
 
-        // Only show FAB for users who can add data (Owners and Managers)
         if (sessionManager.canEditData()) {
             fab.setVisibility(View.VISIBLE);
             fab.setOnClickListener(v -> {
                 if (currentFarm != null) {
                     AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
                     dialog.setOnRevenueAddedListener(() -> {
-                        loadData(); // Refresh list
+                        loadFarmAndBlocks();
                     });
                     dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
                 }
             });
         } else {
-            // Investors cannot add revenue
             fab.setVisibility(View.GONE);
         }
     }
 
-    private void loadData() {
+    private void loadFarmAndBlocks() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
-            FarmEntity farm = database.farmDao().getFirstFarm();
+        executor.execute(() -> {
+            currentFarm = database.farmDao().getFirstFarm();
 
-            if (farm != null) {
-                // Load all blocks for name mapping
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+            if (currentFarm != null) {
+                farmIdString = String.valueOf(currentFarm.getId());
+                revenueRepository = new RevenueRepository(this, currentFarm.getId());
+
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
                 Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
                     blockMap.put(block.getId(), block.getBlockName());
                 }
 
-                // Load all revenues
-                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
-
-                List<RevenueWithBlockName> revenueList = new ArrayList<>();
-                for (RevenueEntity revenue : revenues) {
-                    String blockName = null;
-                    if (revenue.getBlockId() != null) {
-                        blockName = blockMap.get(revenue.getBlockId());
-                    }
-                    revenueList.add(new RevenueWithBlockName(revenue, blockName));
-                }
-
-                // Update UI on main thread
-                final FarmEntity finalFarm = farm;
-                final List<RevenueWithBlockName> finalRevenueList = revenueList;
                 final Map<Long, String> finalBlockMap = blockMap;
+                final FarmEntity finalFarm = currentFarm;
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
-                    if (currentFarm != null) {
-                        startListeningForRevenues();
-                    }
-                    allRevenues.clear();
-                    allRevenues.addAll(finalRevenueList);
                     blockNameMap.clear();
                     blockNameMap.putAll(finalBlockMap);
 
-                    showLoading(false);
-
-                    if (allRevenues.isEmpty()) {
-                        showEmpty(true);
-                    } else {
-                        showEmpty(false);
-                        applyFilter();
-                        updateSummary();
-                    }
+                    // Use LiveData from repository
+                    revenueRepository.getAllRevenues().observe(this, new Observer<List<RevenueEntity>>() {
+                        @Override
+                        public void onChanged(List<RevenueEntity> revenues) {
+                            processRevenues(revenues);
+                        }
+                    });
                 });
             } else {
                 runOnUiThread(() -> {
@@ -258,6 +228,27 @@ public class RevenuesListActivity extends BaseSyncActivity {
                 });
             }
         });
+    }
+
+    private void processRevenues(List<RevenueEntity> revenues) {
+        allRevenues.clear();
+        for (RevenueEntity revenue : revenues) {
+            String blockName = null;
+            if (revenue.getBlockId() != null) {
+                blockName = blockNameMap.get(revenue.getBlockId());
+            }
+            allRevenues.add(new RevenueWithBlockName(revenue, blockName));
+        }
+
+        showLoading(false);
+
+        if (allRevenues.isEmpty()) {
+            showEmpty(true);
+        } else {
+            showEmpty(false);
+            applyFilter();
+            updateSummary();
+        }
     }
 
     private void applyFilter() {
@@ -293,9 +284,7 @@ public class RevenuesListActivity extends BaseSyncActivity {
             }
         }
 
-        // Update adapter
         adapter = new RevenueAdapter(filteredRevenues, revenue -> {
-            // Navigate to RevenueDetailActivity
             Intent intent = new Intent(this, RevenueDetailActivity.class);
             intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
             startActivity(intent);
@@ -361,54 +350,11 @@ public class RevenuesListActivity extends BaseSyncActivity {
     }
 
     @Override
-    protected void handleRevenueAdded(RevenueEntity revenue) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.revenueDao().insert(revenue);
-                loadData();
-                showToast("New revenue recorded");
-            });
-        });
-    }
-
-    @Override
-    protected void handleRevenueModified(RevenueEntity revenue) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.revenueDao().update(revenue);
-                loadData();
-            });
-        });
-    }
-
-    @Override
-    protected void handleRevenueRemoved(RevenueEntity revenue) {
-        runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.revenueDao().delete(revenue);
-                loadData();
-            });
-        });
-    }
-
-    // Empty implementations for other BaseSyncActivity handlers
-    @Override protected void handleBlockAdded(BlockEntity b) {}
-    @Override protected void handleBlockModified(BlockEntity b) {}
-    @Override protected void handleBlockRemoved(BlockEntity b) {}
-    @Override protected void handleExpenseAdded(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleExpenseModified(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleExpenseRemoved(com.afrinuts.farmos.data.local.entity.ExpenseEntity e) {}
-    @Override protected void handleTaskAdded(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
-    @Override protected void handleTaskModified(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
-    @Override protected void handleTaskRemoved(com.afrinuts.farmos.data.local.entity.TaskEntity t) {}
-
-    private void showToast(String message) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        if (revenueRepository != null) {
+            revenueRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

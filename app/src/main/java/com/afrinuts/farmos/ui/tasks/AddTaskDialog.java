@@ -24,6 +24,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -35,15 +37,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddTaskDialog extends DialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
 
     private long farmId;
+    private String farmIdString;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
+    private TaskRepository taskRepository;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextInputEditText etTaskTitle;
@@ -87,15 +94,17 @@ public class AddTaskDialog extends DialogFragment {
 
         if (getArguments() != null) {
             farmId = getArguments().getLong(ARG_FARM_ID);
+            farmIdString = String.valueOf(farmId);
         }
 
         database = AppDatabase.getInstance(requireContext());
+        taskRepository = new TaskRepository(requireContext(), farmId);
 
         // Load data in background
-        new Thread(() -> {
+        executor.execute(() -> {
             currentFarm = database.farmDao().getFarmById(farmId);
             allBlocks = database.blockDao().getBlocksByFarmId(farmId);
-        }).start();
+        });
     }
 
     @NonNull
@@ -114,17 +123,19 @@ public class AddTaskDialog extends DialogFragment {
         updateDateLabel();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add New Task")
                 .setView(view)
-                .setCancelable(false);
+                .setPositiveButton("Add", null)
+                .setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
 
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
+            positiveButton.setOnClickListener(v -> saveTask());
+            negativeButton.setOnClickListener(v -> dismiss());
         });
 
         return dialog;
@@ -141,12 +152,6 @@ public class AddTaskDialog extends DialogFragment {
         etBlock = view.findViewById(R.id.etBlock);
         etDueDate = view.findViewById(R.id.etDueDate);
         etStatus = view.findViewById(R.id.etStatus);
-
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-        Button btnSave = view.findViewById(R.id.btnSave);
-
-        btnCancel.setOnClickListener(v -> dismiss());
-        btnSave.setOnClickListener(v -> saveTask());
 
         // Set status to PENDING (read-only)
         etStatus.setText("PENDING");
@@ -276,7 +281,7 @@ public class AddTaskDialog extends DialogFragment {
     }
 
     private void loadBlocksForDropdown() {
-        new Thread(() -> {
+        executor.execute(() -> {
             if (allBlocks == null) {
                 allBlocks = database.blockDao().getBlocksByFarmId(farmId);
             }
@@ -294,7 +299,7 @@ public class AddTaskDialog extends DialogFragment {
                 );
                 etBlock.setAdapter(adapter);
             });
-        }).start();
+        });
     }
 
     private void saveTask() {
@@ -346,29 +351,50 @@ public class AddTaskDialog extends DialogFragment {
                 blockId,
                 title,
                 description.isEmpty() ? null : description,
-                selectedTaskType,  // Use the stored selected type
+                selectedTaskType,
                 TaskEntity.TaskStatus.PENDING,
                 dueDate
         );
 
-        Toast.makeText(getContext(), "Creating task...", Toast.LENGTH_SHORT).show();
+        // Disable save button
+        Button positiveButton = ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setEnabled(false);
+        positiveButton.setText("Saving...");
 
-        new Thread(() -> {
-            long id = database.taskDao().insertTask(task);
-
-            requireActivity().runOnUiThread(() -> {
-                if (id > 0) {
-                    Toast.makeText(getContext(),
-                            "Task created successfully!", Toast.LENGTH_SHORT).show();
-                    if (listener != null) {
-                        listener.onTaskAdded();
-                    }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(),
-                            "Error creating task", Toast.LENGTH_SHORT).show();
+        // Use repository to save
+        taskRepository.insertTask(task, new BaseRepository.InsertCallback() {
+            @Override
+            public void onSuccess(long id) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Task created successfully!", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onTaskAdded();
+                        }
+                        dismiss();
+                    });
                 }
-            });
-        }).start();
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        positiveButton.setEnabled(true);
+                        positiveButton.setText("Add");
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (taskRepository != null) {
+            taskRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

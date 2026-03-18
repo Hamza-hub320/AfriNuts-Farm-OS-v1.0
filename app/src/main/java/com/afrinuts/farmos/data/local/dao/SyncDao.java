@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -21,12 +22,21 @@ public interface SyncDao {
     @Query("SELECT * FROM sync_queue WHERE status = 'PENDING' OR status = 'FAILED' ORDER BY lastAttemptAt ASC")
     List<SyncEntity> getPendingSyncItems();
 
+    @Query("SELECT * FROM sync_queue WHERE status = 'PENDING' OR status = 'FAILED' ORDER BY lastAttemptAt ASC")
+    LiveData<List<SyncEntity>> getPendingSyncItemsLiveData();
+
     @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityId = :entityId")
     SyncEntity getSyncItem(String entityType, long entityId);
 
     @Query("DELETE FROM sync_queue WHERE status = 'COMPLETED' AND lastAttemptAt < :cutoffTime")
-    void deleteOldCompleted(long cutoffTime);
+    int deleteOldCompleted(long cutoffTime);
 
     @Query("SELECT COUNT(*) FROM sync_queue WHERE status = 'PENDING' OR status = 'FAILED'")
     int getPendingCount();
+
+    @Query("SELECT COUNT(*) FROM sync_queue WHERE status = 'PENDING' OR status = 'FAILED'")
+    LiveData<Integer> getPendingCountLiveData();
+
+    @Query("SELECT * FROM sync_queue WHERE id = :id")
+    SyncEntity getSyncItemById(long id);
 }

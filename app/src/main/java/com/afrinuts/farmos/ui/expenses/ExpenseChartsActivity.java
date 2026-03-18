@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.afrinuts.farmos.R;
@@ -20,6 +21,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -52,8 +54,9 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     private FarmEntity currentFarm;
     private List<ExpenseEntity> allExpenses;
     private List<BlockEntity> allBlocks;
+    private ExpenseRepository expenseRepository;
     private Map<Long, String> blockNameMap = new HashMap<>();
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -73,6 +76,9 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expense_charts);
 
+        // Initialize database
+        database = AppDatabase.getInstance(this);
+
         // Initialize views
         initViews();
 
@@ -81,9 +87,6 @@ public class ExpenseChartsActivity extends AppCompatActivity {
 
         // Setup swipe to refresh
         setupSwipeRefresh();
-
-        // Initialize database
-        database = AppDatabase.getInstance(this);
 
         // Setup filter listeners
         setupFilters();
@@ -127,7 +130,6 @@ public class ExpenseChartsActivity extends AppCompatActivity {
             refreshData();
         });
 
-        // FIXED: Use ContextCompat.getColor() instead of getResources().getColor()
         swipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.primary),
                 ContextCompat.getColor(this, R.color.accent),
@@ -137,10 +139,7 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void refreshData() {
-        // Show refresh indicator
         swipeRefreshLayout.setRefreshing(true);
-
-        // Reload data
         loadData();
     }
 
@@ -194,10 +193,13 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     private void loadData() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
+        executor.execute(() -> {
             FarmEntity farm = database.farmDao().getFirstFarm();
 
             if (farm != null) {
+                // Initialize repository
+                expenseRepository = new ExpenseRepository(ExpenseChartsActivity.this, farm.getId());
+
                 // Load all blocks for name mapping
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
                 Map<Long, String> blockMap = new HashMap<>();
@@ -205,20 +207,27 @@ public class ExpenseChartsActivity extends AppCompatActivity {
                     blockMap.put(block.getId(), block.getBlockName());
                 }
 
-                // Load all expenses
-                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
+                // Load all expenses using LiveData from repository
+                final Map<Long, String> finalBlockMap = blockMap;
+                final FarmEntity finalFarm = farm;
+                final List<BlockEntity> finalBlocks = blocks;
 
                 runOnUiThread(() -> {
-                    currentFarm = farm;
-                    allBlocks = blocks;
-                    blockNameMap = blockMap;
-                    allExpenses = expenses;
+                    expenseRepository.getAllExpenses().observe(this, new Observer<List<ExpenseEntity>>() {
+                        @Override
+                        public void onChanged(List<ExpenseEntity> expenses) {
+                            currentFarm = finalFarm;
+                            allBlocks = finalBlocks;
+                            blockNameMap = finalBlockMap;
+                            allExpenses = expenses;
 
-                    showLoading(false);
-                    refreshCharts();
+                            showLoading(false);
+                            refreshCharts();
 
-                    // Stop refresh animation
-                    swipeRefreshLayout.setRefreshing(false);
+                            // Stop refresh animation
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 });
             } else {
                 runOnUiThread(() -> {
@@ -231,6 +240,10 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     }
 
     private void refreshCharts() {
+        if (allExpenses == null) {
+            allExpenses = new ArrayList<>();
+        }
+
         // Filter expenses based on selected time period
         List<ExpenseEntity> filteredExpenses = filterExpensesByTime(allExpenses);
 
@@ -294,19 +307,17 @@ public class ExpenseChartsActivity extends AppCompatActivity {
         double costPerHa = total / hectares;
         double costPerTree = total / trees;
 
-        // Format with abbreviations for large numbers
         totalExpensesValue.setText(formatLargeNumber(total) + " XAF");
         costPerHectareValue.setText(formatLargeNumber(costPerHa) + " XAF");
         costPerTreeValue.setText(formatLargeNumber(costPerTree) + " XAF");
     }
 
-    // Helper method to format large numbers
     private String formatLargeNumber(double value) {
-        if (value >= 1_000_000_000) { // Billions
+        if (value >= 1_000_000_000) {
             return String.format(Locale.getDefault(), "%.1fB", value / 1_000_000_000);
-        } else if (value >= 1_000_000) { // Millions
+        } else if (value >= 1_000_000) {
             return String.format(Locale.getDefault(), "%.0fM", value / 1_000_000);
-        } else if (value >= 1_000) { // Thousands
+        } else if (value >= 1_000) {
             return String.format(Locale.getDefault(), "%.0fK", value / 1_000);
         } else {
             return String.format(Locale.getDefault(), "%.0f", value);
@@ -461,6 +472,9 @@ public class ExpenseChartsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        if (expenseRepository != null) {
+            expenseRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

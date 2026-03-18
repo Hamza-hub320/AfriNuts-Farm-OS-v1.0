@@ -22,6 +22,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -29,9 +31,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,9 +49,9 @@ public class ExpenseDetailActivity extends BaseActivity {
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
-    private FirebaseFirestore firestore;
-    private ListenerRegistration expenseListener;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private ExpenseRepository expenseRepository;
+    private long farmId = 1;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private ImageView tvCategoryIcon;
@@ -100,9 +99,8 @@ public class ExpenseDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database and Firestore
+        // Initialize database
         database = AppDatabase.getInstance(this);
-        firestore = FirebaseFirestore.getInstance();
 
         // Initialize views
         initViews();
@@ -110,11 +108,8 @@ public class ExpenseDetailActivity extends BaseActivity {
         // Setup toolbar
         setupToolbar();
 
-        // Load data
+        // Load data using repository (after we get farmId)
         loadData();
-
-        // Start real-time listener for this expense
-        startExpenseListener();
 
         // Apply role-based UI restrictions
         applyRoleBasedRestrictions();
@@ -222,133 +217,12 @@ public class ExpenseDetailActivity extends BaseActivity {
         etDate.setText(sdf.format(selectedDate.getTime()));
     }
 
-    private void startExpenseListener() {
-        Log.d(TAG, "Starting real-time listener for expense: " + expenseId);
-
-        expenseListener = firestore.collection("expenses")
-                .whereEqualTo("id", expenseId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Expense listener failed", error);
-                        return;
-                    }
-
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        DocumentSnapshot doc = snapshots.getDocuments().get(0);
-                        ExpenseEntity updatedExpense = documentToExpense(doc);
-
-                        if (updatedExpense != null) {
-                            Log.d(TAG, "Expense updated remotely: " + updatedExpense.getId());
-
-                            // Update local database
-                            databaseExecutor.execute(() -> {
-                                database.expenseDao().update(updatedExpense);
-
-                                runOnUiThread(() -> {
-                                    expense = updatedExpense;
-                                    displayExpenseData();
-                                    if (!isEditMode) {
-                                        Toast.makeText(this,
-                                                "Expense updated by another user",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            });
-                        }
-                    }
-                });
-    }
-
-    private ExpenseEntity documentToExpense(DocumentSnapshot doc) {
-        try {
-            long id = doc.getLong("id");
-
-            // Enhanced farmId parsing with validation
-            String farmIdStr = doc.getString("farmId");
-            long farmId = 0;
-            if (farmIdStr != null) {
-                try {
-                    farmId = Long.parseLong(farmIdStr);
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "Invalid farmId format for expense: " + farmIdStr);
-                    return null;
-                }
-            } else {
-                Log.e(TAG, "Missing farmId for expense: " + id);
-                return null;
-            }
-
-            // BlockId can be null (farm-wide expenses)
-            Long blockId = doc.getLong("blockId");
-
-            // Validate required fields
-            String category = doc.getString("category");
-            if (category == null) {
-                Log.e(TAG, "Missing category for expense: " + id);
-                return null;
-            }
-
-            // Validate amount
-            Double amountObj = doc.getDouble("amount");
-            if (amountObj == null) {
-                Log.e(TAG, "Missing amount for expense: " + id);
-                return null;
-            }
-            double amount = amountObj;
-
-            // Validate date
-            Long dateObj = doc.getLong("date");
-            if (dateObj == null) {
-                Log.e(TAG, "Missing date for expense: " + id);
-                return null;
-            }
-            long date = dateObj;
-
-            // Optional fields
-            String description = doc.getString("description");
-            String receiptPath = doc.getString("receiptPath");
-            Long createdAtObj = doc.getLong("createdAt");
-            long createdAt = createdAtObj != null ? createdAtObj : System.currentTimeMillis();
-
-            // Parse category enum with validation
-            ExpenseEntity.ExpenseCategory expenseCategory;
-            try {
-                expenseCategory = ExpenseEntity.ExpenseCategory.valueOf(category);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Invalid expense category: " + category + " for expense: " + id);
-                return null;
-            }
-
-            // Create expense entity
-            ExpenseEntity expense = new ExpenseEntity(
-                    farmId,
-                    blockId,
-                    expenseCategory,
-                    amount,
-                    date,
-                    description
-            );
-
-            // Set additional fields
-            expense.setId(id);
-            expense.setReceiptPath(receiptPath);
-            expense.setCreatedAt(createdAt);
-
-            Log.d(TAG, "Successfully converted expense: " + id);
-            return expense;
-
-        } catch (Exception e) {
-            Log.e(TAG, "Unexpected error converting document to expense", e);
-            return null;
-        }
-    }
-
     private void loadData() {
-        databaseExecutor.execute(() -> {
-            // Get expense
-            ExpenseEntity loadedExpense = database.expenseDao().getExpenseById(expenseId);
+        executor.execute(() -> {
+            // First get the expense to know the farmId
+            expense = database.expenseDao().getExpenseById(expenseId);
 
-            if (loadedExpense == null) {
+            if (expense == null) {
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Expense not found", Toast.LENGTH_SHORT).show();
                     finish();
@@ -360,7 +234,11 @@ public class ExpenseDetailActivity extends BaseActivity {
             FarmEntity farm = database.farmDao().getFirstFarm();
             List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
 
-            final ExpenseEntity finalExpense = loadedExpense;
+            // Initialize repository with farmId
+            farmId = farm.getId();
+            expenseRepository = new ExpenseRepository(ExpenseDetailActivity.this, farmId);
+
+            final ExpenseEntity finalExpense = expense;
             final FarmEntity finalFarm = farm;
             final List<BlockEntity> finalBlocks = blocks;
 
@@ -523,6 +401,8 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void saveChanges() {
+        if (expense == null || expenseRepository == null) return;
+
         // Validate amount
         String amountStr = etAmount.getText().toString().trim();
         if (TextUtils.isEmpty(amountStr)) {
@@ -548,17 +428,33 @@ public class ExpenseDetailActivity extends BaseActivity {
         expense.setDescription(etDescription.getText().toString().trim());
         expense.setUpdatedAt(System.currentTimeMillis());
 
-        // Save to database
-        Toast.makeText(this, "Saving changes...", Toast.LENGTH_SHORT).show();
+        // Show loading state
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
 
-        databaseExecutor.execute(() -> {
-            database.expenseDao().update(expense);
+        // Save using repository
+        expenseRepository.updateExpense(expense, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ExpenseDetailActivity.this,
+                            "Changes saved successfully!", Toast.LENGTH_SHORT).show();
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Save");
+                    enableEditMode(false);
+                    displayExpenseData();
+                });
+            }
 
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Changes saved successfully!", Toast.LENGTH_SHORT).show();
-                enableEditMode(false);
-                displayExpenseData();
-            });
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ExpenseDetailActivity.this,
+                            "Error saving changes: " + error, Toast.LENGTH_LONG).show();
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Save");
+                });
+            }
         });
     }
 
@@ -581,23 +477,32 @@ public class ExpenseDetailActivity extends BaseActivity {
     private void deleteExpense() {
         Toast.makeText(this, "Deleting expense...", Toast.LENGTH_SHORT).show();
 
-        databaseExecutor.execute(() -> {
-            database.expenseDao().delete(expense);
+        expenseRepository.deleteExpense(expense, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ExpenseDetailActivity.this, "Expense deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+            }
 
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Expense deleted", Toast.LENGTH_SHORT).show();
-                finish();
-            });
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(ExpenseDetailActivity.this,
+                                "Error deleting expense: " + error, Toast.LENGTH_LONG).show()
+                );
+            }
         });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (expenseListener != null) {
-            expenseListener.remove();
+        if (expenseRepository != null) {
+            expenseRepository.shutdown();
         }
-        databaseExecutor.shutdown();
+        executor.shutdown();
     }
 
     @Override

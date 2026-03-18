@@ -12,18 +12,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.workers.WorkerDetailActivity;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
+import com.afrinuts.farmos.data.repository.TaskRepository;
+import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.google.android.material.chip.Chip;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +39,10 @@ import java.util.concurrent.Executors;
 public class WorkerDashboardActivity extends BaseActivity {
 
     private AppDatabase database;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private TaskAssignmentRepository assignmentRepository;
+    private TaskRepository taskRepository;
+    private long farmId = 1; // Default
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -52,7 +58,6 @@ public class WorkerDashboardActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Managers and Owners can access Worker Dashboard, Investors cannot
         return !sessionManager.isInvestor();
     }
 
@@ -73,8 +78,8 @@ public class WorkerDashboardActivity extends BaseActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Load data
-        loadWorkerData();
+        // Load farm ID and initialize repositories
+        loadFarmData();
     }
 
     private void initViews() {
@@ -113,7 +118,6 @@ public class WorkerDashboardActivity extends BaseActivity {
             refreshData();
         });
 
-        // Configure colors for the refresh indicator - using ContextCompat.getColor()
         swipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.primary),
                 ContextCompat.getColor(this, R.color.accent),
@@ -123,10 +127,7 @@ public class WorkerDashboardActivity extends BaseActivity {
     }
 
     private void refreshData() {
-        // Show refresh indicator
         swipeRefreshLayout.setRefreshing(true);
-
-        // Reload data
         loadWorkerData();
     }
 
@@ -150,72 +151,98 @@ public class WorkerDashboardActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void loadFarmData() {
+        executor.execute(() -> {
+            FarmEntity farm = database.farmDao().getFirstFarm();
+            if (farm != null) {
+                farmId = farm.getId();
+            }
+
+            // Initialize repositories
+            assignmentRepository = new TaskAssignmentRepository(this, farmId);
+            taskRepository = new TaskRepository(this, farmId);
+
+            runOnUiThread(this::loadWorkerData);
+        });
+    }
+
     private void loadWorkerData() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
-            // Get all task assignments
-            List<TaskAssignmentHistoryEntity> allAssignments =
-                    database.taskDao().getAllAssignments();
+        assignmentRepository.getAllAssignments(new BaseRepository.RepositoryCallback<List<TaskAssignmentHistoryEntity>>() {
+            @Override
+            public void onSuccess(List<TaskAssignmentHistoryEntity> allAssignments) {
+                if (allAssignments.isEmpty()) {
+                    runOnUiThread(() -> {
+                        showLoading(false);
+                        swipeRefreshLayout.setRefreshing(false);
+                        showEmpty(true);
+                    });
+                    return;
+                }
 
-            if (allAssignments.isEmpty()) {
+                // Group by worker
+                Map<String, List<TaskAssignmentHistoryEntity>> workerAssignments = new HashMap<>();
+                for (TaskAssignmentHistoryEntity assignment : allAssignments) {
+                    String worker = assignment.getAssignedTo();
+                    if (!workerAssignments.containsKey(worker)) {
+                        workerAssignments.put(worker, new ArrayList<>());
+                    }
+                    workerAssignments.get(worker).add(assignment);
+                }
+
+                // Calculate performance for each worker
+                List<WorkerPerformance> performances = new ArrayList<>();
+                for (Map.Entry<String, List<TaskAssignmentHistoryEntity>> entry :
+                        workerAssignments.entrySet()) {
+                    WorkerPerformance performance = new WorkerPerformance(entry.getKey());
+
+                    for (TaskAssignmentHistoryEntity assignment : entry.getValue()) {
+                        performance.addAssignment(assignment);
+
+                        // Get task type for this worker
+                        executor.execute(() -> {
+                            TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
+                            if (task != null && !performance.getTaskTypes().contains(
+                                    task.getType().getDisplayName())) {
+                                performance.getTaskTypes().add(task.getType().getDisplayName());
+                            }
+                        });
+                    }
+                    performances.add(performance);
+                }
+
+                // Sort by completed tasks (descending)
+                Collections.sort(performances,
+                        (w1, w2) -> Integer.compare(w2.getCompletedTasks(), w1.getCompletedTasks()));
+
+                final List<WorkerPerformance> finalPerformances = performances;
+
+                runOnUiThread(() -> {
+                    workerPerformances.clear();
+                    workerPerformances.addAll(finalPerformances);
+
+                    showLoading(false);
+                    swipeRefreshLayout.setRefreshing(false);
+
+                    if (workerPerformances.isEmpty()) {
+                        showEmpty(true);
+                    } else {
+                        showEmpty(false);
+                        updateOverallStats();
+                        displayWorkerCards();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
                 runOnUiThread(() -> {
                     showLoading(false);
                     swipeRefreshLayout.setRefreshing(false);
                     showEmpty(true);
                 });
-                return;
             }
-
-            // Group by worker
-            Map<String, List<TaskAssignmentHistoryEntity>> workerAssignments = new HashMap<>();
-            for (TaskAssignmentHistoryEntity assignment : allAssignments) {
-                String worker = assignment.getAssignedTo();
-                if (!workerAssignments.containsKey(worker)) {
-                    workerAssignments.put(worker, new ArrayList<>());
-                }
-                workerAssignments.get(worker).add(assignment);
-            }
-
-            // Calculate performance for each worker
-            List<WorkerPerformance> performances = new ArrayList<>();
-            for (Map.Entry<String, List<TaskAssignmentHistoryEntity>> entry :
-                    workerAssignments.entrySet()) {
-                WorkerPerformance performance = new WorkerPerformance(entry.getKey());
-                for (TaskAssignmentHistoryEntity assignment : entry.getValue()) {
-                    performance.addAssignment(assignment);
-
-                    // Cache task types for this worker
-                    TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
-                    if (task != null && !performance.getTaskTypes().contains(
-                            task.getType().getDisplayName())) {
-                        performance.getTaskTypes().add(task.getType().getDisplayName());
-                    }
-                }
-                performances.add(performance);
-            }
-
-            // Sort by completed tasks (descending)
-            Collections.sort(performances,
-                    (w1, w2) -> Integer.compare(w2.getCompletedTasks(), w1.getCompletedTasks()));
-
-            final List<WorkerPerformance> finalPerformances = performances;
-
-            runOnUiThread(() -> {
-                workerPerformances.clear();
-                workerPerformances.addAll(finalPerformances);
-
-                showLoading(false);
-                swipeRefreshLayout.setRefreshing(false);
-
-                if (workerPerformances.isEmpty()) {
-                    showEmpty(true);
-                } else {
-                    showEmpty(false);
-                    updateOverallStats();
-                    displayWorkerCards();
-                }
-            });
         });
     }
 
@@ -244,7 +271,7 @@ public class WorkerDashboardActivity extends BaseActivity {
         if (avgHours > 0) {
             avgTaskTimeValue.setText(avgHours + "h " + avgMinutes + "m");
         } else {
-            avgTaskTimeValue.setText(avgMinutes + " minutes");
+            avgTaskTimeValue.setText(avgMinutes + "m");
         }
     }
 
@@ -317,6 +344,6 @@ public class WorkerDashboardActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        executor.shutdown();
     }
 }

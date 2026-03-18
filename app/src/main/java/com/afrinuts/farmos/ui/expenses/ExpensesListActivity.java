@@ -8,9 +8,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,7 +24,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
-import android.widget.Toast;
+import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.ui.BaseSyncActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -50,10 +52,11 @@ public class ExpensesListActivity extends BaseSyncActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
+    private ExpenseRepository expenseRepository;
     private List<ExpenseWithBlockName> allExpenses = new ArrayList<>();
     private List<ExpenseWithBlockName> filteredExpenses = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, FARM_WIDE, BLOCK_SPECIFIC
 
@@ -70,14 +73,14 @@ public class ExpensesListActivity extends BaseSyncActivity {
 
         // If we get here, user has permission (Owner or Manager)
 
+        // Initialize database
+        database = AppDatabase.getInstance(this);
+
         // Initialize views
         initViews();
 
         // Setup toolbar
         setupToolbar();
-
-        // Initialize database
-        database = AppDatabase.getInstance(this);
 
         // Setup filter listeners
         setupFilters();
@@ -115,7 +118,7 @@ public class ExpensesListActivity extends BaseSyncActivity {
                 if (currentFarm != null) {
                     AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
                     dialog.setOnExpenseAddedListener(() -> {
-                        loadExpenses(); // Refresh list
+                        loadFarmAndBlocks(); // Refresh list
                     });
                     dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
                 }
@@ -193,10 +196,14 @@ public class ExpensesListActivity extends BaseSyncActivity {
     private void loadFarmAndBlocks() {
         showLoading(true);
 
-        databaseExecutor.execute(() -> {
+        executor.execute(() -> {
+            // Get farm from database
             FarmEntity farm = database.farmDao().getFirstFarm();
 
             if (farm != null) {
+                // Initialize repository with correct farmId
+                expenseRepository = new ExpenseRepository(ExpensesListActivity.this, farm.getId());
+
                 // Load all blocks for name mapping
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
                 Map<Long, String> blockMap = new HashMap<>();
@@ -204,43 +211,14 @@ public class ExpensesListActivity extends BaseSyncActivity {
                     blockMap.put(block.getId(), block.getBlockName());
                 }
 
-                // Load expenses
-                List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
-
-                List<ExpenseWithBlockName> expenseList = new ArrayList<>();
-                for (ExpenseEntity expense : expenses) {
-                    String blockName = null;
-                    if (expense.getBlockId() != null) {
-                        blockName = blockMap.get(expense.getBlockId());
-                    }
-                    expenseList.add(new ExpenseWithBlockName(expense, blockName));
-                }
-
-                // Update UI on main thread
-                final FarmEntity finalFarm = farm;
-                final List<ExpenseWithBlockName> finalExpenseList = expenseList;
-                final Map<Long, String> finalBlockMap = blockMap;
-
+                // Use LiveData from repository for expenses
                 runOnUiThread(() -> {
-                    currentFarm = finalFarm;
-                    if (currentFarm != null) {
-                        startListeningForExpenses();
-                    }
-                    allExpenses.clear();
-                    allExpenses.addAll(finalExpenseList);
-                    blockNameMap.clear();
-                    blockNameMap.putAll(finalBlockMap);
-
-                    showLoading(false);
-
-                    if (allExpenses.isEmpty()) {
-                        showEmpty(true);
-                        totalExpensesText.setText("Total: 0 XAF");
-                    } else {
-                        showEmpty(false);
-                        applyFilter();
-                        updateTotal();
-                    }
+                    expenseRepository.getAllExpenses().observe(this, new Observer<List<ExpenseEntity>>() {
+                        @Override
+                        public void onChanged(List<ExpenseEntity> expenseList) {
+                            processExpenses(expenseList, farm, blockMap);
+                        }
+                    });
                 });
             } else {
                 runOnUiThread(() -> {
@@ -252,10 +230,37 @@ public class ExpensesListActivity extends BaseSyncActivity {
         });
     }
 
-    private void loadExpenses() {
-        // This method is now handled by loadFarmAndBlocks
-        // Kept for compatibility with FAB callback
-        loadFarmAndBlocks();
+    private void processExpenses(List<ExpenseEntity> expenseList, FarmEntity farm, Map<Long, String> blockMap) {
+        List<ExpenseWithBlockName> expenseWithBlockList = new ArrayList<>();
+        for (ExpenseEntity expense : expenseList) {
+            String blockName = null;
+            if (expense.getBlockId() != null) {
+                blockName = blockMap.get(expense.getBlockId());
+            }
+            expenseWithBlockList.add(new ExpenseWithBlockName(expense, blockName));
+        }
+
+        runOnUiThread(() -> {
+            currentFarm = farm;
+            if (currentFarm != null) {
+                startListeningForExpenses();
+            }
+            allExpenses.clear();
+            allExpenses.addAll(expenseWithBlockList);
+            blockNameMap.clear();
+            blockNameMap.putAll(blockMap);
+
+            showLoading(false);
+
+            if (allExpenses.isEmpty()) {
+                showEmpty(true);
+                totalExpensesText.setText("Total: 0 XAF");
+            } else {
+                showEmpty(false);
+                applyFilter();
+                updateTotal();
+            }
+        });
     }
 
     private void applyFilter() {
@@ -335,8 +340,8 @@ public class ExpensesListActivity extends BaseSyncActivity {
     @Override
     protected void handleExpenseAdded(ExpenseEntity expense) {
         runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.expenseDao().insert(expense);
+            executor.execute(() -> {
+                // This will automatically update via LiveData
                 loadFarmAndBlocks();
                 showToast("New expense added");
             });
@@ -346,8 +351,8 @@ public class ExpensesListActivity extends BaseSyncActivity {
     @Override
     protected void handleExpenseModified(ExpenseEntity expense) {
         runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.expenseDao().update(expense);
+            executor.execute(() -> {
+                // This will automatically update via LiveData
                 loadFarmAndBlocks();
             });
         });
@@ -356,8 +361,8 @@ public class ExpensesListActivity extends BaseSyncActivity {
     @Override
     protected void handleExpenseRemoved(ExpenseEntity expense) {
         runOnUiThread(() -> {
-            databaseExecutor.execute(() -> {
-                database.expenseDao().delete(expense);
+            executor.execute(() -> {
+                // This will automatically update via LiveData
                 loadFarmAndBlocks();
             });
         });
@@ -377,9 +382,20 @@ public class ExpensesListActivity extends BaseSyncActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    // Helper method to get expenses synchronously when needed
+    private List<ExpenseEntity> getExpensesSync() {
+        if (expenseRepository != null) {
+            return expenseRepository.getExpensesSync();
+        }
+        return new ArrayList<>();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        databaseExecutor.shutdown();
+        if (expenseRepository != null) {
+            expenseRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

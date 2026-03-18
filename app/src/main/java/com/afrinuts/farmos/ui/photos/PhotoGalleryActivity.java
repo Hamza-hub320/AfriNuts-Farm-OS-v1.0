@@ -16,12 +16,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,6 +50,8 @@ public class PhotoGalleryActivity extends BaseActivity {
     private FloatingActionButton fabAddPhoto;
 
     private AppDatabase database;
+    private PhotoRepository photoRepository;
+    private long farmId = -1;
     private List<PhotoEntity> photos = new ArrayList<>();
 
     private long blockId = -1;
@@ -70,14 +75,21 @@ public class PhotoGalleryActivity extends BaseActivity {
         taskId = getIntent().getLongExtra("task_id", -1);
         expenseId = getIntent().getLongExtra("expense_id", -1);
 
-        Log.d(TAG, "Intent extras - blockId: " + blockId + ", taskId: " + taskId + ", expenseId: " + expenseId);
-
-        initViews();
-        setupToolbar();
         database = AppDatabase.getInstance(this);
-        setupRecyclerView();
-        loadPhotos();
-        setupFab();
+
+        // Get farm ID first
+        new Thread(() -> {
+            farmId = database.farmDao().getFirstFarm().getId();
+            photoRepository = new PhotoRepository(PhotoGalleryActivity.this, farmId);
+
+            runOnUiThread(() -> {
+                initViews();
+                setupToolbar();
+                setupRecyclerView();
+                loadPhotos();
+                setupFab();
+            });
+        }).start();
     }
 
     private void initViews() {
@@ -96,7 +108,6 @@ public class PhotoGalleryActivity extends BaseActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle(getToolbarTitle());
         }
-        Log.d(TAG, "Toolbar setup complete");
     }
 
     private String getToolbarTitle() {
@@ -109,13 +120,11 @@ public class PhotoGalleryActivity extends BaseActivity {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new PhotoAdapter(photo -> {
-            Log.d(TAG, "Photo clicked: " + photo.getId() + " at path: " + photo.getFilePath());
             Intent intent = new Intent(this, PhotoDetailActivity.class);
             intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
-        Log.d(TAG, "RecyclerView setup complete");
     }
 
     private void setupFab() {
@@ -131,10 +140,8 @@ public class PhotoGalleryActivity extends BaseActivity {
                 .setTitle("Add Photo")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        Log.d(TAG, "User selected: Take Photo");
                         dispatchTakePictureIntent();
                     } else {
-                        Log.d(TAG, "User selected: Choose from Gallery");
                         dispatchPickPictureIntent();
                     }
                 })
@@ -142,13 +149,11 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void dispatchTakePictureIntent() {
-        Log.d(TAG, "dispatchTakePictureIntent called");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
-                Log.d(TAG, "Photo file created at: " + photoFile.getAbsolutePath());
             } catch (IOException ex) {
                 Log.e(TAG, "Error creating image file", ex);
                 Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show();
@@ -159,19 +164,15 @@ public class PhotoGalleryActivity extends BaseActivity {
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "com.afrinuts.farmos.fileprovider",
                         photoFile);
-                Log.d(TAG, "Photo URI: " + photoURI.toString());
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                Log.d(TAG, "Camera intent launched");
             }
         } else {
-            Log.e(TAG, "No camera app found");
             Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void dispatchPickPictureIntent() {
-        Log.d(TAG, "dispatchPickPictureIntent called");
         Intent pickPictureIntent = new Intent(Intent.ACTION_PICK);
         pickPictureIntent.setType("image/*");
         startActivityForResult(pickPictureIntent, REQUEST_IMAGE_PICK);
@@ -187,37 +188,28 @@ public class PhotoGalleryActivity extends BaseActivity {
                 storageDir
         );
         currentPhotoPath = image.getAbsolutePath();
-        Log.d(TAG, "createImageFile: " + currentPhotoPath);
         return image;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult - requestCode: " + requestCode + ", resultCode: " + resultCode);
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                Log.d(TAG, "Photo captured successfully. Path: " + currentPhotoPath);
                 savePhotoToDatabase(currentPhotoPath);
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImageUri = data.getData();
-                Log.d(TAG, "Image selected from gallery: " + selectedImageUri);
                 Toast.makeText(this, "Gallery picker coming soon", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Log.d(TAG, "Activity result not OK - code: " + resultCode);
         }
     }
 
     private void savePhotoToDatabase(String imagePath) {
-        Log.d(TAG, "savePhotoToDatabase called with path: " + imagePath);
         showCaptionDialog(imagePath);
     }
 
     private void showCaptionDialog(String imagePath) {
-        Log.d(TAG, "showCaptionDialog called");
-
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle("Add Caption");
 
@@ -227,87 +219,103 @@ public class PhotoGalleryActivity extends BaseActivity {
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String caption = input.getText().toString().trim();
-            Log.d(TAG, "Caption entered: " + caption);
 
             new Thread(() -> {
-                try {
-                    long farmId = database.farmDao().getFirstFarm().getId();
-                    Log.d(TAG, "Farm ID: " + farmId);
+                long farmId = database.farmDao().getFirstFarm().getId();
 
-                    PhotoEntity photo = new PhotoEntity(
-                            farmId,
-                            blockId != -1 ? blockId : null,
-                            taskId != -1 ? taskId : null,
-                            expenseId != -1 ? expenseId : null,
-                            imagePath,
-                            caption.isEmpty() ? null : caption,
-                            System.currentTimeMillis()
-                    );
+                PhotoEntity photo = new PhotoEntity(
+                        farmId,
+                        blockId != -1 ? blockId : null,
+                        taskId != -1 ? taskId : null,
+                        expenseId != -1 ? expenseId : null,
+                        imagePath,
+                        caption.isEmpty() ? null : caption,
+                        System.currentTimeMillis()
+                );
 
-                    long id = database.photoDao().insert(photo);
-                    Log.d(TAG, "Photo inserted with ID: " + id);
+                File photoFile = new File(imagePath);
 
-                    runOnUiThread(() -> {
-                        if (id > 0) {
-                            Toast.makeText(this, "Photo saved", Toast.LENGTH_SHORT).show();
-                            loadPhotos(); // Refresh list
-                        } else {
-                            Toast.makeText(this, "Error saving photo", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (Exception e) {
-                    Log.e(TAG, "Error saving photo to database", e);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-                }
+                photoRepository.insertPhoto(photo, photoFile,
+                        new PhotoRepository.PhotoUploadCallback() {
+                            @Override
+                            public void onSuccess(long id, String downloadUrl) {
+                                runOnUiThread(() -> {
+                                    Toast.makeText(PhotoGalleryActivity.this,
+                                            "Photo saved", Toast.LENGTH_SHORT).show();
+                                    loadPhotos();
+                                });
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                runOnUiThread(() ->
+                                        Toast.makeText(PhotoGalleryActivity.this,
+                                                "Error: " + error, Toast.LENGTH_SHORT).show()
+                                );
+                            }
+
+                            @Override
+                            public void onProgress(double progress) {
+                                // Optional: show progress
+                            }
+                        });
             }).start();
         });
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            Log.d(TAG, "Caption dialog cancelled");
-            dialog.cancel();
-        });
-
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
     private void loadPhotos() {
-        Log.d(TAG, "loadPhotos started");
-        new Thread(() -> {
-            List<PhotoEntity> loadedPhotos;
+        if (photoRepository == null) return;
 
-            if (blockId != -1) {
-                loadedPhotos = database.photoDao().getPhotosByBlockId(blockId);
-                Log.d(TAG, "Loading photos for block: " + blockId);
-            } else if (taskId != -1) {
-                loadedPhotos = database.photoDao().getPhotosByTaskId(taskId);
-                Log.d(TAG, "Loading photos for task: " + taskId);
-            } else if (expenseId != -1) {
-                loadedPhotos = database.photoDao().getPhotosByExpenseId(expenseId);
-                Log.d(TAG, "Loading photos for expense: " + expenseId);
-            } else {
-                long farmId = database.farmDao().getFirstFarm().getId();
-                loadedPhotos = database.photoDao().getPhotosByFarmId(farmId);
-                Log.d(TAG, "Loading all photos for farm: " + farmId);
-            }
+        if (blockId != -1) {
+            photoRepository.getPhotosForBlock(blockId).observe(this,
+                    new Observer<List<PhotoEntity>>() {
+                        @Override
+                        public void onChanged(List<PhotoEntity> loadedPhotos) {
+                            updatePhotoList(loadedPhotos);
+                        }
+                    });
+        } else if (taskId != -1) {
+            photoRepository.getPhotosForTask(taskId).observe(this,
+                    new Observer<List<PhotoEntity>>() {
+                        @Override
+                        public void onChanged(List<PhotoEntity> loadedPhotos) {
+                            updatePhotoList(loadedPhotos);
+                        }
+                    });
+        } else if (expenseId != -1) {
+            photoRepository.getPhotosForExpense(expenseId).observe(this,
+                    new Observer<List<PhotoEntity>>() {
+                        @Override
+                        public void onChanged(List<PhotoEntity> loadedPhotos) {
+                            updatePhotoList(loadedPhotos);
+                        }
+                    });
+        } else {
+            photoRepository.getPhotosForFarm().observe(this,
+                    new Observer<List<PhotoEntity>>() {
+                        @Override
+                        public void onChanged(List<PhotoEntity> loadedPhotos) {
+                            updatePhotoList(loadedPhotos);
+                        }
+                    });
+        }
+    }
 
-            photos.clear();
-            photos.addAll(loadedPhotos);
-            Log.d(TAG, "Loaded " + loadedPhotos.size() + " photos");
+    private void updatePhotoList(List<PhotoEntity> loadedPhotos) {
+        photos.clear();
+        photos.addAll(loadedPhotos);
+        adapter.updatePhotos(photos);
 
-            runOnUiThread(() -> {
-                adapter.updatePhotos(photos);
-
-                if (photos.isEmpty()) {
-                    emptyView.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-                } else {
-                    emptyView.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-            });
-        }).start();
+        if (photos.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -326,5 +334,13 @@ public class PhotoGalleryActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (photoRepository != null) {
+            photoRepository.shutdown();
+        }
     }
 }

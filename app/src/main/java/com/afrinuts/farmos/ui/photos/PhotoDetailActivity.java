@@ -13,10 +13,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -38,7 +40,8 @@ public class PhotoDetailActivity extends BaseActivity {
 
     private long photoId;
     private PhotoEntity photo;
-    private AppDatabase database;
+    private PhotoRepository photoRepository;
+    private long farmId = 1; // Will be updated from photo
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -55,7 +58,6 @@ public class PhotoDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Owners and Managers can access photo details
         return !sessionManager.isInvestor();
     }
 
@@ -64,7 +66,6 @@ public class PhotoDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_detail);
 
-        // Get photo ID from intent
         photoId = getIntent().getLongExtra(EXTRA_PHOTO_ID, -1);
         if (photoId == -1) {
             Toast.makeText(this, "Photo not found", Toast.LENGTH_SHORT).show();
@@ -72,16 +73,10 @@ public class PhotoDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database
-        database = AppDatabase.getInstance(this);
+        photoRepository = new PhotoRepository(this, farmId);
 
-        // Initialize views
         initViews();
-
-        // Setup toolbar
         setupToolbar();
-
-        // Load photo data
         loadPhotoData();
     }
 
@@ -115,18 +110,23 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void loadPhotoData() {
-        executor.execute(() -> {
-            PhotoEntity loadedPhoto = database.photoDao().getPhotoById(photoId);
-
-            runOnUiThread(() -> {
+        photoRepository.getPhotoById(photoId).observe(this, new Observer<PhotoEntity>() {
+            @Override
+            public void onChanged(PhotoEntity loadedPhoto) {
                 if (loadedPhoto != null) {
                     photo = loadedPhoto;
+                    long correctFarmId = photo.getFarmId();
+                    if (correctFarmId != farmId) {
+                        farmId = correctFarmId;
+                        photoRepository = new PhotoRepository(PhotoDetailActivity.this, farmId);
+                    }
                     displayPhotoData();
                 } else {
-                    Toast.makeText(this, "Photo not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PhotoDetailActivity.this,
+                            "Photo not found", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-            });
+            }
         });
     }
 
@@ -148,17 +148,12 @@ public class PhotoDetailActivity extends BaseActivity {
                     .apply(requestOptions)
                     .into(ivFullPhoto);
         } else {
-            // File doesn't exist, show error
             ivFullPhoto.setImageResource(R.drawable.ic_photo_error);
             Toast.makeText(this, "Image file not found", Toast.LENGTH_SHORT).show();
         }
 
         // Set caption
-        if (photo.getCaption() != null && !photo.getCaption().isEmpty()) {
-            tvCaption.setText(photo.getCaption());
-        } else {
-            tvCaption.setText("No caption");
-        }
+        tvCaption.setText(photo.getCaption() != null ? photo.getCaption() : "No caption");
 
         // Set date
         tvDate.setText(dateFormat.format(new Date(photo.getTakenAt())));
@@ -192,15 +187,25 @@ public class PhotoDetailActivity extends BaseActivity {
         builder.setPositiveButton("Save", (dialog, which) -> {
             String newCaption = input.getText().toString().trim();
 
-            executor.execute(() -> {
-                photo.setCaption(newCaption.isEmpty() ? null : newCaption);
-                database.photoDao().update(photo);
+            photoRepository.updatePhotoCaption(photoId, newCaption,
+                    new BaseRepository.RepositoryCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            runOnUiThread(() -> {
+                                tvCaption.setText(newCaption.isEmpty() ? "No caption" : newCaption);
+                                Toast.makeText(PhotoDetailActivity.this,
+                                        "Caption updated", Toast.LENGTH_SHORT).show();
+                            });
+                        }
 
-                runOnUiThread(() -> {
-                    tvCaption.setText(newCaption.isEmpty() ? "No caption" : newCaption);
-                    Toast.makeText(this, "Caption updated", Toast.LENGTH_SHORT).show();
-                });
-            });
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(PhotoDetailActivity.this,
+                                            "Error: " + error, Toast.LENGTH_SHORT).show()
+                            );
+                        }
+                    });
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
@@ -245,28 +250,23 @@ public class PhotoDetailActivity extends BaseActivity {
     private void deletePhoto() {
         if (photo == null) return;
 
-        executor.execute(() -> {
-            // Delete the actual file
-            File imageFile = new File(photo.getFilePath());
-            if (imageFile.exists()) {
-                imageFile.delete();
+        photoRepository.deletePhoto(photo, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(PhotoDetailActivity.this,
+                            "Photo deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
             }
 
-            // Delete thumbnail if exists
-            if (photo.getThumbnailPath() != null) {
-                File thumbFile = new File(photo.getThumbnailPath());
-                if (thumbFile.exists()) {
-                    thumbFile.delete();
-                }
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(PhotoDetailActivity.this,
+                                "Error: " + error, Toast.LENGTH_SHORT).show()
+                );
             }
-
-            // Delete from database
-            database.photoDao().delete(photo);
-
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Photo deleted", Toast.LENGTH_SHORT).show();
-                finish();
-            });
         });
     }
 
@@ -294,6 +294,9 @@ public class PhotoDetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (photoRepository != null) {
+            photoRepository.shutdown();
+        }
         executor.shutdown();
     }
 }

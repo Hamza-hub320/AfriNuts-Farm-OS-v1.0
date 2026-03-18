@@ -17,9 +17,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -38,9 +38,9 @@ public class BlockDialog extends DialogFragment {
     private static final String ARG_FARM_ID = "farm_id";
 
     private long farmId;
-    private AppDatabase database;
     private FarmEntity currentFarm;
     private List<BlockEntity> existingBlocks;
+    private BlockRepository blockRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -91,12 +91,13 @@ public class BlockDialog extends DialogFragment {
             farmId = getArguments().getLong(ARG_FARM_ID);
         }
 
-        database = AppDatabase.getInstance(requireContext());
+        // Initialize repository with long farmId
+        blockRepository = new BlockRepository(requireContext(), farmId);
 
-        // Load farm data and existing blocks in background
+        // Load existing blocks in background
         executor.execute(() -> {
-            currentFarm = database.farmDao().getFirstFarm();
-            existingBlocks = database.blockDao().getBlocksByFarmId(farmId);
+            // FIX 1: Use getAllBlocksSync() instead of getBlocksSync()
+            existingBlocks = blockRepository.getAllBlocksSync();
         });
     }
 
@@ -118,11 +119,7 @@ public class BlockDialog extends DialogFragment {
         AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-            positiveButton.setOnClickListener(v -> saveBlock());
-            negativeButton.setOnClickListener(v -> dismiss());
+            // We're using custom buttons, so no need to override dialog buttons
         });
 
         return dialog;
@@ -147,8 +144,8 @@ public class BlockDialog extends DialogFragment {
         etReplacementCount = view.findViewById(R.id.etReplacementCount);
         etNotes = view.findViewById(R.id.etNotes);
 
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-        Button btnSave = view.findViewById(R.id.btnSave);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
 
         btnCancel.setOnClickListener(v -> dismiss());
         btnSave.setOnClickListener(v -> saveBlock());
@@ -347,53 +344,60 @@ public class BlockDialog extends DialogFragment {
 
         long selectedDate = selectedDateCalendar.getTimeInMillis();
 
-        // Create final copies for lambda
-        final long finalFarmId = farmId;
-        final String finalBlockName = blockName;
-        final double finalHectareSize = hectareSize;
-        final String finalNotes = notes.isEmpty() ? null : notes;
-        final BlockEntity.BlockStatus finalStatus = status;
-        final long finalSelectedDate = selectedDate;
-        final double finalSurvivalRate = survivalRate;
-        final int finalReplacementCount = replacementCount;
+        // Create block object
+        BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes.isEmpty() ? null : notes);
+        block.setStatus(status);
 
-        executor.execute(() -> {
-            BlockEntity block = new BlockEntity(finalFarmId, finalBlockName, finalHectareSize, finalNotes);
-            block.setStatus(finalStatus);
+        switch (status) {
+            case CLEARED:
+                block.setClearedDate(selectedDate);
+                break;
+            case PLOWED:
+                block.setPlowedDate(selectedDate);
+                break;
+            case PLANTED:
+                block.setPlantedDate(selectedDate);
+                block.setSurvivalRate(survivalRate);
+                block.setReplacementCount(replacementCount);
+                break;
+        }
 
-            switch (finalStatus) {
-                case CLEARED:
-                    block.setClearedDate(finalSelectedDate);
-                    break;
-                case PLOWED:
-                    block.setPlowedDate(finalSelectedDate);
-                    break;
-                case PLANTED:
-                    block.setPlantedDate(finalSelectedDate);
-                    block.setSurvivalRate(finalSurvivalRate);
-                    block.setReplacementCount(finalReplacementCount);
-                    break;
-            }
+        // Show loading state
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
 
-            long id = database.blockDao().insert(block);
-
-            requireActivity().runOnUiThread(() -> {
-                if (id > 0) {
-                    Toast.makeText(getContext(), "Block added successfully!", Toast.LENGTH_SHORT).show();
-                    if (listener != null) {
-                        listener.onBlockAdded();
+        // FIX 2: insertBlock now returns CompletableFuture<Long>
+        blockRepository.insertBlock(block)
+                .thenAccept(id -> {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Block added successfully!", Toast.LENGTH_SHORT).show();
+                            if (listener != null) {
+                                listener.onBlockAdded();
+                            }
+                            dismiss();
+                        });
                     }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(), "Error adding block", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+                })
+                .exceptionally(throwable -> {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            btnSave.setEnabled(true);
+                            btnSave.setText("Save Block");
+                            Toast.makeText(getContext(), "Error adding block: " + throwable.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        });
+                    }
+                    return null;
+                });
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (blockRepository != null) {
+            blockRepository.shutdown();
+        }
         executor.shutdown();
     }
 }

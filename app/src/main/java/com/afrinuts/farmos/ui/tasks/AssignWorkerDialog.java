@@ -137,8 +137,8 @@ public class AssignWorkerDialog extends DialogFragment {
             return;
         }
 
-        // Check if task already has an active assignment
         new Thread(() -> {
+            // Check if task already has an active assignment
             TaskAssignmentHistoryEntity currentAssignment =
                     database.taskDao().getCurrentAssignment(taskId);
 
@@ -148,11 +148,12 @@ public class AssignWorkerDialog extends DialogFragment {
                 database.taskDao().updateAssignment(currentAssignment);
             }
 
-            // Create new assignment
+            // --- FIX HERE: Use full constructor with farmId ---
             TaskAssignmentHistoryEntity newAssignment = new TaskAssignmentHistoryEntity(
-                    taskId,
-                    workerName,
-                    System.currentTimeMillis()
+                    database.taskDao().getTaskById(taskId).getFarmId(), // farmId first
+                    taskId,                   // taskId
+                    workerName,               // assignedTo
+                    System.currentTimeMillis() // assignedAt
             );
 
             long id = database.taskDao().insertAssignment(newAssignment);
@@ -165,7 +166,7 @@ public class AssignWorkerDialog extends DialogFragment {
                         if (listener != null) {
                             listener.onWorkerAssigned();
                         }
-                        dismiss();
+                        dismiss(); // now works correctly
                     } else {
                         Toast.makeText(getContext(),
                                 "Error assigning worker", Toast.LENGTH_SHORT).show();

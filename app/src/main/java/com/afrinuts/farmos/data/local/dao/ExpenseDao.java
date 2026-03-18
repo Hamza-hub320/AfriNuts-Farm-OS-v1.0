@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -22,14 +23,29 @@ public interface ExpenseDao {
     @Delete
     void delete(ExpenseEntity expense);
 
+    @Query("DELETE FROM expenses WHERE id = :id")
+    void deleteById(long id);
+
     @Query("SELECT * FROM expenses WHERE id = :id")
     ExpenseEntity getExpenseById(long id);
+
+    @Query("SELECT * FROM expenses WHERE id = :id")
+    LiveData<ExpenseEntity> getExpenseByIdLiveData(long id);
 
     @Query("SELECT * FROM expenses WHERE farmId = :farmId ORDER BY date DESC")
     List<ExpenseEntity> getExpensesByFarmId(long farmId);
 
+    @Query("SELECT * FROM expenses WHERE farmId = :farmId ORDER BY date DESC")
+    LiveData<List<ExpenseEntity>> getExpensesByFarmIdLiveData(long farmId);
+
     @Query("SELECT * FROM expenses WHERE blockId = :blockId ORDER BY date DESC")
     List<ExpenseEntity> getExpensesByBlockId(long blockId);
+
+    @Query("SELECT * FROM expenses WHERE blockId = :blockId ORDER BY date DESC")
+    LiveData<List<ExpenseEntity>> getExpensesByBlockIdLiveData(long blockId);
+
+    @Query("SELECT * FROM expenses ORDER BY date DESC")
+    LiveData<List<ExpenseEntity>> getAllExpensesLiveData();
 
     @Query("SELECT * FROM expenses WHERE farmId = :farmId AND blockId IS NULL ORDER BY date DESC")
     List<ExpenseEntity> getFarmWideExpenses(long farmId);

@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -22,11 +23,23 @@ public interface BlockDao {
     @Delete
     void delete(BlockEntity block);
 
+    @Query("DELETE FROM blocks WHERE id = :id")
+    void deleteById(long id);
+
     @Query("SELECT * FROM blocks WHERE id = :id")
     BlockEntity getBlockById(long id);
 
+    @Query("SELECT * FROM blocks WHERE id = :id")
+    LiveData<BlockEntity> getBlockByIdLiveData(long id);
+
     @Query("SELECT * FROM blocks WHERE farmId = :farmId ORDER BY blockName ASC")
     List<BlockEntity> getBlocksByFarmId(long farmId);
+
+    @Query("SELECT * FROM blocks WHERE farmId = :farmId ORDER BY blockName ASC")
+    LiveData<List<BlockEntity>> getBlocksByFarmIdLiveData(long farmId);
+
+    @Query("SELECT * FROM blocks ORDER BY blockName ASC")
+    LiveData<List<BlockEntity>> getAllBlocksLiveData();
 
     @Query("SELECT COUNT(*) FROM blocks WHERE farmId = :farmId")
     int getBlockCount(long farmId);
@@ -42,4 +55,10 @@ public interface BlockDao {
 
     @Query("SELECT * FROM blocks ORDER BY blockName ASC")
     List<BlockEntity> getAllBlocks();
+
+    @Query("SELECT * FROM blocks WHERE farmId = :farmId ORDER BY blockName ASC")
+    LiveData<List<BlockEntity>> getBlocksByFarmIdLive(long farmId);
+
+    @Query("SELECT * FROM blocks WHERE id = :id")
+    LiveData<BlockEntity> getBlockByIdLive(long id);
 }

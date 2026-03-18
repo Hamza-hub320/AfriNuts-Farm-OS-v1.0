@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -24,11 +25,23 @@ public interface TaskDao {
     @Delete
     void deleteTask(TaskEntity task);
 
+    @Query("DELETE FROM tasks WHERE id = :id")
+    void deleteTaskById(long id);
+
     @Query("SELECT * FROM tasks WHERE id = :id")
     TaskEntity getTaskById(long id);
 
+    @Query("SELECT * FROM tasks WHERE id = :id")
+    LiveData<TaskEntity> getTaskByIdLiveData(long id);
+
     @Query("SELECT * FROM tasks WHERE farmId = :farmId ORDER BY dueDate ASC")
     List<TaskEntity> getTasksByFarmId(long farmId);
+
+    @Query("SELECT * FROM tasks WHERE farmId = :farmId ORDER BY dueDate ASC")
+    LiveData<List<TaskEntity>> getTasksByFarmIdLiveData(long farmId);
+
+    @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
+    LiveData<List<TaskEntity>> getAllTasksLiveData();
 
     @Query("SELECT * FROM tasks WHERE blockId = :blockId ORDER BY dueDate ASC")
     List<TaskEntity> getTasksByBlockId(long blockId);

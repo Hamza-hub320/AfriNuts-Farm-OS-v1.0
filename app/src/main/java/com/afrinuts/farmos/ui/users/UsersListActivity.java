@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.users;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,12 +10,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.repository.UserRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -22,6 +25,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class UsersListActivity extends BaseActivity {
 
@@ -35,40 +40,31 @@ public class UsersListActivity extends BaseActivity {
     private ChipGroup filterChipGroup;
 
     private AppDatabase database;
+    private UserRepository userRepository;
+    private long farmId = 1L;
     private List<UserEntity> allUsers = new ArrayList<>();
     private List<UserEntity> filteredUsers = new ArrayList<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, OWNERS, MANAGERS, WORKERS, INVESTORS
 
     @Override
     protected boolean checkRoleAccess() {
-        // Only Owners can access UsersList
         return sessionManager.isOwner();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); // This will trigger role check
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users_list);
 
-        // If we get here, user has permission (Owner only)
-
-        // Initialize database
         database = AppDatabase.getInstance(this);
+        userRepository = new UserRepository(this, farmId);
 
-        // Initialize views
         initViews();
-
-        // Setup toolbar
         setupToolbar();
-
-        // Setup filter listeners
         setupFilters();
-
-        // Setup FAB
         setupFab();
-
-        // Load data
         loadData();
     }
 
@@ -93,6 +89,15 @@ public class UsersListActivity extends BaseActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
             getSupportActionBar().setTitle("Team Members");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupFilters() {
@@ -143,7 +148,7 @@ public class UsersListActivity extends BaseActivity {
         fab.setOnClickListener(v -> {
             AddUserDialog dialog = AddUserDialog.newInstance();
             dialog.setOnUserAddedListener(() -> {
-                loadData(); // Refresh list
+                loadData();
             });
             dialog.show(getSupportFragmentManager(), "AddUserDialog");
         });
@@ -152,10 +157,13 @@ public class UsersListActivity extends BaseActivity {
     private void loadData() {
         showLoading(true);
 
-        new Thread(() -> {
-            allUsers = database.userDao().getAllUsers();
+        // Use LiveData from repository
+        userRepository.getAllUsers().observe(this, new Observer<List<UserEntity>>() {
+            @Override
+            public void onChanged(List<UserEntity> users) {
+                allUsers.clear();
+                allUsers.addAll(users);
 
-            runOnUiThread(() -> {
                 showLoading(false);
 
                 if (allUsers.isEmpty()) {
@@ -165,8 +173,8 @@ public class UsersListActivity extends BaseActivity {
                     updateSummaryStats();
                     applyFilter();
                 }
-            });
-        }).start();
+            }
+        });
     }
 
     private void updateSummaryStats() {
@@ -220,8 +228,7 @@ public class UsersListActivity extends BaseActivity {
         }
 
         adapter = new UserAdapter(filteredUsers, user -> {
-            // Navigate to UserDetailActivity
-            android.content.Intent intent = new android.content.Intent(this, UserDetailActivity.class);
+            Intent intent = new Intent(UsersListActivity.this, UserDetailActivity.class);
             intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getId());
             startActivity(intent);
         });
@@ -242,11 +249,11 @@ public class UsersListActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+    protected void onDestroy() {
+        super.onDestroy();
+        if (userRepository != null) {
+            userRepository.shutdown();
         }
-        return super.onOptionsItemSelected(item);
+        executor.shutdown();
     }
 }

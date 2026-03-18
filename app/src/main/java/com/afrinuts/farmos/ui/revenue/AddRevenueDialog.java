@@ -24,6 +24,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -45,15 +47,19 @@ public class AddRevenueDialog extends DialogFragment {
     private static final String ARG_REVENUE_ID = "revenue_id";
 
     private long farmId;
+    private String farmIdString;
     private boolean isEditMode = false;
     private long revenueId = -1;
     private RevenueEntity existingRevenue = null;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
+    private RevenueRepository revenueRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private Button btnCancel;
+    private Button btnSave;
     private TextInputEditText etQuantity;
     private TextInputEditText etPricePerKg;
     private TextInputEditText etHarvestDate;
@@ -68,8 +74,8 @@ public class AddRevenueDialog extends DialogFragment {
     private TextView tvTotalAmount;
 
     private Calendar selectedDate = Calendar.getInstance();
-    private boolean isPerBlock = true; // Default to per block
-    private RevenueEntity.QualityGrade selectedQuality = RevenueEntity.QualityGrade.PREMIUM; // Default
+    private boolean isPerBlock = true;
+    private RevenueEntity.QualityGrade selectedQuality = RevenueEntity.QualityGrade.PREMIUM;
 
     public interface OnRevenueAddedListener {
         void onRevenueAdded();
@@ -106,6 +112,7 @@ public class AddRevenueDialog extends DialogFragment {
 
         if (getArguments() != null) {
             farmId = getArguments().getLong(ARG_FARM_ID);
+            farmIdString = String.valueOf(farmId);
             isEditMode = getArguments().getBoolean(ARG_EDIT_MODE, false);
             if (isEditMode) {
                 revenueId = getArguments().getLong(ARG_REVENUE_ID, -1);
@@ -113,6 +120,7 @@ public class AddRevenueDialog extends DialogFragment {
         }
 
         database = AppDatabase.getInstance(requireContext());
+        revenueRepository = new RevenueRepository(requireContext(), farmId);
 
         // Load data in background
         executor.execute(() -> {
@@ -147,11 +155,7 @@ public class AddRevenueDialog extends DialogFragment {
         AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
+            // Using custom buttons, so no need to handle dialog buttons
         });
 
         return dialog;
@@ -171,8 +175,8 @@ public class AddRevenueDialog extends DialogFragment {
         etNotes = view.findViewById(R.id.etNotes);
         tvTotalAmount = view.findViewById(R.id.tvTotalAmount);
 
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-        Button btnSave = view.findViewById(R.id.btnSave);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
 
         btnCancel.setOnClickListener(v -> dismiss());
 
@@ -183,15 +187,12 @@ public class AddRevenueDialog extends DialogFragment {
             btnSave.setOnClickListener(v -> insertRevenue());
         }
 
-        // Set default date to today
         updateDateLabel();
 
         if (isEditMode && existingRevenue != null) {
-            // Populate fields with existing revenue data
             etQuantity.setText(String.valueOf(existingRevenue.getQuantityKg()));
             etPricePerKg.setText(String.valueOf(existingRevenue.getPricePerKg()));
 
-            // Set revenue type
             if (existingRevenue.getBlockId() != null) {
                 isPerBlock = true;
                 toggleRevenueType.check(R.id.btnPerBlock);
@@ -202,7 +203,6 @@ public class AddRevenueDialog extends DialogFragment {
                 layoutBlockSelector.setVisibility(View.GONE);
             }
 
-            // Quality will be set in setupQualityDropdown after adapter is ready
             if (existingRevenue.getBuyer() != null) {
                 etBuyer.setText(existingRevenue.getBuyer());
             }
@@ -211,13 +211,11 @@ public class AddRevenueDialog extends DialogFragment {
             }
             calculateTotal();
         } else {
-            // Default to per block selected
             toggleRevenueType.check(R.id.btnPerBlock);
             layoutBlockSelector.setVisibility(View.VISIBLE);
         }
     }
 
-    // Custom adapter for quality grade dropdown with icons
     private class QualityGradeAdapter extends ArrayAdapter<RevenueEntity.QualityGrade> {
         private List<RevenueEntity.QualityGrade> grades;
 
@@ -250,7 +248,6 @@ public class AddRevenueDialog extends DialogFragment {
             TextView descriptionView = view.findViewById(R.id.qualityDescription);
 
             if (grade != null) {
-                // Set icon based on quality grade
                 int iconRes = getIconForQuality(grade);
                 iconView.setImageResource(iconRes);
                 iconView.setColorFilter(getContext().getColor(R.color.primary));
@@ -286,12 +283,10 @@ public class AddRevenueDialog extends DialogFragment {
         QualityGradeAdapter adapter = new QualityGradeAdapter(requireContext(), gradeList);
         etQuality.setAdapter(adapter);
 
-        // Set selection listener
         etQuality.setOnItemClickListener((parent, view, position, id) -> {
             selectedQuality = gradeList.get(position);
         });
 
-        // Set default or existing selection
         if (isEditMode && existingRevenue != null) {
             selectedQuality = existingRevenue.getQuality();
             etQuality.setText(selectedQuality.getDisplayName() + " Grade", false);
@@ -351,7 +346,6 @@ public class AddRevenueDialog extends DialogFragment {
                 allBlocks = database.blockDao().getBlocksByFarmId(farmId);
             }
 
-            // Sort blocks naturally (A1, A2, etc.)
             List<BlockEntity> sortedBlocks = new ArrayList<>(allBlocks);
             sortedBlocks.sort((b1, b2) -> {
                 String num1 = b1.getBlockName().substring(1);
@@ -359,7 +353,6 @@ public class AddRevenueDialog extends DialogFragment {
                 return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
             });
 
-            // Get blocks that already have revenue
             List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
             java.util.HashSet<Long> blocksWithRevenue = new java.util.HashSet<>();
             for (RevenueEntity revenue : existingRevenues) {
@@ -382,12 +375,10 @@ public class AddRevenueDialog extends DialogFragment {
                 );
                 etBlock.setAdapter(adapter);
 
-                // Suggest next available block
                 String nextBlock = getNextAvailableBlockForRevenue(sortedBlocks, blocksWithRevenue);
                 if (nextBlock != null && !isEditMode) {
                     etBlock.setText(nextBlock, false);
                 } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
-                    // Set the block for edit mode
                     for (BlockEntity block : allBlocks) {
                         if (block.getId() == existingRevenue.getBlockId()) {
                             etBlock.setText(block.getBlockName() + " - " + block.getStatus().getDisplayName(), false);
@@ -419,7 +410,6 @@ public class AddRevenueDialog extends DialogFragment {
         etQuantity.setOnKeyListener(listener);
         etPricePerKg.setOnKeyListener(listener);
 
-        // Also calculate when focus loses
         etQuantity.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) calculateTotal();
         });
@@ -451,7 +441,6 @@ public class AddRevenueDialog extends DialogFragment {
     }
 
     private void insertRevenue() {
-        // Validate quantity
         String quantityStr = etQuantity.getText().toString().trim();
         if (TextUtils.isEmpty(quantityStr)) {
             etQuantity.setError("Quantity is required");
@@ -470,7 +459,6 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
-        // Validate price
         String priceStr = etPricePerKg.getText().toString().trim();
         if (TextUtils.isEmpty(priceStr)) {
             etPricePerKg.setError("Price is required");
@@ -489,7 +477,6 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
-        // Validate block if per block
         Long blockId = null;
         if (isPerBlock) {
             String blockStr = etBlock.getText().toString().trim();
@@ -498,7 +485,6 @@ public class AddRevenueDialog extends DialogFragment {
                 return;
             }
 
-            // Find block ID from name
             String blockName = blockStr.split(" - ")[0];
             for (BlockEntity block : allBlocks) {
                 if (block.getBlockName().equals(blockName)) {
@@ -513,86 +499,53 @@ public class AddRevenueDialog extends DialogFragment {
             }
         }
 
-        // Validate quality
         if (selectedQuality == null) {
             Toast.makeText(getContext(), "Please select a quality grade", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Get buyer and notes
         String buyer = etBuyer.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
-
         long harvestDate = selectedDate.getTimeInMillis();
 
-        // Check for duplicate block revenue (only in add mode)
-        if (isPerBlock && blockId != null) {
-            Long finalBlockId = blockId;
-            executor.execute(() -> {
-                List<RevenueEntity> existingRevenues = database.revenueDao()
-                        .getRevenuesByBlockId(finalBlockId);
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
 
-                if (!existingRevenues.isEmpty()) {
-                    requireActivity().runOnUiThread(() -> {
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Duplicate Revenue")
-                                .setMessage("This block already has revenue recorded. Are you sure you want to add another entry?")
-                                .setPositiveButton("Yes, Add", (dialog, which) -> {
-                                    proceedWithInsert(quantity, price, finalBlockId, buyer, notes, harvestDate);
-                                })
-                                .setNegativeButton("Cancel", null)
-                                .show();
+        RevenueEntity revenue = new RevenueEntity(
+                farmId,
+                blockId,
+                harvestDate,
+                quantity,
+                price,
+                buyer.isEmpty() ? null : buyer,
+                selectedQuality,
+                notes.isEmpty() ? null : notes
+        );
+
+        revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
+            @Override
+            public void onSuccess(long id) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onRevenueAdded();
+                        }
+                        dismiss();
                     });
-                    return;
                 }
+            }
 
-                requireActivity().runOnUiThread(() -> {
-                    proceedWithInsert(quantity, price, finalBlockId, buyer, notes, harvestDate);
-                });
-            });
-        } else {
-            proceedWithInsert(quantity, price, blockId, buyer, notes, harvestDate);
-        }
-    }
-
-    private void proceedWithInsert(double quantity, double price, Long blockId,
-                                   String buyer, String notes, long harvestDate) {
-
-        // Create final copies for lambda
-        final long finalFarmId = farmId;
-        final Long finalBlockId = blockId;
-        final double finalQuantity = quantity;
-        final double finalPrice = price;
-        final String finalBuyer = buyer.isEmpty() ? null : buyer;
-        final RevenueEntity.QualityGrade finalQuality = selectedQuality;
-        final String finalNotes = notes.isEmpty() ? null : notes;
-        final long finalHarvestDate = harvestDate;
-
-        executor.execute(() -> {
-            RevenueEntity revenue = new RevenueEntity(
-                    finalFarmId,
-                    finalBlockId,
-                    finalHarvestDate,
-                    finalQuantity,
-                    finalPrice,
-                    finalBuyer,
-                    finalQuality,
-                    finalNotes
-            );
-
-            long id = database.revenueDao().insert(revenue);
-
-            requireActivity().runOnUiThread(() -> {
-                if (id > 0) {
-                    Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
-                    if (listener != null) {
-                        listener.onRevenueAdded();
-                    }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(), "Error adding revenue", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Add Revenue");
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                    });
                 }
-            });
+            }
         });
     }
 
@@ -602,7 +555,6 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
-        // Validate quantity
         String quantityStr = etQuantity.getText().toString().trim();
         if (TextUtils.isEmpty(quantityStr)) {
             etQuantity.setError("Quantity is required");
@@ -621,7 +573,6 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
-        // Validate price
         String priceStr = etPricePerKg.getText().toString().trim();
         if (TextUtils.isEmpty(priceStr)) {
             etPricePerKg.setError("Price is required");
@@ -640,7 +591,6 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
-        // Validate block if per block
         Long blockId = null;
         if (isPerBlock) {
             String blockStr = etBlock.getText().toString().trim();
@@ -663,53 +613,60 @@ public class AddRevenueDialog extends DialogFragment {
             }
         }
 
-        // Validate quality
         if (selectedQuality == null) {
             Toast.makeText(getContext(), "Please select a quality grade", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Get buyer and notes
         String buyer = etBuyer.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
-
         long harvestDate = selectedDate.getTimeInMillis();
 
-        // Create final copies for lambda
-        final RevenueEntity finalExistingRevenue = existingRevenue;
-        final Long finalBlockId = blockId;
-        final double finalQuantity = quantity;
-        final double finalPrice = price;
-        final String finalBuyer = buyer.isEmpty() ? null : buyer;
-        final RevenueEntity.QualityGrade finalQuality = selectedQuality;
-        final String finalNotes = notes.isEmpty() ? null : notes;
-        final long finalHarvestDate = harvestDate;
+        btnSave.setEnabled(false);
+        btnSave.setText("Updating...");
 
-        executor.execute(() -> {
-            finalExistingRevenue.setQuantityKg(finalQuantity);
-            finalExistingRevenue.setPricePerKg(finalPrice);
-            finalExistingRevenue.setHarvestDate(finalHarvestDate);
-            finalExistingRevenue.setBlockId(finalBlockId);
-            finalExistingRevenue.setQuality(finalQuality);
-            finalExistingRevenue.setBuyer(finalBuyer);
-            finalExistingRevenue.setNotes(finalNotes);
-            finalExistingRevenue.setUpdatedAt(System.currentTimeMillis());
+        existingRevenue.setQuantityKg(quantity);
+        existingRevenue.setPricePerKg(price);
+        existingRevenue.setHarvestDate(harvestDate);
+        existingRevenue.setBlockId(blockId);
+        existingRevenue.setQuality(selectedQuality);
+        existingRevenue.setBuyer(buyer.isEmpty() ? null : buyer);
+        existingRevenue.setNotes(notes.isEmpty() ? null : notes);
+        existingRevenue.setUpdatedAt(System.currentTimeMillis());
 
-            database.revenueDao().update(finalExistingRevenue);
-
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(getContext(), "Revenue updated successfully!", Toast.LENGTH_SHORT).show();
-                if (listener != null) {
-                    listener.onRevenueAdded();
+        revenueRepository.updateRevenue(existingRevenue, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Revenue updated successfully!", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onRevenueAdded();
+                        }
+                        dismiss();
+                    });
                 }
-                dismiss();
-            });
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Update Revenue");
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
         });
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (revenueRepository != null) {
+            revenueRepository.shutdown();
+        }
         executor.shutdown();
     }
 }

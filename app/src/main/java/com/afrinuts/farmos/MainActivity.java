@@ -20,6 +20,10 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.afrinuts.farmos.data.repository.WeatherRepository;
+import com.afrinuts.farmos.data.repository.BlockRepository;
+import com.afrinuts.farmos.data.repository.ExpenseRepository;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.data.repository.TaskRepository;
 
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -57,6 +61,9 @@ import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
@@ -150,6 +157,12 @@ public class MainActivity extends AppCompatActivity {
     private ListenerRegistration revenuesListener;
     private ListenerRegistration tasksListener;
 
+    // Repositories
+    private BlockRepository blockRepository;
+    private ExpenseRepository expenseRepository;
+    private RevenueRepository revenueRepository;
+    private TaskRepository taskRepository;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -184,6 +197,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize database
         database = AppDatabase.getInstance(this);
+
+        // Initialize repositories (will be updated when farm loads)
+        long defaultFarmId = 1L;
+        blockRepository = new BlockRepository(this, defaultFarmId);
+        expenseRepository = new ExpenseRepository(this, defaultFarmId);
+        revenueRepository = new RevenueRepository(this, defaultFarmId);
+        taskRepository = new TaskRepository(this, defaultFarmId);
 
         // Load current user in background
         loadCurrentUser();
@@ -238,10 +258,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeSyncListener() {
         if (currentFarm == null) {
-            // Wait for farm to be loaded
+            // Wait for farm to be loaded - but with a timeout to prevent infinite loops
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (currentFarm != null) {
                     setupSyncListener();
+                } else {
+                    Log.d(TAG, "Farm still null after delay, sync listener not initialized");
                 }
             }, 500);
         } else {
@@ -291,6 +313,13 @@ public class MainActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 currentFarm = farm;
+
+                // Update repositories with correct farmId
+                long farmId = farm.getId();
+                blockRepository = new BlockRepository(MainActivity.this, farmId);
+                expenseRepository = new ExpenseRepository(MainActivity.this, farmId);
+                revenueRepository = new RevenueRepository(MainActivity.this, farmId);
+                taskRepository = new TaskRepository(MainActivity.this, farmId);
 
                 // Now that farm exists, load farm data
                 loadFarmData();
@@ -501,20 +530,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // ========================================
+    // FIRESTORE REAL-TIME LISTENERS
+    // ========================================
+
     private void startAllListeners() {
         if (currentFarm == null) {
             Log.e(TAG, "Cannot start listeners: farm is null");
             return;
         }
 
-        String farmId = String.valueOf(currentFarm.getId());  // Convert to String
+        // Use String consistently for Firestore queries
+        String farmId = String.valueOf(currentFarm.getId());
         Log.d(TAG, "Starting real-time listeners for farm: " + farmId);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Blocks listener
         blocksListener = db.collection("blocks")
-                .whereEqualTo("farmId", farmId)  // Now using String
+                .whereEqualTo("farmId", farmId)
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
                         Log.e(TAG, "Blocks listener failed", error);
@@ -566,7 +600,7 @@ public class MainActivity extends AppCompatActivity {
             switch (dc.getType()) {
                 case ADDED:
                     Log.d(TAG, "New " + collection + " added remotely");
-                    handleDocumentAdded(collection, document);
+                    handleDocumentAdded(collection, document);  // Fixed typo
                     break;
                 case MODIFIED:
                     Log.d(TAG, collection + " modified remotely");
@@ -595,32 +629,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void handleDocumentAdded(String collection, DocumentSnapshot doc) {
-        databaseExecutor.execute(() -> {
-            try {
-                switch (collection) {
-                    case "blocks":
-                        BlockEntity block = documentToBlock(doc);
-                        if (block != null) {
-                            database.blockDao().insert(block);
-                            Log.d(TAG, "Added block: " + block.getBlockName());
-                        }
-                        break;
-                    case "expenses":
-                        // You'll need to add documentToExpense() method
-                        break;
-                    case "revenues":
-                        // You'll need to add documentToRevenue() method
-                        break;
-                    case "tasks":
-                        // You'll need to add documentToTask() method
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error handling added document", e);
-            }
-        });
-    }
 
     private void handleDocumentModified(String collection, DocumentSnapshot doc) {
         databaseExecutor.execute(() -> {
@@ -629,22 +637,73 @@ public class MainActivity extends AppCompatActivity {
                     case "blocks":
                         BlockEntity block = documentToBlock(doc);
                         if (block != null) {
-                            database.blockDao().update(block);
+                            blockRepository.syncBlockFromFirestore(doc);
                             Log.d(TAG, "Updated block: " + block.getBlockName());
                         }
                         break;
                     case "expenses":
-                        // You'll need to add documentToExpense() method
+                        ExpenseEntity expense = documentToExpense(doc);
+                        if (expense != null) {
+                            expenseRepository.syncExpenseFromFirestore(doc);
+                            Log.d(TAG, "Updated expense: " + expense.getId());
+                        }
                         break;
                     case "revenues":
-                        // You'll need to add documentToRevenue() method
+                        RevenueEntity revenue = documentToRevenue(doc);
+                        if (revenue != null) {
+                            revenueRepository.syncRevenueFromFirestore(doc);
+                            Log.d(TAG, "Updated revenue: " + revenue.getId());
+                        }
                         break;
                     case "tasks":
-                        // You'll need to add documentToTask() method
+                        TaskEntity task = documentToTask(doc);
+                        if (task != null) {
+                            taskRepository.syncTaskFromFirestore(doc);
+                            Log.d(TAG, "Updated task: " + task.getTitle());
+                        }
                         break;
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error handling modified document", e);
+            }
+        });
+    }
+
+    private void handleDocumentAdded(String collection, DocumentSnapshot doc) {
+        databaseExecutor.execute(() -> {
+            try {
+                switch (collection) {
+                    case "blocks":
+                        BlockEntity block = documentToBlock(doc);
+                        if (block != null) {
+                            blockRepository.syncBlockFromFirestore(doc);
+                            Log.d(TAG, "Added block: " + block.getBlockName());
+                        }
+                        break;
+                    case "expenses":
+                        ExpenseEntity expense = documentToExpense(doc);
+                        if (expense != null) {
+                            expenseRepository.syncExpenseFromFirestore(doc);
+                            Log.d(TAG, "Added expense: " + expense.getId());
+                        }
+                        break;
+                    case "revenues":
+                        RevenueEntity revenue = documentToRevenue(doc);
+                        if (revenue != null) {
+                            revenueRepository.syncRevenueFromFirestore(doc);
+                            Log.d(TAG, "Added revenue: " + revenue.getId());
+                        }
+                        break;
+                    case "tasks":
+                        TaskEntity task = documentToTask(doc);
+                        if (task != null) {
+                            taskRepository.syncTaskFromFirestore(doc);
+                            Log.d(TAG, "Added task: " + task.getTitle());
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling added document", e);
             }
         });
     }
@@ -662,13 +721,25 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case "expenses":
-                        // You'll need to add expense deletion
+                        ExpenseEntity expense = database.expenseDao().getExpenseById(id);
+                        if (expense != null) {
+                            database.expenseDao().delete(expense);
+                            Log.d(TAG, "Removed expense: " + id);
+                        }
                         break;
                     case "revenues":
-                        // You'll need to add revenue deletion
+                        RevenueEntity revenue = database.revenueDao().getRevenueById(id);
+                        if (revenue != null) {
+                            database.revenueDao().delete(revenue);
+                            Log.d(TAG, "Removed revenue: " + id);
+                        }
                         break;
                     case "tasks":
-                        // You'll need to add task deletion
+                        TaskEntity task = database.taskDao().getTaskById(id);
+                        if (task != null) {
+                            database.taskDao().deleteTask(task);
+                            Log.d(TAG, "Removed task: " + task.getTitle());
+                        }
                         break;
                 }
             } catch (Exception e) {
@@ -677,11 +748,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Add these converter methods if you don't have them
+    // ========================================
+    // DOCUMENT CONVERTERS
+    // ========================================
+
     private BlockEntity documentToBlock(DocumentSnapshot doc) {
         try {
             long id = doc.getLong("id");
-            long farmId = doc.getLong("farmId");
+            // FIX: farmId is stored as String in Firestore, but BlockEntity expects long
+            String farmIdStr = doc.getString("farmId");
+            long farmId = farmIdStr != null ? Long.parseLong(farmIdStr) : 1L;
+
             String blockName = doc.getString("blockName");
             double hectareSize = doc.getDouble("hectareSize");
             String status = doc.getString("status");
@@ -708,28 +785,128 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private ExpenseEntity documentToExpense(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String farmIdStr = doc.getString("farmId");
+            long farmId = farmIdStr != null ? Long.parseLong(farmIdStr) : 1L;
+            Long blockId = doc.contains("blockId") ? doc.getLong("blockId") : null;
+            String category = doc.getString("category");
+            double amount = doc.getDouble("amount");
+            long date = doc.getLong("date");
+            String description = doc.getString("description");
+            String receiptPath = doc.getString("receiptPath");
+            long createdAt = doc.getLong("createdAt");
+
+            ExpenseEntity expense = new ExpenseEntity(
+                    farmId,
+                    blockId,
+                    ExpenseEntity.ExpenseCategory.valueOf(category),
+                    amount,
+                    date,
+                    description
+            );
+            expense.setId(id);
+            expense.setReceiptPath(receiptPath);
+            expense.setCreatedAt(createdAt);
+            return expense;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to expense", e);
+            return null;
+        }
+    }
+
+    private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String farmIdStr = doc.getString("farmId");
+            long farmId = farmIdStr != null ? Long.parseLong(farmIdStr) : 1L;
+            Long blockId = doc.contains("blockId") ? doc.getLong("blockId") : null;
+            long harvestDate = doc.getLong("harvestDate");
+            double quantityKg = doc.getDouble("quantityKg");
+            double pricePerKg = doc.getDouble("pricePerKg");
+            String buyer = doc.getString("buyer");
+            String quality = doc.getString("quality");
+            String notes = doc.getString("notes");
+            long createdAt = doc.getLong("createdAt");
+
+            RevenueEntity revenue = new RevenueEntity(
+                    farmId,
+                    blockId,
+                    harvestDate,
+                    quantityKg,
+                    pricePerKg,
+                    buyer,
+                    RevenueEntity.QualityGrade.valueOf(quality),
+                    notes
+            );
+            revenue.setId(id);
+            revenue.setCreatedAt(createdAt);
+            return revenue;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to revenue", e);
+            return null;
+        }
+    }
+
+    private TaskEntity documentToTask(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String farmIdStr = doc.getString("farmId");
+            long farmId = farmIdStr != null ? Long.parseLong(farmIdStr) : 1L;
+            Long blockId = doc.contains("blockId") ? doc.getLong("blockId") : null;
+            String title = doc.getString("title");
+            String description = doc.getString("description");
+            String status = doc.getString("status");
+            String type = doc.getString("type");
+            long dueDate = doc.getLong("dueDate");
+            Long completedDate = doc.contains("completedDate") ? doc.getLong("completedDate") : null;
+            long createdAt = doc.getLong("createdAt");
+
+            TaskEntity task = new TaskEntity(
+                    farmId,
+                    blockId,
+                    title,
+                    description,
+                    TaskEntity.TaskType.valueOf(type),
+                    TaskEntity.TaskStatus.valueOf(status),
+                    dueDate
+            );
+            task.setId(id);
+            task.setCompletedDate(completedDate);
+            task.setCreatedAt(createdAt);
+            return task;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to task", e);
+            return null;
+        }
+    }
+
     // ========================================
     // SYNC MANAGEMENT
     // ========================================
 
+    private boolean isSyncInitialized = false;
     private void setupSyncManager() {
         syncManager = SyncManager.getInstance(this);
     }
 
     private void setupSyncListener() {
-        Log.d(TAG, "setupSyncListener called");
-        Log.d(TAG, "currentFarm: " + (currentFarm != null ? currentFarm.getId() : "null"));
-        Log.d(TAG, "syncManager: " + (syncManager != null ? "not null" : "null"));
+        if (isSyncInitialized) {
+            Log.d(TAG, "Sync already initialized, skipping");
+            return;
+        }
 
         if (currentFarm == null || syncManager == null) {
             Log.d(TAG, "Cannot setup sync listener - farm or manager null");
             return;
         }
 
-        syncManager.init(this, String.valueOf(currentFarm.getId()), new SyncManager.SyncListener() {
+        Log.d(TAG, "Initializing SyncManager for farm: " + currentFarm.getId());
+
+        syncManager.init(this, currentFarm.getId(), new SyncManager.SyncListener() {
             @Override
             public void onSyncStarted() {
-                Log.d(TAG, "Sync started");
                 runOnUiThread(() -> {
                     ImageButton btnSync = findViewById(R.id.btnToolbarSync);
                     if (btnSync != null) {
@@ -745,14 +922,9 @@ public class MainActivity extends AppCompatActivity {
                     if (btnSync != null) {
                         animateSyncButton(btnSync, false);
                     }
-
                     if (syncedItems > 0) {
                         Toast.makeText(MainActivity.this,
                                 "Synced " + syncedItems + " item" + (syncedItems > 1 ? "s" : ""),
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this,
-                                "All up to date",
                                 Toast.LENGTH_SHORT).show();
                     }
                     loadFarmData();
@@ -761,7 +933,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSyncFailed(String error) {
-                Log.e(TAG, "Sync failed: " + error);
                 runOnUiThread(() -> {
                     ImageButton btnSync = findViewById(R.id.btnToolbarSync);
                     if (btnSync != null) {
@@ -774,22 +945,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onOfflineMode() {
-                Log.d(TAG, "Offline mode");
-                runOnUiThread(() -> {
-                    isOnline = false;
-                    showOfflineBanner();
-                });
+                runOnUiThread(() -> showOfflineBanner());
             }
 
             @Override
             public void onOnlineMode() {
-                Log.d(TAG, "Online mode");
-                runOnUiThread(() -> {
-                    isOnline = true;
-                    hideOfflineBanner();
-                });
+                runOnUiThread(() -> hideOfflineBanner());
             }
         });
+
+        isSyncInitialized = true;
     }
 
     private void animateSyncButton(ImageButton button, boolean start) {

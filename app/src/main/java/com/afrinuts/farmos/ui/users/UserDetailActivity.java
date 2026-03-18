@@ -21,6 +21,8 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.repository.UserRepository;
+import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.utils.AuthUtils;
@@ -42,6 +44,8 @@ public class UserDetailActivity extends BaseActivity {
     private long userId;
     private UserEntity user;
     private AppDatabase database;
+    private UserRepository userRepository;
+    private long farmId = 1L;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -91,6 +95,7 @@ public class UserDetailActivity extends BaseActivity {
 
         // Initialize database
         database = AppDatabase.getInstance(this);
+        userRepository = new UserRepository(this, farmId);
 
         // Initialize views
         initViews();
@@ -163,18 +168,14 @@ public class UserDetailActivity extends BaseActivity {
     }
 
     private void loadUserData() {
-        executor.execute(() -> {
-            UserEntity loadedUser = database.userDao().getUserById(userId);
-
-            runOnUiThread(() -> {
-                user = loadedUser;
-                if (user != null) {
-                    displayUserData();
-                } else {
-                    Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            });
+        userRepository.getUserById(userId).observe(this, loadedUser -> {
+            user = loadedUser;
+            if (user != null) {
+                displayUserData();
+            } else {
+                Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         });
     }
 
@@ -268,14 +269,24 @@ public class UserDetailActivity extends BaseActivity {
                 .setPositiveButton(user.isActive() ? "Deactivate" : "Activate",
                         (dialog, which) -> {
                             user.setActive(!user.isActive());
-                            executor.execute(() -> {
-                                database.userDao().update(user);
-                                runOnUiThread(() -> {
-                                    displayUserData();
-                                    Toast.makeText(this,
-                                            "User " + action + "d successfully",
-                                            Toast.LENGTH_SHORT).show();
-                                });
+                            userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean result) {
+                                    runOnUiThread(() -> {
+                                        displayUserData();
+                                        Toast.makeText(UserDetailActivity.this,
+                                                "User " + action + "d successfully",
+                                                Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    runOnUiThread(() ->
+                                            Toast.makeText(UserDetailActivity.this,
+                                                    "Error: " + error, Toast.LENGTH_SHORT).show()
+                                    );
+                                }
                             });
                         })
                 .setNegativeButton("Cancel", null)
@@ -299,14 +310,23 @@ public class UserDetailActivity extends BaseActivity {
                         "4. Click the 3 dots → Delete Account")
                 .setPositiveButton("Delete from App", (dialog, which) -> {
                     // Delete from local database only
-                    executor.execute(() -> {
-                        database.userDao().delete(user);
-                        runOnUiThread(() -> {
-                            Toast.makeText(this,
-                                    "User removed from app. Remember to delete from Firebase Console!",
-                                    Toast.LENGTH_LONG).show();
-                            finish();
-                        });
+                    userRepository.deleteUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(UserDetailActivity.this,
+                                        "User removed from app", Toast.LENGTH_LONG).show();
+                                finish();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(UserDetailActivity.this,
+                                            "Error: " + error, Toast.LENGTH_SHORT).show()
+                            );
+                        }
                     });
                 })
                 .setNegativeButton("Cancel", null)
@@ -319,12 +339,23 @@ public class UserDetailActivity extends BaseActivity {
 
     // Updates only local database
     private void updateLocalUserOnly() {
-        executor.execute(() -> {
-            database.userDao().update(user);
-            runOnUiThread(() -> {
-                Toast.makeText(this, "User updated successfully!", Toast.LENGTH_SHORT).show();
-                displayUserData();
-            });
+        userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(UserDetailActivity.this,
+                            "User updated successfully!", Toast.LENGTH_SHORT).show();
+                    displayUserData();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(UserDetailActivity.this,
+                                "Error: " + error, Toast.LENGTH_SHORT).show()
+                );
+            }
         });
     }
 
@@ -350,20 +381,29 @@ public class UserDetailActivity extends BaseActivity {
 
     // Helper method for current user updates that require logout
     private void updateLocalUserAndLogout() {
-        executor.execute(() -> {
-            database.userDao().update(user);
-            runOnUiThread(() -> {
-                Toast.makeText(this,
-                        "✓ Credentials updated! Please log in with your new credentials.",
-                        Toast.LENGTH_LONG).show();
+        userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(UserDetailActivity.this,
+                            "✓ Credentials updated! Please log in with your new credentials.",
+                            Toast.LENGTH_LONG).show();
 
-                // Force logout
-                sessionManager.logout();
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            });
+                    sessionManager.logout();
+                    Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(UserDetailActivity.this,
+                                "Error: " + error, Toast.LENGTH_SHORT).show()
+                );
+            }
         });
     }
 

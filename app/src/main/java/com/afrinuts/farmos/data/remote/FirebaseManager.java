@@ -47,12 +47,14 @@ public class FirebaseManager {
     // Collection names
     private static final String COLLECTION_FARMS = "farms";
     private static final String COLLECTION_USERS = "users";
-    private static final String COLLECTION_BLOCKS = "blocks";
-    private static final String COLLECTION_EXPENSES = "expenses";
-    private static final String COLLECTION_REVENUES = "revenues";
-    private static final String COLLECTION_TASKS = "tasks";
-    private static final String COLLECTION_PHOTOS = "photos";
-    private static final String COLLECTION_TASK_ASSIGNMENTS = "task_assignments";
+
+    // Subcollection names (under farms/{farmId}/)
+    private static final String SUBCOLLECTION_BLOCKS = "blocks";
+    private static final String SUBCOLLECTION_EXPENSES = "expenses";
+    private static final String SUBCOLLECTION_REVENUES = "revenues";
+    private static final String SUBCOLLECTION_TASKS = "tasks";
+    private static final String SUBCOLLECTION_PHOTOS = "photos";
+    private static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
 
     private FirebaseManager() {
         auth = FirebaseAuth.getInstance();
@@ -165,7 +167,7 @@ public class FirebaseManager {
     }
 
     // ========================================
-    // BLOCK OPERATIONS
+    // BLOCK OPERATIONS - UPDATED to use subcollections
     // ========================================
 
     public void saveBlock(BlockEntity block, String farmId) {
@@ -184,24 +186,28 @@ public class FirebaseManager {
         blockMap.put("createdAt", block.getCreatedAt());
         blockMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + block.getBlockName();
-        db.collection(COLLECTION_BLOCKS).document(docId)
+        // Save under farms/{farmId}/blocks/{blockId}
+        db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_BLOCKS)
+                .document(String.valueOf(block.getId()))
                 .set(blockMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Block saved: " + docId))
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Block saved: " + block.getId()))
                 .addOnFailureListener(e -> Log.e(TAG, "Error saving block", e));
     }
 
     public Task<QuerySnapshot> getBlocksForFarm(String farmId) {
-        return db.collection(COLLECTION_BLOCKS)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_BLOCKS)
                 .get();
     }
 
     // ========================================
-    // EXPENSE OPERATIONS
+    // EXPENSE OPERATIONS - UPDATED to use subcollections
     // ========================================
 
-    public void saveExpense(ExpenseEntity expense, String farmId) {
+    public void saveExpense(ExpenseEntity expense, String farmId) throws Exception {
         Map<String, Object> expenseMap = new HashMap<>();
         expenseMap.put("id", expense.getId());
         expenseMap.put("farmId", farmId);
@@ -214,24 +220,31 @@ public class FirebaseManager {
         expenseMap.put("createdAt", expense.getCreatedAt());
         expenseMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + expense.getId();
-        db.collection(COLLECTION_EXPENSES).document(docId)
-                .set(expenseMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Expense saved: " + docId))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving expense", e));
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_EXPENSES)
+                    .document(String.valueOf(expense.getId()))
+                    .set(expenseMap));
+            Log.d(TAG, "Expense saved: " + expense.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving expense: " + expense.getId(), e);
+            throw new Exception("Failed to save expense to Firestore", e);
+        }
     }
 
     public Task<QuerySnapshot> getExpensesForFarm(String farmId) {
-        return db.collection(COLLECTION_EXPENSES)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_EXPENSES)
                 .get();
     }
 
     // ========================================
-    // REVENUE OPERATIONS
+    // REVENUE OPERATIONS - UPDATED to use subcollections
     // ========================================
 
-    public void saveRevenue(RevenueEntity revenue, String farmId) {
+    public void saveRevenue(RevenueEntity revenue, String farmId) throws Exception {
         Map<String, Object> revenueMap = new HashMap<>();
         revenueMap.put("id", revenue.getId());
         revenueMap.put("farmId", farmId);
@@ -246,24 +259,31 @@ public class FirebaseManager {
         revenueMap.put("createdAt", revenue.getCreatedAt());
         revenueMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + revenue.getId();
-        db.collection(COLLECTION_REVENUES).document(docId)
-                .set(revenueMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Revenue saved: " + docId))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving revenue", e));
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_REVENUES)
+                    .document(String.valueOf(revenue.getId()))
+                    .set(revenueMap));
+            Log.d(TAG, "Revenue saved: " + revenue.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving revenue: " + revenue.getId(), e);
+            throw new Exception("Failed to save revenue to Firestore", e);
+        }
     }
 
     public Task<QuerySnapshot> getRevenuesForFarm(String farmId) {
-        return db.collection(COLLECTION_REVENUES)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_REVENUES)
                 .get();
     }
 
     // ========================================
-    // TASK OPERATIONS
+    // TASK OPERATIONS - UPDATED to use subcollections
     // ========================================
 
-    public void saveTask(TaskEntity task, String farmId) {
+    public void saveTask(TaskEntity task, String farmId) throws Exception {
         Map<String, Object> taskMap = new HashMap<>();
         taskMap.put("id", task.getId());
         taskMap.put("farmId", farmId);
@@ -277,16 +297,23 @@ public class FirebaseManager {
         taskMap.put("createdAt", task.getCreatedAt());
         taskMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + task.getId();
-        db.collection(COLLECTION_TASKS).document(docId)
-                .set(taskMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Task saved: " + docId))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving task", e));
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_TASKS)
+                    .document(String.valueOf(task.getId()))
+                    .set(taskMap));
+            Log.d(TAG, "Task saved: " + task.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving task: " + task.getId(), e);
+            throw new Exception("Failed to save task to Firestore", e);
+        }
     }
 
     public Task<QuerySnapshot> getTasksForFarm(String farmId) {
-        return db.collection(COLLECTION_TASKS)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_TASKS)
                 .get();
     }
 
@@ -328,7 +355,7 @@ public class FirebaseManager {
         photoMap.put("blockId", photo.getBlockId());
         photoMap.put("taskId", photo.getTaskId());
         photoMap.put("expenseId", photo.getExpenseId());
-        photoMap.put("filePath", downloadUrl); // Store cloud URL instead of local path
+        photoMap.put("filePath", downloadUrl);
         photoMap.put("thumbnailPath", photo.getThumbnailPath());
         photoMap.put("caption", photo.getCaption());
         photoMap.put("takenAt", photo.getTakenAt());
@@ -338,22 +365,27 @@ public class FirebaseManager {
         photoMap.put("createdAt", photo.getCreatedAt());
         photoMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + photo.getId();
-        db.collection(COLLECTION_PHOTOS).document(docId)
+        // Save under farms/{farmId}/photos/{photoId}
+        db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_PHOTOS)
+                .document(String.valueOf(photo.getId()))
                 .set(photoMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Photo metadata saved: " + docId))
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Photo metadata saved: " + photo.getId()))
                 .addOnFailureListener(e -> Log.e(TAG, "Error saving photo metadata", e));
     }
 
     public Task<QuerySnapshot> getPhotosForFarm(String farmId) {
-        return db.collection(COLLECTION_PHOTOS)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_PHOTOS)
                 .get();
     }
 
     public Task<QuerySnapshot> getPhotosForBlock(String farmId, long blockId) {
-        return db.collection(COLLECTION_PHOTOS)
-                .whereEqualTo("farmId", farmId)
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_PHOTOS)
                 .whereEqualTo("blockId", blockId)
                 .get();
     }
@@ -379,8 +411,6 @@ public class FirebaseManager {
 
         Tasks.whenAllComplete(tasks)
                 .addOnSuccessListener(results -> {
-                    // Process results and update local database
-                    // This would call your existing DAOs to insert/update
                     callback.onComplete();
                 })
                 .addOnFailureListener(e -> {
@@ -389,21 +419,61 @@ public class FirebaseManager {
     }
 
     // ========================================
-    // DELETE OPERATIONS
+    // DELETE OPERATIONS - UPDATED to use subcollections
     // ========================================
 
     public void deleteFarm(String farmId) {
         db.collection(COLLECTION_FARMS).document(farmId).delete();
     }
 
-    public void deleteBlock(String farmId, String blockName) {
-        String docId = farmId + "_" + blockName;
-        db.collection(COLLECTION_BLOCKS).document(docId).delete();
+    public void deleteBlock(String farmId, long blockId) {
+        db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_BLOCKS)
+                .document(String.valueOf(blockId))
+                .delete();
     }
 
-    public void deleteExpense(String farmId, long expenseId) {
-        String docId = farmId + "_" + expenseId;
-        db.collection(COLLECTION_EXPENSES).document(docId).delete();
+    public void deleteExpense(String farmId, long expenseId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_EXPENSES)
+                    .document(String.valueOf(expenseId))
+                    .delete());
+            Log.d(TAG, "Expense deleted: " + expenseId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting expense: " + expenseId, e);
+            throw new Exception("Failed to delete expense from Firestore", e);
+        }
+    }
+
+    public void deleteRevenue(String farmId, long revenueId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_REVENUES)
+                    .document(String.valueOf(revenueId))
+                    .delete());
+            Log.d(TAG, "Revenue deleted: " + revenueId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting revenue: " + revenueId, e);
+            throw new Exception("Failed to delete revenue from Firestore", e);
+        }
+    }
+
+    public void deleteTask(String farmId, long taskId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_TASKS)
+                    .document(String.valueOf(taskId))
+                    .delete());
+            Log.d(TAG, "Task deleted: " + taskId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting task: " + taskId, e);
+            throw new Exception("Failed to delete task from Firestore", e);
+        }
     }
 
     public void deletePhoto(String farmId, long photoId, PhotoUploadCallback callback) {
@@ -416,8 +486,10 @@ public class FirebaseManager {
 
         photoRef.delete().addOnSuccessListener(aVoid -> {
             // Then delete metadata from Firestore
-            String docId = farmId + "_" + photoId;
-            db.collection(COLLECTION_PHOTOS).document(docId)
+            db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_PHOTOS)
+                    .document(String.valueOf(photoId))
                     .delete()
                     .addOnSuccessListener(aVoid2 -> {
                         if (callback != null) {

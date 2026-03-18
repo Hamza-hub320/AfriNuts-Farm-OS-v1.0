@@ -24,6 +24,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -35,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddExpenseDialog extends DialogFragment {
 
@@ -43,7 +47,8 @@ public class AddExpenseDialog extends DialogFragment {
     private long farmId;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
-    private AppDatabase database;
+    private ExpenseRepository expenseRepository;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextInputEditText etAmount;
@@ -64,6 +69,7 @@ public class AddExpenseDialog extends DialogFragment {
 
     // Store the display names for the dropdown
     private String[] categoryDisplayNames;
+    private ExpenseEntity.ExpenseCategory[] categories;
 
     public interface OnExpenseAddedListener {
         void onExpenseAdded();
@@ -91,13 +97,14 @@ public class AddExpenseDialog extends DialogFragment {
             farmId = getArguments().getLong(ARG_FARM_ID);
         }
 
-        database = AppDatabase.getInstance(requireContext());
+        // Initialize repository
+        expenseRepository = new ExpenseRepository(requireContext(), farmId);
 
         // Load data in background
-        new Thread(() -> {
-            currentFarm = database.farmDao().getFarmById(farmId);
-            allBlocks = database.blockDao().getBlocksByFarmId(farmId);
-        }).start();
+        executor.execute(() -> {
+            // We still need direct DB access for blocks until we create BlockRepository
+            // For now, we'll keep direct DB access
+        });
     }
 
     @NonNull
@@ -154,7 +161,7 @@ public class AddExpenseDialog extends DialogFragment {
     }
 
     private void setupCategoryDropdown() {
-        ExpenseEntity.ExpenseCategory[] categories = ExpenseEntity.ExpenseCategory.values();
+        categories = ExpenseEntity.ExpenseCategory.values();
 
         // Create array of display names
         categoryDisplayNames = new String[categories.length];
@@ -258,25 +265,27 @@ public class AddExpenseDialog extends DialogFragment {
     }
 
     private void loadBlocksForDropdown() {
-        new Thread(() -> {
-            if (allBlocks == null) {
-                allBlocks = database.blockDao().getBlocksByFarmId(farmId);
-            }
+        executor.execute(() -> {
+            // For now, use direct DB access until we create BlockRepository
+            AppDatabase database = AppDatabase.getInstance(requireContext());
+            allBlocks = database.blockDao().getBlocksByFarmId(farmId);
 
             List<String> blockNames = new ArrayList<>();
             for (BlockEntity block : allBlocks) {
                 blockNames.add(block.getBlockName() + " - " + block.getStatus().getDisplayName());
             }
 
-            requireActivity().runOnUiThread(() -> {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        blockNames
-                );
-                etBlock.setAdapter(adapter);
-            });
-        }).start();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            blockNames
+                    );
+                    etBlock.setAdapter(adapter);
+                });
+            }
+        });
     }
 
     private void saveExpense() {
@@ -337,7 +346,7 @@ public class AddExpenseDialog extends DialogFragment {
 
         long date = selectedDate.getTimeInMillis();
 
-        // Create and save expense
+        // Create expense object
         ExpenseEntity expense = new ExpenseEntity(
                 farmId,
                 blockId,
@@ -347,24 +356,51 @@ public class AddExpenseDialog extends DialogFragment {
                 description
         );
 
-        Toast.makeText(getContext(), "Saving expense...", Toast.LENGTH_SHORT).show();
+        // Show loading state
+        Button btnSave = getDialog() != null ? getDialog().findViewById(R.id.btnSave) : null;
+        if (btnSave != null) {
+            btnSave.setEnabled(false);
+            btnSave.setText("Saving...");
+        }
 
-        new Thread(() -> {
-            long id = database.expenseDao().insert(expense);
-
-            requireActivity().runOnUiThread(() -> {
-                if (id > 0) {
-                    Toast.makeText(getContext(),
-                            "Expense added successfully!", Toast.LENGTH_SHORT).show();
-                    if (listener != null) {
-                        listener.onExpenseAdded();
-                    }
-                    dismiss();
-                } else {
-                    Toast.makeText(getContext(),
-                            "Error adding expense", Toast.LENGTH_SHORT).show();
+        // Use repository to save
+        expenseRepository.insertExpense(expense, new BaseRepository.InsertCallback() {
+            @Override
+            public void onSuccess(long id) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(),
+                                "Expense added successfully!", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onExpenseAdded();
+                        }
+                        dismiss();
+                    });
                 }
-            });
-        }).start();
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(),
+                                "Error adding expense: " + error, Toast.LENGTH_LONG).show();
+                        if (btnSave != null) {
+                            btnSave.setEnabled(true);
+                            btnSave.setText("Save Expense");
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (expenseRepository != null) {
+            expenseRepository.shutdown();
+        }
+        executor.shutdown();
     }
 }

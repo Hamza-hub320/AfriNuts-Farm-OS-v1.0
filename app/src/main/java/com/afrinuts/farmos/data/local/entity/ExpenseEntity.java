@@ -34,6 +34,9 @@ public class ExpenseEntity {
 
     private String receiptPath;  // For future photo attachment
 
+    // Firestore document ID used for cloud synchronization
+    private String firestoreId;
+
     // Audit timestamps
     private long createdAt;
     private long updatedAt;
@@ -120,6 +123,12 @@ public class ExpenseEntity {
     public void setReceiptPath(String receiptPath) {
         this.receiptPath = receiptPath;
         this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getFirestoreId() { return firestoreId; }
+
+    public void setFirestoreId(String firestoreId) {
+        this.firestoreId = firestoreId;
     }
 
     public long getCreatedAt() { return createdAt; }

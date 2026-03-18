@@ -21,6 +21,7 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.afrinuts.farmos.data.remote.FirestoreHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -46,6 +47,7 @@ public class SyncService extends Service {
     private Handler mainHandler;
     private AppDatabase database;
     private FirebaseManager firebaseManager;
+    private FirestoreHelper firestoreHelper;
     private AtomicBoolean isSyncing = new AtomicBoolean(false);
     private String currentFarmId;
 
@@ -60,6 +62,8 @@ public class SyncService extends Service {
         super.onCreate();
         database = AppDatabase.getInstance(this);
         firebaseManager = FirebaseManager.getInstance();
+        // Initialize FirestoreHelper with 0L, will update when farmId is set
+        firestoreHelper = new FirestoreHelper(0L);
         mainHandler = new Handler(Looper.getMainLooper());
 
         // Create background thread for sync operations
@@ -72,7 +76,6 @@ public class SyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // If service is restarted, we can reinitialize
         return START_STICKY;
     }
 
@@ -102,6 +105,7 @@ public class SyncService extends Service {
         }
 
         this.currentFarmId = farmId;
+        this.firestoreHelper = new FirestoreHelper(Long.parseLong(farmId));
         isSyncing.set(true);
 
         syncHandler.post(() -> performFullSync());
@@ -167,7 +171,7 @@ public class SyncService extends Service {
     private void uploadBlocks() {
         List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(Long.parseLong(currentFarmId));
         for (BlockEntity block : blocks) {
-            firebaseManager.saveBlock(block, currentFarmId);
+            firestoreHelper.uploadBlock(block);
         }
     }
 
@@ -177,8 +181,7 @@ public class SyncService extends Service {
     private void uploadExpenses() {
         List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(Long.parseLong(currentFarmId));
         for (ExpenseEntity expense : expenses) {
-            // TODO: Implement saveExpense in FirebaseManager
-            // firebaseManager.saveExpense(expense, currentFarmId);
+            firestoreHelper.uploadExpense(expense);
         }
     }
 
@@ -188,7 +191,7 @@ public class SyncService extends Service {
     private void uploadRevenues() {
         List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(Long.parseLong(currentFarmId));
         for (RevenueEntity revenue : revenues) {
-            // TODO: Implement saveRevenue in FirebaseManager
+            firestoreHelper.uploadRevenue(revenue);
         }
     }
 
@@ -198,7 +201,7 @@ public class SyncService extends Service {
     private void uploadTasks() {
         List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(Long.parseLong(currentFarmId));
         for (TaskEntity task : tasks) {
-            // TODO: Implement saveTask in FirebaseManager
+            firestoreHelper.uploadTask(task);
         }
     }
 
@@ -255,10 +258,8 @@ public class SyncService extends Service {
         firebaseManager.getBlocksForFarm(currentFarmId)
                 .addOnSuccessListener(querySnapshot -> {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        // Convert Firebase document to BlockEntity
                         BlockEntity block = documentToBlock(doc);
                         if (block != null) {
-                            // Update local database
                             BlockEntity existing = database.blockDao().getBlockById(block.getId());
                             if (existing == null) {
                                 database.blockDao().insert(block);
@@ -326,22 +327,237 @@ public class SyncService extends Service {
      * Download expenses from Firebase
      */
     private void downloadExpenses() throws Exception {
-        // Similar to downloadBlocks
-        // TODO: Implement
+        CountDownLatch latch = new CountDownLatch(1);
+        final Exception[] error = new Exception[1];
+
+        firebaseManager.getExpensesForFarm(currentFarmId)
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        ExpenseEntity expense = documentToExpense(doc);
+                        if (expense != null) {
+                            ExpenseEntity existing = database.expenseDao().getExpenseById(expense.getId());
+                            if (existing == null) {
+                                database.expenseDao().insert(expense);
+                            } else {
+                                database.expenseDao().update(expense);
+                            }
+                        }
+                    }
+                    latch.countDown();
+                })
+                .addOnFailureListener(e -> {
+                    error[0] = e;
+                    latch.countDown();
+                });
+
+        if (!latch.await(30, TimeUnit.SECONDS)) {
+            throw new Exception("Timeout downloading expenses");
+        }
+        if (error[0] != null) throw error[0];
+    }
+
+    /**
+     * Convert Firebase document to ExpenseEntity
+     */
+    private ExpenseEntity documentToExpense(DocumentSnapshot doc) {
+        try {
+            Long id = doc.getLong("id");
+            Long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            String category = doc.getString("category");
+            Double amount = doc.getDouble("amount");
+            Long date = doc.getLong("date");
+            String description = doc.getString("description");
+            String receiptPath = doc.getString("receiptPath");
+            Long createdAt = doc.getLong("createdAt");
+
+            if (id == null || farmId == null || category == null || amount == null || date == null) {
+                return null;
+            }
+
+            ExpenseEntity expense = new ExpenseEntity(
+                    farmId,
+                    blockId,
+                    ExpenseEntity.ExpenseCategory.valueOf(category),
+                    amount,
+                    date,
+                    description
+            );
+            expense.setId(id);
+            expense.setReceiptPath(receiptPath);
+            expense.setCreatedAt(createdAt != null ? createdAt : 0);
+
+            return expense;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping expense", e);
+            return null;
+        }
     }
 
     /**
      * Download revenues from Firebase
      */
     private void downloadRevenues() throws Exception {
-        // TODO: Implement
+        CountDownLatch latch = new CountDownLatch(1);
+        final Exception[] error = new Exception[1];
+
+        firebaseManager.getRevenuesForFarm(currentFarmId)
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        RevenueEntity revenue = documentToRevenue(doc);
+                        if (revenue != null) {
+                            RevenueEntity existing = database.revenueDao().getRevenueById(revenue.getId());
+                            if (existing == null) {
+                                database.revenueDao().insert(revenue);
+                            } else {
+                                database.revenueDao().update(revenue);
+                            }
+                        }
+                    }
+                    latch.countDown();
+                })
+                .addOnFailureListener(e -> {
+                    error[0] = e;
+                    latch.countDown();
+                });
+
+        if (!latch.await(30, TimeUnit.SECONDS)) {
+            throw new Exception("Timeout downloading revenues");
+        }
+        if (error[0] != null) throw error[0];
+    }
+
+    /**
+     * Convert Firebase document to RevenueEntity
+     */
+    private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
+        try {
+            Long id = doc.getLong("id");
+            Long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            Long harvestDate = doc.getLong("harvestDate");
+            Double quantityKg = doc.getDouble("quantityKg");
+            Double pricePerKg = doc.getDouble("pricePerKg");
+            Double totalAmount = doc.getDouble("totalAmount");
+            String buyer = doc.getString("buyer");
+            String quality = doc.getString("quality");
+            String notes = doc.getString("notes");
+            Long createdAt = doc.getLong("createdAt");
+
+            if (id == null || farmId == null || harvestDate == null ||
+                    quantityKg == null || pricePerKg == null || quality == null) {
+                return null;
+            }
+
+            RevenueEntity.QualityGrade grade;
+            try {
+                grade = RevenueEntity.QualityGrade.valueOf(quality.toUpperCase());
+            } catch (Exception e) {
+                grade = RevenueEntity.QualityGrade.STANDARD;
+            }
+
+            RevenueEntity revenue = new RevenueEntity(
+                    farmId,
+                    blockId,
+                    harvestDate,
+                    quantityKg,
+                    pricePerKg,
+                    buyer,
+                    grade,
+                    notes
+            );
+            revenue.setId(id);
+            revenue.setCreatedAt(createdAt != null ? createdAt : 0);
+
+            // totalAmount is calculated automatically, but we can set it if needed
+            // revenue.setTotalAmount(totalAmount);
+
+            return revenue;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping revenue", e);
+            return null;
+        }
     }
 
     /**
      * Download tasks from Firebase
      */
     private void downloadTasks() throws Exception {
-        // TODO: Implement
+        CountDownLatch latch = new CountDownLatch(1);
+        final Exception[] error = new Exception[1];
+
+        firebaseManager.getTasksForFarm(currentFarmId)
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        TaskEntity task = documentToTask(doc);
+                        if (task != null) {
+                            TaskEntity existing = database.taskDao().getTaskById(task.getId());
+                            if (existing == null) {
+                                database.taskDao().insertTask(task);
+                            } else {
+                                database.taskDao().updateTask(task);
+                            }
+                        }
+                    }
+                    latch.countDown();
+                })
+                .addOnFailureListener(e -> {
+                    error[0] = e;
+                    latch.countDown();
+                });
+
+        if (!latch.await(30, TimeUnit.SECONDS)) {
+            throw new Exception("Timeout downloading tasks");
+        }
+        if (error[0] != null) {
+            throw error[0];
+        }
+    }
+
+    /**
+     * Convert Firebase document to TaskEntity
+     */
+    private TaskEntity documentToTask(DocumentSnapshot doc) {
+        try {
+            Long id = doc.getLong("id");
+            Long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            String title = doc.getString("title");
+            String description = doc.getString("description");
+            String status = doc.getString("status");
+            String type = doc.getString("type");
+            Long dueDate = doc.getLong("dueDate");
+            Long completedDate = doc.getLong("completedDate");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+
+            if (id == null || farmId == null || title == null ||
+                    status == null || type == null || dueDate == null) {
+                return null;
+            }
+
+            TaskEntity task = new TaskEntity(
+                    farmId,
+                    blockId,
+                    title,
+                    description,
+                    TaskEntity.TaskType.valueOf(type),
+                    TaskEntity.TaskStatus.valueOf(status),
+                    dueDate
+            );
+            task.setId(id);
+            task.setCompletedDate(completedDate);
+            task.setCreatedAt(createdAt != null ? createdAt : 0);
+            task.setUpdatedAt(updatedAt != null ? updatedAt : 0);
+
+            return task;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting task", e);
+            return null;
+        }
     }
 
     /**
@@ -354,8 +570,15 @@ public class SyncService extends Service {
         firebaseManager.getPhotosForFarm(currentFarmId)
                 .addOnSuccessListener(querySnapshot -> {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        // Convert and save to local DB
-                        // Similar to blocks download
+                        PhotoEntity photo = documentToPhoto(doc);
+                        if (photo != null) {
+                            PhotoEntity existing = database.photoDao().getPhotoById(photo.getId());
+                            if (existing == null) {
+                                database.photoDao().insert(photo);
+                            } else {
+                                database.photoDao().update(photo);
+                            }
+                        }
                     }
                     latch.countDown();
                 })
@@ -367,8 +590,45 @@ public class SyncService extends Service {
         if (!latch.await(30, TimeUnit.SECONDS)) {
             throw new Exception("Timeout downloading photos");
         }
-        if (error[0] != null) {
-            throw error[0];
+        if (error[0] != null) throw error[0];
+    }
+
+    /**
+     * Convert Firebase document to PhotoEntity
+     */
+    private PhotoEntity documentToPhoto(DocumentSnapshot doc) {
+        try {
+            Long id = doc.getLong("id");
+            Long farmId = doc.getLong("farmId");
+            Long blockId = doc.getLong("blockId");
+            Long taskId = doc.getLong("taskId");
+            Long expenseId = doc.getLong("expenseId");
+            String filePath = doc.getString("filePath");
+            String caption = doc.getString("caption");
+            Long takenAt = doc.getLong("takenAt");
+            Long createdAt = doc.getLong("createdAt");
+
+            if (id == null || farmId == null || filePath == null || takenAt == null) {
+                return null;
+            }
+
+            PhotoEntity photo = new PhotoEntity(
+                    farmId,
+                    blockId,
+                    taskId,
+                    expenseId,
+                    filePath,
+                    caption,
+                    takenAt
+            );
+            photo.setId(id);
+            photo.setCreatedAt(createdAt != null ? createdAt : 0);
+
+            return photo;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping photo", e);
+            return null;
         }
     }
 
