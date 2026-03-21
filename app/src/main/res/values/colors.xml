@@ -14,6 +14,12 @@
     <color name="teal">#00869D</color>            <!-- Teal -->
     <color name="olive">#698714</color>           <!-- Olive -->
 
+    <!-- Password Strength Colors -->
+    <color name="strength_weak">#E04E00</color>     <!-- Acorn orange -->
+    <color name="strength_fair">#E0A800</color>     <!-- Golden -->
+    <color name="strength_good">#5A7411</color>     <!-- Primary green -->
+    <color name="strength_strong">#A0C800</color>   <!-- Secondary green -->
+
     <!-- Semantic aliases -->
     <color name="purple_500">@color/primary</color>
     <color name="purple_700">@color/olive</color>

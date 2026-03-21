@@ -1126,13 +1126,13 @@
                             android:layout_height="48dp"
                             android:visibility="gone" />
 
-                        <TextView
-                            android:id="@+id/weatherIconFallback"
+                        <ImageView
+                            android:id="@+id/weatherIconFallbackImage"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:gravity="center"
-                            android:text="☀️"
-                            android:textSize="32sp" />
+                            android:src="@drawable/ic_wb_sunny"
+                            app:tint="@color/accent"
+                            android:contentDescription="Weather icon" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -1212,33 +1212,8 @@
 
                     </LinearLayout>
 
-                    <!-- 3-Day Forecast -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3-Day Forecast"
-                        style="@style/Text.Label"
-                        android:layout_marginBottom="8dp" />
-
-                    <LinearLayout
-                        android:id="@+id/forecastContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3" />
-
                 </LinearLayout>
 
-                <!-- Refresh Button -->
-                <Button
-                    android:id="@+id/btnRefreshWeather"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Retry"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@color/accent"
-                    android:visibility="gone"
-                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
 

@@ -61,37 +61,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Rain Alert -->
-            <LinearLayout
-                android:id="@+id/rainAlertContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:background="@color/accent"
-                android:padding="16dp"
-                android:visibility="gone"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                app:cardCornerRadius="12dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_warning"
-                    app:tint="@android:color/white"
-                    android:contentDescription="Warning icon" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Heavy rain expected tomorrow"
-                    style="@style/Text.Body"
-                    android:textColor="@android:color/white"
-                    android:layout_marginStart="12dp" />
-
-            </LinearLayout>
-
             <!-- Current Weather Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -339,6 +308,7 @@
                     android:padding="16dp">
 
                     <ImageView
+                        android:id="@+id/adviceIcon"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_park"

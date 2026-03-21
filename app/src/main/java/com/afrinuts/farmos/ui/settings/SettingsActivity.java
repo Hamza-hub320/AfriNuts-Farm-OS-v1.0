@@ -7,12 +7,17 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+
+import com.afrinuts.farmos.utils.LanguageHelper;
+import com.github.mikephil.charting.BuildConfig;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.AuthCredential;
 
@@ -184,6 +189,41 @@ public class SettingsActivity extends BaseActivity {
         TextInputEditText etNew = dialogView.findViewById(R.id.etNewPassword);
         TextInputEditText etConfirm = dialogView.findViewById(R.id.etConfirmPassword);
 
+        // Get strength indicator views
+        ProgressBar passwordStrength = dialogView.findViewById(R.id.passwordStrength);
+        TextView tvStrengthLabel = dialogView.findViewById(R.id.tvStrengthLabel);
+        LinearLayout layoutStrength = dialogView.findViewById(R.id.layoutStrength);
+
+        // Add listener to check password strength as user types
+        etNew.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String password = s.toString();
+                if (password.isEmpty()) {
+                    layoutStrength.setVisibility(View.GONE);
+                    return;
+                }
+
+                layoutStrength.setVisibility(View.VISIBLE);
+                int strength = calculatePasswordStrength(password);
+                passwordStrength.setProgress(strength);
+
+                String strengthLabel = getStrengthLabel(strength);
+                tvStrengthLabel.setText("Strength: " + strengthLabel);
+
+                int color = getStrengthColor(strength);
+                tvStrengthLabel.setTextColor(getColor(color));
+                passwordStrength.setProgressTintList(android.content.res.ColorStateList.valueOf(getColor(color)));
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
+
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Change Password")
                 .setView(dialogView)
@@ -326,40 +366,54 @@ public class SettingsActivity extends BaseActivity {
 
     private void showLanguageDialog() {
         String[] languages = {"English", "Français"};
+        String[] codes = {"en", "fr"};
         int currentIndex = tvLanguage.getText().toString().equals("English") ? 0 : 1;
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Select Language")
                 .setSingleChoiceItems(languages, currentIndex, (dialog, which) -> {
                     String selected = languages[which];
+                    String code = codes[which];
+
                     tvLanguage.setText(selected);
 
-                    // Save to SharedPreferences
-                    getSharedPreferences("settings", MODE_PRIVATE)
-                            .edit()
-                            .putString("language", selected)
-                            .apply();
+                    // Save and apply language
+                    LanguageHelper.setLocale(this, code);
 
-                    Toast.makeText(this, "Language changed to " + selected, Toast.LENGTH_SHORT).show();
+                    // Show restart message
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("Language Changed")
+                            .setMessage("Language changed to " + selected + ". Please restart the app for changes to take effect.")
+                            .setPositiveButton("Restart Now", (d, w) -> {
+                                // Restart app
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                                System.exit(0);
+                            })
+                            .setNegativeButton("Later", null)
+                            .show();
+
                     dialog.dismiss();
                 })
                 .show();
     }
 
     private void showUnitsDialog() {
-        String[] units = {"Metric (kg, XAF)", "Imperial (lb, USD)"};
+        String[] units = {"Metric (kg, ha, XAF)", "Imperial (lb, acres, USD)"};
+        String[] unitCodes = {"metric", "imperial"};
         int currentIndex = tvUnits.getText().toString().contains("Metric") ? 0 : 1;
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Select Units")
                 .setSingleChoiceItems(units, currentIndex, (dialog, which) -> {
                     String selected = units[which];
+                    String code = unitCodes[which];
+
                     tvUnits.setText(selected);
 
-                    // Save to SharedPreferences
+                    // Save preference
                     getSharedPreferences("settings", MODE_PRIVATE)
                             .edit()
-                            .putString("units", selected)
+                            .putString("units", code)
                             .apply();
 
                     Toast.makeText(this, "Units changed to " + selected, Toast.LENGTH_SHORT).show();
@@ -368,26 +422,49 @@ public class SettingsActivity extends BaseActivity {
                 .show();
     }
 
+    private int calculatePasswordStrength(String password) {
+        int strength = 0;
+
+        if (password.length() >= 8) strength += 25;
+        else if (password.length() >= 6) strength += 15;
+
+        if (password.matches(".*[A-Z].*")) strength += 25;
+        if (password.matches(".*[a-z].*")) strength += 25;
+        if (password.matches(".*\\d.*")) strength += 15;
+        if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) strength += 10;
+
+        return Math.min(strength, 100);
+    }
+
+
+    private String getStrengthLabel(int strength) {
+        if (strength < 30) return "Weak";
+        if (strength < 60) return "Fair";
+        if (strength < 80) return "Good";
+        return "Strong";
+    }
+
+    private int getStrengthColor(int strength) {
+        if (strength < 30) return R.color.dark_orange;
+        if (strength < 60) return R.color.accent;
+        if (strength < 80) return R.color.primary;
+        return R.color.secondary;
+    }
+
     private void showAboutDialog() {
         String version = getAppVersion();
-        String aboutMessage =
-                "AfriNuts Farm OS v" + version + "\n\n" +
-                        "© 2026 AfriNuts Export\n" +
-                        "Odienné, Côte d'Ivoire\n\n" +
-                        "A complete farm management system for cashew plantations.\n\n" +
-                        "Features:\n" +
-                        "• 35-hectare block management\n" +
-                        "• Expense & revenue tracking\n" +
-                        "• Task assignment\n" +
-                        "• Photo documentation\n" +
-                        "• PDF reports\n" +
-                        "• Multi-user support\n" +
-                        "• Cloud sync\n\n" +
-                        "For support: support@afrinuts.com";
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_about, null);
+
+        TextView tvVersionValue = dialogView.findViewById(R.id.tvVersionValue);
+        TextView tvBuildValue = dialogView.findViewById(R.id.tvBuildValue);
+
+        tvVersionValue.setText(version);
+        tvBuildValue.setText(String.valueOf(BuildConfig.VERSION_CODE));
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("About AfriNuts Farm OS")
-                .setMessage(aboutMessage)
+                .setView(dialogView)
                 .setPositiveButton("OK", null)
                 .show();
     }

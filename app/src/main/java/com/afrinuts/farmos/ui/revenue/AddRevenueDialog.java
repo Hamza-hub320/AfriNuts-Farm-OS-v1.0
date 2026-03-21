@@ -353,6 +353,7 @@ public class AddRevenueDialog extends DialogFragment {
                 return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
             });
 
+            // Get all blocks that have already been harvested
             List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
             java.util.HashSet<Long> blocksWithRevenue = new java.util.HashSet<>();
             for (RevenueEntity revenue : existingRevenues) {
@@ -361,44 +362,42 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             }
 
-            List<String> blockNames = new ArrayList<>();
+            // FILTER: Only show blocks that have NOT been harvested yet
+            List<String> availableBlockNames = new ArrayList<>();
             for (BlockEntity block : sortedBlocks) {
-                String displayName = block.getBlockName() + " - " + block.getStatus().getDisplayName();
-                blockNames.add(displayName);
+                if (!blocksWithRevenue.contains(block.getId())) {
+                    availableBlockNames.add(block.getBlockName() + " - " + block.getStatus().getDisplayName());
+                }
             }
 
             requireActivity().runOnUiThread(() -> {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                        requireContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        blockNames
-                );
-                etBlock.setAdapter(adapter);
+                if (availableBlockNames.isEmpty()) {
+                    // No blocks available for harvest
+                    etBlock.setEnabled(false);
+                    etBlock.setText("No blocks available - all have been harvested", false);
+                } else {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            availableBlockNames
+                    );
+                    etBlock.setAdapter(adapter);
 
-                String nextBlock = getNextAvailableBlockForRevenue(sortedBlocks, blocksWithRevenue);
-                if (nextBlock != null && !isEditMode) {
-                    etBlock.setText(nextBlock, false);
-                } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
-                    for (BlockEntity block : allBlocks) {
-                        if (block.getId() == existingRevenue.getBlockId()) {
-                            etBlock.setText(block.getBlockName() + " - " + block.getStatus().getDisplayName(), false);
-                            break;
+                    // Auto-select the first available block
+                    if (!isEditMode) {
+                        etBlock.setText(availableBlockNames.get(0), false);
+                    } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
+                        // For edit mode, show the current block
+                        for (BlockEntity block : allBlocks) {
+                            if (block.getId() == existingRevenue.getBlockId()) {
+                                etBlock.setText(block.getBlockName() + " - " + block.getStatus().getDisplayName(), false);
+                                break;
+                            }
                         }
                     }
                 }
             });
         });
-    }
-
-    private String getNextAvailableBlockForRevenue(List<BlockEntity> blocks, java.util.HashSet<Long> blocksWithRevenue) {
-        if (blocks == null || blocks.isEmpty()) return null;
-
-        for (BlockEntity block : blocks) {
-            if (!blocksWithRevenue.contains(block.getId())) {
-                return block.getBlockName() + " - " + block.getStatus().getDisplayName();
-            }
-        }
-        return null;
     }
 
     private void setupTotalCalculation() {
@@ -485,6 +484,7 @@ public class AddRevenueDialog extends DialogFragment {
                 return;
             }
 
+            // Extract block name from dropdown text
             String blockName = blockStr.split(" - ")[0];
             for (BlockEntity block : allBlocks) {
                 if (block.getBlockName().equals(blockName)) {
@@ -495,6 +495,15 @@ public class AddRevenueDialog extends DialogFragment {
 
             if (blockId == null) {
                 Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Check if block has already been harvested
+            List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByBlockId(blockId);
+            if (!existingRevenues.isEmpty()) {
+                Toast.makeText(getContext(),
+                        "Block " + blockName + " has already been harvested! Each block can only be harvested once per season.",
+                        Toast.LENGTH_LONG).show();
                 return;
             }
         }
@@ -508,6 +517,49 @@ public class AddRevenueDialog extends DialogFragment {
         String notes = etNotes.getText().toString().trim();
         long harvestDate = selectedDate.getTimeInMillis();
 
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
+
+        RevenueEntity revenue = new RevenueEntity(
+                farmId,
+                blockId,
+                harvestDate,
+                quantity,
+                price,
+                buyer.isEmpty() ? null : buyer,
+                selectedQuality,
+                notes.isEmpty() ? null : notes
+        );
+
+        revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
+            @Override
+            public void onSuccess(long id) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onRevenueAdded();
+                        }
+                        dismiss();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Add Revenue");
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void proceedWithInsert(double quantity, double price, Long blockId,
+                                   String buyer, String notes, long harvestDate) {
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
@@ -605,6 +657,13 @@ public class AddRevenueDialog extends DialogFragment {
                     blockId = block.getId();
                     break;
                 }
+            }
+
+            if (existingRevenue.getBlockId() != null && !existingRevenue.getBlockId().equals(blockId)) {
+                Toast.makeText(getContext(),
+                        "Cannot change block after harvest is recorded.",
+                        Toast.LENGTH_LONG).show();
+                return;
             }
 
             if (blockId == null) {

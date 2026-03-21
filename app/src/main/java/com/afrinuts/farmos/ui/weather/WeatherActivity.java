@@ -37,7 +37,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView tvSunrise;
     private TextView tvSunset;
     private TextView tvFarmAdvice;
-    private LinearLayout rainAlertContainer;
+    // REMOVED: private LinearLayout rainAlertContainer;
     private LinearLayout forecastContainer;
     private ImageView ivIcon;
     private CardView adviceCard;
@@ -47,9 +47,7 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        // Setup toolbar with home icon
         setupToolbar();
-
         initViews();
 
         String weatherJson = getIntent().getStringExtra("weather_json");
@@ -57,8 +55,7 @@ public class WeatherActivity extends AppCompatActivity {
         if (weatherJson != null) {
             weather = new Gson().fromJson(weatherJson, WeatherResponse.class);
             displayWeather();
-            checkRainAlert();
-            generateFarmAdvice();
+            generateFarmAdvice();  // REMOVED checkRainAlert()
         }
     }
 
@@ -76,7 +73,6 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Navigate to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -96,8 +92,8 @@ public class WeatherActivity extends AppCompatActivity {
         tvUvIndex = findViewById(R.id.tvUvIndex);
         tvSunrise = findViewById(R.id.tvSunrise);
         tvSunset = findViewById(R.id.tvSunset);
+        // REMOVED: rainAlertContainer = findViewById(R.id.rainAlertContainer);
         tvFarmAdvice = findViewById(R.id.tvFarmAdvice);
-        rainAlertContainer = findViewById(R.id.rainAlertContainer);
         forecastContainer = findViewById(R.id.forecastContainer);
         ivIcon = findViewById(R.id.ivWeatherIcon);
         adviceCard = findViewById(R.id.adviceCard);
@@ -120,7 +116,6 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
         if (current != null) {
-            // Set weather icon based on condition
             setWeatherIcon(ivIcon, current.getCondition().getText());
 
             tvTemp.setText(String.format(Locale.getDefault(),
@@ -141,10 +136,6 @@ public class WeatherActivity extends AppCompatActivity {
             tvUvIndex.setText(String.format(Locale.getDefault(),
                     "%.0f", current.getUv()));
         }
-
-        // Set sunrise/sunset (you'd get these from API if available)
-        tvSunrise.setText("06:15");
-        tvSunset.setText("18:30");
 
         displayForecast();
     }
@@ -186,17 +177,7 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
 
-    private void checkRainAlert() {
-        if (weather.getForecast() == null ||
-                weather.getForecast().getForecastday() == null) return;
-
-        for (WeatherResponse.ForecastDay day : weather.getForecast().getForecastday()) {
-            if (day.getDay().getDailyChanceOfRain() > 70) {
-                rainAlertContainer.setVisibility(View.VISIBLE);
-                break;
-            }
-        }
-    }
+    // REMOVED: checkRainAlert() method entirely
 
     private void generateFarmAdvice() {
         if (weather == null || weather.getForecast() == null) return;
@@ -206,7 +187,7 @@ public class WeatherActivity extends AppCompatActivity {
         double temp = today.getDay().getAvgtempC();
 
         String advice;
-        int adviceIcon = R.drawable.ic_wb_sunny; // default
+        int adviceIcon;
 
         if (rainChance > 70) {
             advice = "Heavy rain expected. Avoid planting and spraying today.";
@@ -226,6 +207,12 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
         tvFarmAdvice.setText(advice);
+
+        // Update advice card icon
+        ImageView adviceIconView = adviceCard.findViewById(R.id.adviceIcon);
+        if (adviceIconView != null) {
+            adviceIconView.setImageResource(adviceIcon);
+        }
     }
 
     private void setWeatherIcon(ImageView imageView, String condition) {
@@ -248,6 +235,8 @@ public class WeatherActivity extends AppCompatActivity {
         } else {
             imageView.setImageResource(R.drawable.ic_wb_sunny);
         }
+
+        imageView.setColorFilter(getColor(R.color.accent));
     }
 
     @Override

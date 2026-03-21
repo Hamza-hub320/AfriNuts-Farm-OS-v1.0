@@ -130,14 +130,14 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout weatherContent;
     private TextView weatherLoadingText;
     private TextView weatherUpdateTime;
-    private TextView weatherIconFallback;
+    private ImageView weatherIconFallbackImage;
     private ImageView weatherIcon;
     private TextView weatherTemp;
     private TextView weatherCondition;
     private TextView weatherHumidity;
     private TextView weatherWind;
     private LinearLayout forecastContainer;
-    private Button btnRefreshWeather;
+    private Button weatherRefreshButton;
     private CardView weatherCard;
 
     private SessionManager sessionManager;
@@ -1131,14 +1131,13 @@ public class MainActivity extends AppCompatActivity {
         weatherContent = findViewById(R.id.weatherContent);
         weatherLoadingText = findViewById(R.id.weatherLoadingText);
         weatherUpdateTime = findViewById(R.id.weatherUpdateTime);
-        weatherIconFallback = findViewById(R.id.weatherIconFallback);
+        weatherIconFallbackImage = findViewById(R.id.weatherIconFallbackImage);
         weatherIcon = findViewById(R.id.weatherIcon);
         weatherTemp = findViewById(R.id.weatherTemp);
         weatherCondition = findViewById(R.id.weatherCondition);
         weatherHumidity = findViewById(R.id.weatherHumidity);
         weatherWind = findViewById(R.id.weatherWind);
         forecastContainer = findViewById(R.id.forecastContainer);
-        btnRefreshWeather = findViewById(R.id.btnRefreshWeather);
         weatherCard = findViewById(R.id.weatherCard);
     }
 
@@ -1304,8 +1303,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnRefreshWeather.setOnClickListener(v -> loadWeatherData());
-
         setupWeatherClick();
 
         btnUsersCard.setOnClickListener(v -> {
@@ -1403,7 +1400,6 @@ public class MainActivity extends AppCompatActivity {
     private void loadWeatherData() {
         weatherLoadingText.setVisibility(View.VISIBLE);
         weatherContent.setVisibility(View.GONE);
-        btnRefreshWeather.setVisibility(View.GONE);
 
         weatherRepository.getWeatherForecast(new WeatherRepository.WeatherCallback() {
             @Override
@@ -1418,11 +1414,38 @@ public class MainActivity extends AppCompatActivity {
             public void onError(String error) {
                 runOnUiThread(() -> {
                     weatherLoadingText.setText("Unable to load weather data");
-                    btnRefreshWeather.setVisibility(View.VISIBLE);
                     Log.e(TAG, "Weather error: " + error);
                 });
             }
         });
+    }
+
+    private void setWeatherIconFallback(String condition) {
+        // Find the ImageView instead of TextView
+        ImageView weatherIconView = findViewById(R.id.weatherIconFallbackImage);
+
+        // Set appropriate vector icon
+        String lower = condition.toLowerCase();
+        int iconRes;
+
+        if (lower.contains("rain")) {
+            iconRes = R.drawable.ic_rain;
+        } else if (lower.contains("cloud")) {
+            iconRes = R.drawable.ic_cloud;
+        } else if (lower.contains("storm")) {
+            iconRes = R.drawable.ic_storm;
+        } else if (lower.contains("snow")) {
+            iconRes = R.drawable.ic_snow;
+        } else if (lower.contains("fog")) {
+            iconRes = R.drawable.ic_fog;
+        } else if (lower.contains("wind")) {
+            iconRes = R.drawable.ic_air;
+        } else {
+            iconRes = R.drawable.ic_wb_sunny;
+        }
+
+        weatherIconView.setImageResource(iconRes);
+        weatherIconView.setColorFilter(getColor(R.color.accent));
     }
 
     private void displayWeather(WeatherResponse weather) {
@@ -1456,20 +1479,6 @@ public class MainActivity extends AppCompatActivity {
                 " %.0f km/h", current.getWindKph()));
 
         setWeatherIconFallback(current.getCondition().getText());
-    }
-
-    private void setWeatherIconFallback(String condition) {
-        String icon = "☀️";
-        String lower = condition.toLowerCase();
-
-        if (lower.contains("rain")) icon = "🌧️";
-        else if (lower.contains("cloud")) icon = "☁️";
-        else if (lower.contains("storm")) icon = "⛈️";
-        else if (lower.contains("snow")) icon = "🌨️";
-        else if (lower.contains("fog")) icon = "🌫️";
-        else if (lower.contains("wind")) icon = "💨";
-
-        weatherIconFallback.setText(icon);
     }
 
     private void setupWeatherClick() {
