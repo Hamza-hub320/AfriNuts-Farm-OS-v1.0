@@ -137,12 +137,21 @@ public class FirebaseManager {
     }
 
     // ========================================
-    // USER OPERATIONS
-    // ========================================
+// USER OPERATIONS
+// ========================================
 
     public void saveUser(UserEntity user, String farmId) {
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getId());
+
+        // ALWAYS store both uid and localId
+        if (user.getUid() != null && !user.getUid().isEmpty()) {
+            userMap.put("uid", user.getUid());
+        } else {
+            // For PIN users, store null uid
+            userMap.put("uid", null);
+        }
+
+        userMap.put("localId", user.getLocalId());
         userMap.put("farmId", farmId);
         userMap.put("name", user.getName());
         userMap.put("role", user.getRole().name());
@@ -153,17 +162,27 @@ public class FirebaseManager {
         userMap.put("createdAt", user.getCreatedAt());
         userMap.put("updatedAt", System.currentTimeMillis());
 
-        String docId = farmId + "_" + user.getId();
+        // Improved document ID selection:
+        String docId;
+
+        // ALWAYS prefer uid if available (prevents duplicates)
+        if (user.getUid() != null && !user.getUid().isEmpty()) {
+            docId = user.getUid();
+            Log.d(TAG, "Saving Firebase Auth user with UID docId: " + docId);
+        } else if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            // Fallback: use email if UID missing (important for migration cases)
+            docId = user.getEmail();
+            Log.d(TAG, "Saving user with EMAIL docId (fallback): " + docId);
+        } else {
+            // Last fallback: local compound key
+            docId = farmId + "_" + user.getLocalId();
+            Log.d(TAG, "Saving PIN user with LOCAL docId: " + docId);
+        }
+
         db.collection(COLLECTION_USERS).document(docId)
-                .set(userMap)
+                .set(userMap, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "User saved: " + docId))
                 .addOnFailureListener(e -> Log.e(TAG, "Error saving user", e));
-    }
-
-    public Task<QuerySnapshot> getUsersForFarm(String farmId) {
-        return db.collection(COLLECTION_USERS)
-                .whereEqualTo("farmId", farmId)
-                .get();
     }
 
     // ========================================

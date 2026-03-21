@@ -23,7 +23,7 @@ public class SessionManager {
     }
 
     public void createLoginSession(UserEntity user) {
-        editor.putLong(KEY_USER_ID, user.getId());
+        editor.putLong(KEY_USER_ID, user.getLocalId());
         editor.putString(KEY_USER_NAME, user.getName());
         editor.putString(KEY_USER_ROLE, user.getRole().name());
         editor.putBoolean(KEY_IS_LOGGED_IN, true);

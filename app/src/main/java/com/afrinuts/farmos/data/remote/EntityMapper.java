@@ -21,13 +21,26 @@ public class EntityMapper {
     // SAFE HELPERS
     // ========================================
 
-    private static long getLongSafe(DocumentSnapshot doc, String field) {
-        Long value = doc.getLong(field);
-        return value != null ? value : 0;
+    private static Long getLongSafe(DocumentSnapshot doc, String field) {
+        Object value = doc.get(field);
+
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        } else if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException e) {
+                Log.e("EntityMapper", "Invalid number format for field: " + field);
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private static Long getNullableLong(DocumentSnapshot doc, String field) {
-        return doc.contains(field) ? doc.getLong(field) : null;
+        if (!doc.contains(field)) return null;
+        return getLongSafe(doc, field);
     }
 
     private static double getDoubleSafe(DocumentSnapshot doc, String field) {
@@ -45,13 +58,36 @@ public class EntityMapper {
         return value != null ? value : false;
     }
 
+    private static long getFarmId(DocumentSnapshot doc) {
+        // Try to get as Long first
+        Long farmIdLong = getNullableLong(doc, "farmId");
+        if (farmIdLong != null) {
+            return farmIdLong;
+        }
+
+        // Try to get as String and parse
+        String farmIdStr = getStringSafe(doc, "farmId");
+        if (!farmIdStr.isEmpty()) {
+            try {
+                return Long.parseLong(farmIdStr);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Cannot parse farmId: " + farmIdStr);
+            }
+        }
+
+        // Default to 1 (your default farm)
+        Log.w(TAG, "farmId not found, defaulting to 1");
+        return 1;
+    }
+
     // ========================================
     // USER MAPPING
     // ========================================
 
     public static Map<String, Object> userToMap(UserEntity user) {
         Map<String, Object> map = new HashMap<>();
-        map.put("id", user.getId());
+        map.put("uid", user.getUid());  // Store Firebase UID
+        map.put("localId", user.getLocalId());  // Also store local ID if needed
         map.put("name", user.getName());
         map.put("role", user.getRole().name());
         map.put("phone", user.getPhone());
@@ -60,13 +96,13 @@ public class EntityMapper {
         map.put("isActive", user.isActive());
         map.put("createdAt", user.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
-        // farmId is added at the FirestoreHelper level, not here
+        map.put("farmId", user.getFarmId()); // Now getFarmId() exists
         return map;
     }
 
     public static UserEntity mapToUser(DocumentSnapshot doc) {
         try {
-            long id = Long.parseLong(doc.getId());
+            String uid = doc.getId();  // Firebase Auth UID is the document ID
             String name = getStringSafe(doc, "name");
             String roleStr = getStringSafe(doc, "role");
             String phone = getStringSafe(doc, "phone");
@@ -74,15 +110,25 @@ public class EntityMapper {
             String authMethodStr = getStringSafe(doc, "authMethod");
             boolean isActive = getBooleanSafe(doc, "isActive");
             long createdAt = getLongSafe(doc, "createdAt");
+            long farmId = getFarmId(doc); // Get farmId from document
 
+            // Get localId if exists (for backward compatibility)
+            Long localId = getNullableLong(doc, "localId");
+
+            // FIXED: Include farmId in constructor
             UserEntity user = new UserEntity(
+                    uid,
                     name,
                     UserEntity.UserRole.valueOf(roleStr),
                     phone,
                     email,
-                    ""
+                    "", // password hash not needed when reading
+                    farmId  // Add farmId parameter
             );
-            user.setId(id);
+
+            if (localId != null) {
+                user.setLocalId(localId);
+            }
             user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethodStr));
             user.setActive(isActive);
             user.setCreatedAt(createdAt);
@@ -136,7 +182,8 @@ public class EntityMapper {
             block.setPlowedDate(getLongSafe(doc, "plowedDate"));
             block.setPlantedDate(getLongSafe(doc, "plantedDate"));
             block.setSurvivalRate(getDoubleSafe(doc, "survivalRate"));
-            block.setReplacementCount((int) getLongSafe(doc, "replacementCount"));
+            Long replacementCountValue = getLongSafe(doc, "replacementCount");
+            block.setReplacementCount(replacementCountValue != null ? replacementCountValue.intValue() : 0);
             block.setCreatedAt(getLongSafe(doc, "createdAt"));
             block.setUpdatedAt(getLongSafe(doc, "updatedAt"));
             return block;
@@ -324,7 +371,6 @@ public class EntityMapper {
             Long unassignedAt = getNullableLong(doc, "unassignedAt");
             long farmId = getLongSafe(doc, "farmId");
 
-            // ✅ Use the correct constructor with 4 parameters (farmId, taskId, assignedTo, assignedAt)
             TaskAssignmentHistoryEntity assignment = new TaskAssignmentHistoryEntity(
                     farmId,
                     taskId,
@@ -392,5 +438,37 @@ public class EntityMapper {
             Log.e(TAG, "Error mapping photo document", e);
             return null;
         }
+    }
+
+    // ========================================
+// FIRESTORE TO ENTITY ALIASES (for listeners)
+// ========================================
+
+    public static BlockEntity fromFirestoreBlock(DocumentSnapshot doc) {
+        return mapToBlock(doc);
+    }
+
+    public static ExpenseEntity fromFirestoreExpense(DocumentSnapshot doc) {
+        return mapToExpense(doc);
+    }
+
+    public static RevenueEntity fromFirestoreRevenue(DocumentSnapshot doc) {
+        return mapToRevenue(doc);
+    }
+
+    public static TaskEntity fromFirestoreTask(DocumentSnapshot doc) {
+        return mapToTask(doc);
+    }
+
+    public static PhotoEntity fromFirestorePhoto(DocumentSnapshot doc) {
+        return mapToPhoto(doc);
+    }
+
+    public static UserEntity fromFirestoreUser(DocumentSnapshot doc) {
+        return mapToUser(doc);
+    }
+
+    public static TaskAssignmentHistoryEntity fromFirestoreAssignment(DocumentSnapshot doc) {
+        return mapToAssignment(doc);
     }
 }

@@ -1,6 +1,7 @@
 package com.afrinuts.farmos;
 
 import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.ui.analytics.AnalyticsDashboardActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     // UI Elements
     private SyncManager syncManager;
+    private FirestoreSyncManager firestoreSyncManager;
     private CardView btnAnalyticsCard;
     private MaterialToolbar toolbar;
     private CardView btnUsersCard;
@@ -321,6 +323,10 @@ public class MainActivity extends AppCompatActivity {
                 revenueRepository = new RevenueRepository(MainActivity.this, farmId);
                 taskRepository = new TaskRepository(MainActivity.this, farmId);
 
+                // Initialize Firestore sync
+                firestoreSyncManager = FirestoreSyncManager.getInstance(MainActivity.this);
+                firestoreSyncManager.startListening(String.valueOf(farmId));
+
                 // Now that farm exists, load farm data
                 loadFarmData();
 
@@ -484,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
                                 database.userDao().insert(user);
                                 addedCount++;
                             } else {
-                                user.setId(existing.getId());
+                                user.setLocalId(existing.getLocalId());
                                 database.userDao().update(user);
                                 updatedCount++;
                             }
@@ -506,26 +512,54 @@ public class MainActivity extends AppCompatActivity {
 
     private UserEntity documentToUser(DocumentSnapshot doc) {
         try {
-            long id = doc.getLong("id");
+            // Use safe getters that handle nulls
+            Long id = doc.getLong("id");
             String name = doc.getString("name");
             String role = doc.getString("role");
             String phone = doc.getString("phone");
             String email = doc.getString("email");
             String authMethod = doc.getString("authMethod");
-            boolean isActive = doc.getBoolean("isActive");
-            long createdAt = doc.getLong("createdAt");
-            String farmId = doc.getString("farmId");
+            Boolean isActive = doc.getBoolean("isActive");
+            Long createdAt = doc.getLong("createdAt");
+            String farmIdStr = doc.getString("farmId");
 
-            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
-                    phone, email, "");
-            user.setId(id);
-            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
-            user.setActive(isActive);
-            user.setCreatedAt(createdAt);
+            // Validate required fields
+            if (name == null || role == null || email == null) {
+                Log.e(TAG, "Missing required fields in user document");
+                return null;
+            }
+
+            // Create user with default values for null fields
+            UserEntity user = new UserEntity(
+                    name,
+                    UserEntity.UserRole.valueOf(role),
+                    phone != null ? phone : "",
+                    email,
+                    "" // password hash not needed
+            );
+
+            // Set optional fields safely
+            if (id != null) user.setLocalId(id);
+            if (authMethod != null) {
+                user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
+            }
+            user.setActive(isActive != null ? isActive : true);
+            if (createdAt != null) user.setCreatedAt(createdAt);
+
+            // Set farmId (default to 1 if not present)
+            long farmIdValue = 1;
+            if (farmIdStr != null) {
+                try {
+                    farmIdValue = Long.parseLong(farmIdStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format: " + farmIdStr);
+                }
+            }
+            user.setFarmId(farmIdValue);
 
             return user;
         } catch (Exception e) {
-            Log.e(TAG, "Error converting document", e);
+            Log.e(TAG, "Error converting document to user", e);
             return null;
         }
     }
@@ -1485,6 +1519,9 @@ public class MainActivity extends AppCompatActivity {
         if (revenuesListener != null) revenuesListener.remove();
         if (tasksListener != null) tasksListener.remove();
         databaseExecutor.shutdown();
+        if (firestoreSyncManager != null) {
+            firestoreSyncManager.stopListening();
+        }
     }
 
     private void showLogoutDialog() {

@@ -10,6 +10,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -24,6 +25,7 @@ public class BlockRepository {
     private BlockDao blockDao;
     private SyncManager syncManager;
     private FirebaseManager firebaseManager;
+    private FirestoreSyncManager firestoreSyncManager;  // Add this
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private long farmId;
 
@@ -32,6 +34,7 @@ public class BlockRepository {
         this.blockDao = db.blockDao();
         this.syncManager = SyncManager.getInstance(context);
         this.firebaseManager = FirebaseManager.getInstance();
+        this.firestoreSyncManager = FirestoreSyncManager.getInstance(context);  // Initialize with context
         this.farmId = farmId;
     }
 
@@ -55,8 +58,13 @@ public class BlockRepository {
             block.setId(id);
             Log.d(TAG, "Block inserted locally with ID: " + id);
 
-            // 2. Queue for sync using SyncManager
-            syncManager.queueForSync("block", id, SyncEntity.SyncAction.CREATE);
+            // 2. Queue for sync using SyncManager (only if NOT a remote update)
+            if (!firestoreSyncManager.isRemoteUpdate()) {
+                syncManager.queueForSync("blocks", id, SyncEntity.SyncAction.CREATE);
+                Log.d(TAG, "Queued for sync (local change)");
+            } else {
+                Log.d(TAG, "Skipping queue - this is a remote update");
+            }
 
             return id;
         }, executorService);
@@ -88,8 +96,13 @@ public class BlockRepository {
             blockDao.update(block);
             Log.d(TAG, "Block updated locally: " + block.getId());
 
-            // 2. Queue for sync
-            syncManager.queueForSync("block", block.getId(), SyncEntity.SyncAction.UPDATE);
+            // 2. Queue for sync (only if NOT a remote update)
+            if (!firestoreSyncManager.isRemoteUpdate()) {
+                syncManager.queueForSync("blocks", block.getId(), SyncEntity.SyncAction.UPDATE);
+                Log.d(TAG, "Queued for sync (local change)");
+            } else {
+                Log.d(TAG, "Skipping queue - this is a remote update");
+            }
 
             return null; // Void
         }, executorService);
@@ -105,8 +118,13 @@ public class BlockRepository {
             blockDao.delete(block);
             Log.d(TAG, "Block deleted locally: " + block.getId());
 
-            // 2. Queue for sync
-            syncManager.queueForSync("block", block.getId(), SyncEntity.SyncAction.DELETE);
+            // 2. Queue for sync (only if NOT a remote update)
+            if (!firestoreSyncManager.isRemoteUpdate()) {
+                syncManager.queueForSync("blocks", block.getId(), SyncEntity.SyncAction.DELETE);
+                Log.d(TAG, "Queued for sync (local change)");
+            } else {
+                Log.d(TAG, "Skipping queue - this is a remote update");
+            }
 
             return null; // Void
         }, executorService);

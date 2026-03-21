@@ -63,6 +63,8 @@ public class AddTaskDialog extends DialogFragment {
     private MaterialAutoCompleteTextView etBlock;
     private TextInputEditText etDueDate;
     private TextInputEditText etStatus;
+    private Button btnCancel;
+    private Button btnSave;
 
     // Store the selected task type
     private TaskEntity.TaskType selectedTaskType = null;
@@ -122,20 +124,19 @@ public class AddTaskDialog extends DialogFragment {
         dueDateCalendar.add(Calendar.DAY_OF_MONTH, 1);
         updateDateLabel();
 
+        // Use setView with custom buttons - don't use setPositiveButton/setNegativeButton
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Add New Task")
                 .setView(view)
-                .setPositiveButton("Add", null)
-                .setNegativeButton("Cancel", null);
+                .setCancelable(false); // Prevent dismissal by tapping outside
 
         AlertDialog dialog = builder.create();
 
+        // Set up custom buttons after dialog is created
         dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-            positiveButton.setOnClickListener(v -> saveTask());
-            negativeButton.setOnClickListener(v -> dismiss());
+            // Find and set up custom buttons from the layout
+            btnCancel.setOnClickListener(v -> dismiss());
+            btnSave.setOnClickListener(v -> saveTask());
         });
 
         return dialog;
@@ -152,6 +153,8 @@ public class AddTaskDialog extends DialogFragment {
         etBlock = view.findViewById(R.id.etBlock);
         etDueDate = view.findViewById(R.id.etDueDate);
         etStatus = view.findViewById(R.id.etStatus);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
 
         // Set status to PENDING (read-only)
         etStatus.setText("PENDING");
@@ -357,9 +360,8 @@ public class AddTaskDialog extends DialogFragment {
         );
 
         // Disable save button
-        Button positiveButton = ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE);
-        positiveButton.setEnabled(false);
-        positiveButton.setText("Saving...");
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
 
         // Use repository to save
         taskRepository.insertTask(task, new BaseRepository.InsertCallback() {
@@ -380,8 +382,8 @@ public class AddTaskDialog extends DialogFragment {
             public void onError(String error) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        positiveButton.setEnabled(true);
-                        positiveButton.setText("Add");
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Create Task");
                         Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
                     });
                 }

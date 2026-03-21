@@ -160,25 +160,73 @@ public class RevenueDetailActivity extends BaseActivity {
 
     private void loadData() {
         executor.execute(() -> {
-            revenue = database.revenueDao().getRevenueById(revenueId);
+            try {
+                Log.d(TAG, "Loading revenue with ID: " + revenueId);
 
-            if (revenue == null) {
+                // First, check if database is accessible
+                if (database == null) {
+                    Log.e(TAG, "Database is null");
+                    runOnUiThread(() -> {
+                        Toast.makeText(RevenueDetailActivity.this,
+                                "Database error", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+                    return;
+                }
+
+                revenue = database.revenueDao().getRevenueById(revenueId);
+
+                if (revenue == null) {
+                    Log.e(TAG, "Revenue not found in database with ID: " + revenueId);
+                    runOnUiThread(() -> {
+                        Toast.makeText(RevenueDetailActivity.this,
+                                "Revenue not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+                    return;
+                }
+
+                Log.d(TAG, "Revenue loaded: " + revenue.getId() +
+                        ", farmId: " + revenue.getFarmId() +
+                        ", quality: " + revenue.getQuality());
+
+                // Update repository with correct farmId
+                farmId = revenue.getFarmId();
+                revenueRepository = new RevenueRepository(RevenueDetailActivity.this, farmId);
+
+                // Load farm data
+                currentFarm = database.farmDao().getFirstFarm();
+                if (currentFarm == null) {
+                    Log.e(TAG, "No farm found in database");
+                } else {
+                    Log.d(TAG, "Current farm ID: " + currentFarm.getId());
+                }
+
+                // Load blocks for block name lookup
+                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm != null ?
+                        currentFarm.getId() : 1L);
+                Log.d(TAG, "Loaded " + (allBlocks != null ? allBlocks.size() : 0) + " blocks");
+
+                runOnUiThread(() -> {
+                    try {
+                        displayRevenueData();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error displaying revenue data", e);
+                        Toast.makeText(RevenueDetailActivity.this,
+                                "Error displaying revenue: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Critical error in loadData", e);
                 runOnUiThread(() -> {
                     Toast.makeText(RevenueDetailActivity.this,
-                            "Revenue not found", Toast.LENGTH_SHORT).show();
+                            "Error loading revenue: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                     finish();
                 });
-                return;
             }
-
-            // Update repository with correct farmId
-            farmId = revenue.getFarmId();
-            revenueRepository = new RevenueRepository(RevenueDetailActivity.this, farmId);
-
-            currentFarm = database.farmDao().getFirstFarm();
-            allBlocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-
-            runOnUiThread(() -> displayRevenueData());
         });
     }
 

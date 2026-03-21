@@ -46,7 +46,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 PhotoEntity.class,
                 SyncEntity.class
         },
-        version = 11,  // Version 11
+        version = 12,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -54,14 +54,23 @@ public abstract class AppDatabase extends RoomDatabase {
 
     // DAO declarations
     public abstract FarmDao farmDao();
+
     public abstract BlockDao blockDao();
+
     public abstract ExpenseDao expenseDao();
+
     public abstract RevenueDao revenueDao();
+
     public abstract TaskDao taskDao();
+
     public abstract WeatherDao weatherDao();
+
     public abstract UserDao userDao();
+
     public abstract PhotoDao photoDao();
+
     public abstract SyncDao syncDao();
+
     public abstract TaskAssignmentDao taskAssignmentDao();
 
     private static volatile AppDatabase INSTANCE;
@@ -70,31 +79,14 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    RoomDatabase.Builder<AppDatabase> builder =
-                            Room.databaseBuilder(
-                                            context.getApplicationContext(),
-                                            AppDatabase.class,
-                                            "afrinuts_farm_os.db"
-                                    )
-                                    .addMigrations(
-                                            new Migration1To2(),
-                                            new Migration2To3(),
-                                            new Migration3To4(),
-                                            new Migration4To5(),
-                                            new Migration5To6(),
-                                            new Migration6To7(),
-                                            new Migration7To8(),
-                                            new Migration8To9(),
-                                            new Migration9To10(),
-                                            new Migration10To11()  // Add the new migration
-                                    );
-
-                    // Only allow main thread queries in debug builds
-                    if (BuildConfig.ALLOW_MAIN_THREAD) {
-                        builder.allowMainThreadQueries();
-                    }
-
-                    INSTANCE = builder.build();
+                    INSTANCE = Room.databaseBuilder(
+                                    context.getApplicationContext(),
+                                    AppDatabase.class,
+                                    "afrinuts_farm_os.db"
+                            )
+                            .fallbackToDestructiveMigration() // This will recreate the DB
+                            .allowMainThreadQueries() // For development only
+                            .build();
                 }
             }
         }

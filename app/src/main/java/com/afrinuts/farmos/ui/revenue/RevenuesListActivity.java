@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -67,7 +68,6 @@ public class RevenuesListActivity extends BaseActivity {
         setContentView(R.layout.activity_revenues_list);
 
         database = AppDatabase.getInstance(this);
-        revenueRepository = new RevenueRepository(this, currentFarm.getId());
 
         initViews();
         setupToolbar();
@@ -182,6 +182,8 @@ public class RevenuesListActivity extends BaseActivity {
                         loadFarmAndBlocks();
                     });
                     dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
+                } else {
+                    Toast.makeText(this, "Loading farm data...", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -196,8 +198,10 @@ public class RevenuesListActivity extends BaseActivity {
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
-                farmIdString = String.valueOf(currentFarm.getId());
+
                 revenueRepository = new RevenueRepository(this, currentFarm.getId());
+
+                farmIdString = String.valueOf(currentFarm.getId());
 
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
                 Map<Long, String> blockMap = new HashMap<>();

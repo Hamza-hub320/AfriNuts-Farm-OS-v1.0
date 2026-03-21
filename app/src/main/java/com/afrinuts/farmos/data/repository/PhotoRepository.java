@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
+import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -22,10 +23,12 @@ import java.util.List;
 public class PhotoRepository extends BaseRepository {
     private static final String TAG = "PhotoRepository";
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private FirestoreSyncManager firestoreSyncManager;  // Add this
 
     // Change constructor to accept long farmId
     public PhotoRepository(Context context, long farmId) {
         super(context, farmId); // now matches BaseRepository(long)
+        this.firestoreSyncManager = FirestoreSyncManager.getInstance(context);
     }
 
     public interface PhotoUploadCallback {
@@ -56,7 +59,15 @@ public class PhotoRepository extends BaseRepository {
 
                 Log.d(TAG, "Photo saved locally with ID: " + id);
 
-                // 2. Upload to Firebase Storage
+                // 2. Queue for sync (only if NOT a remote update)
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("photos", id, SyncEntity.SyncAction.CREATE);
+                    Log.d(TAG, "Queued photo for sync (local change)");
+                } else {
+                    Log.d(TAG, "Skipping queue - this is a remote update");
+                }
+
+                // 3. Upload to Firebase Storage
                 uploadToFirebaseStorage(photo, photoFile, callback);
 
             } catch (Exception e) {
@@ -69,7 +80,7 @@ public class PhotoRepository extends BaseRepository {
     private void uploadToFirebaseStorage(PhotoEntity photo, File photoFile, PhotoUploadCallback callback) {
         StorageReference storageRef = firestoreHelper.getStorageReference()
                 .child("farms")
-                .child(String.valueOf(farmId)) // must convert long to String for Firestore path
+                .child(String.valueOf(farmId))
                 .child("photos")
                 .child(photo.getId() + ".jpg");
 
@@ -90,14 +101,14 @@ public class PhotoRepository extends BaseRepository {
                             mainHandler.post(() -> callback.onSuccess(photo.getId(), downloadUrl));
                         })
                         .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore metadata save failed, queuing for sync", e);
-                            syncManager.queueForSync("photos", photo.getId(), SyncEntity.SyncAction.CREATE);
+                            Log.e(TAG, "Firestore metadata save failed", e);
+                            // Queue already exists from above, just notify
                             mainHandler.post(() -> callback.onSuccess(photo.getId(), null));
                         });
             });
         }).addOnFailureListener(e -> {
-            Log.e(TAG, "Firebase Storage upload failed, queuing for sync", e);
-            syncManager.queueForSync("photos", photo.getId(), SyncEntity.SyncAction.CREATE);
+            Log.e(TAG, "Firebase Storage upload failed", e);
+            // Queue already exists from above, just notify
             mainHandler.post(() -> callback.onError(e.getMessage()));
         });
     }
@@ -130,7 +141,6 @@ public class PhotoRepository extends BaseRepository {
     }
 
     public LiveData<List<PhotoEntity>> getPhotosByFarm() {
-        // Remove parseLong, farmId is already long
         return database.photoDao().getPhotosByFarmIdLiveData(farmId);
     }
 
@@ -164,6 +174,14 @@ public class PhotoRepository extends BaseRepository {
 
                 Log.d(TAG, "Photo caption updated locally: " + photoId);
 
+                // Queue for sync (only if NOT a remote update)
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("photos", photoId, SyncEntity.SyncAction.UPDATE);
+                    Log.d(TAG, "Queued photo update for sync (local change)");
+                } else {
+                    Log.d(TAG, "Skipping queue - this is a remote update");
+                }
+
                 // Try to update Firestore
                 firestoreHelper.updatePhotoMetadata(photo)
                         .addOnSuccessListener(aVoid -> {
@@ -171,8 +189,8 @@ public class PhotoRepository extends BaseRepository {
                             mainHandler.post(() -> callback.onSuccess(true));
                         })
                         .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore update failed, queuing for sync", e);
-                            syncManager.queueForSync("photos", photoId, SyncEntity.SyncAction.UPDATE);
+                            Log.e(TAG, "Firestore update failed", e);
+                            // Queue already exists, just return success
                             mainHandler.post(() -> callback.onSuccess(true));
                         });
 
@@ -190,30 +208,38 @@ public class PhotoRepository extends BaseRepository {
     public void deletePhoto(PhotoEntity photo, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
-                // Delete from Firebase Storage first
+                // Delete from local database first
+                database.photoDao().delete(photo);
+                Log.d(TAG, "Photo deleted locally: " + photo.getId());
+
+                // Queue for sync (only if NOT a remote update)
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("photos", photo.getId(), SyncEntity.SyncAction.DELETE);
+                    Log.d(TAG, "Queued photo deletion for sync (local change)");
+                } else {
+                    Log.d(TAG, "Skipping queue - this is a remote update");
+                }
+
+                // Delete from Firebase Storage
                 String storagePath = "farms/" + farmId + "/photos/" + photo.getId() + ".jpg";
                 firestoreHelper.deleteFromStorage(storagePath)
                         .addOnSuccessListener(aVoid -> {
                             Log.d(TAG, "Photo deleted from Firebase Storage");
 
-                            // Then delete from local database
-                            database.photoDao().delete(photo);
-
-                            // Try to delete from Firestore
+                            // Delete from Firestore metadata
                             firestoreHelper.deletePhotoMetadata(photo.getId())
                                     .addOnSuccessListener(aVoid2 -> {
                                         Log.d(TAG, "Photo metadata deleted from Firestore");
                                         mainHandler.post(() -> callback.onSuccess(true));
                                     })
                                     .addOnFailureListener(e -> {
-                                        Log.e(TAG, "Firestore delete failed, queuing for sync", e);
-                                        syncManager.queueForSync("photos", photo.getId(), SyncEntity.SyncAction.DELETE);
+                                        Log.e(TAG, "Firestore metadata delete failed", e);
                                         mainHandler.post(() -> callback.onSuccess(true));
                                     });
                         })
                         .addOnFailureListener(e -> {
                             Log.e(TAG, "Storage delete failed", e);
-                            mainHandler.post(() -> callback.onError(e.getMessage()));
+                            mainHandler.post(() -> callback.onSuccess(true));
                         });
 
             } catch (Exception e) {
@@ -235,10 +261,14 @@ public class PhotoRepository extends BaseRepository {
                     PhotoEntity existing = database.photoDao().getPhotoById(photo.getId());
                     if (existing == null) {
                         database.photoDao().insert(photo);
-                        Log.d(TAG, "Synced new photo: " + photo.getId());
+                        Log.d(TAG, "Synced new photo from Firestore: " + photo.getId());
                     } else {
-                        database.photoDao().update(photo);
-                        Log.d(TAG, "Synced updated photo: " + photo.getId());
+                        if (photo.getUpdatedAt() > existing.getUpdatedAt()) {
+                            database.photoDao().update(photo);
+                            Log.d(TAG, "Synced updated photo from Firestore: " + photo.getId());
+                        } else {
+                            Log.d(TAG, "Skipped older photo update: " + photo.getId());
+                        }
                     }
                 }
             } catch (Exception e) {

@@ -229,7 +229,7 @@ public class UsersListActivity extends BaseActivity {
 
         adapter = new UserAdapter(filteredUsers, user -> {
             Intent intent = new Intent(UsersListActivity.this, UserDetailActivity.class);
-            intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getId());
+            intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getLocalId());
             startActivity(intent);
         });
 

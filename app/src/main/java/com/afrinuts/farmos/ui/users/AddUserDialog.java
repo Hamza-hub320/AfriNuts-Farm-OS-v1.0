@@ -54,6 +54,8 @@ public class AddUserDialog extends DialogFragment {
     private TextInputEditText etPin;
     private TextInputEditText etConfirmPin;
 
+    private long farmId;
+
     private UserEntity.UserRole selectedRole = UserEntity.UserRole.WORKER;
     private UserEntity.AuthMethod selectedAuthMethod = UserEntity.AuthMethod.PIN;
 
@@ -67,6 +69,13 @@ public class AddUserDialog extends DialogFragment {
         return new AddUserDialog();
     }
 
+    public static AddUserDialog newInstance(long farmId) {
+        AddUserDialog dialog = new AddUserDialog();
+        Bundle args = new Bundle();
+        args.putLong("farm_id", farmId);
+        dialog.setArguments(args);
+        return dialog;
+    }
     public void setOnUserAddedListener(OnUserAddedListener listener) {
         this.listener = listener;
     }
@@ -76,6 +85,12 @@ public class AddUserDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
         database = AppDatabase.getInstance(requireContext());
         firebaseManager = FirebaseManager.getInstance();
+
+        if (getArguments() != null) {
+            farmId = getArguments().getLong("farm_id", 1);
+        } else {
+            farmId = 1;
+        }
     }
 
     @NonNull
@@ -242,7 +257,8 @@ public class AddUserDialog extends DialogFragment {
 
         executor.execute(() -> {
             String pinHash = AuthUtils.hash(pin);
-            UserEntity user = new UserEntity(name, selectedRole, phone, pinHash);
+            // FIXED: Add farmId parameter
+            UserEntity user = new UserEntity(name, selectedRole, phone, pinHash, farmId);
 
             long id = database.userDao().insert(user);
 
@@ -299,10 +315,19 @@ public class AddUserDialog extends DialogFragment {
     private void createLocalUser(String name, String phone, String email, String password, String firebaseUid) {
         executor.execute(() -> {
             String passwordHash = AuthUtils.hash(password);
-            UserEntity user = new UserEntity(name, selectedRole, phone, email, passwordHash);
+
+            UserEntity user = new UserEntity(
+                    firebaseUid,        // uid
+                    name,               // name
+                    selectedRole,       // role
+                    phone,              // phone
+                    email,              // email
+                    passwordHash,       // password hash
+                    farmId              // farmId
+            );
 
             long id = database.userDao().insert(user);
-            user.setId(id);
+            user.setLocalId(id);
 
             // Save to Firestore
             saveUserToFirestore(user, firebaseUid);
@@ -327,7 +352,7 @@ public class AddUserDialog extends DialogFragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getId());
+        userMap.put("id", user.getLocalId());
         userMap.put("name", user.getName());
         userMap.put("role", user.getRole().name());
         userMap.put("phone", user.getPhone());

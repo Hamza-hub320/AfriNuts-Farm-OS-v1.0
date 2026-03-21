@@ -17,13 +17,13 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -101,29 +101,11 @@ public class TaskDetailActivity extends BaseActivity {
         // Initialize database
         database = AppDatabase.getInstance(this);
 
-        // Initialize repository (will be updated when we load the task)
-        executor.execute(() -> {
-            FarmEntity farm = database.farmDao().getFirstFarm();
-            farmId = farm.getId(); // store as long
-
-            // Initialize repository with correct farmId
-            taskRepository = new TaskRepository(TaskDetailActivity.this, farmId);
-
-            List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farmId);
-
-            runOnUiThread(() -> {
-                currentFarm = farm;
-                allBlocks = blocks;
-                displayTaskData();
-                loadAssignmentHistory();
-            });
-        });
-
         initViews();
         setupToolbar();
 
-        // Load data using LiveData
-        loadData();
+        // Load everything sequentially
+        loadFarmAndTask();
     }
 
     private void initViews() {
@@ -217,26 +199,57 @@ public class TaskDetailActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    private void loadData() {
+    private void loadFarmAndTask() {
+        executor.execute(() -> {
+            // Step 1: Load farm
+            FarmEntity farm = database.farmDao().getFirstFarm();
+            if (farm == null) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+                return;
+            }
+
+            farmId = farm.getId();
+            currentFarm = farm;
+
+            // Step 2: Load blocks for name mapping
+            allBlocks = database.blockDao().getBlocksByFarmId(farmId);
+
+            // Step 3: Initialize repository with correct farmId
+            taskRepository = new TaskRepository(TaskDetailActivity.this, farmId);
+
+            // Step 4: Now load the task using LiveData
+            runOnUiThread(() -> {
+                loadTaskData();
+            });
+        });
+    }
+
+    private void loadTaskData() {
+        if (taskRepository == null) {
+            Log.e(TAG, "TaskRepository is null, cannot load task");
+            Toast.makeText(this, "Error loading task", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         // Use LiveData from repository
         taskRepository.getTaskById(taskId).observe(this, new Observer<TaskEntity>() {
             @Override
             public void onChanged(TaskEntity loadedTask) {
                 if (loadedTask != null) {
                     task = loadedTask;
+                    displayTaskData();
+                    loadAssignmentHistory();
+                    setFieldsEditable(false);
 
-                    // Load farm and blocks for context
-                    executor.execute(() -> {
-                        FarmEntity farm = database.farmDao().getFirstFarm();
-                        List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
-
-                        runOnUiThread(() -> {
-                            currentFarm = farm;
-                            allBlocks = blocks;
-                            displayTaskData();
-                            loadAssignmentHistory();
-                        });
-                    });
+                    if (sessionManager.isInvestor()) {
+                        btnEdit.setVisibility(View.GONE);
+                        btnDelete.setVisibility(View.GONE);
+                        fabStatus.setVisibility(View.GONE);
+                    }
                 } else {
                     Toast.makeText(TaskDetailActivity.this, "Task not found", Toast.LENGTH_SHORT).show();
                     finish();
@@ -414,6 +427,7 @@ public class TaskDetailActivity extends BaseActivity {
                 task.setCompletedDate(System.currentTimeMillis());
             }
 
+            // Use CompletableFuture pattern for update
             taskRepository.updateTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
                 @Override
                 public void onSuccess(Boolean result) {
@@ -495,6 +509,10 @@ public class TaskDetailActivity extends BaseActivity {
             }
         }
         return null;
+    }
+
+    private void setFieldsEditable(boolean editable) {
+        // Implement if needed
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -108,20 +109,28 @@ public class AutoSyncWorker extends Worker {
         try {
             Log.d(TAG, "EntityType received: " + syncItem.getEntityType());
             switch (syncItem.getEntityType()) {
+                case "block":
                 case "blocks":
                     syncBlock(syncItem);
                     break;
+                case "expense":
                 case "expenses":
                     syncExpense(syncItem);
                     break;
+                case "revenue":
                 case "revenues":
                     syncRevenue(syncItem);
                     break;
+                case "task":
                 case "tasks":
                     syncTask(syncItem);
                     break;
+                case "photo":
                 case "photos":
                     syncPhoto(syncItem);
+                    break;
+                case "users":  // ADD THIS CASE
+                    syncUser(syncItem);
                     break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
@@ -141,6 +150,33 @@ public class AutoSyncWorker extends Worker {
             syncItem.setAttemptCount(syncItem.getAttemptCount() + 1);
             database.syncDao().update(syncItem);
             return false;
+        }
+    }
+
+    // Add this new method
+    private void syncUser(SyncEntity syncItem) throws Exception {
+        UserEntity user = database.userDao().getUserById(syncItem.getEntityId());
+        if (user == null) {
+            Log.e(TAG, "User not found in local DB: " + syncItem.getEntityId());
+            return;
+        }
+
+        Log.d(TAG, "Syncing user ID: " + syncItem.getEntityId() +
+                " action: " + syncItem.getAction() +
+                " email: " + user.getEmail() +
+                " uid: " + user.getUid());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                // The save is async, but we don't need to wait - it's fire-and-forget
+                firebaseManager.saveUser(user, farmId);
+                Log.d(TAG, "User sync initiated for: " + user.getEmail());
+                break;
+            case DELETE:
+                // TODO: Implement deleteUser
+                Log.d(TAG, "User delete not implemented yet");
+                break;
         }
     }
 

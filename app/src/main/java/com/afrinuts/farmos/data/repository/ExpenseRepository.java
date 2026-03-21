@@ -8,14 +8,17 @@ import androidx.lifecycle.LiveData;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
+import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 
 import java.util.List;
 
 public class ExpenseRepository extends BaseRepository {
     private static final String TAG = "ExpenseRepository";
+    private FirestoreSyncManager firestoreSyncManager;
 
     public ExpenseRepository(Context context, long farmId) {
         super(context, farmId);
+        this.firestoreSyncManager = FirestoreSyncManager.getInstance(context);
     }
 
     // ========================================
@@ -39,8 +42,15 @@ public class ExpenseRepository extends BaseRepository {
                         })
                         .addOnFailureListener(e -> {
                             Log.e(TAG, "Firestore upload failed, queuing for sync", e);
-                            // Queue for later sync
-                            syncManager.queueForSync("expenses", id, SyncEntity.SyncAction.CREATE);
+
+                            // Queue for later sync (only if NOT a remote update)
+                            if (!firestoreSyncManager.isRemoteUpdate()) {
+                                syncManager.queueForSync("expenses", id, SyncEntity.SyncAction.CREATE);
+                                Log.d(TAG, "Queued expense for sync (local change)");
+                            } else {
+                                Log.d(TAG, "Skipping queue - this is a remote update");
+                            }
+
                             runOnUiThread(() -> callback.onSuccess(id));
                         });
 
@@ -56,19 +66,19 @@ public class ExpenseRepository extends BaseRepository {
     // ========================================
 
     public LiveData<List<ExpenseEntity>> getAllExpenses() {
-        return database.expenseDao().getAllExpensesLiveData(); // Need to add this to ExpenseDao
+        return database.expenseDao().getAllExpensesLiveData();
     }
 
     public LiveData<ExpenseEntity> getExpenseById(long expenseId) {
-        return database.expenseDao().getExpenseByIdLiveData(expenseId); // Need to add this to ExpenseDao
+        return database.expenseDao().getExpenseByIdLiveData(expenseId);
     }
 
     public LiveData<List<ExpenseEntity>> getExpensesForFarm() {
-        return database.expenseDao().getExpensesByFarmIdLiveData(farmId); // Need to add this
+        return database.expenseDao().getExpensesByFarmIdLiveData(farmId);
     }
 
     public LiveData<List<ExpenseEntity>> getExpensesForBlock(long blockId) {
-        return database.expenseDao().getExpensesByBlockIdLiveData(blockId); // Need to add this
+        return database.expenseDao().getExpensesByBlockIdLiveData(blockId);
     }
 
     // For synchronous operations
@@ -104,7 +114,15 @@ public class ExpenseRepository extends BaseRepository {
                         })
                         .addOnFailureListener(e -> {
                             Log.e(TAG, "Firestore update failed, queuing for sync", e);
-                            syncManager.queueForSync("expenses", expense.getId(), SyncEntity.SyncAction.UPDATE);
+
+                            // Queue for later sync (only if NOT a remote update)
+                            if (!firestoreSyncManager.isRemoteUpdate()) {
+                                syncManager.queueForSync("expenses", expense.getId(), SyncEntity.SyncAction.UPDATE);
+                                Log.d(TAG, "Queued expense update for sync (local change)");
+                            } else {
+                                Log.d(TAG, "Skipping queue - this is a remote update");
+                            }
+
                             runOnUiThread(() -> callback.onSuccess(true));
                         });
 
@@ -135,7 +153,15 @@ public class ExpenseRepository extends BaseRepository {
                         })
                         .addOnFailureListener(e -> {
                             Log.e(TAG, "Firestore delete failed, queuing for sync", e);
-                            syncManager.queueForSync("expenses", expense.getId(), SyncEntity.SyncAction.DELETE);
+
+                            // Queue for later sync (only if NOT a remote update)
+                            if (!firestoreSyncManager.isRemoteUpdate()) {
+                                syncManager.queueForSync("expenses", expense.getId(), SyncEntity.SyncAction.DELETE);
+                                Log.d(TAG, "Queued expense delete for sync (local change)");
+                            } else {
+                                Log.d(TAG, "Skipping queue - this is a remote update");
+                            }
+
                             runOnUiThread(() -> callback.onSuccess(true));
                         });
 
@@ -158,10 +184,10 @@ public class ExpenseRepository extends BaseRepository {
                     ExpenseEntity existing = database.expenseDao().getExpenseById(expense.getId());
                     if (existing == null) {
                         database.expenseDao().insert(expense);
-                        Log.d(TAG, "Synced new expense: " + expense.getId());
+                        Log.d(TAG, "Synced new expense from Firestore: " + expense.getId());
                     } else {
                         database.expenseDao().update(expense);
-                        Log.d(TAG, "Synced updated expense: " + expense.getId());
+                        Log.d(TAG, "Synced updated expense from Firestore: " + expense.getId());
                     }
                 }
             } catch (Exception e) {
@@ -172,7 +198,7 @@ public class ExpenseRepository extends BaseRepository {
 
     public void deleteExpenseFromSync(long expenseId) {
         executor.execute(() -> {
-            database.expenseDao().deleteById(expenseId); // Need to add this to ExpenseDao
+            database.expenseDao().deleteById(expenseId);
             Log.d(TAG, "Deleted expense from sync: " + expenseId);
         });
     }

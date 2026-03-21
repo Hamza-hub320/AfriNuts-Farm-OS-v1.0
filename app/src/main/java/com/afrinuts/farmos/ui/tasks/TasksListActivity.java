@@ -1,13 +1,17 @@
 package com.afrinuts.farmos.ui.tasks;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -68,7 +72,6 @@ public class TasksListActivity extends BaseActivity {
         setContentView(R.layout.activity_tasks_list);
 
         database = AppDatabase.getInstance(this);
-        taskRepository = new TaskRepository(this, farmId);
 
         initViews();
         setupToolbar();
@@ -81,10 +84,16 @@ public class TasksListActivity extends BaseActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         emptyLayout = findViewById(R.id.emptyView);
+
+        // Summary cards - these exist in your layout
         pendingTasksValue = findViewById(R.id.pendingTasksValue);
         inProgressTasksValue = findViewById(R.id.inProgressTasksValue);
         completedTasksValue = findViewById(R.id.completedTasksValue);
+
         filterChipGroup = findViewById(R.id.filterChipGroup);
+
+        // FAB - this exists in your layout
+        FloatingActionButton fabAddTask = findViewById(R.id.fabAddTask);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -131,11 +140,8 @@ public class TasksListActivity extends BaseActivity {
     }
 
     private void setupFilters() {
+        // Get chips from the ChipGroup
         Chip chipAll = findViewById(R.id.chipAll);
-        Chip chipPending = findViewById(R.id.chipPending);
-        Chip chipInProgress = findViewById(R.id.chipInProgress);
-        Chip chipCompleted = findViewById(R.id.chipCompleted);
-        Chip chipOverdue = findViewById(R.id.chipOverdue);
 
         chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -144,33 +150,50 @@ public class TasksListActivity extends BaseActivity {
             }
         });
 
-        chipPending.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "PENDING";
-                applyFilter();
+        if (filterChipGroup.getChildCount() >= 5) {
+            View pendingView = filterChipGroup.getChildAt(1);
+            if (pendingView instanceof Chip) {
+                ((Chip) pendingView).setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        currentFilter = "PENDING";
+                        applyFilter();
+                    }
+                });
             }
-        });
 
-        chipInProgress.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "IN_PROGRESS";
-                applyFilter();
+            // Position 2 should be "In Progress"
+            View inProgressView = filterChipGroup.getChildAt(2);
+            if (inProgressView instanceof Chip) {
+                ((Chip) inProgressView).setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        currentFilter = "IN_PROGRESS";
+                        applyFilter();
+                    }
+                });
             }
-        });
 
-        chipCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "COMPLETED";
-                applyFilter();
+            // Position 3 should be "Completed"
+            View completedView = filterChipGroup.getChildAt(3);
+            if (completedView instanceof Chip) {
+                ((Chip) completedView).setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        currentFilter = "COMPLETED";
+                        applyFilter();
+                    }
+                });
             }
-        });
 
-        chipOverdue.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "OVERDUE";
-                applyFilter();
+            // Position 4 should be "Overdue"
+            View overdueView = filterChipGroup.getChildAt(4);
+            if (overdueView instanceof Chip) {
+                ((Chip) overdueView).setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        currentFilter = "OVERDUE";
+                        applyFilter();
+                    }
+                });
             }
-        });
+        }
     }
 
     private void setupFab() {
@@ -186,9 +209,9 @@ public class TasksListActivity extends BaseActivity {
                     });
                     dialog.show(getSupportFragmentManager(), "AddTaskDialog");
                 } else {
-                    android.widget.Toast.makeText(this,
+                    Toast.makeText(this,
                             "Farm not configured",
-                            android.widget.Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -209,35 +232,43 @@ public class TasksListActivity extends BaseActivity {
             } else {
                 runOnUiThread(() -> {
                     showLoading(false);
-                    showEmpty(true);
+                    showEmpty(true, "No farm data", "Please check your connection");
                 });
             }
         });
     }
 
     private void loadData() {
-        // Load all blocks for name mapping
         executor.execute(() -> {
-            List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-            Map<Long, String> blockMap = new HashMap<>();
-            for (BlockEntity block : blocks) {
-                blockMap.put(block.getId(), block.getBlockName());
-            }
+            try {
+                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
+                Map<Long, String> blockMap = new HashMap<>();
+                for (BlockEntity block : blocks) {
+                    blockMap.put(block.getId(), block.getBlockName());
+                }
 
-            final Map<Long, String> finalBlockMap = blockMap;
+                final Map<Long, String> finalBlockMap = blockMap;
 
-            runOnUiThread(() -> {
-                blockNameMap.clear();
-                blockNameMap.putAll(finalBlockMap);
+                runOnUiThread(() -> {
+                    blockNameMap.clear();
+                    blockNameMap.putAll(finalBlockMap);
 
-                // Use LiveData from repository
-                taskRepository.getAllTasks().observe(this, new Observer<List<TaskEntity>>() {
-                    @Override
-                    public void onChanged(List<TaskEntity> tasks) {
-                        processTasks(tasks);
-                    }
+                    // Use LiveData from repository
+                    taskRepository.getAllTasks().observe(this, new Observer<List<TaskEntity>>() {
+                        @Override
+                        public void onChanged(List<TaskEntity> tasks) {
+                            if (tasks != null) {
+                                processTasks(tasks);
+                            } else {
+                                showError("No tasks data received");
+                            }
+                        }
+                    });
                 });
-            });
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading data", e);
+                runOnUiThread(() -> showError("Failed to load tasks: " + e.getMessage()));
+            }
         });
     }
 
@@ -254,9 +285,9 @@ public class TasksListActivity extends BaseActivity {
         showLoading(false);
 
         if (allTasks.isEmpty()) {
-            showEmpty(true);
+            showEmpty(true, "No tasks yet", "Tap + to create your first task");
         } else {
-            showEmpty(false);
+            showEmpty(false, null, null);
             updateSummaryCounts();
             applyFilter();
         }
@@ -332,13 +363,41 @@ public class TasksListActivity extends BaseActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        emptyLayout.setVisibility(View.GONE);
+        if (emptyLayout != null) {
+            emptyLayout.setVisibility(View.GONE);
+        }
     }
 
-    private void showEmpty(boolean show) {
-        emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+    private void showEmpty(boolean show, String title, String subtitle) {
+        if (emptyLayout != null) {
+            emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+
+            if (show) {
+                // Find and update the TextViews inside the empty layout
+                if (emptyLayout.getChildCount() >= 3) {
+                    // The empty layout has ImageView, then two TextViews
+                    View titleView = emptyLayout.getChildAt(1);
+                    View subtitleView = emptyLayout.getChildAt(2);
+
+                    if (titleView instanceof TextView && title != null) {
+                        ((TextView) titleView).setText(title);
+                    }
+
+                    if (subtitleView instanceof TextView && subtitle != null) {
+                        ((TextView) subtitleView).setText(subtitle);
+                    }
+                }
+            }
+        }
+
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        showLoading(false);
+        showEmpty(true, "Error", message);
     }
 
     @Override
@@ -373,6 +432,8 @@ public class TasksListActivity extends BaseActivity {
         super.onResume();
         if (currentFarm != null) {
             loadData();
+        } else {
+            loadFarmData();
         }
     }
 

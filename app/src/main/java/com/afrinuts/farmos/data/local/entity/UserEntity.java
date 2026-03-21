@@ -1,14 +1,20 @@
 package com.afrinuts.farmos.data.local.entity;
 
 import androidx.room.Entity;
-import androidx.room.Ignore;  // Add this import
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "users")
 public class UserEntity {
 
+    // Firebase Auth UID (String)
+    private String uid;
+    // Local Room auto-increment ID
     @PrimaryKey(autoGenerate = true)
-    private long id;
+    private long localId;
+
+    // Legacy: keep for backward compatibility (optional, can be removed if not needed)
+    // private long id;
 
     private String name;
     private UserRole role;
@@ -24,6 +30,8 @@ public class UserEntity {
     private long createdAt;
     private long updatedAt;
     private boolean isActive;
+
+    private long farmId;
 
     public enum UserRole {
         OWNER("Owner", "👑", "Full access to all farm data", 100),
@@ -69,10 +77,11 @@ public class UserEntity {
     }
 
     // Main constructor for Room (annotate this one)
-    public UserEntity(long id, String name, UserRole role, String phone, String email,
+    public UserEntity(long localId, String uid, String name, UserRole role, String phone, String email,
                       String passwordHash, String pinHash, AuthMethod authMethod,
                       long lastLoginAt, long createdAt, long updatedAt, boolean isActive) {
-        this.id = id;
+        this.localId = localId;
+        this.uid = uid;
         this.name = name;
         this.role = role;
         this.phone = phone;
@@ -101,23 +110,45 @@ public class UserEntity {
         this.updatedAt = now;
     }
 
+    // Constructor for Firebase Auth users - MARK AS IGNORE
+    @Ignore
+    public UserEntity(String uid, String name, UserRole role, String phone,
+                      String email, String passwordHash, long farmId) {
+        this.uid = uid;
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.authMethod = AuthMethod.PASSWORD;
+        this.isActive = true;
+        this.farmId = farmId;
+        long now = System.currentTimeMillis();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
     // Constructor for PIN users - MARK AS IGNORE
     @Ignore
-    public UserEntity(String name, UserRole role, String phone, String pinHash) {
+    public UserEntity(String name, UserRole role, String phone, String pinHash, long farmId) {
         this.name = name;
         this.role = role;
         this.phone = phone;
         this.pinHash = pinHash;
         this.authMethod = AuthMethod.PIN;
         this.isActive = true;
+        this.farmId = farmId;
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.updatedAt = now;
     }
 
     // Getters and Setters
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public String getUid() { return uid; }
+    public void setUid(String uid) { this.uid = uid; }
+
+    public long getLocalId() { return localId; }
+    public void setLocalId(long localId) { this.localId = localId; }
 
     public String getName() { return name; }
     public void setName(String name) {
@@ -176,6 +207,12 @@ public class UserEntity {
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) {
         isActive = active;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public long getFarmId() { return farmId; }
+    public void setFarmId(long farmId) {
+        this.farmId = farmId;
         this.updatedAt = System.currentTimeMillis();
     }
 

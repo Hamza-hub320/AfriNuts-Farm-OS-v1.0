@@ -3,6 +3,7 @@ package com.afrinuts.farmos.data.local.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 import androidx.room.Delete;
@@ -16,6 +17,9 @@ public interface ExpenseDao {
 
     @Insert
     long insert(ExpenseEntity expense);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertOrUpdate(ExpenseEntity expense);
 
     @Update
     void update(ExpenseEntity expense);

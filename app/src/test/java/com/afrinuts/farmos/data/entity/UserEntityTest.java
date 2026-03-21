@@ -12,9 +12,11 @@ public class UserEntityTest {
 
     private UserEntity passwordUser;
     private UserEntity pinUser;
+    private final long TEST_FARM_ID = 1L;
 
     @Before
     public void setUp() {
+        // FIXED: Use the 5-parameter constructor for email/password users
         passwordUser = new UserEntity(
                 "John Owner",
                 UserEntity.UserRole.OWNER,
@@ -22,12 +24,16 @@ public class UserEntityTest {
                 "john@afrinuts.com",
                 AuthUtils.hash("password123")
         );
+        // Set farmId separately (since email/password constructor doesn't have it)
+        passwordUser.setFarmId(TEST_FARM_ID);
 
+        // FIXED: Use the 5-parameter constructor for PIN users with farmId
         pinUser = new UserEntity(
                 "Sam Worker",
                 UserEntity.UserRole.WORKER,
                 "+22587654321",
-                AuthUtils.hash("1234")
+                AuthUtils.hash("1234"),
+                TEST_FARM_ID  // Add farmId parameter
         );
     }
 
@@ -38,6 +44,7 @@ public class UserEntityTest {
         assertEquals(UserEntity.UserRole.OWNER, passwordUser.getRole());
         assertEquals("john@afrinuts.com", passwordUser.getEmail());
         assertTrue(passwordUser.isActive());
+        assertEquals(TEST_FARM_ID, passwordUser.getFarmId());
     }
 
     @Test
@@ -47,6 +54,7 @@ public class UserEntityTest {
         assertEquals(UserEntity.UserRole.WORKER, pinUser.getRole());
         assertNull(pinUser.getEmail());
         assertEquals(UserEntity.AuthMethod.PIN, pinUser.getAuthMethod());
+        assertEquals(TEST_FARM_ID, pinUser.getFarmId());
     }
 
     @Test
@@ -54,8 +62,15 @@ public class UserEntityTest {
         assertEquals("JO", passwordUser.getInitials());
         assertEquals("SW", pinUser.getInitials());
 
-        UserEntity singleName = new UserEntity("Hamza", UserEntity.UserRole.MANAGER,
-                "+22500000000", "hamza@afrinuts.com", AuthUtils.hash("pass"));
+        // FIXED: Create single name user with email/password constructor + setFarmId
+        UserEntity singleName = new UserEntity(
+                "Hamza",
+                UserEntity.UserRole.MANAGER,
+                "+22500000000",
+                "hamza@afrinuts.com",
+                AuthUtils.hash("pass")
+        );
+        singleName.setFarmId(TEST_FARM_ID);
         assertEquals("H", singleName.getInitials());
     }
 
@@ -97,5 +112,11 @@ public class UserEntityTest {
         long before = System.currentTimeMillis() - 1000;
         passwordUser.setLastLoginAt(System.currentTimeMillis());
         assertTrue(passwordUser.getLastLoginAt() >= before);
+    }
+
+    @Test
+    public void testFarmId() {
+        assertEquals(TEST_FARM_ID, passwordUser.getFarmId());
+        assertEquals(TEST_FARM_ID, pinUser.getFarmId());
     }
 }

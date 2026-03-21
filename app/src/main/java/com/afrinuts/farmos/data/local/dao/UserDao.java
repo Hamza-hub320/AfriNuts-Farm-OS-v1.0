@@ -3,6 +3,7 @@ package com.afrinuts.farmos.data.local.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 import androidx.room.Delete;
@@ -17,23 +18,35 @@ public interface UserDao {
     @Insert
     long insert(UserEntity user);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertOrUpdate(UserEntity user);
+
     @Update
     void update(UserEntity user);
 
     @Delete
     void delete(UserEntity user);
 
-    @Query("DELETE FROM users WHERE id = :id")
-    void deleteById(long id);
+    // FIXED: Changed 'id' to 'localId'
+    @Query("DELETE FROM users WHERE localId = :localId")
+    void deleteById(long localId);
 
-    @Query("SELECT * FROM users WHERE id = :id")
-    UserEntity getUserById(long id);
+    // FIXED: Changed 'id' to 'localId'
+    @Query("SELECT * FROM users WHERE localId = :localId")
+    UserEntity getUserById(long localId);
 
-    @Query("SELECT * FROM users WHERE id = :id")
-    LiveData<UserEntity> getUserByIdLiveData(long id);
+    // FIXED: Changed 'id' to 'localId'
+    @Query("SELECT * FROM users WHERE localId = :localId")
+    LiveData<UserEntity> getUserByIdLiveData(long localId);
 
     @Query("SELECT * FROM users WHERE email = :email")
     UserEntity getUserByEmail(String email);
+
+    @Query("SELECT * FROM users WHERE uid = :uid")
+    UserEntity getUserByUid(String uid);
+
+    @Query("SELECT * FROM users WHERE uid = :uid")
+    LiveData<UserEntity> getUserByUidLiveData(String uid);
 
     @Query("SELECT * FROM users WHERE role = :role")
     List<UserEntity> getUsersByRole(UserEntity.UserRole role);
@@ -55,4 +68,7 @@ public interface UserDao {
 
     @Query("SELECT COUNT(*) FROM users WHERE isActive = 1")
     int getActiveUserCount();
+
+    @Query("SELECT * FROM users WHERE localId = :localId LIMIT 1")
+    UserEntity getUserByLocalId(long localId);
 }

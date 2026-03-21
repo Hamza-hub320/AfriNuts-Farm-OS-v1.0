@@ -13,16 +13,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.data.repository.UserRepository;
 import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.UserRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.utils.AuthUtils;
@@ -209,12 +205,12 @@ public class UserDetailActivity extends BaseActivity {
         }
 
         // Check if this is the current user (yourself)
-        boolean isCurrentUser = user.getId() == sessionManager.getUserId();
+        boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
 
         // Owners cannot deactivate themselves
         if (user.getRole() == UserEntity.UserRole.OWNER && isCurrentUser) {
             btnDeactivate.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE); // Also hide delete for yourself
+            btnDelete.setVisibility(View.GONE);
         } else {
             btnDeactivate.setVisibility(View.VISIBLE);
 
@@ -242,8 +238,7 @@ public class UserDetailActivity extends BaseActivity {
             tvLastLogin.setText("Never");
         }
 
-        tvAuthMethod.setText(user.getAuthMethod().getIcon() + " " +
-                user.getAuthMethod().getDisplayName());
+        tvAuthMethod.setText(user.getAuthMethod().getDisplayName());
     }
 
     private String getAccessLevelDescription(int level) {
@@ -255,7 +250,7 @@ public class UserDetailActivity extends BaseActivity {
 
     private void toggleUserStatus() {
         // Prevent deactivating yourself
-        boolean isCurrentUser = user.getId() == sessionManager.getUserId();
+        boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
         if (isCurrentUser) {
             Toast.makeText(this, "You cannot deactivate your own account", Toast.LENGTH_SHORT).show();
             return;
@@ -294,7 +289,7 @@ public class UserDetailActivity extends BaseActivity {
     }
 
     private void confirmDelete() {
-        boolean isCurrentUser = user.getId() == sessionManager.getUserId();
+        boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
         if (isCurrentUser) {
             Toast.makeText(this, "You cannot delete your own account", Toast.LENGTH_SHORT).show();
             return;
@@ -302,20 +297,14 @@ public class UserDetailActivity extends BaseActivity {
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete User")
-                .setMessage("Delete " + user.getName() + "?\n\n" +
-                        "⚠️ Note: This will remove them from the app, but you must also delete them from Firebase Console:\n" +
-                        "1. Go to Firebase Console\n" +
-                        "2. Authentication → Users\n" +
-                        "3. Find " + user.getEmail() + "\n" +
-                        "4. Click the 3 dots → Delete Account")
-                .setPositiveButton("Delete from App", (dialog, which) -> {
-                    // Delete from local database only
+                .setMessage("Are you sure you want to delete " + user.getName() + "? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
                     userRepository.deleteUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
                         @Override
                         public void onSuccess(Boolean result) {
                             runOnUiThread(() -> {
                                 Toast.makeText(UserDetailActivity.this,
-                                        "User removed from app", Toast.LENGTH_LONG).show();
+                                        "User deleted successfully", Toast.LENGTH_SHORT).show();
                                 finish();
                             });
                         }
@@ -324,7 +313,7 @@ public class UserDetailActivity extends BaseActivity {
                         public void onError(String error) {
                             runOnUiThread(() ->
                                     Toast.makeText(UserDetailActivity.this,
-                                            "Error: " + error, Toast.LENGTH_SHORT).show()
+                                            "Error deleting user: " + error, Toast.LENGTH_SHORT).show()
                             );
                         }
                     });
@@ -337,7 +326,6 @@ public class UserDetailActivity extends BaseActivity {
         Toast.makeText(this, "Reset PIN coming soon", Toast.LENGTH_SHORT).show();
     }
 
-    // Updates only local database
     private void updateLocalUserOnly() {
         userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
             @Override
@@ -346,54 +334,6 @@ public class UserDetailActivity extends BaseActivity {
                     Toast.makeText(UserDetailActivity.this,
                             "User updated successfully!", Toast.LENGTH_SHORT).show();
                     displayUserData();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(UserDetailActivity.this,
-                                "Error: " + error, Toast.LENGTH_SHORT).show()
-                );
-            }
-        });
-    }
-
-    // Add this interface inside your UserDetailActivity class
-    private interface OnReauthListener {
-        void onSuccess();
-        void onFailure(String error);
-    }
-
-    // Add this method inside your UserDetailActivity class
-    private void reauthenticateUser(String email, String password, OnReauthListener listener) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser == null) {
-            listener.onFailure("No user logged in");
-            return;
-        }
-
-        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        firebaseUser.reauthenticate(credential)
-                .addOnSuccessListener(aVoid -> listener.onSuccess())
-                .addOnFailureListener(e -> listener.onFailure(e.getMessage()));
-    }
-
-    // Helper method for current user updates that require logout
-    private void updateLocalUserAndLogout() {
-        userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    Toast.makeText(UserDetailActivity.this,
-                            "✓ Credentials updated! Please log in with your new credentials.",
-                            Toast.LENGTH_LONG).show();
-
-                    sessionManager.logout();
-                    Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
                 });
             }
 
@@ -420,26 +360,22 @@ public class UserDetailActivity extends BaseActivity {
         etName.setText(user.getName());
         etPhone.setText(user.getPhone());
 
-        boolean isCurrentUser = user.getId() == sessionManager.getUserId();
+        boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
 
-        // Show appropriate helper text
         tvHelper.setVisibility(View.VISIBLE);
 
         if (isCurrentUser) {
-            tvHelper.setText("You are updating YOUR OWN account. You can change your password here. Email cannot be changed.");
-            // Disable email field for current user (keep using owner@afrinuts.com)
+            tvHelper.setText("You are updating YOUR OWN account.");
             etEmail.setEnabled(false);
             etEmail.setHint("Email (cannot be changed)");
         } else {
-            tvHelper.setText("You are updating another user. Only name/phone can be changed. They must change their own password in Settings.");
-            // Disable email/password for other users
+            tvHelper.setText("You are updating another user.");
             etEmail.setEnabled(false);
             etNewPassword.setEnabled(false);
             etConfirmPassword.setEnabled(false);
-            etEmail.setHint("Email (user must change in Settings)");
+            etEmail.setHint("Email (cannot be changed)");
         }
 
-        // Always show email if available
         if (user.getEmail() != null) {
             etEmail.setText(user.getEmail());
         }
@@ -450,68 +386,17 @@ public class UserDetailActivity extends BaseActivity {
                 .setPositiveButton("Save", (dialog, which) -> {
                     String newName = etName.getText().toString().trim();
                     String newPhone = etPhone.getText().toString().trim();
-                    String newPassword = etNewPassword.getText().toString().trim();
-                    String confirmPassword = etConfirmPassword.getText().toString().trim();
 
                     if (TextUtils.isEmpty(newName)) {
                         Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Update local user object first
                     user.setName(newName);
                     user.setPhone(newPhone);
 
-                    // IF THIS IS THE CURRENT USER, CHECK FOR PASSWORD CHANGE
-                    if (isCurrentUser) {
-                        // Check if password was provided
-                        boolean passwordChanged = !TextUtils.isEmpty(newPassword);
-
-                        if (passwordChanged) {
-                            // Validate password
-                            if (newPassword.length() < 6) {
-                                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            if (!newPassword.equals(confirmPassword)) {
-                                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            // Update Firebase password
-                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                            if (firebaseUser == null) {
-                                Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            // Show progress
-                            Toast.makeText(this, "Updating your password...", Toast.LENGTH_SHORT).show();
-
-                            // Update password in Firebase
-                            firebaseUser.updatePassword(newPassword)
-                                    .addOnSuccessListener(aVoid -> {
-                                        // Update local password hash
-                                        user.setPasswordHash(AuthUtils.hash(newPassword));
-                                        // Save to local DB and logout
-                                        updateLocalUserAndLogout();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(this,
-                                                "Password update failed: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
-                                    });
-                        } else {
-                            // No password change, just update local profile
-                            updateLocalUserOnly();
-                            Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // Updating another user - only update local DB
-                        updateLocalUserOnly();
-                        Toast.makeText(this, "User profile updated successfully!", Toast.LENGTH_SHORT).show();
-                    }
+                    updateLocalUserOnly();
+                    Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
