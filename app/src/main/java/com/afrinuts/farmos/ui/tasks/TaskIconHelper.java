@@ -44,7 +44,7 @@ public class TaskIconHelper {
                 return R.drawable.ic_construction;
             case OTHER:
             default:
-                return R.drawable.ic_note;
+                return R.drawable.ic_more_horiz;
         }
     }
 }

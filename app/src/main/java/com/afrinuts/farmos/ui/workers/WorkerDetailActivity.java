@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.lifecycle.Observer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -154,46 +155,40 @@ public class WorkerDetailActivity extends AppCompatActivity {
     }
 
     private void loadWorkerData() {
-        assignmentRepository.getAssignmentsForWorker(workerName, new BaseRepository.RepositoryCallback<List<TaskAssignmentHistoryEntity>>() {
-            @Override
-            public void onSuccess(List<TaskAssignmentHistoryEntity> assignments) {
-                if (assignments.isEmpty()) {
-                    runOnUiThread(() -> showEmptyState());
-                    return;
-                }
-
-                // Create WorkerPerformance object
-                workerPerformance = new WorkerPerformance(workerName);
-
-                // Load tasks into cache
-                executor.execute(() -> {
-                    for (TaskAssignmentHistoryEntity assignment : assignments) {
-                        workerPerformance.addAssignment(assignment);
-
-                        TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
-                        if (task != null) {
-                            taskCache.put(assignment.getTaskId(), task);
-
-                            // Add task type
-                            if (!workerPerformance.getTaskTypes().contains(task.getType().getDisplayName())) {
-                                workerPerformance.getTaskTypes().add(task.getType().getDisplayName());
-                            }
-                        }
+        // Use LiveData from repository instead of callback
+        assignmentRepository.getAssignmentsForWorkerLiveData(workerName)
+                .observe(this, assignments -> {
+                    if (assignments == null || assignments.isEmpty()) {
+                        showEmptyState();
+                        return;
                     }
 
-                    runOnUiThread(() -> {
-                        displayStats();
-                        displayTaskTypes();
-                        displayRecentTasks(assignments);
+                    // Create WorkerPerformance object
+                    workerPerformance = new WorkerPerformance(workerName);
+
+                    // Load tasks into cache
+                    executor.execute(() -> {
+                        for (TaskAssignmentHistoryEntity assignment : assignments) {
+                            workerPerformance.addAssignment(assignment);
+
+                            TaskEntity task = database.taskDao().getTaskById(assignment.getTaskId());
+                            if (task != null) {
+                                taskCache.put(assignment.getTaskId(), task);
+
+                                // Add task type
+                                if (!workerPerformance.getTaskTypes().contains(task.getType().getDisplayName())) {
+                                    workerPerformance.getTaskTypes().add(task.getType().getDisplayName());
+                                }
+                            }
+                        }
+
+                        runOnUiThread(() -> {
+                            displayStats();
+                            displayTaskTypes();
+                            displayRecentTasks(assignments);
+                        });
                     });
                 });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() -> showEmptyState());
-            }
-        });
     }
 
     private void displayStats() {

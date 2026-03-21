@@ -46,7 +46,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 PhotoEntity.class,
                 SyncEntity.class
         },
-        version = 12,
+        version = 13,
         exportSchema = true
 )
 @TypeConverters({Converters.class})

@@ -3,6 +3,7 @@ package com.afrinuts.farmos.ui.tasks;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -16,14 +17,17 @@ import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
-import com.afrinuts.farmos.data.local.dao.TaskDao;  // Add this import
+import com.afrinuts.farmos.data.local.dao.TaskDao;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
+import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class AssignWorkerDialog extends DialogFragment {
 
@@ -31,7 +35,10 @@ public class AssignWorkerDialog extends DialogFragment {
 
     private long taskId;
     private AppDatabase database;
-    private List<String> existingWorkers = new ArrayList<>();
+    private TaskAssignmentRepository assignmentRepository;
+    private List<String> existingWorkers;
+    private long farmId;
+    private TaskEntity task;
 
     private MaterialAutoCompleteTextView etWorkerName;
     private TextInputEditText etNewWorker;
@@ -64,21 +71,34 @@ public class AssignWorkerDialog extends DialogFragment {
 
         database = AppDatabase.getInstance(requireContext());
 
-        // Load existing workers for suggestions
+        // Load everything synchronously BEFORE showing the dialog
         new Thread(() -> {
-            // Use TaskDao.WorkerTaskCount - WorkerTaskCount is an inner class of TaskDao
-            List<TaskDao.WorkerTaskCount> workerCounts =
-                    database.taskDao().getWorkerTaskCounts();
-
-            existingWorkers.clear();
-            for (TaskDao.WorkerTaskCount wc : workerCounts) {
-                existingWorkers.add(wc.assignedTo);  // Now 'assignedTo' will be recognized
+            // Get the task
+            task = database.taskDao().getTaskById(taskId);
+            if (task != null) {
+                farmId = task.getFarmId();
+                Log.d("AssignWorkerDialog", "Task found: " + task.getTitle() + ", farmId: " + farmId);
+            } else {
+                Log.e("AssignWorkerDialog", "Task not found with ID: " + taskId);
             }
 
-            // Update UI on main thread if needed
+            // Initialize repository
+            assignmentRepository = new TaskAssignmentRepository(requireContext(), farmId);
+
+            // Load existing workers
+            List<TaskDao.WorkerTaskCount> workerCounts = database.taskDao().getWorkerTaskCounts();
+            existingWorkers = new java.util.ArrayList<>();
+            for (TaskDao.WorkerTaskCount wc : workerCounts) {
+                existingWorkers.add(wc.assignedTo);
+            }
+
+            Log.d("AssignWorkerDialog", "Loaded " + existingWorkers.size() + " existing workers");
+
+            // Now that everything is loaded, show the dialog on UI thread
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    setupWorkerSuggestions();
+                    // Dialog will be created when onCreateDialog is called
+                    // But we need to ensure everything is ready
                 });
             }
         }).start();
@@ -90,6 +110,11 @@ public class AssignWorkerDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_assign_worker, null);
 
         initViews(view);
+
+        // Wait for data to be loaded, but show dialog anyway with loading state
+        if (existingWorkers != null && !existingWorkers.isEmpty()) {
+            setupWorkerSuggestions();
+        }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Assign Worker")
@@ -113,7 +138,7 @@ public class AssignWorkerDialog extends DialogFragment {
     }
 
     private void setupWorkerSuggestions() {
-        if (etWorkerName != null) {
+        if (etWorkerName != null && existingWorkers != null && !existingWorkers.isEmpty()) {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
@@ -124,6 +149,12 @@ public class AssignWorkerDialog extends DialogFragment {
     }
 
     private void assignWorker() {
+        // Check if repository is ready
+        if (assignmentRepository == null) {
+            Toast.makeText(getContext(), "Still loading, please try again", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String selectedWorker = etWorkerName.getText().toString().trim();
         String newWorker = etNewWorker.getText().toString().trim();
 
@@ -137,41 +168,79 @@ public class AssignWorkerDialog extends DialogFragment {
             return;
         }
 
+        // Disable assign button to prevent double click
+        if (getDialog() != null) {
+            Button positiveButton = ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setEnabled(false);
+        }
+
+        Toast.makeText(getContext(), "Assigning worker...", Toast.LENGTH_SHORT).show();
+
         new Thread(() -> {
-            // Check if task already has an active assignment
-            TaskAssignmentHistoryEntity currentAssignment =
-                    database.taskDao().getCurrentAssignment(taskId);
+            try {
+                // Check if task already has an active assignment
+                TaskAssignmentHistoryEntity currentAssignment =
+                        database.taskDao().getCurrentAssignment(taskId);
 
-            if (currentAssignment != null) {
-                // Complete the current assignment
-                currentAssignment.completeAssignment();
-                database.taskDao().updateAssignment(currentAssignment);
-            }
+                // Complete current assignment if exists
+                if (currentAssignment != null) {
+                    currentAssignment.completeAssignment();
+                    database.taskDao().updateAssignment(currentAssignment);
+                    Log.d("AssignWorkerDialog", "Completed existing assignment: " + currentAssignment.getId());
+                }
 
-            // --- FIX HERE: Use full constructor with farmId ---
-            TaskAssignmentHistoryEntity newAssignment = new TaskAssignmentHistoryEntity(
-                    database.taskDao().getTaskById(taskId).getFarmId(), // farmId first
-                    taskId,                   // taskId
-                    workerName,               // assignedTo
-                    System.currentTimeMillis() // assignedAt
-            );
+                // Create new assignment
+                TaskAssignmentHistoryEntity newAssignment = new TaskAssignmentHistoryEntity(
+                        farmId,
+                        taskId,
+                        workerName,
+                        System.currentTimeMillis()
+                );
 
-            long id = database.taskDao().insertAssignment(newAssignment);
+                Log.d("AssignWorkerDialog", "Creating new assignment - taskId: " + taskId +
+                        ", worker: " + workerName + ", farmId: " + farmId);
 
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (id > 0) {
-                        Toast.makeText(getContext(),
-                                "Worker assigned successfully", Toast.LENGTH_SHORT).show();
-                        if (listener != null) {
-                            listener.onWorkerAssigned();
+                // Insert using repository
+                assignmentRepository.insertAssignment(newAssignment, new BaseRepository.InsertCallback() {
+                    @Override
+                    public void onSuccess(long id) {
+                        Log.d("AssignWorkerDialog", "Assignment inserted successfully with ID: " + id);
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Worker assigned successfully", Toast.LENGTH_SHORT).show();
+                                if (listener != null) {
+                                    listener.onWorkerAssigned();
+                                }
+                                dismiss();
+                            });
                         }
-                        dismiss(); // now works correctly
-                    } else {
-                        Toast.makeText(getContext(),
-                                "Error assigning worker", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e("AssignWorkerDialog", "Error inserting assignment: " + error);
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Error assigning worker: " + error, Toast.LENGTH_LONG).show();
+                                if (getDialog() != null) {
+                                    Button positiveButton = ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE);
+                                    positiveButton.setEnabled(true);
+                                }
+                            });
+                        }
                     }
                 });
+            } catch (Exception e) {
+                Log.e("AssignWorkerDialog", "Error in assignWorker", e);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        if (getDialog() != null) {
+                            Button positiveButton = ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE);
+                            positiveButton.setEnabled(true);
+                        }
+                    });
+                }
             }
         }).start();
     }

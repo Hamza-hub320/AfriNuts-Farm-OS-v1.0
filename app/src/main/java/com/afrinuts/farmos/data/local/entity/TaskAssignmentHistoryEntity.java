@@ -24,6 +24,10 @@ public class TaskAssignmentHistoryEntity {
     private long assignedAt;
     private Long unassignedAt;  // null if still assigned
 
+    // Add these fields
+    private long createdAt;
+    private long updatedAt;
+
     public TaskAssignmentHistoryEntity() {
     }
 
@@ -34,6 +38,10 @@ public class TaskAssignmentHistoryEntity {
         this.assignedTo = assignedTo;
         this.assignedAt = assignedAt;
         this.unassignedAt = null;
+
+        long now = System.currentTimeMillis();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     // Getters and Setters
@@ -53,11 +61,21 @@ public class TaskAssignmentHistoryEntity {
     public void setAssignedAt(long assignedAt) { this.assignedAt = assignedAt; }
 
     public Long getUnassignedAt() { return unassignedAt; }
-    public void setUnassignedAt(Long unassignedAt) { this.unassignedAt = unassignedAt; }
+    public void setUnassignedAt(Long unassignedAt) {
+        this.unassignedAt = unassignedAt;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
     // Helper method to complete assignment
     public void completeAssignment() {
         this.unassignedAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public boolean isActive() {

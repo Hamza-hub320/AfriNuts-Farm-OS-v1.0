@@ -285,7 +285,7 @@ public class ExpenseDetailActivity extends BaseActivity {
     private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {
         switch (category) {
             case LAND_CLEARING:
-                return R.drawable.ic_clear;
+                return R.drawable.ic_tractor;
             case PLOWING:
                 return R.drawable.ic_grain;
             case SEEDLINGS:

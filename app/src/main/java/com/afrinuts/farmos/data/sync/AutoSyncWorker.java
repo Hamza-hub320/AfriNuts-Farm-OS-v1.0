@@ -13,6 +13,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
+import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
@@ -129,8 +130,12 @@ public class AutoSyncWorker extends Worker {
                 case "photos":
                     syncPhoto(syncItem);
                     break;
-                case "users":  // ADD THIS CASE
+                case "users":
                     syncUser(syncItem);
+                    break;
+                case "assignment":
+                case "assignments":
+                    syncAssignment(syncItem);
                     break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
@@ -153,7 +158,30 @@ public class AutoSyncWorker extends Worker {
         }
     }
 
-    // Add this new method
+    private void syncAssignment(SyncEntity syncItem) throws Exception {
+        TaskAssignmentHistoryEntity assignment = database.taskAssignmentDao().getAssignmentById(syncItem.getEntityId());
+        if (assignment == null) {
+            Log.e(TAG, "Assignment not found in local DB: " + syncItem.getEntityId());
+            return;
+        }
+
+        Log.d(TAG, "Syncing assignment ID: " + syncItem.getEntityId() +
+                " action: " + syncItem.getAction() +
+                " taskId: " + assignment.getTaskId());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                firebaseManager.saveTaskAssignment(assignment, farmId);
+                Log.d(TAG, "Assignment saved to Firestore: " + assignment.getId());
+                break;
+            case DELETE:
+                // Delete from Firestore
+                firebaseManager.deleteAssignment(farmId, assignment.getId());
+                Log.d(TAG, "Assignment deleted from Firestore: " + assignment.getId());
+                break;
+        }
+    }
     private void syncUser(SyncEntity syncItem) throws Exception {
         UserEntity user = database.userDao().getUserById(syncItem.getEntityId());
         if (user == null) {

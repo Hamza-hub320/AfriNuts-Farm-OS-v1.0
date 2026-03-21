@@ -11,6 +11,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.google.android.gms.tasks.Task;
@@ -45,16 +46,16 @@ public class FirebaseManager {
     private FirebaseStorage storage;
 
     // Collection names
-    private static final String COLLECTION_FARMS = "farms";
+    public static final String COLLECTION_FARMS = "farms";
     private static final String COLLECTION_USERS = "users";
 
     // Subcollection names (under farms/{farmId}/)
     private static final String SUBCOLLECTION_BLOCKS = "blocks";
     private static final String SUBCOLLECTION_EXPENSES = "expenses";
     private static final String SUBCOLLECTION_REVENUES = "revenues";
-    private static final String SUBCOLLECTION_TASKS = "tasks";
+    public static final String SUBCOLLECTION_TASKS = "tasks";
     private static final String SUBCOLLECTION_PHOTOS = "photos";
-    private static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
+    public static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
 
     private FirebaseManager() {
         auth = FirebaseAuth.getInstance();
@@ -410,6 +411,48 @@ public class FirebaseManager {
     }
 
     // ========================================
+   //  TASK ASSIGNMENT OPERATIONS
+   // ========================================
+
+    public void saveAssignment(TaskAssignmentHistoryEntity assignment, String farmId) throws Exception {
+        Map<String, Object> assignmentMap = new HashMap<>();
+        assignmentMap.put("id", assignment.getId());
+        assignmentMap.put("taskId", assignment.getTaskId());
+        assignmentMap.put("assignedTo", assignment.getAssignedTo());
+        assignmentMap.put("assignedAt", assignment.getAssignedAt());
+        assignmentMap.put("unassignedAt", assignment.getUnassignedAt());
+        assignmentMap.put("farmId", farmId);
+        assignmentMap.put("updatedAt", System.currentTimeMillis());
+
+        try {
+            // Save under farms/{farmId}/task_assignments/{assignmentId}
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
+                    .document(String.valueOf(assignment.getId()))
+                    .set(assignmentMap));
+            Log.d(TAG, "Assignment saved to Firestore: " + assignment.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving assignment", e);
+            throw new Exception("Failed to save assignment to Firestore", e);
+        }
+    }
+
+    public void deleteAssignment(String farmId, long assignmentId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
+                    .document(String.valueOf(assignmentId))
+                    .delete());
+            Log.d(TAG, "Assignment deleted from Firestore: " + assignmentId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting assignment", e);
+            throw new Exception("Failed to delete assignment from Firestore", e);
+        }
+    }
+
+    // ========================================
     // SYNC OPERATIONS
     // ========================================
 
@@ -492,6 +535,33 @@ public class FirebaseManager {
         } catch (ExecutionException | InterruptedException e) {
             Log.e(TAG, "Error deleting task: " + taskId, e);
             throw new Exception("Failed to delete task from Firestore", e);
+        }
+    }
+
+    public void saveTaskAssignment(TaskAssignmentHistoryEntity assignment, String farmId) throws Exception {
+        Map<String, Object> assignmentMap = new HashMap<>();
+        assignmentMap.put("id", assignment.getId());
+        assignmentMap.put("taskId", assignment.getTaskId());
+        assignmentMap.put("assignedTo", assignment.getAssignedTo());
+        assignmentMap.put("assignedAt", assignment.getAssignedAt());
+        assignmentMap.put("unassignedAt", assignment.getUnassignedAt());
+        assignmentMap.put("farmId", farmId);
+        assignmentMap.put("createdAt", assignment.getCreatedAt());
+        assignmentMap.put("updatedAt", System.currentTimeMillis());
+
+        try {
+            // Save under farms/{farmId}/tasks/{taskId}/assignments/{assignmentId}
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_TASKS)
+                    .document(String.valueOf(assignment.getTaskId()))
+                    .collection("assignments")
+                    .document(String.valueOf(assignment.getId()))
+                    .set(assignmentMap));
+            Log.d(TAG, "✅ Assignment saved to Firestore: " + assignment.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "❌ Error saving assignment", e);
+            throw new Exception("Failed to save assignment to Firestore", e);
         }
     }
 

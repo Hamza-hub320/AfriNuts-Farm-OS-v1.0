@@ -66,4 +66,6 @@ public interface TaskAssignmentDao {
     @Query("SELECT COUNT(*) FROM task_assignments WHERE assignedTo = :workerName AND farmId = :farmId AND unassignedAt IS NOT NULL")
     int getCompletedTaskCountForWorker(long farmId, String workerName);
 
+    @Query("SELECT * FROM task_assignments WHERE taskId = :taskId ORDER BY assignedAt DESC")
+    LiveData<List<TaskAssignmentHistoryEntity>> getAssignmentsForTaskLiveData(long taskId);
     }

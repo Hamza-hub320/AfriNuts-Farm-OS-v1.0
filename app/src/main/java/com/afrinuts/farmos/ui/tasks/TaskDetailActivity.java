@@ -305,8 +305,8 @@ public class TaskDetailActivity extends BaseActivity {
             case HARVEST: return R.drawable.ic_download;
             case IRRIGATION: return R.drawable.ic_water_drop;
             case MAINTENANCE: return R.drawable.ic_construction;
-            case OTHER: return R.drawable.ic_note;
-            default: return R.drawable.ic_note;
+            case OTHER: return R.drawable.ic_more_horiz;
+            default: return R.drawable.ic_more_horiz;
         }
     }
 
