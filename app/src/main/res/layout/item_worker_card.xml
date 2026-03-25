@@ -4,10 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    style="@style/Widget.AfriNuts.CardView"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    android:background="@drawable/bg_card_primary"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,16 +26,21 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <ImageView
-                android:id="@+id/tvWorkerIcon"
+            <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_person"
-                app:tint="@color/primary"
-                android:background="@color/warm_grey"
-                android:padding="12dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Worker icon" />
+                android:background="@drawable/bg_icon_glass"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:id="@+id/tvWorkerIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/primary" />
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -45,14 +53,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="John Doe"
-                    style="@style/Text.H4" />
+                    style="@style/Text.H4"
+                    android:textColor="@color/primary" />
 
                 <TextView
                     android:id="@+id/tvWorkerStats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5 tasks • 3 completed"
-                    style="@style/Text.Caption" />
+                    style="@style/Text.Caption"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -61,12 +71,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="75%"
-                style="@style/Text.Stat.Small"
-                android:background="@color/warm_grey"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                style="@style/Text.H5"
+                android:textColor="@color/accent"
+                android:background="@drawable/bg_icon_glass"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                app:cornerRadius="20dp" />
 
         </LinearLayout>
 
@@ -78,13 +88,14 @@
             android:layout_height="6dp"
             android:progress="75"
             android:max="100"
+            android:progressTint="@color/accent"
             android:layout_marginBottom="12dp" />
 
         <!-- Task Type Chips -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="12dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -100,54 +111,57 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@color/warm_grey"
+            android:background="@drawable/bg_card_secondary"
             android:padding="12dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            app:cardCornerRadius="16dp">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_timer"
-                app:tint="@color/navy"
-                android:layout_marginEnd="4dp" />
+                app:tint="@color/primary"
+                android:layout_marginEnd="8dp" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Total Time"
-                style="@style/Text.Caption.Small" />
+                style="@style/Text.Caption.Small"
+                android:textColor="@color/navy" />
 
             <TextView
                 android:id="@+id/tvTotalTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2d 4h"
-                style="@style/Text.Label.Small"
+                style="@style/Text.Stat.Small"
                 android:textColor="@color/primary"
                 android:layout_marginEnd="16dp" />
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_timer"
-                app:tint="@color/navy"
-                android:layout_marginEnd="4dp" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_timer_off"
+                app:tint="@color/primary"
+                android:layout_marginEnd="8dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Avg"
-                style="@style/Text.Caption.Small" />
+                style="@style/Text.Caption.Small"
+                android:textColor="@color/navy"
+                android:layout_marginEnd="4dp" />
 
             <TextView
                 android:id="@+id/tvAvgTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3h"
-                style="@style/Text.Label.Small"
-                android:textColor="@color/primary"
-                android:layout_marginStart="4dp" />
+                style="@style/Text.Stat.Small"
+                android:textColor="@color/accent" />
 
         </LinearLayout>
 

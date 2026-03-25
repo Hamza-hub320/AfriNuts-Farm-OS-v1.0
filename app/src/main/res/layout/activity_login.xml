@@ -10,7 +10,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -18,14 +19,23 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <!-- Logo and App Name -->
-            <ImageView
-                android:id="@+id/logoImage"
+            <!-- Logo with Gradient Background -->
+            <FrameLayout
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:src="@drawable/ic_logo_afrinuts_round"
-                android:layout_marginTop="60dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_logo_container">
+
+                <ImageView
+                    android:id="@+id/logoImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_logo_afrinuts_round"
+                    android:alpha="0.95" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/appNameText"
@@ -34,28 +44,32 @@
                 android:text="AfriNuts Farm OS"
                 style="@style/Text.H2"
                 android:textColor="@color/primary"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Secure Farm Management"
                 style="@style/Text.Body.Small"
-                android:layout_marginBottom="40dp" />
+                android:textColor="@color/navy"
+                android:layout_marginBottom="32dp" />
 
-            <!-- Login Card -->
+            <!-- Modern Login Card with Glass Morphism -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/loginCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="8dp">
+                app:cardCornerRadius="24dp"
+                app:cardElevation="8dp"
+                android:background="@drawable/bg_card_primary">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="24dp"
+                    android:background="@drawable/bg_card_accent">
 
                     <!-- User Selection Section -->
                     <TextView
@@ -64,6 +78,7 @@
                         android:layout_height="wrap_content"
                         android:text="Select User"
                         style="@style/Text.H5"
+                        android:textColor="@color/primary"
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
@@ -75,15 +90,15 @@
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
-                    <!-- HorizontalScrollView with unique ID -->
+                    <!-- User Chips Container -->
                     <HorizontalScrollView
                         android:id="@+id/userScrollView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:scrollbars="none">
 
-                        <!-- LinearLayout with different ID -->
                         <LinearLayout
                             android:id="@+id/userChipsContainer"
                             android:layout_width="wrap_content"
@@ -99,7 +114,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.AfriNuts.EditText"
-                        app:endIconMode="clear_text">
+                        app:endIconMode="clear_text"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeColor="@color/primary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEmailPin"
@@ -117,7 +134,8 @@
                         android:layout_marginBottom="24dp"
                         style="@style/Widget.AfriNuts.EditText"
                         app:passwordToggleEnabled="true"
-                        android:visibility="visible">
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeColor="@color/primary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPassword"
@@ -132,17 +150,22 @@
                     <Button
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:text="Login"
                         style="@style/Widget.AfriNuts.Button"
-                        android:layout_marginBottom="8dp" />
+                        android:backgroundTint="@color/primary"
+                        android:layout_marginBottom="8dp"
+                        app:icon="@drawable/ic_login"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp" />
 
-                    <!-- Forgot PIN/Password -->
+                    <!-- Forgot Credentials -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Forgot credentials? Contact farm owner"
                         style="@style/Text.Caption.Small"
+                        android:textColor="@color/navy"
                         android:layout_gravity="center_horizontal"
                         android:padding="8dp" />
 

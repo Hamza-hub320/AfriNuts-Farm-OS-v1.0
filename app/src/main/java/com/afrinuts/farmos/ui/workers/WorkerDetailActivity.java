@@ -99,8 +99,8 @@ public class WorkerDetailActivity extends AppCompatActivity {
             // Load block names
             loadBlockNames();
 
-            // Load worker data
-            loadWorkerData();
+            // Load worker data on main thread (LiveData requires it)
+            runOnUiThread(this::loadWorkerData);
         });
     }
 

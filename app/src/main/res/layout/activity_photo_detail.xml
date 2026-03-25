@@ -6,18 +6,48 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Photo Details"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,13 +55,15 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Full Photo -->
+            <!-- Full Photo Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_primary"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <ImageView
                     android:id="@+id/ivFullPhoto"
@@ -43,26 +75,29 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Photo Info Card -->
+            <!-- Photo Info Card - Glass Morphism -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_secondary"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <!-- Caption -->
+                    <!-- Caption Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Caption"
                         style="@style/Text.Label"
+                        android:textColor="@color/primary"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -71,14 +106,16 @@
                         android:layout_height="wrap_content"
                         android:text="No caption"
                         style="@style/Text.Body"
+                        android:textColor="@color/text_dark"
                         android:layout_marginBottom="16dp" />
 
-                    <!-- Date Taken -->
+                    <!-- Date Taken Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Date Taken"
                         style="@style/Text.Label"
+                        android:textColor="@color/primary"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -87,14 +124,16 @@
                         android:layout_height="wrap_content"
                         android:text="Mar 15, 2024"
                         style="@style/Text.Body"
+                        android:textColor="@color/text_dark"
                         android:layout_marginBottom="16dp" />
 
-                    <!-- Location -->
+                    <!-- Location Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Location"
                         style="@style/Text.Label"
+                        android:textColor="@color/primary"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -103,14 +142,16 @@
                         android:layout_height="wrap_content"
                         android:text="📍 Location not available"
                         style="@style/Text.Body"
+                        android:textColor="@color/text_dark"
                         android:layout_marginBottom="16dp" />
 
-                    <!-- Type -->
+                    <!-- Type Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Type"
                         style="@style/Text.Label"
+                        android:textColor="@color/primary"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -118,7 +159,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Block Photo"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/accent" />
 
                 </LinearLayout>
 
@@ -135,7 +177,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditCaption"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit Caption"
@@ -143,19 +185,21 @@
                     android:backgroundTint="@color/accent"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="@android:color/white"
+                    app:cornerRadius="28dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:text="Share"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@color/primary"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="@android:color/white"
+                    app:cornerRadius="28dp" />
 
             </LinearLayout>
 
@@ -163,14 +207,17 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="Delete Photo"
                 style="@style/Widget.AfriNuts.Button.Outlined"
-                android:backgroundTint="@android:color/holo_red_dark"
+                android:backgroundTint="@android:color/transparent"
                 android:textColor="@android:color/holo_red_dark"
+                app:strokeColor="@android:color/holo_red_dark"
+                app:strokeWidth="2dp"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
-                app:iconTint="@android:color/holo_red_dark" />
+                app:iconTint="@android:color/holo_red_dark"
+                app:cornerRadius="28dp" />
 
         </LinearLayout>
 

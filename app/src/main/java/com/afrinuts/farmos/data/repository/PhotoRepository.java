@@ -1,21 +1,18 @@
 package com.afrinuts.farmos.data.repository;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.File;
 import java.util.List;
@@ -23,12 +20,13 @@ import java.util.List;
 public class PhotoRepository extends BaseRepository {
     private static final String TAG = "PhotoRepository";
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private FirestoreSyncManager firestoreSyncManager;  // Add this
+    private FirestoreSyncManager firestoreSyncManager;
+    private FirebaseManager firebaseManager;
 
-    // Change constructor to accept long farmId
     public PhotoRepository(Context context, long farmId) {
-        super(context, farmId); // now matches BaseRepository(long)
+        super(context, farmId);
         this.firestoreSyncManager = FirestoreSyncManager.getInstance(context);
+        this.firebaseManager = FirebaseManager.getInstance();
     }
 
     public interface PhotoUploadCallback {
@@ -53,21 +51,27 @@ public class PhotoRepository extends BaseRepository {
     public void insertPhoto(PhotoEntity photo, File photoFile, PhotoUploadCallback callback) {
         executor.execute(() -> {
             try {
+                // Verify file exists
+                if (!photoFile.exists()) {
+                    Log.e(TAG, "Photo file does not exist: " + photoFile.getAbsolutePath());
+                    mainHandler.post(() -> callback.onError("Photo file does not exist"));
+                    return;
+                }
+
+                Log.d(TAG, "Photo file exists, size: " + photoFile.length() + " bytes");
+
                 // 1. Insert into local database first
                 long id = database.photoDao().insert(photo);
                 photo.setId(id);
-
                 Log.d(TAG, "Photo saved locally with ID: " + id);
 
                 // 2. Queue for sync (only if NOT a remote update)
                 if (!firestoreSyncManager.isRemoteUpdate()) {
                     syncManager.queueForSync("photos", id, SyncEntity.SyncAction.CREATE);
                     Log.d(TAG, "Queued photo for sync (local change)");
-                } else {
-                    Log.d(TAG, "Skipping queue - this is a remote update");
                 }
 
-                // 3. Upload to Firebase Storage
+                // 3. Upload to Firebase Storage with attachment context
                 uploadToFirebaseStorage(photo, photoFile, callback);
 
             } catch (Exception e) {
@@ -78,39 +82,42 @@ public class PhotoRepository extends BaseRepository {
     }
 
     private void uploadToFirebaseStorage(PhotoEntity photo, File photoFile, PhotoUploadCallback callback) {
-        StorageReference storageRef = firestoreHelper.getStorageReference()
-                .child("farms")
-                .child(String.valueOf(farmId))
-                .child("photos")
-                .child(photo.getId() + ".jpg");
+        final long photoId = photo.getId();  // Make a final copy for lambda
 
-        UploadTask uploadTask = storageRef.putFile(Uri.fromFile(photoFile));
+        firebaseManager.uploadPhoto(
+                photoFile,
+                String.valueOf(photoId),
+                String.valueOf(farmId),
+                photo.getBlockId(),
+                photo.getTaskId(),
+                photo.getExpenseId(),
+                new FirebaseManager.PhotoUploadCallback() {
+                    @Override
+                    public void onSuccess(String downloadUrl) {
+                        Log.d(TAG, "✅ Photo uploaded to Firebase Storage: " + downloadUrl);
 
-        uploadTask.addOnProgressListener(taskSnapshot -> {
-            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-            mainHandler.post(() -> callback.onProgress(progress));
-        }).addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                String downloadUrl = uri.toString();
-                Log.d(TAG, "Photo uploaded to Firebase Storage: " + downloadUrl);
+                        firestoreHelper.savePhotoMetadata(photo, downloadUrl)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "✅ Photo metadata saved to Firestore: " + photoId);
+                                    mainHandler.post(() -> callback.onSuccess(photoId, downloadUrl));
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "❌ Firestore metadata save failed: " + e.getMessage());
+                                    mainHandler.post(() -> callback.onSuccess(photoId, null));
+                                });
+                    }
 
-                // 3. Save metadata to Firestore
-                firestoreHelper.savePhotoMetadata(photo, downloadUrl)
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Photo metadata saved to Firestore: " + photo.getId());
-                            mainHandler.post(() -> callback.onSuccess(photo.getId(), downloadUrl));
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore metadata save failed", e);
-                            // Queue already exists from above, just notify
-                            mainHandler.post(() -> callback.onSuccess(photo.getId(), null));
-                        });
-            });
-        }).addOnFailureListener(e -> {
-            Log.e(TAG, "Firebase Storage upload failed", e);
-            // Queue already exists from above, just notify
-            mainHandler.post(() -> callback.onError(e.getMessage()));
-        });
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "❌ Firebase Storage upload failed: " + error);
+                        mainHandler.post(() -> callback.onError(error));
+                    }
+
+                    @Override
+                    public void onProgress(double progress) {
+                        Log.d(TAG, "📤 Upload progress: " + (int) progress + "%");
+                    }
+                });
     }
 
     // ========================================
@@ -189,8 +196,7 @@ public class PhotoRepository extends BaseRepository {
                             mainHandler.post(() -> callback.onSuccess(true));
                         })
                         .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore update failed", e);
-                            // Queue already exists, just return success
+                            Log.e(TAG, "Firestore update failed: " + e.getMessage());
                             mainHandler.post(() -> callback.onSuccess(true));
                         });
 
@@ -233,12 +239,12 @@ public class PhotoRepository extends BaseRepository {
                                         mainHandler.post(() -> callback.onSuccess(true));
                                     })
                                     .addOnFailureListener(e -> {
-                                        Log.e(TAG, "Firestore metadata delete failed", e);
+                                        Log.e(TAG, "Firestore metadata delete failed: " + e.getMessage());
                                         mainHandler.post(() -> callback.onSuccess(true));
                                     });
                         })
                         .addOnFailureListener(e -> {
-                            Log.e(TAG, "Storage delete failed", e);
+                            Log.e(TAG, "Storage delete failed: " + e.getMessage());
                             mainHandler.post(() -> callback.onSuccess(true));
                         });
 
@@ -253,7 +259,7 @@ public class PhotoRepository extends BaseRepository {
     // SYNC FROM FIRESTORE
     // ========================================
 
-    public void syncPhotoFromFirestore(com.google.firebase.firestore.DocumentSnapshot document) {
+    public void syncPhotoFromFirestore(DocumentSnapshot document) {
         executor.execute(() -> {
             try {
                 PhotoEntity photo = EntityMapper.mapToPhoto(document);

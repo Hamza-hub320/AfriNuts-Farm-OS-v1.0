@@ -103,7 +103,7 @@ public class AddUserDialog extends DialogFragment {
         setupAuthMethodToggle();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add Team Member")
+                .setTitle("")
                 .setView(view)
                 .setPositiveButton("Add", null)
                 .setNegativeButton("Cancel", null);
@@ -315,16 +315,7 @@ public class AddUserDialog extends DialogFragment {
     private void createLocalUser(String name, String phone, String email, String password, String firebaseUid) {
         executor.execute(() -> {
             String passwordHash = AuthUtils.hash(password);
-
-            UserEntity user = new UserEntity(
-                    firebaseUid,        // uid
-                    name,               // name
-                    selectedRole,       // role
-                    phone,              // phone
-                    email,              // email
-                    passwordHash,       // password hash
-                    farmId              // farmId
-            );
+            UserEntity user = new UserEntity(name, selectedRole, phone, email, passwordHash);
 
             long id = database.userDao().insert(user);
             user.setLocalId(id);

@@ -126,7 +126,7 @@ public class AddTaskDialog extends DialogFragment {
 
         // Use setView with custom buttons - don't use setPositiveButton/setNegativeButton
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add New Task")
+                .setTitle("")
                 .setView(view)
                 .setCancelable(false); // Prevent dismissal by tapping outside
 

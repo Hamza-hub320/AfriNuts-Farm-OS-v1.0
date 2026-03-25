@@ -1,80 +1,276 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:fillViewport="true"
+    android:background="@color/background">
 
-    <!-- Current Status with Icon -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@color/warm_grey"
-        android:padding="12dp"
-        android:layout_marginBottom="24dp">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <ImageView
-            android:id="@+id/ivCurrentStatusIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:tint="@color/primary"
-            android:layout_marginEnd="8dp" />
-
-        <TextView
-            android:id="@+id/tvCurrentStatus"
-            android:layout_width="wrap_content"
+        <!-- Header with Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current: PENDING"
-            style="@style/Text.H6"
-            android:textColor="@color/primary" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_logo_container"
+                android:layout_marginEnd="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_sync"
+                    app:tint="@color/primary" />
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Update Task Status"
+                style="@style/Text.H3"
+                android:textColor="@color/primary" />
+
+        </LinearLayout>
+
+        <!-- Current Status Card - Glass Morphism -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            android:background="@drawable/bg_card_secondary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_icon_container_large">
+
+                    <ImageView
+                        android:id="@+id/ivCurrentStatusIcon"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_hourglass_empty"
+                        app:tint="@color/primary" />
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Current Status"
+                        style="@style/Text.Label"
+                        android:textColor="@color/navy"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PENDING"
+                        style="@style/Text.H4"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Status Options Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            android:background="@drawable/bg_card_primary">
+
+            <!-- Edge Effect (3D border) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_edge_effect"
+                android:alpha="0.3" />
+
+            <!-- Glassy Overlay -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_glassy_overlay"
+                android:alpha="0.4" />
+
+            <!-- Inner Shadow -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_inner_shadow" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select New Status"
+                    style="@style/Text.H5"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="16dp" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rbPending"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pending"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:buttonTint="@color/primary"
+                        android:drawableStart="@drawable/ic_hourglass_empty"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AfriNuts.RadioButton" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/warm_grey"
+                        android:layout_marginVertical="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/rbInProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="In Progress"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:buttonTint="@color/primary"
+                        android:drawableStart="@drawable/ic_sync"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AfriNuts.RadioButton" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/warm_grey"
+                        android:layout_marginVertical="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/rbCompleted"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:buttonTint="@color/primary"
+                        android:drawableStart="@drawable/ic_check_circle"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AfriNuts.RadioButton" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/warm_grey"
+                        android:layout_marginVertical="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/rbCancelled"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cancelled"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:buttonTint="@color/primary"
+                        android:drawableStart="@drawable/ic_cancel"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AfriNuts.RadioButton" />
+
+                </RadioGroup>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Custom Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:text="Cancel"
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                android:layout_marginEnd="12dp"
+                android:minWidth="100dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:iconGravity="textStart"
+                app:cornerRadius="28dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:text="Update Status"
+                style="@style/Widget.AfriNuts.Button"
+                android:backgroundTint="@color/primary"
+                app:icon="@drawable/ic_sync"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                android:minWidth="140dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:cornerRadius="28dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RadioButton
-            android:id="@+id/rbPending"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="PENDING"
-            android:textSize="16sp"
-            android:padding="8dp"
-            android:buttonTint="@color/primary" />
-
-        <RadioButton
-            android:id="@+id/rbInProgress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="IN PROGRESS"
-            android:textSize="16sp"
-            android:padding="8dp"
-            android:buttonTint="@color/primary" />
-
-        <RadioButton
-            android:id="@+id/rbCompleted"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="COMPLETED"
-            android:textSize="16sp"
-            android:padding="8dp"
-            android:buttonTint="@color/primary" />
-
-        <RadioButton
-            android:id="@+id/rbCancelled"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="CANCELLED"
-            android:textSize="16sp"
-            android:padding="8dp"
-            android:buttonTint="@color/primary" />
-
-    </RadioGroup>
-
-</LinearLayout>
+</ScrollView>

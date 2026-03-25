@@ -11,6 +11,7 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
+import com.afrinuts.farmos.ui.tasks.TaskDetailActivity;
 
 import java.util.List;
 

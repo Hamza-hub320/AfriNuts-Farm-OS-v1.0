@@ -6,65 +6,107 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Settings" />
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Security Section -->
+            <!-- Security Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Security"
                 style="@style/Text.H5"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/primary"
+                android:layout_marginBottom="12dp" />
 
-            <!-- Change Password -->
+            <!-- Change Password Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardChangePassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_primary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_lock"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lock"
+                            app:tint="@color/primary" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Change Password"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -76,37 +118,49 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Change PIN (visible for workers) -->
+            <!-- Change PIN Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardChangePin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_secondary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_pin"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_pin"
+                            app:tint="@color/primary" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Change PIN"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -118,46 +172,59 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Preferences Section -->
+            <!-- Preferences Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Preferences"
                 style="@style/Text.H5"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/primary"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp" />
 
-            <!-- Language -->
+            <!-- Language Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardLanguage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_accent"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_language"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_language"
+                            app:tint="@color/accent" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Language"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <TextView
                         android:id="@+id/tvLanguage"
@@ -165,6 +232,7 @@
                         android:layout_height="wrap_content"
                         android:text="English"
                         style="@style/Text.Caption"
+                        android:textColor="@color/navy"
                         android:layout_marginEnd="8dp" />
 
                     <ImageView
@@ -177,37 +245,49 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Units -->
+            <!-- Units Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_primary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_weight"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_weight"
+                            app:tint="@color/primary" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Units"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <TextView
                         android:id="@+id/tvUnits"
@@ -215,6 +295,7 @@
                         android:layout_height="wrap_content"
                         android:text="Metric (kg, XAF)"
                         style="@style/Text.Caption"
+                        android:textColor="@color/navy"
                         android:layout_marginEnd="8dp" />
 
                     <ImageView
@@ -227,46 +308,59 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Data Section -->
+            <!-- Data Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Data"
                 style="@style/Text.H5"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/primary"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp" />
 
-            <!-- Manual Sync -->
+            <!-- Manual Sync Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSync"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_secondary"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_sync_anim"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_sync_anim"
+                            app:tint="@color/olive" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Sync Now"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -278,46 +372,59 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- About Section -->
+            <!-- About Section Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="About"
                 style="@style/Text.H5"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/primary"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp" />
 
-            <!-- About -->
+            <!-- About Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardAbout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                style="@style/Widget.AfriNuts.CardView"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_accent"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_info"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="16dp" />
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_icon_glass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_info"
+                            app:tint="@color/accent" />
+
+                    </FrameLayout>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="About"
-                        style="@style/Text.Body" />
+                        style="@style/Text.Body"
+                        android:textColor="@color/text_dark" />
 
                     <TextView
                         android:id="@+id/tvVersion"
@@ -325,6 +432,7 @@
                         android:layout_height="wrap_content"
                         android:text="Version 1.0"
                         style="@style/Text.Caption"
+                        android:textColor="@color/navy"
                         android:layout_marginEnd="8dp" />
 
                     <ImageView

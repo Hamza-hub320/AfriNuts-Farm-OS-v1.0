@@ -117,7 +117,7 @@ public class AssignWorkerDialog extends DialogFragment {
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Assign Worker")
+                .setTitle("")
                 .setView(view)
                 .setPositiveButton("Assign", null)
                 .setNegativeButton("Cancel", null);

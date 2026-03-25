@@ -6,31 +6,62 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Team Members" />
-
-    <!-- Summary Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        style="@style/Widget.AfriNuts.CardView"
-        app:cardElevation="2dp">
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Team Members"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Summary Card - Modern Glass -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        android:background="@drawable/bg_card_accent"
+        style="@style/Widget.AfriNuts.CardView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
             android:weightSum="3">
 
+            <!-- Total Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -38,11 +69,19 @@
                 android:orientation="vertical"
                 android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_people"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_glass">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_people"
+                        app:tint="@color/accent" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/totalUsersValue"
@@ -50,16 +89,19 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat.Small"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="@color/accent"
+                    android:layout_marginTop="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total"
-                    style="@style/Text.Caption.Small" />
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
+            <!-- Owners Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -67,11 +109,19 @@
                 android:orientation="vertical"
                 android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_star"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_glass">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_star"
+                        app:tint="@color/accent" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/ownersValue"
@@ -79,16 +129,19 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat.Small"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="@color/accent"
+                    android:layout_marginTop="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Owners"
-                    style="@style/Text.Caption.Small" />
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
+            <!-- Active Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -96,11 +149,19 @@
                 android:orientation="vertical"
                 android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_person"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_glass">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_person"
+                        app:tint="@color/accent" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/activeUsersValue"
@@ -108,13 +169,15 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat.Small"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="@color/accent"
+                    android:layout_marginTop="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Active"
-                    style="@style/Text.Caption.Small" />
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -189,7 +252,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State - Modern Design -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -199,17 +262,26 @@
         android:gravity="center"
         android:visibility="gone">
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_people"
-            app:tint="@color/warm_grey" />
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_icon_glass_large">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_people"
+                app:tint="@color/warm_grey" />
+
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No team members"
             style="@style/Text.H3"
+            android:textColor="@color/navy"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -217,6 +289,7 @@
             android:layout_height="wrap_content"
             android:text="Add your first team member"
             style="@style/Text.Body.Small"
+            android:textColor="@color/navy"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
@@ -241,6 +314,7 @@
         android:src="@drawable/ic_add"
         android:contentDescription="Add team member"
         app:backgroundTint="@color/accent"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        app:rippleColor="@color/primary_light" />
 
 </LinearLayout>

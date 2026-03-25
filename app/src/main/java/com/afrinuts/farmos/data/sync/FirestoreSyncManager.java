@@ -374,16 +374,21 @@ public class FirestoreSyncManager {
                 .collection("photos")
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Photos listener failed", error);
+                        Log.e(TAG, "❌ Photos listener failed", error);
                         return;
                     }
 
                     if (snapshots == null) return;
 
+                    Log.d(TAG, "📸 Photos listener received " + snapshots.size() + " changes");
+
                     executor.execute(() -> {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             PhotoEntity remotePhoto = EntityMapper.fromFirestorePhoto(dc.getDocument());
                             if (remotePhoto == null) continue;
+
+                            // Defensive log at the start of the loop to detect stuck processing
+                            Log.d(TAG, "Processing photo change: " + dc.getType() + " ID=" + remotePhoto.getId());
 
                             switch (dc.getType()) {
                                 case ADDED:
@@ -391,32 +396,34 @@ public class FirestoreSyncManager {
                                     PhotoEntity localPhoto = database.photoDao().getPhotoById(remotePhoto.getId());
 
                                     isApplyingRemoteUpdate = true;
-
-                                    if (localPhoto == null) {
-                                        database.photoDao().insert(remotePhoto);
-                                        Log.d(TAG, "New photo: " + remotePhoto.getId());
-                                    } else {
-                                        if (remotePhoto.getUpdatedAt() > localPhoto.getUpdatedAt()) {
-                                            database.photoDao().update(remotePhoto);
-                                            Log.d(TAG, "Updated photo (remote newer): " + remotePhoto.getId());
+                                    try {
+                                        if (localPhoto == null) {
+                                            database.photoDao().insert(remotePhoto);
+                                            Log.d(TAG, "➕ New photo synced: " + remotePhoto.getId());
                                         } else {
-                                            Log.d(TAG, "Skipped photo (local newer): " + remotePhoto.getId());
+                                            if (remotePhoto.getUpdatedAt() > localPhoto.getUpdatedAt()) {
+                                                database.photoDao().update(remotePhoto);
+                                                Log.d(TAG, "📝 Updated photo: " + remotePhoto.getId());
+                                            } else {
+                                                Log.d(TAG, "⏭️ Skipped older photo: " + remotePhoto.getId());
+                                            }
                                         }
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "❌ Error processing photo sync: " + remotePhoto.getId(), e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-
-                                    isApplyingRemoteUpdate = false;
                                     break;
 
                                 case REMOVED:
                                     database.photoDao().delete(remotePhoto);
-                                    Log.d(TAG, "Photo deleted: " + remotePhoto.getId());
+                                    Log.d(TAG, "❌ Photo deleted: " + remotePhoto.getId());
                                     break;
                             }
                         }
                     });
-
                 });
-        Log.d(TAG, "Photos listener registered");
+        Log.d(TAG, "👂 Photos listener registered for farms/" + farmId + "/photos");
     }
 
     // ========================================

@@ -6,17 +6,45 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Harvest Revenue" />
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
 
-    <!-- Summary Cards Row (2 columns) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Harvest Revenue"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Summary Cards Row (2 columns) - Modern Glass Cards -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,22 +58,33 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            style="@style/Widget.AfriNuts.CardView"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            android:background="@drawable/bg_card_primary"
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="16dp">
+                android:padding="20dp">
 
-                <ImageView
-                    android:layout_width="28sp"
-                    android:layout_height="28sp"
-                    android:src="@drawable/ic_attach_money"
-                    app:tint="@color/primary"
-                    android:contentDescription="Revenue icon" />
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_glass"
+                    android:layout_marginBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_attach_money"
+                        app:tint="@color/primary"
+                        android:contentDescription="Revenue icon" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/totalRevenueValue"
@@ -53,13 +92,15 @@
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
                     style="@style/Text.Stat.Small"
+                    android:textColor="@color/primary"
                     android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Revenue"
-                    style="@style/Text.Caption.Small" />
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -71,22 +112,33 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            style="@style/Widget.AfriNuts.CardView"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            android:background="@drawable/bg_card_secondary"
+            style="@style/Widget.AfriNuts.CardView">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="16dp">
+                android:padding="20dp">
 
-                <ImageView
-                    android:layout_width="28sp"
-                    android:layout_height="28sp"
-                    android:src="@drawable/ic_inventory"
-                    app:tint="@color/primary"
-                    android:contentDescription="Harvest icon" />
+                <FrameLayout
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_glass"
+                    android:layout_marginBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_inventory"
+                        app:tint="@color/olive"
+                        android:contentDescription="Harvest icon" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/totalHarvestValue"
@@ -94,13 +146,15 @@
                     android:layout_height="wrap_content"
                     android:text="0 kg"
                     style="@style/Text.Stat.Small"
+                    android:textColor="@color/olive"
                     android:layout_marginTop="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Harvest"
-                    style="@style/Text.Caption.Small" />
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -108,11 +162,11 @@
 
     </LinearLayout>
 
-    <!-- Filter Chips -->
+    <!-- Filter Chips - Modern Styling -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="16dp"
         android:scrollbars="none"
         android:fadingEdgeLength="20dp"
         android:requiresFadingEdge="horizontal">
@@ -121,7 +175,7 @@
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
+            android:layout_marginHorizontal="16dp"
             android:paddingVertical="4dp"
             app:singleSelection="true"
             app:selectionRequired="true"
@@ -184,7 +238,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State - Modern Design -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -194,18 +248,26 @@
         android:layout_marginTop="64dp"
         android:visibility="gone">
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_grass"
-            app:tint="@color/warm_grey"
-            android:contentDescription="Empty state" />
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_icon_glass_large">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_grass"
+                app:tint="@color/warm_grey" />
+
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No harvest records yet"
             style="@style/Text.H4"
+            android:textColor="@color/navy"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -213,6 +275,7 @@
             android:layout_height="wrap_content"
             android:text="Tap + to add your first harvest"
             style="@style/Text.Body.Small"
+            android:textColor="@color/navy"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
@@ -237,6 +300,7 @@
         android:src="@drawable/ic_add"
         android:contentDescription="Add revenue"
         app:backgroundTint="@color/accent"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        app:rippleColor="@color/primary_light" />
 
 </LinearLayout>

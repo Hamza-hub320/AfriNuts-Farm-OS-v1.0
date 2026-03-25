@@ -142,7 +142,6 @@ public class SettingsActivity extends BaseActivity {
                 .start();
     }
 
-    // Optional: Add a rotating icon if you have one
     private void animateSyncIcon(ImageView icon, boolean start) {
         if (start) {
             icon.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
@@ -168,11 +167,10 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void loadSettings() {
-        // Get version from PackageManager instead of BuildConfig
+
         String version = getAppVersion();
         tvVersion.setText("Version " + version);
 
-        // Load preferences from SharedPreferences
         String language = getSharedPreferences("settings", MODE_PRIVATE)
                 .getString("language", "English");
         String units = getSharedPreferences("settings", MODE_PRIVATE)
@@ -192,7 +190,7 @@ public class SettingsActivity extends BaseActivity {
         // Get strength indicator views
         ProgressBar passwordStrength = dialogView.findViewById(R.id.passwordStrength);
         TextView tvStrengthLabel = dialogView.findViewById(R.id.tvStrengthLabel);
-        LinearLayout layoutStrength = dialogView.findViewById(R.id.layoutStrength);
+        View layoutStrength = dialogView.findViewById(R.id.layoutStrength);
 
         // Add listener to check password strength as user types
         etNew.addTextChangedListener(new android.text.TextWatcher() {
@@ -225,7 +223,7 @@ public class SettingsActivity extends BaseActivity {
 
 
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Change Password")
+                .setTitle("")
                 .setView(dialogView)
                 .setPositiveButton("Change", (dialog, which) -> {
                     String current = etCurrent.getText().toString();
@@ -463,7 +461,7 @@ public class SettingsActivity extends BaseActivity {
         tvBuildValue.setText(String.valueOf(BuildConfig.VERSION_CODE));
 
         new MaterialAlertDialogBuilder(this)
-                .setTitle("About AfriNuts Farm OS")
+                .setTitle("")
                 .setView(dialogView)
                 .setPositiveButton("OK", null)
                 .show();

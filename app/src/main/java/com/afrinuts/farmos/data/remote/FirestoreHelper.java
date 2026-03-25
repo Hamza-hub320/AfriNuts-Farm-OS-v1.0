@@ -302,15 +302,45 @@ public class FirestoreHelper {
         data.put("createdAt", photo.getCreatedAt());
         data.put("updatedAt", System.currentTimeMillis());
 
-        return db.collection(COLLECTION_FARMS)
-                .document(String.valueOf(farmId))
-                .collection(SUBCOLLECTION_PHOTOS)
-                .document(String.valueOf(photo.getId()))
-                .set(data)
-                .addOnSuccessListener(aVoid ->
-                        Log.d(TAG, "Photo metadata saved: " + photo.getId()))
-                .addOnFailureListener(e ->
-                        Log.e(TAG, "Error saving photo metadata", e));
+        // Determine the correct Firestore path
+        String collectionPath;
+        String docId = String.valueOf(photo.getId());
+
+        if (photo.getBlockId() != null && photo.getBlockId() > 0) {
+            // Photo belongs to a block - store under farms/{farmId}/blocks/{blockId}/photos/{photoId}
+            return db.collection(COLLECTION_FARMS)
+                    .document(String.valueOf(farmId))
+                    .collection("blocks")
+                    .document(String.valueOf(photo.getBlockId()))
+                    .collection("photos")
+                    .document(docId)
+                    .set(data);
+        } else if (photo.getTaskId() != null && photo.getTaskId() > 0) {
+            // Photo belongs to a task
+            return db.collection(COLLECTION_FARMS)
+                    .document(String.valueOf(farmId))
+                    .collection("tasks")
+                    .document(String.valueOf(photo.getTaskId()))
+                    .collection("photos")
+                    .document(docId)
+                    .set(data);
+        } else if (photo.getExpenseId() != null && photo.getExpenseId() > 0) {
+            // Photo belongs to an expense
+            return db.collection(COLLECTION_FARMS)
+                    .document(String.valueOf(farmId))
+                    .collection("expenses")
+                    .document(String.valueOf(photo.getExpenseId()))
+                    .collection("photos")
+                    .document(docId)
+                    .set(data);
+        } else {
+            // General farm photos
+            return db.collection(COLLECTION_FARMS)
+                    .document(String.valueOf(farmId))
+                    .collection("photos")
+                    .document(docId)
+                    .set(data);
+        }
     }
 
     public com.google.android.gms.tasks.Task<Void> updatePhotoMetadata(PhotoEntity photo) {

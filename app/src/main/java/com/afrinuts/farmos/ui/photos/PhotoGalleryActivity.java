@@ -1,14 +1,18 @@
 package com.afrinuts.farmos.ui.photos;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -31,7 +35,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -197,13 +204,75 @@ public class PhotoGalleryActivity extends BaseActivity {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                // Camera photo taken
                 savePhotoToDatabase(currentPhotoPath);
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                // Gallery image selected
                 Uri selectedImageUri = data.getData();
-                Toast.makeText(this, "Gallery picker coming soon", Toast.LENGTH_SHORT).show();
+                if (selectedImageUri != null) {
+                    saveGalleryImageToFile(selectedImageUri);
+                } else {
+                    Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
+
+    /**
+     * Save gallery image to a local file before saving to database
+     */
+    private void saveGalleryImageToFile(Uri uri) {
+        try {
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+            if (storageDir == null) {
+                throw new IOException("Storage directory not available");
+            }
+
+            if (!storageDir.exists()) {
+                boolean created = storageDir.mkdirs();
+                if (!created) {
+                    throw new IOException("Failed to create storage directory");
+                }
+            }
+
+            String fileName = "GALLERY_" + System.currentTimeMillis() + ".jpg";
+            File destFile = new File(storageDir, fileName);
+
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                throw new IOException("Cannot open input stream from URI");
+            }
+
+            OutputStream outputStream = new FileOutputStream(destFile);
+
+            byte[] buffer = new byte[4096];
+            int length;
+
+            while ((length = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            outputStream.flush();
+            outputStream.close();
+            inputStream.close();
+
+            // Validate file
+            if (!destFile.exists() || destFile.length() == 0) {
+                throw new IOException("File copy failed or empty file");
+            }
+
+            Log.d(TAG, "✅ Gallery image saved: " + destFile.getAbsolutePath());
+            Log.d(TAG, "File size: " + destFile.length() + " bytes");
+
+            savePhotoToDatabase(destFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error saving gallery image", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void savePhotoToDatabase(String imagePath) {
         showCaptionDialog(imagePath);
@@ -235,30 +304,32 @@ public class PhotoGalleryActivity extends BaseActivity {
 
                 File photoFile = new File(imagePath);
 
-                photoRepository.insertPhoto(photo, photoFile,
-                        new PhotoRepository.PhotoUploadCallback() {
-                            @Override
-                            public void onSuccess(long id, String downloadUrl) {
-                                runOnUiThread(() -> {
-                                    Toast.makeText(PhotoGalleryActivity.this,
-                                            "Photo saved", Toast.LENGTH_SHORT).show();
-                                    loadPhotos();
-                                });
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                runOnUiThread(() ->
-                                        Toast.makeText(PhotoGalleryActivity.this,
-                                                "Error: " + error, Toast.LENGTH_SHORT).show()
-                                );
-                            }
-
-                            @Override
-                            public void onProgress(double progress) {
-                                // Optional: show progress
-                            }
+                // FIXED: Pass all 3 required arguments
+                photoRepository.insertPhoto(photo, photoFile, new PhotoRepository.PhotoUploadCallback() {
+                    @Override
+                    public void onSuccess(long id, String downloadUrl) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(PhotoGalleryActivity.this,
+                                    "Photo saved and uploaded!", Toast.LENGTH_SHORT).show();
+                            loadPhotos();
                         });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(PhotoGalleryActivity.this,
+                                    "Error: " + error, Toast.LENGTH_LONG).show();
+                            loadPhotos(); // Still refresh to show local photo
+                        });
+                    }
+
+                    @Override
+                    public void onProgress(double progress) {
+                        // Optional: show progress in UI
+                        Log.d(TAG, "Upload progress: " + progress + "%");
+                    }
+                });
             }).start();
         });
 

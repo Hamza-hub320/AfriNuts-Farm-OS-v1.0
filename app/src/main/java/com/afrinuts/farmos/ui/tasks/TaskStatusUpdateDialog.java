@@ -19,7 +19,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.button.MaterialButton;
 
 public class TaskStatusUpdateDialog extends DialogFragment {
 
@@ -38,6 +38,9 @@ public class TaskStatusUpdateDialog extends DialogFragment {
     private RadioButton rbCancelled;
     private TextView tvCurrentStatus;
     private ImageView ivCurrentStatusIcon;
+
+    private MaterialButton btnUpdate;
+    private MaterialButton btnCancel;
 
     public interface OnStatusUpdatedListener {
         void onStatusUpdated(TaskEntity.TaskStatus newStatus);
@@ -78,19 +81,11 @@ public class TaskStatusUpdateDialog extends DialogFragment {
 
         initViews(view);
         setCurrentStatus();
+        setupButtons(view);
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Update Status: " + taskTitle)
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(view)
-                .setPositiveButton("Update", null)
-                .setNegativeButton("Cancel", null);
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> updateStatus());
-        });
+                .create();
 
         return dialog;
     }
@@ -103,6 +98,10 @@ public class TaskStatusUpdateDialog extends DialogFragment {
         rbCancelled = view.findViewById(R.id.rbCancelled);
         tvCurrentStatus = view.findViewById(R.id.tvCurrentStatus);
         ivCurrentStatusIcon = view.findViewById(R.id.ivCurrentStatusIcon);
+
+        // Find custom buttons
+        btnUpdate = view.findViewById(R.id.btnUpdate);
+        btnCancel = view.findViewById(R.id.btnCancel);
     }
 
     private void setCurrentStatus() {
@@ -128,6 +127,11 @@ public class TaskStatusUpdateDialog extends DialogFragment {
                 rbCancelled.setChecked(true);
                 break;
         }
+    }
+
+    private void setupButtons(View view) {
+        btnUpdate.setOnClickListener(v -> updateStatus());
+        btnCancel.setOnClickListener(v -> dismiss());
     }
 
     private void updateStatus() {

@@ -215,14 +215,23 @@ public class SyncService extends Service {
         for (PhotoEntity photo : photos) {
             File photoFile = new File(photo.getFilePath());
             if (!photoFile.exists()) {
+                Log.w(TAG, "Photo file not found: " + photo.getFilePath());
                 latch.countDown();
                 continue;
             }
 
-            firebaseManager.uploadPhoto(photoFile, String.valueOf(photo.getId()),
-                    currentFarmId, new FirebaseManager.PhotoUploadCallback() {
+            // FIXED: Pass all 7 required arguments
+            firebaseManager.uploadPhoto(
+                    photoFile,                              // File photoFile
+                    String.valueOf(photo.getId()),          // String photoId
+                    currentFarmId,                          // String farmId
+                    photo.getBlockId(),                     // Long blockId (can be null)
+                    photo.getTaskId(),                      // Long taskId (can be null)
+                    photo.getExpenseId(),                   // Long expenseId (can be null)
+                    new FirebaseManager.PhotoUploadCallback() {
                         @Override
                         public void onSuccess(String downloadUrl) {
+                            Log.d(TAG, "✅ Photo uploaded: " + downloadUrl);
                             // Save metadata with cloud URL
                             firebaseManager.savePhotoMetadata(photo, currentFarmId, downloadUrl);
                             latch.countDown();
@@ -230,7 +239,7 @@ public class SyncService extends Service {
 
                         @Override
                         public void onError(String error) {
-                            Log.e(TAG, "Error uploading photo: " + error);
+                            Log.e(TAG, "❌ Error uploading photo: " + error);
                             latch.countDown();
                         }
 
@@ -243,11 +252,12 @@ public class SyncService extends Service {
 
         try {
             latch.await(5, TimeUnit.MINUTES);
+            Log.d(TAG, "Photo upload batch completed");
         } catch (InterruptedException e) {
             Log.e(TAG, "Photo upload interrupted", e);
+            Thread.currentThread().interrupt();
         }
     }
-
     /**
      * Download blocks from Firebase and update local DB
      */

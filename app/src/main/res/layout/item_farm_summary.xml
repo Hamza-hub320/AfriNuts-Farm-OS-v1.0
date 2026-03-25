@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    android:background="@drawable/bg_card_primary">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,13 +15,39 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Header with Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Farm Summary"
-            style="@style/Text.H5"
-            android:layout_marginBottom="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <FrameLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_container"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_farm"
+                    app:tint="@color/primary" />
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Farm Summary"
+                style="@style/Text.H5"
+                android:textColor="@color/primary"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <!-- Blocks Progress -->
         <LinearLayout
@@ -27,14 +55,22 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="16dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_inventory"
-                app:tint="@color/primary"
-                android:layout_marginEnd="12dp" />
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_icon_container_small"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_inventory"
+                    app:tint="@color/primary" />
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -42,17 +78,34 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/blocksPlantedText"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="0/35 blocks planted"
-                    style="@style/Text.Body" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Blocks Planted"
+                        style="@style/Text.Body"
+                        android:textColor="@color/navy" />
+
+                    <TextView
+                        android:id="@+id/blocksPlantedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0/35"
+                        style="@style/Text.H6"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
+                    android:layout_height="wrap_content">
 
                     <ProgressBar
                         android:id="@+id/blocksProgress"
@@ -60,7 +113,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
                         android:progress="0"
-                        android:max="100" />
+                        android:max="100"
+                        android:progressTint="@color/primary"
+                        android:progressBackgroundTint="@color/warm_grey" />
 
                     <TextView
                         android:id="@+id/blocksPercentText"
@@ -70,8 +125,8 @@
                         android:text="0%"
                         style="@style/Text.Caption.Small"
                         android:textColor="@color/primary"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginTop="-16dp" />
+                        android:layout_marginTop="-12dp"
+                        android:layout_marginEnd="4dp" />
 
                 </FrameLayout>
 
@@ -87,12 +142,20 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_park"
-                app:tint="@color/primary"
-                android:layout_marginEnd="12dp" />
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_icon_container_small"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_park"
+                    app:tint="@color/primary" />
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -100,17 +163,34 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/treesAliveText"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="0/3500 trees alive"
-                    style="@style/Text.Body" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Trees Alive"
+                        style="@style/Text.Body"
+                        android:textColor="@color/navy" />
+
+                    <TextView
+                        android:id="@+id/treesAliveText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0/3500"
+                        style="@style/Text.H6"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
+                    android:layout_height="wrap_content">
 
                     <ProgressBar
                         android:id="@+id/treesProgress"
@@ -118,7 +198,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
                         android:progress="0"
-                        android:max="100" />
+                        android:max="100"
+                        android:progressTint="@color/primary"
+                        android:progressBackgroundTint="@color/warm_grey" />
 
                     <TextView
                         android:id="@+id/treesPercentText"
@@ -128,8 +210,8 @@
                         android:text="0%"
                         style="@style/Text.Caption.Small"
                         android:textColor="@color/primary"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginTop="-16dp" />
+                        android:layout_marginTop="-12dp"
+                        android:layout_marginEnd="4dp" />
 
                 </FrameLayout>
 

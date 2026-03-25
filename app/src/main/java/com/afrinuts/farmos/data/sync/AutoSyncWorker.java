@@ -189,22 +189,38 @@ public class AutoSyncWorker extends Worker {
             return;
         }
 
-        Log.d(TAG, "Syncing user ID: " + syncItem.getEntityId() +
-                " action: " + syncItem.getAction() +
-                " email: " + user.getEmail() +
-                " uid: " + user.getUid());
+        Log.d(TAG, "Syncing user ID: " + syncItem.getEntityId());
+
+        CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] success = {false};
+        final String[] errorMessage = {null};
 
         switch (syncItem.getAction()) {
             case CREATE:
             case UPDATE:
-                // The save is async, but we don't need to wait - it's fire-and-forget
+
                 firebaseManager.saveUser(user, farmId);
-                Log.d(TAG, "User sync initiated for: " + user.getEmail());
+
+                success[0] = true;
+                latch.countDown();
+
                 break;
+
             case DELETE:
-                // TODO: Implement deleteUser
                 Log.d(TAG, "User delete not implemented yet");
+                success[0] = true;
+                latch.countDown();
                 break;
+        }
+
+        // WAIT for Firebase
+        if (!latch.await(60, TimeUnit.SECONDS)) {
+            throw new RuntimeException("User sync timeout");
+        }
+
+        if (!success[0]) {
+            throw new RuntimeException("User sync failed: " +
+                    (errorMessage[0] != null ? errorMessage[0] : "Unknown error"));
         }
     }
 
@@ -310,46 +326,76 @@ public class AutoSyncWorker extends Worker {
         PhotoEntity photo = database.photoDao().getPhotoById(syncItem.getEntityId());
         if (photo == null) {
             Log.e(TAG, "Photo not found in local DB: " + syncItem.getEntityId());
+            syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
+            database.syncDao().update(syncItem);
             return;
         }
 
         File photoFile = new File(photo.getFilePath());
+        Log.d(TAG, "📸 Photo file path: " + photo.getFilePath());
+        Log.d(TAG, "📸 File exists: " + photoFile.exists());
+
         if (!photoFile.exists()) {
             Log.e(TAG, "Photo file not found: " + photo.getFilePath());
+            syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
+            database.syncDao().update(syncItem);
             return;
         }
 
-        Log.d(TAG, "Syncing photo ID: " + syncItem.getEntityId());
+        Log.d(TAG, "📸 File size: " + photoFile.length() + " bytes");
 
         CountDownLatch latch = new CountDownLatch(1);
         final boolean[] success = {false};
         final String[] errorMessage = {null};
 
-        firebaseManager.uploadPhoto(photoFile, String.valueOf(photo.getId()), farmId,
+        // FIXED: Pass all 7 required arguments
+        firebaseManager.uploadPhoto(
+                photoFile,                                    // File photoFile
+                String.valueOf(photo.getId()),                // String photoId
+                farmId,                                       // String farmId
+                photo.getBlockId(),                           // Long blockId
+                photo.getTaskId(),                            // Long taskId
+                photo.getExpenseId(),                         // Long expenseId
                 new FirebaseManager.PhotoUploadCallback() {
                     @Override
                     public void onSuccess(String downloadUrl) {
-                        firebaseManager.savePhotoMetadata(photo, farmId, downloadUrl);
-                        success[0] = true;
-                        latch.countDown();
-                        Log.d(TAG, "Photo upload successful: " + downloadUrl);
+                        Log.d(TAG, "✅ Photo uploaded successfully to Storage. URL: " + downloadUrl);
+
+                        // Save metadata to Firestore
+                        firebaseManager.savePhotoMetadata(photo, farmId, downloadUrl,
+                                new FirebaseManager.FirestoreCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d(TAG, "✅ Photo metadata saved to Firestore");
+                                        success[0] = true;
+                                        latch.countDown();
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+                                        Log.e(TAG, "❌ Failed to save photo metadata: " + error);
+                                        errorMessage[0] = error;
+                                        latch.countDown();
+                                    }
+                                });
                     }
 
                     @Override
                     public void onError(String error) {
-                        Log.e(TAG, "Photo upload failed: " + error);
+                        Log.e(TAG, "❌ Photo upload failed: " + error);
                         errorMessage[0] = error;
                         latch.countDown();
                     }
 
                     @Override
                     public void onProgress(double progress) {
-                        // Optional: update progress
+                        Log.d(TAG, "📤 Photo upload progress: " + (int)progress + "%");
                     }
                 });
 
         try {
             if (!latch.await(2, TimeUnit.MINUTES)) {
+                Log.e(TAG, "❌ Photo upload timed out after 2 minutes");
                 throw new RuntimeException("Photo upload timed out");
             }
             if (!success[0]) {
@@ -358,6 +404,7 @@ public class AutoSyncWorker extends Worker {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            Log.e(TAG, "❌ Photo upload interrupted", e);
             throw new RuntimeException("Photo upload interrupted", e);
         }
     }

@@ -6,15 +6,39 @@
     android:layout_margin="8dp"
     android:layout_marginBottom="4dp"
     style="@style/Widget.AfriNuts.CardView"
+    app:cardCornerRadius="20dp"
     app:cardElevation="4dp"
-    android:backgroundTint="@color/primary">
+    android:backgroundTint="@color/primary_light"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Edge Effect (3D border) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_edge_effect"
+        android:alpha="0.3" />
+
+    <!-- Glassy Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_glassy_overlay"
+        android:alpha="0.4" />
+
+    <!-- Inner Shadow -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_inner_shadow" />
 
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="12dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -32,8 +56,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BLOCK A"
-                style="@style/Text.H3"
-                android:textColor="@android:color/white"
+                style="@style/Text.H4"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -41,9 +66,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="(A1-A7)"
-                style="@style/Text.Caption"
-                android:textColor="@android:color/white"
-                android:alpha="0.9"
+                style="@style/Text.Caption.Small"
+                android:textColor="@color/navy"
                 android:layout_weight="1" />
 
             <ImageView
@@ -51,67 +75,159 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_expand_more"
-                app:tint="@android:color/white"
+                app:tint="@color/accent"
                 android:contentDescription="Expand/Collapse" />
 
         </LinearLayout>
 
-        <!-- Row Stats -->
+        <!-- Row Stats with Icons - Compact Layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:weightSum="3">
 
-            <TextView
-                android:id="@+id/plantedCountText"
+            <!-- Planted Count -->
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Planted: 5/7"
-                style="@style/Text.Body.Small"
-                android:textColor="@android:color/white"
-                android:drawableStart="@drawable/ic_grass"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_card_secondary"
+                android:paddingVertical="4dp"
+                android:paddingHorizontal="8dp"
+                app:cornerRadius="10dp">
 
-            <TextView
-                android:id="@+id/survivalRateText"
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_grass"
+                        app:tint="@color/primary" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/plantedCountText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="5/7"
+                    style="@style/Text.Caption"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:lineSpacingExtra="0dp" />
+
+            </LinearLayout>
+
+            <!-- Survival Rate -->
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Avg: 91%"
-                style="@style/Text.Body.Small"
-                android:textColor="@android:color/white"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_bar_chart"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_card_secondary"
+                android:paddingVertical="4dp"
+                android:paddingHorizontal="8dp"
+                app:cornerRadius="10dp">
 
-            <TextView
-                android:id="@+id/treesText"
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_bar_chart"
+                        app:tint="@color/accent" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/survivalRateText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="91%"
+                    style="@style/Text.Caption"
+                    android:textColor="@color/accent"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:lineSpacingExtra="0dp" />
+
+            </LinearLayout>
+
+            <!-- Trees Count -->
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="500/700"
-                style="@style/Text.Body.Small"
-                android:textColor="@android:color/white"
-                android:gravity="end"
-                android:drawableStart="@drawable/ic_park"
-                android:drawablePadding="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_card_secondary"
+                android:paddingVertical="4dp"
+                android:paddingHorizontal="8dp"
+                app:cornerRadius="10dp">
+
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_marginEnd="6dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_park"
+                        app:tint="@color/primary" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/treesText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="500/700"
+                    style="@style/Text.Caption"
+                    android:textColor="@color/primary"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:lineSpacingExtra="0dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Progress Bar for visual representation -->
+        <!-- Progress Bar -->
         <ProgressBar
             android:id="@+id/rowProgressBar"
             style="@style/Widget.AfriNuts.ProgressBar"
             android:layout_width="match_parent"
             android:layout_height="4dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:progress="71"
             android:max="100"
-            android:progressTint="@android:color/white"
-            android:progressBackgroundTint="@android:color/darker_gray" />
+            android:progressTint="@color/primary"
+            android:progressBackgroundTint="@color/warm_grey" />
 
     </LinearLayout>
 

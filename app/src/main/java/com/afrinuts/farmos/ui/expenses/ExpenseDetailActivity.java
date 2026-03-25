@@ -24,7 +24,9 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -54,6 +56,8 @@ public class ExpenseDetailActivity extends BaseActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private LinearLayout btnPhotoGallery;
+    private TextView tvPhotoCount;
     private ImageView tvCategoryIcon;
     private TextView tvCategoryName;
     private TextView tvBlockInfo;
@@ -113,6 +117,16 @@ public class ExpenseDetailActivity extends BaseActivity {
 
         // Apply role-based UI restrictions
         applyRoleBasedRestrictions();
+
+        // Photo gallery
+        btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
+        tvPhotoCount = findViewById(R.id.tvPhotoCount);
+
+        btnPhotoGallery.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PhotoGalleryActivity.class);
+            intent.putExtra("expense_id", expenseId);
+            startActivity(intent);
+        });
     }
 
     private void applyRoleBasedRestrictions() {
@@ -217,6 +231,24 @@ public class ExpenseDetailActivity extends BaseActivity {
         etDate.setText(sdf.format(selectedDate.getTime()));
     }
 
+    private void loadPhotoCount() {
+        if (expenseId == -1) return;
+
+        // Use PhotoRepository to get photo count
+        PhotoRepository photoRepository = new PhotoRepository(this, farmId);
+        photoRepository.getPhotoCountForBlockAsync(expenseId)
+                .thenAccept(count -> {
+                    runOnUiThread(() -> {
+                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Error loading photo count", throwable);
+                    runOnUiThread(() -> tvPhotoCount.setText("0 photos"));
+                    return null;
+                });
+    }
+
     private void loadData() {
         executor.execute(() -> {
             // First get the expense to know the farmId
@@ -275,6 +307,8 @@ public class ExpenseDetailActivity extends BaseActivity {
         // Set date
         selectedDate.setTimeInMillis(expense.getDate());
         updateDateLabel();
+
+        loadPhotoCount();
 
         // Set description
         if (expense.getDescription() != null) {

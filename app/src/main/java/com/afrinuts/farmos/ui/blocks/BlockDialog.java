@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,10 +56,9 @@ public class BlockDialog extends DialogFragment {
     private TextInputEditText etReplacementCount;
     private TextInputEditText etNotes;
 
-    // Layout containers for conditional visibility
-    private LinearLayout layoutDate;
-    private LinearLayout layoutPlantingDetails;
-    private TextInputLayout dateTextInputLayout;
+    // New layout containers
+    private View dateCard;
+    private View plantingDetailsCard;
 
     private Calendar selectedDateCalendar = Calendar.getInstance();
 
@@ -96,7 +97,6 @@ public class BlockDialog extends DialogFragment {
 
         // Load existing blocks in background
         executor.execute(() -> {
-            // FIX 1: Use getAllBlocksSync() instead of getBlocksSync()
             existingBlocks = blockRepository.getAllBlocksSync();
         });
     }
@@ -112,7 +112,7 @@ public class BlockDialog extends DialogFragment {
         setupConditionalFields();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add New Block")
+                .setTitle("")
                 .setView(view)
                 .setCancelable(false);
 
@@ -136,10 +136,10 @@ public class BlockDialog extends DialogFragment {
         etHectareSize = view.findViewById(R.id.etHectareSize);
         etStatus = view.findViewById(R.id.etStatus);
 
-        layoutDate = view.findViewById(R.id.layoutDate);
-        layoutPlantingDetails = view.findViewById(R.id.layoutPlantingDetails);
+        // New layout references
+        dateCard = view.findViewById(R.id.dateCard);
+        plantingDetailsCard = view.findViewById(R.id.plantingDetailsCard);
         etDate = view.findViewById(R.id.etDate);
-        dateTextInputLayout = view.findViewById(R.id.layoutDate);
         etSurvivalRate = view.findViewById(R.id.etSurvivalRate);
         etReplacementCount = view.findViewById(R.id.etReplacementCount);
         etNotes = view.findViewById(R.id.etNotes);
@@ -222,23 +222,72 @@ public class BlockDialog extends DialogFragment {
         });
     }
 
+    // Single version of updateUIBasedOnStatus (REMOVED THE DUPLICATE)
     private void updateUIBasedOnStatus(BlockEntity.BlockStatus status) {
         boolean isPlanted = status == BlockEntity.BlockStatus.PLANTED;
         boolean isPrePlanting = status == BlockEntity.BlockStatus.CLEARED ||
                 status == BlockEntity.BlockStatus.PLOWED;
 
+        // Handle date card
         if (isPrePlanting || isPlanted) {
-            layoutDate.setVisibility(View.VISIBLE);
-            if (isPrePlanting) {
-                dateTextInputLayout.setHint(status.getDisplayName() + " Date");
-            } else {
-                dateTextInputLayout.setHint("Planting Date");
+            if (dateCard != null && dateCard.getVisibility() != View.VISIBLE) {
+                TextView title = getDialog().findViewById(R.id.dateSectionTitle);
+                if (title != null) {
+                    title.setText(isPrePlanting ?
+                            status.getDisplayName() + " Date" : "Planting Date");
+                }
+                animateCardTransition(null, dateCard);
             }
         } else {
-            layoutDate.setVisibility(View.GONE);
+            if (dateCard != null && dateCard.getVisibility() == View.VISIBLE) {
+                animateCardTransition(dateCard, null);
+            }
         }
 
-        layoutPlantingDetails.setVisibility(isPlanted ? View.VISIBLE : View.GONE);
+        // Handle planting details card
+        if (isPlanted) {
+            if (plantingDetailsCard != null && plantingDetailsCard.getVisibility() != View.VISIBLE) {
+                animateCardTransition(null, plantingDetailsCard);
+            }
+        } else {
+            if (plantingDetailsCard != null && plantingDetailsCard.getVisibility() == View.VISIBLE) {
+                animateCardTransition(plantingDetailsCard, null);
+            }
+        }
+    }
+
+    // Animation methods
+    private void animateCardTransition(View oldCard, View newCard) {
+        if (oldCard != null && oldCard.getVisibility() == View.VISIBLE) {
+            oldCard.animate()
+                    .alpha(0f)
+                    .scaleX(0.95f)
+                    .scaleY(0.95f)
+                    .setDuration(200)
+                    .withEndAction(() -> {
+                        oldCard.setVisibility(View.GONE);
+                        if (newCard != null) {
+                            showNewCard(newCard);
+                        }
+                    })
+                    .start();
+        } else if (newCard != null) {
+            showNewCard(newCard);
+        }
+    }
+
+    private void showNewCard(View card) {
+        card.setVisibility(View.VISIBLE);
+        card.setAlpha(0f);
+        card.setScaleX(0.95f);
+        card.setScaleY(0.95f);
+        card.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(250)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .start();
     }
 
     private boolean isBlockNameExists(String blockName) {
@@ -366,7 +415,6 @@ public class BlockDialog extends DialogFragment {
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
-        // FIX 2: insertBlock now returns CompletableFuture<Long>
         blockRepository.insertBlock(block)
                 .thenAccept(id -> {
                     if (getActivity() != null) {

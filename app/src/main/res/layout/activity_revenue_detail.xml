@@ -6,33 +6,64 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Revenue Details" />
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Revenue Details"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Quality Header Card -->
+            <!-- Quality Header Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_accent"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -41,16 +72,22 @@
                     android:gravity="center_vertical"
                     android:padding="20dp">
 
-                    <ImageView
-                        android:id="@+id/tvQualityIcon"
+                    <FrameLayout
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:src="@drawable/ic_star"
-                        app:tint="@color/accent"
-                        android:background="@color/warm_grey"
-                        android:padding="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="Quality grade icon" />
+                        android:background="@drawable/bg_icon_glass_large"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/tvQualityIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_star"
+                            app:tint="@color/accent"
+                            android:contentDescription="Quality grade icon" />
+
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -63,7 +100,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Premium Grade"
-                            style="@style/Text.H3" />
+                            style="@style/Text.H3"
+                            android:textColor="@color/accent" />
 
                         <TextView
                             android:id="@+id/tvSource"
@@ -71,6 +109,7 @@
                             android:layout_height="wrap_content"
                             android:text="Block A1"
                             style="@style/Text.Body.Small"
+                            android:textColor="@color/navy"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -79,13 +118,15 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Details Card -->
+            <!-- Details Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_primary"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -93,26 +134,35 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
+                    <!-- Section Header -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="20dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_grain"
-                            app:tint="@color/primary"
-                            android:layout_marginEnd="8dp" />
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_glass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_grain"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Harvest Details"
                             style="@style/Text.H4"
-                            android:textColor="@color/text_dark" />
+                            android:textColor="@color/primary" />
 
                     </LinearLayout>
 
@@ -121,13 +171,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Quantity:"
-                            style="@style/Text.Label" />
+                            style="@style/Text.Label"
+                            android:textColor="@color/navy" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -141,15 +192,15 @@
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_weight"
                                 app:tint="@color/navy"
-                                android:layout_marginEnd="4dp"
-                                android:visibility="gone" />
+                                android:layout_marginEnd="8dp" />
 
                             <TextView
                                 android:id="@+id/tvQuantity"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="350 kg"
-                                style="@style/Text.Body" />
+                                style="@style/Text.Body"
+                                android:textColor="@color/text_dark" />
 
                         </LinearLayout>
 
@@ -160,13 +211,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Price/kg:"
-                            style="@style/Text.Label" />
+                            style="@style/Text.Label"
+                            android:textColor="@color/navy" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -180,65 +232,87 @@
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_attach_money"
                                 app:tint="@color/navy"
-                                android:layout_marginEnd="4dp" />
+                                android:layout_marginEnd="8dp" />
 
                             <TextView
                                 android:id="@+id/tvPricePerKg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="1,500 XAF"
-                                style="@style/Text.Body" />
+                                style="@style/Text.Body"
+                                android:textColor="@color/text_dark" />
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <!-- Total Amount -->
-                    <LinearLayout
+                    <!-- Total Amount (Highlighted Card) -->
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp"
-                        android:background="@color/warm_grey"
-                        android:padding="12dp">
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        android:background="@drawable/bg_card_accent"
+                        android:backgroundTint="@color/primary_light">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_calculator"
-                            app:tint="@color/primary"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:layout_width="120dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Total:"
-                            style="@style/Text.Label" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="16dp">
 
-                        <TextView
-                            android:id="@+id/tvTotalAmount"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="525,000 XAF"
-                            style="@style/Text.Stat"
-                            android:textColor="@color/primary"
-                            android:gravity="end" />
+                            <FrameLayout
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_icon_glass"
+                                android:layout_marginEnd="12dp">
 
-                    </LinearLayout>
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_calculator"
+                                    app:tint="@color/accent" />
+
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total:"
+                                style="@style/Text.Label"
+                                android:textColor="@color/accent"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:id="@+id/tvTotalAmount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="525,000 XAF"
+                                style="@style/Text.Stat"
+                                android:textColor="@color/accent"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <!-- Harvest Date -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Harvest Date:"
-                            style="@style/Text.Label" />
+                            style="@style/Text.Label"
+                            android:textColor="@color/navy" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -252,14 +326,15 @@
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_today"
                                 app:tint="@color/navy"
-                                android:layout_marginEnd="4dp" />
+                                android:layout_marginEnd="8dp" />
 
                             <TextView
                                 android:id="@+id/tvHarvestDate"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Mar 15, 2024"
-                                style="@style/Text.Body" />
+                                style="@style/Text.Body"
+                                android:textColor="@color/text_dark" />
 
                         </LinearLayout>
 
@@ -270,13 +345,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="120dp"
                             android:layout_height="wrap_content"
                             android:text="Buyer:"
-                            style="@style/Text.Label" />
+                            style="@style/Text.Label"
+                            android:textColor="@color/navy" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -290,44 +366,70 @@
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_person"
                                 app:tint="@color/navy"
-                                android:layout_marginEnd="4dp" />
+                                android:layout_marginEnd="8dp" />
 
                             <TextView
                                 android:id="@+id/tvBuyer"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Olam"
-                                style="@style/Text.Body" />
+                                style="@style/Text.Body"
+                                android:textColor="@color/text_dark" />
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <!-- Notes (if available) -->
+                    <!-- Notes Section -->
                     <LinearLayout
                         android:id="@+id/notesLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="@color/warm_grey"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_card_secondary"
                         android:padding="12dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        app:cardCornerRadius="12dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_note"
-                            app:tint="@color/navy"
-                            android:layout_marginEnd="8dp"
-                            android:layout_gravity="top" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <FrameLayout
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:background="@drawable/bg_icon_glass"
+                                android:layout_marginEnd="8dp">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_note"
+                                    app:tint="@color/navy" />
+
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Notes"
+                                style="@style/Text.Label"
+                                android:textColor="@color/navy" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvNotes"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="Premium quality harvest from Block A1"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body.Small"
+                            android:textColor="@color/text_dark"
+                            android:layout_marginStart="36dp" />
 
                     </LinearLayout>
 
@@ -335,18 +437,19 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons Section - Add before Delete button -->
+            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_horizontal"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="24dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
@@ -354,23 +457,23 @@
                     android:backgroundTint="@color/accent"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="@android:color/white"
+                    app:cornerRadius="28dp" />
 
                 <Button
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="@android:color/white"
+                    app:cornerRadius="28dp" />
 
             </LinearLayout>
-
-            <!-- Remove the old single Delete button at the bottom -->
 
         </LinearLayout>
 

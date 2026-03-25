@@ -4,86 +4,191 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="@color/background"
     android:padding="24dp">
 
-    <!-- Dialog Title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Update Status"
-        style="@style/Text.H3"
-        android:textColor="@color/primary"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Current Status Label -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current Status:"
-        style="@style/Text.Label"
-        android:layout_marginBottom="4dp" />
-
-    <!-- Current Status Value -->
-    <TextView
-        android:id="@+id/currentStatusText"
+    <!-- Header with Icon -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Not Cleared"
-        style="@style/Text.H4"
-        android:textColor="@color/primary"
-        android:background="@color/warm_grey"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
 
-    <!-- Arrow indicating progression -->
-    <ImageView
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_logo_container"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_sync"
+                app:tint="@color/primary" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Update Block Status"
+            style="@style/Text.H3"
+            android:textColor="@color/primary" />
+
+    </LinearLayout>
+
+    <!-- Current Status Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.AfriNuts.CardView"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        android:background="@drawable/bg_card_secondary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Status"
+                style="@style/Text.Label"
+                android:textColor="@color/navy"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/currentStatusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Not Cleared"
+                style="@style/Text.H4"
+                android:textColor="@color/primary"
+                android:background="@drawable/bg_rounded_status"
+                android:padding="12dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Progression Arrow - Animated Style -->
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_arrow_drop_down"
-        app:tint="@color/accent"
-        android:rotation="270"
-        android:contentDescription="Progress arrow"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginVertical="8dp"
+        android:background="@drawable/bg_circle_accent"
+        android:padding="12dp">
 
-    <!-- Next Status Label -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next Status:"
-        style="@style/Text.Label"
-        android:layout_marginBottom="4dp" />
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_drop_down"
+            app:tint="@android:color/white"
+            android:rotation="270"
+            android:contentDescription="Progress arrow" />
 
-    <!-- Next Status Value -->
-    <TextView
-        android:id="@+id/nextStatusText"
+    </FrameLayout>
+
+    <!-- Next Status Card -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cleared"
-        style="@style/Text.H4"
-        android:textColor="@color/primary"
-        android:background="@color/warm_grey"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.AfriNuts.CardView"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        android:background="@drawable/bg_card_primary">
 
-    <!-- Date Picker -->
-    <com.google.android.material.textfield.TextInputLayout
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Next Status"
+                style="@style/Text.Label"
+                android:textColor="@color/navy"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/nextStatusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cleared"
+                style="@style/Text.H4"
+                android:textColor="@color/primary"
+                android:background="@drawable/bg_rounded_status"
+                android:padding="12dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Date Card -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_today"
-        app:endIconTint="@color/navy">
+        style="@style/Widget.AfriNuts.CardView"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        android:background="@drawable/bg_card_accent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etDate"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Select Date"
-            android:focusable="false"
-            android:clickable="true" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Operation Date"
+                style="@style/Text.Label"
+                android:textColor="@color/navy"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AfriNuts.EditText"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_today"
+                app:endIconTint="@color/accent"
+                app:boxBackgroundColor="@android:color/white"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/accent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Date"
+                    android:focusable="false"
+                    android:clickable="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

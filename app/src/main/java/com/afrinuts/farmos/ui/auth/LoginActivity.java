@@ -1,13 +1,15 @@
 package com.afrinuts.farmos.ui.auth;
 
-import static android.content.ContentValues.TAG;
-
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -34,12 +36,14 @@ import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -80,9 +84,10 @@ public class LoginActivity extends AppCompatActivity {
         firebaseManager = FirebaseManager.getInstance();
         initViews();
 
-        // ✅ SYNC ALL FARM DATA BEFORE LOADING LOCAL USERS
-        syncUsersFromFirestore();
+        fixExistingUserFarmIds();
 
+        animateLogoEntrance();
+        syncUsersFromFirestore();
         ensureOwnerExists();
     }
 
@@ -103,12 +108,44 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> attemptLogin());
     }
 
+    private void animateLogoEntrance() {
+        logoImage.setAlpha(0f);
+        logoImage.setScaleX(0.8f);
+        logoImage.setScaleY(0.8f);
+
+        logoImage.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(500)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .start();
+
+        appNameText.setAlpha(0f);
+        appNameText.setTranslationY(20f);
+        appNameText.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setStartDelay(200)
+                .start();
+
+        loginCard.setAlpha(0f);
+        loginCard.setTranslationY(30f);
+        loginCard.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(500)
+                .setStartDelay(300)
+                .start();
+    }
+
     // ========================================
     // AUTO-SYNC ALL FARM DATA FROM FIRESTORE
     // ========================================
 
     private void syncUsersFromFirestore() {
-        Log.d(TAG, "Syncing users from Firestore...");
+        Log.d(TAG, "========== SYNCING USERS FROM FIRESTORE ==========");
 
         String farmId = "1";
         Log.d(TAG, "Looking for users with farmId: " + farmId);
@@ -119,37 +156,87 @@ public class LoginActivity extends AppCompatActivity {
                 .whereEqualTo("farmId", farmId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    Log.d(TAG, "Found " + queryDocumentSnapshots.size() + " users with farmId=" + farmId);
+                    Log.d(TAG, "✅ SUCCESS: Found " + queryDocumentSnapshots.size() + " users with farmId=" + farmId);
+
+                    // Log each user found
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, "   User in Firestore: ID=" + doc.getId() +
+                                ", email=" + doc.getString("email") +
+                                ", name=" + doc.getString("name"));
+                    }
 
                     databaseExecutor.execute(() -> {
                         int addedCount = 0;
                         int updatedCount = 0;
+                        int skippedCount = 0;
 
                         for (DocumentSnapshot doc : queryDocumentSnapshots) {
                             UserEntity user = documentToUser(doc);
                             if (user != null) {
-                                // Check if user exists by uid
+                                Log.d(TAG, "Processing user: " + user.getEmail() + ", UID: " + user.getUid());
+
+                                // Check if user exists by uid (Firebase Auth UID)
                                 UserEntity existing = database.userDao().getUserByUid(user.getUid());
+
+                                if (existing == null) {
+                                    // Also check by email
+                                    existing = database.userDao().getUserByEmail(user.getEmail());
+                                }
+
                                 if (existing == null) {
                                     // Insert new user
-                                    database.userDao().insert(user);
+                                    long id = database.userDao().insert(user);
                                     addedCount++;
-                                    Log.d(TAG, "Added user: " + user.getEmail());
+                                    Log.d(TAG, "✅ Added user: " + user.getEmail() + " (localId: " + id + ")");
                                 } else {
-                                    // Update existing user, preserving localId
-                                    user.setLocalId(existing.getLocalId());
-                                    database.userDao().update(user);
-                                    updatedCount++;
-                                    Log.d(TAG, "Updated user: " + user.getEmail());
+                                    // User exists - check if we need to update
+                                    boolean needsUpdate = false;
+
+                                    // Update UID if missing
+                                    if (existing.getUid() == null || existing.getUid().isEmpty()) {
+                                        existing.setUid(user.getUid());
+                                        needsUpdate = true;
+                                        Log.d(TAG, "   Updating UID for " + user.getEmail() + ": " + user.getUid());
+                                    }
+
+                                    // Update farmId if wrong
+                                    if (existing.getFarmId() != user.getFarmId()) {
+                                        existing.setFarmId(user.getFarmId());
+                                        needsUpdate = true;
+                                        Log.d(TAG, "   Updating farmId for " + user.getEmail() + ": " + user.getFarmId());
+                                    }
+
+                                    // Update name if changed
+                                    if (!existing.getName().equals(user.getName())) {
+                                        existing.setName(user.getName());
+                                        needsUpdate = true;
+                                        Log.d(TAG, "   Updating name for " + user.getEmail() + ": " + user.getName());
+                                    }
+
+                                    if (needsUpdate) {
+                                        database.userDao().update(existing);
+                                        updatedCount++;
+                                        Log.d(TAG, "📝 Updated user: " + user.getEmail());
+                                    } else {
+                                        skippedCount++;
+                                        Log.d(TAG, "⏭️ Skipped user (no changes): " + user.getEmail());
+                                    }
                                 }
+                            } else {
+                                Log.e(TAG, "❌ Failed to convert document to user: " + doc.getId());
                             }
                         }
 
                         final int finalAddedCount = addedCount;
                         final int finalUpdatedCount = updatedCount;
+                        final int finalSkippedCount = skippedCount;
+
                         runOnUiThread(() -> {
-                            Log.d(TAG, "Synced users: " + finalAddedCount + " added, " +
-                                    finalUpdatedCount + " updated");
+                            Log.d(TAG, "========== SYNC COMPLETE ==========");
+                            Log.d(TAG, "Added: " + finalAddedCount);
+                            Log.d(TAG, "Updated: " + finalUpdatedCount);
+                            Log.d(TAG, "Skipped: " + finalSkippedCount);
+                            Log.d(TAG, "================================");
 
                             // AFTER users are synced, load local users
                             loadLocalUsers();
@@ -157,7 +244,8 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to sync users from Firestore", e);
+                    Log.e(TAG, "❌ FAILED to sync users from Firestore", e);
+                    Log.e(TAG, "Error details: " + e.getMessage());
                     loadLocalUsers();
                 });
     }
@@ -628,43 +716,60 @@ public class LoginActivity extends AppCompatActivity {
     private void ensureOwnerExists() {
         databaseExecutor.execute(() -> {
             UserEntity owner = database.userDao().getUserByEmail("owner@afrinuts.com");
+
+            // Get current Firebase user (if logged in)
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
             if (owner == null) {
                 // Create owner in local DB if not exists
                 String hashedPassword = AuthUtils.hash("admin123");
 
-                // Use email as UID consistently
-                String ownerUid = "owner@afrinuts.com";
+                // Create with placeholder UID, will be updated after Firebase Auth
+                // IMPORTANT: farmId should be 1 (your default farm)
+                long defaultFarmId = 1L;
 
                 owner = new UserEntity(
-                        ownerUid,  // Explicitly set UID
+                        "", // Temporary UID, will be updated
                         "Farm Owner",
                         UserEntity.UserRole.OWNER,
                         "+225 00 00 00 00",
                         "owner@afrinuts.com",
                         hashedPassword,
-                        1L // farmId
+                        defaultFarmId  // ← Set farmId correctly here
                 );
 
                 // Insert into local DB
                 long localId = database.userDao().insert(owner);
                 owner.setLocalId(localId);
+                Log.d(TAG, "Created owner in local DB");
+            }
 
-                Log.d(TAG, "Created owner in local DB with UID: " + ownerUid);
+            // If we have a Firebase user, update the UID to match
+            if (firebaseUser != null && owner != null) {
+                boolean needsUpdate = false;  // ← Declare the variable here
 
-                // Save to Firestore
-                saveOwnerToFirestore(owner);
-            } else {
-                Log.d(TAG, "Owner already exists in local DB");
-
-                // Ensure existing owner has a UID
-                if (owner.getUid() == null || owner.getUid().isEmpty()) {
-                    owner.setUid(owner.getEmail());
-                    database.userDao().update(owner);
-                    Log.d(TAG, "Updated existing owner with UID: " + owner.getEmail());
+                String realUid = firebaseUser.getUid();
+                if (!realUid.equals(owner.getUid())) {
+                    owner.setUid(realUid);
+                    needsUpdate = true;
+                    Log.d(TAG, "Updated local owner with real Firebase UID: " + realUid);
                 }
 
-                // Optionally ensure it exists in Firestore too
+                // ✅ Ensure farmId is 1
+                if (owner.getFarmId() != 1L) {
+                    owner.setFarmId(1L);
+                    needsUpdate = true;
+                    Log.d(TAG, "Fixed owner farmId to 1");
+                }
+
+                if (needsUpdate) {
+                    database.userDao().update(owner);
+                }
+
+                // Save to Firestore with correct UID
                 saveOwnerToFirestore(owner);
+            } else {
+                Log.d(TAG, "No Firebase user yet, will save after authentication");
             }
         });
     }
@@ -672,18 +777,21 @@ public class LoginActivity extends AppCompatActivity {
     private void saveOwnerToFirestore(UserEntity owner) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Ensure UID is not null - if it is, use email as fallback
-        final String uid;  // Declare as final
-        if (owner.getUid() == null || owner.getUid().isEmpty()) {
-            uid = owner.getEmail();  // Fallback to email
-            owner.setUid(uid);       // Update the entity
-            Log.w(TAG, "Owner UID was null, using email as UID: " + uid);
-        } else {
-            uid = owner.getUid();
+        // Get the current Firebase user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "Cannot save owner to Firestore: No authenticated user");
+            return;
         }
 
+        // CRITICAL: Use the REAL Firebase UID as document ID
+        String realUid = currentUser.getUid();
+
+        // ✅ Ensure farmId is correct (should be 1, not "0")
+        String farmIdStr = String.valueOf(owner.getFarmId() != 0 ? owner.getFarmId() : 1L);
+
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("uid", uid);
+        userMap.put("uid", realUid);  // Store the real UID
         userMap.put("localId", owner.getLocalId());
         userMap.put("name", owner.getName());
         userMap.put("role", owner.getRole().name());
@@ -694,26 +802,64 @@ public class LoginActivity extends AppCompatActivity {
         userMap.put("createdAt", owner.getCreatedAt());
         userMap.put("farmId", String.valueOf(owner.getFarmId()));
 
-        Log.d(TAG, "Saving owner to Firestore with UID: " + uid);
+        Log.d(TAG, "Saving owner to Firestore with UID: " + realUid);
 
         db.collection("users")
-                .document(uid)
+                .document(realUid)  // Use REAL Firebase UID as document ID
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {
-                    // Use the final uid variable here - it's effectively final
-                    Log.d(TAG, "Owner saved to Firestore with UID: " + uid);
+                    Log.d(TAG, "✅ Owner saved to Firestore with UID: " + realUid);
+
+                    // Also update local user with the correct UID
+                    owner.setUid(realUid);
+                    database.userDao().update(owner);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error saving owner to Firestore", e);
+                    Log.e(TAG, "❌ Error saving owner to Firestore", e);
                 });
+    }
+
+    private void fixExistingUserFarmIds() {
+        databaseExecutor.execute(() -> {
+            List<UserEntity> allUsers = database.userDao().getAllUsers();
+            boolean anyFixed = false;
+
+            for (UserEntity user : allUsers) {
+                if (user.getFarmId() != 1L) {
+                    user.setFarmId(1L);
+                    database.userDao().update(user);
+                    anyFixed = true;
+                    Log.d(TAG, "Fixed farmId for user: " + user.getEmail() + " from " + user.getFarmId() + " to 1");
+                }
+            }
+
+            if (anyFixed) {
+                Log.d(TAG, "Fixed farmIds for " + allUsers.size() + " users");
+            }
+        });
     }
 
     private void loadLocalUsers() {
         databaseExecutor.execute(() -> {
             List<UserEntity> userList = database.userDao().getAllUsers();
 
+            // Remove any potential duplicates by UID (keep the first occurrence)
+            Map<String, UserEntity> uniqueByUid = new LinkedHashMap<>();
+            for (UserEntity user : userList) {
+                String key = user.getUid();
+                if (key == null || key.isEmpty()) {
+                    // For users without UID (PIN users), use email
+                    key = user.getEmail();
+                }
+                if (!uniqueByUid.containsKey(key)) {
+                    uniqueByUid.put(key, user);
+                }
+            }
+
+            List<UserEntity> uniqueUsers = new ArrayList<>(uniqueByUid.values());
+
             runOnUiThread(() -> {
-                users = userList;
+                users = uniqueUsers;
                 if (users.isEmpty()) {
                     createDefaultOwner();
                 } else {
@@ -733,8 +879,8 @@ public class LoginActivity extends AppCompatActivity {
                 new FirebaseManager.AuthCallback() {
                     @Override
                     public void onSuccess(FirebaseUser user) {
-                        Log.d(TAG, "Firebase user created: " + user.getUid());
-                        createLocalUser(defaultEmail, defaultPassword);
+                        Log.d(TAG, "Firebase user created with UID: " + user.getUid());
+                        createLocalUser(defaultEmail, defaultPassword, user.getUid());
                     }
 
                     @Override
@@ -744,21 +890,36 @@ public class LoginActivity extends AppCompatActivity {
                             runOnUiThread(() ->
                                     Toast.makeText(LoginActivity.this,
                                             "Owner already exists in Firebase", Toast.LENGTH_SHORT).show());
-                            createLocalUser(defaultEmail, defaultPassword);
+                            // Try to sign in instead
+                            firebaseManager.signInWithEmail(defaultEmail, defaultPassword,
+                                    new FirebaseManager.AuthCallback() {
+                                        @Override
+                                        public void onSuccess(FirebaseUser existingUser) {
+                                            createLocalUser(defaultEmail, defaultPassword, existingUser.getUid());
+                                        }
+
+                                        @Override
+                                        public void onError(String signInError) {
+                                            Log.e(TAG, "Sign in failed: " + signInError);
+                                        }
+                                    });
                         } else {
                             runOnUiThread(() ->
                                     Toast.makeText(LoginActivity.this,
                                             "Firebase error: " + error, Toast.LENGTH_LONG).show());
-                            createLocalUser(defaultEmail, defaultPassword);
                         }
                     }
                 });
     }
 
-    private void createLocalUser(String email, String password) {
+    private void createLocalUser(String email, String password, String firebaseUid) {
         String hashedPassword = AuthUtils.hash(password);
+
+        // ✅ Use default farmId = 1
+        long defaultFarmId = 1L;
+
         UserEntity owner = new UserEntity(
-                email,  // use email as UID
+                firebaseUid,  // Use REAL Firebase UID
                 "Farm Owner",
                 UserEntity.UserRole.OWNER,
                 "+225 00 00 00 00",
@@ -771,7 +932,13 @@ public class LoginActivity extends AppCompatActivity {
             UserEntity existing = database.userDao().getUserByEmail(email);
             if (existing == null) {
                 database.userDao().insert(owner);
-                owner.setLocalId(database.userDao().getUserByUid(email).getLocalId());
+            } else if (existing.getUid() == null || existing.getUid().isEmpty()) {
+                existing.setUid(firebaseUid);
+                if (existing.getFarmId() != 1L) {
+                    existing.setFarmId(1L);
+                }
+                database.userDao().update(existing);
+                Log.d(TAG, "Updated existing user with farmId: " + existing.getFarmId());
             }
 
             runOnUiThread(() -> {
@@ -809,10 +976,14 @@ public class LoginActivity extends AppCompatActivity {
 
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
+                    // Animate selection
+                    buttonView.animate().scaleX(1.02f).scaleY(1.02f).setDuration(150).start();
+
                     for (int i = 0; i < userChipsContainer.getChildCount(); i++) {
                         Chip otherChip = (Chip) userChipsContainer.getChildAt(i);
                         if (otherChip != buttonView) {
                             otherChip.setChecked(false);
+                            otherChip.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
                         }
                     }
                     selectedUser = user;
@@ -821,6 +992,19 @@ public class LoginActivity extends AppCompatActivity {
             });
 
             userChipsContainer.addView(chip);
+        }
+
+        // Animate chips entrance
+        for (int i = 0; i < userChipsContainer.getChildCount(); i++) {
+            View chip = userChipsContainer.getChildAt(i);
+            chip.setAlpha(0f);
+            chip.setTranslationX(-20f);
+            chip.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .setDuration(300)
+                    .setStartDelay(i * 50)
+                    .start();
         }
 
         tvSelectUser.setVisibility(View.VISIBLE);
@@ -841,25 +1025,28 @@ public class LoginActivity extends AppCompatActivity {
     private void updateLoginFieldsForUser(UserEntity user) {
         if (user == null) return;
 
-        if (user.getAuthMethod() == UserEntity.AuthMethod.PIN) {
-            layoutEmailPin.setHint("Enter PIN");
-            etEmailPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-            layoutPassword.setVisibility(View.GONE);
-            isPinMode = true;
-            etEmailPin.setText("");
-        } else {
-            layoutEmailPin.setHint("Email");
-            etEmailPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            layoutPassword.setVisibility(View.VISIBLE);
-            isPinMode = false;
-
-            if (user.getEmail() != null) {
-                etEmailPin.setText(user.getEmail());
-            } else {
+        // Animate field transition
+        layoutEmailPin.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+            if (user.getAuthMethod() == UserEntity.AuthMethod.PIN) {
+                layoutEmailPin.setHint("Enter PIN");
+                etEmailPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+                layoutPassword.setVisibility(View.GONE);
+                isPinMode = true;
                 etEmailPin.setText("");
+            } else {
+                layoutEmailPin.setHint("Email");
+                etEmailPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                layoutPassword.setVisibility(View.VISIBLE);
+                isPinMode = false;
+                if (user.getEmail() != null) {
+                    etEmailPin.setText(user.getEmail());
+                } else {
+                    etEmailPin.setText("");
+                }
+                etPassword.setText("");
             }
-            etPassword.setText("");
-        }
+            layoutEmailPin.animate().alpha(1f).setDuration(150).start();
+        }).start();
     }
 
     private void attemptLogin() {
@@ -881,67 +1068,79 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Disable button and show loading
         btnLogin.setEnabled(false);
         btnLogin.setText("Authenticating...");
+        btnLogin.animate().scaleX(0.98f).scaleY(0.98f).setDuration(150).start();
 
         if (isPinMode) {
-            String hashedPin = AuthUtils.hash(emailPin);
-            boolean authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
-
-            if (authenticated) {
-                selectedUser.setLastLoginAt(System.currentTimeMillis());
-
-                databaseExecutor.execute(() -> {
-                    database.userDao().update(selectedUser);
-
-                    SessionManager sessionManager = new SessionManager(LoginActivity.this);
-                    sessionManager.createLoginSession(selectedUser);
-
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this,
-                                "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
-                        navigateToMain();
-                    });
-                });
-            } else {
-                runOnUiThread(() -> {
-                    btnLogin.setEnabled(true);
-                    btnLogin.setText("Login");
-                    Toast.makeText(LoginActivity.this, "Invalid PIN", Toast.LENGTH_SHORT).show();
-                });
-            }
+            authenticateWithPin(emailPin);
         } else {
-            firebaseManager.signInWithEmail(emailPin, password,
-                    new FirebaseManager.AuthCallback() {
-                        @Override
-                        public void onSuccess(FirebaseUser user) {
-                            selectedUser.setLastLoginAt(System.currentTimeMillis());
-
-                            databaseExecutor.execute(() -> {
-                                database.userDao().update(selectedUser);
-
-                                SessionManager sessionManager = new SessionManager(LoginActivity.this);
-                                sessionManager.createLoginSession(selectedUser);
-
-                                runOnUiThread(() -> {
-                                    Toast.makeText(LoginActivity.this,
-                                            "Welcome " + selectedUser.getName(), Toast.LENGTH_SHORT).show();
-                                    navigateToMain();
-                                });
-                            });
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            runOnUiThread(() -> {
-                                btnLogin.setEnabled(true);
-                                btnLogin.setText("Login");
-                                Toast.makeText(LoginActivity.this,
-                                        "Authentication failed: " + error, Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                    });
+            authenticateWithEmail(emailPin, password);
         }
+    }
+
+    private void authenticateWithPin(String pin) {
+        String hashedPin = AuthUtils.hash(pin);
+        boolean authenticated = hashedPin != null && hashedPin.equals(selectedUser.getPinHash());
+
+        if (authenticated) {
+            loginSuccess();
+        } else {
+            loginFailed("Invalid PIN");
+        }
+    }
+
+    private void authenticateWithEmail(String email, String password) {
+        firebaseManager.signInWithEmail(email, password, new FirebaseManager.AuthCallback() {
+            @Override
+            public void onSuccess(FirebaseUser user) {
+                loginSuccess();
+            }
+
+            @Override
+            public void onError(String error) {
+                loginFailed("Authentication failed: " + error);
+            }
+        });
+    }
+
+    private void loginSuccess() {
+        selectedUser.setLastLoginAt(System.currentTimeMillis());
+
+        databaseExecutor.execute(() -> {
+            database.userDao().update(selectedUser);
+            SessionManager sessionManager = new SessionManager(LoginActivity.this);
+            sessionManager.createLoginSession(selectedUser);
+
+            runOnUiThread(() -> {
+                // Success animation
+                btnLogin.animate().scaleX(1.05f).scaleY(1.05f).setDuration(150)
+                        .withEndAction(() -> {
+                            btnLogin.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                            navigateToMain();
+                        }).start();
+            });
+        });
+    }
+
+    private void loginFailed(String message) {
+        runOnUiThread(() -> {
+            btnLogin.setEnabled(true);
+            btnLogin.setText("Login");
+            btnLogin.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+
+            // Shake animation for error
+            loginCard.animate().translationXBy(-10f).setDuration(50)
+                    .withEndAction(() -> loginCard.animate().translationXBy(20f).setDuration(50)
+                            .withEndAction(() -> loginCard.animate().translationXBy(-10f).setDuration(50)
+                                    .withEndAction(() -> loginCard.animate().translationXBy(0f).setDuration(50).start())
+                                    .start())
+                            .start())
+                    .start();
+
+            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void navigateToMain() {
@@ -949,6 +1148,9 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+
+        // Window transition animation
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     @Override

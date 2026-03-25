@@ -35,13 +35,16 @@
 
         <!-- Default font -->
         <item name="android:fontFamily">sans-serif</item>
+
+        <!-- Window background gradient -->
+        <item name="android:windowBackground">@drawable/bg_app_gradient</item>
     </style>
 
     <!-- ======================================== -->
-    <!-- BASE STYLES - These fix your build error -->
+    <!-- BASE STYLES -->
     <!-- ======================================== -->
 
-    <!-- Base Widget Style that Android/ libraries expect -->
+    <!-- Base Widget Style that Android/libraries expect -->
     <style name="Widget" />
 
     <!-- Base Text Style - all text styles inherit from this -->
@@ -53,14 +56,16 @@
     </style>
 
     <!-- ======================================== -->
-    <!-- TYPOGRAPHY - All inherit from Text -->
+    <!-- TYPOGRAPHY SCALE (Modular Scale) -->
     <!-- ======================================== -->
+    <!-- Using a modular scale ratio of 1.25 (major third) -->
 
-    <!-- Display / Hero Text -->
+    <!-- Display / Hero Text (Big numbers, titles) -->
     <style name="Text.Display" parent="Text">
         <item name="android:textSize">32sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">-0.02</item>
+        <item name="android:lineSpacingExtra">8sp</item>
     </style>
 
     <style name="Text.Display.Large" parent="Text.Display">
@@ -71,41 +76,49 @@
         <item name="android:textSize">28sp</item>
     </style>
 
-    <!-- Headings -->
+    <!-- Headings (Section titles) -->
     <style name="Text.H1" parent="Text">
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">-0.01</item>
+        <item name="android:lineSpacingExtra">6sp</item>
     </style>
 
     <style name="Text.H2" parent="Text">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:lineSpacingExtra">6sp</item>
     </style>
 
     <style name="Text.H3" parent="Text">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="Text.H4" parent="Text">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="Text.H5" parent="Text">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="Text.H6" parent="Text">
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
-    <!-- Body Text -->
+    <!-- Body Text (Readable content) -->
     <style name="Text.Body" parent="Text">
         <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">6sp</item>
     </style>
 
     <style name="Text.Body.Large" parent="Text.Body">
@@ -115,33 +128,37 @@
     <style name="Text.Body.Small" parent="Text">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/navy</item>
+        <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
-    <!-- Caption / Supporting Text -->
+    <!-- Caption / Supporting Text (Helper text, dates) -->
     <style name="Text.Caption" parent="Text">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/navy</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="Text.Caption.Small" parent="Text.Caption">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textColor">#94A3B8</item>
     </style>
 
-    <!-- Overline / Tiny Text -->
+    <!-- Overline / Meta Text (Category labels) -->
     <style name="Text.Overline" parent="Text">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textColor">@color/navy</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:letterSpacing">0.05</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:lineSpacingExtra">2sp</item>
     </style>
 
-    <!-- Stats / Numbers - Better for large values -->
+    <!-- Stats / Numbers (KPI values) -->
     <style name="Text.Stat" parent="Text">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:letterSpacing">-0.02</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
     </style>
@@ -155,22 +172,24 @@
         <item name="android:letterSpacing">-0.02</item>
     </style>
 
-    <!-- Add this for very large numbers -->
+    <!-- Add this for very large numbers (like total trees) -->
     <style name="Text.Stat.Compact" parent="Text.Stat">
         <item name="android:textSize">18sp</item>
         <item name="android:letterSpacing">-0.03</item>
         <item name="android:maxWidth">100dp</item>
     </style>
 
-    <!-- Labels -->
+    <!-- Label Text (Form labels, field names) -->
     <style name="Text.Label" parent="Text">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/navy</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="Text.Label.Small" parent="Text.Label">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
     </style>
 
     <!-- Button Text -->
@@ -178,10 +197,11 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.03</item>
     </style>
 
     <!-- ======================================== -->
-    <!-- WIDGETS - All inherit from Widget.AfriNuts -->
+    <!-- WIDGETS -->
     <!-- ======================================== -->
 
     <!-- Base Widget Style -->
@@ -212,7 +232,7 @@
         <item name="android:paddingBottom">12dp</item>
     </style>
 
-    <!-- Small Button Style - ADD THIS -->
+    <!-- Small Button Style -->
     <style name="Widget.AfriNuts.Button.Small" parent="Widget.AfriNuts.Button">
         <item name="android:paddingLeft">12dp</item>
         <item name="android:paddingRight">12dp</item>
@@ -221,6 +241,13 @@
         <item name="android:textSize">12sp</item>
         <item name="android:minHeight">32dp</item>
         <item name="cornerRadius">6dp</item>
+    </style>
+
+    <style name="Widget.AfriNuts.RadioButton" parent="Widget.MaterialComponents.CompoundButton.RadioButton">
+        <item name="android:textAppearance">@style/Text.Body</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:buttonTint">@color/primary</item>
+        <item name="android:minHeight">48dp</item>
     </style>
 
     <!-- CardView Style -->
@@ -290,4 +317,5 @@
     <style name="GradientAlt">
         <item name="android:background">@drawable/gradient_alt</item>
     </style>
+
 </resources>

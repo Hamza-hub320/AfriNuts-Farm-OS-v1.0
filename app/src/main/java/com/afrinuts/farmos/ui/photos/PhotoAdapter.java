@@ -74,7 +74,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             ivTypeIcon = itemView.findViewById(R.id.ivTypeIcon);
             tvCaption = itemView.findViewById(R.id.tvCaption);
             tvDate = itemView.findViewById(R.id.tvDate);
-            cardView = (CardView) itemView;
+            cardView = itemView.findViewById(R.id.cardView); // Now this will find the CardView!
         }
 
         void bind(PhotoEntity photo, OnPhotoClickListener listener) {
@@ -105,8 +105,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             // Set date
             tvDate.setText(dateFormat.format(new Date(photo.getTakenAt())));
 
-            // Click listener
-            cardView.setOnClickListener(v -> listener.onPhotoClick(photo));
+            // Click listener on CardView
+            if (cardView != null) {
+                cardView.setOnClickListener(v -> listener.onPhotoClick(photo));
+            } else {
+                // Fallback to itemView if cardView not found
+                itemView.setOnClickListener(v -> listener.onPhotoClick(photo));
+            }
         }
     }
 }

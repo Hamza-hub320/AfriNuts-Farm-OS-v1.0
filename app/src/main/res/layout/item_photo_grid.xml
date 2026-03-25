@@ -3,79 +3,103 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="4dp">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@drawable/bg_card_primary"
+    style="@style/Widget.AfriNuts.CardView">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.AfriNuts.CardView"
-        app:cardElevation="2dp"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <!-- Image with overlay gradient for better text visibility -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="150dp">
 
-            <!-- Image Placeholder (will be replaced with actual image) -->
             <ImageView
                 android:id="@+id/ivPhoto"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_photo_placeholder"
                 android:contentDescription="Photo" />
 
-            <!-- Photo Info -->
+            <!-- Subtle gradient overlay for text contrast -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_overlay" />
+
+        </FrameLayout>
+
+        <!-- Photo Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Caption -->
+            <TextView
+                android:id="@+id/tvCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Photo caption"
+                style="@style/Text.Body"
+                android:textColor="@color/text_dark"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Date and Type -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
 
-                <!-- Caption -->
-                <TextView
-                    android:id="@+id/tvCaption"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Photo caption"
-                    style="@style/Text.Body"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-
-                <!-- Date and Type -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
+                <FrameLayout
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_icon_glass_small"
+                    android:layout_marginEnd="6dp">
 
                     <ImageView
                         android:id="@+id/ivTypeIcon"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_photo"
-                        app:tint="@color/navy"
-                        android:layout_marginEnd="4dp" />
+                        app:tint="@color/primary" />
 
-                    <TextView
-                        android:id="@+id/tvDate"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Mar 15, 2024"
-                        style="@style/Text.Caption.Small" />
+                </FrameLayout>
 
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Mar 15, 2024"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
-</LinearLayout>
+</androidx.cardview.widget.CardView>
+
+    </LinearLayout>

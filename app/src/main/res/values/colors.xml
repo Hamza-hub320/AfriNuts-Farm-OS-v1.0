@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- AfriNuts Brand Colors -->
-    <color name="primary">#5A7411</color>        <!-- Primary green -->
-    <color name="primary_light">#E8F0D6</color>  <!-- Light green for highlighting (add this) -->
-    <color name="accent">#E04E00</color>         <!-- Accent orange -->
-    <color name="dark_orange">#9C3D10</color>    <!-- Dark orange -->
-    <color name="secondary">#A0C800</color>      <!-- Secondary green -->
-    <color name="background">#F5F5F5</color>      <!-- Light background -->
-    <color name="text_dark">#5A4D47</color>       <!-- Dark text -->
-    <color name="text_light">#FFFFFF</color>      <!-- White text -->
-    <color name="warm_grey">#DEDAD4</color>       <!-- Warm grey -->
-    <color name="navy">#253746</color>            <!-- Navy -->
-    <color name="teal">#00869D</color>            <!-- Teal -->
-    <color name="olive">#698714</color>           <!-- Olive -->
+    <color name="primary">#5A7411</color>
+    <color name="primary_light">#E8F0D6</color>
+    <color name="accent">#E04E00</color>
+    <color name="dark_orange">#9C3D10</color>
+    <color name="secondary">#A0C800</color>
 
-    <!-- Password Strength Colors -->
-    <color name="strength_weak">#E04E00</color>     <!-- Acorn orange -->
-    <color name="strength_fair">#E0A800</color>     <!-- Golden -->
-    <color name="strength_good">#5A7411</color>     <!-- Primary green -->
-    <color name="strength_strong">#A0C800</color>   <!-- Secondary green -->
+    <!-- Background Colors - NEW -->
+    <color name="background">#F5F5F5</color>
+    <color name="bg_start">#F5F5F5</color>
+    <color name="bg_end">#FFF5E6</color>
+
+    <!-- Gradient Colors (Derived from Brand Colors) -->
+    <!-- Primary soft gradient (like website cards) -->
+    <color name="gradient_primary_start">#0D5A7411</color> <!-- 5% primary -->
+    <color name="gradient_primary_end">#0DA0C800</color>   <!-- 5% secondary -->
+
+    <!-- Accent soft gradient -->
+    <color name="gradient_accent_start">#0DE04E00</color>  <!-- 5% accent -->
+    <color name="gradient_accent_end">#0D9C3D10</color>    <!-- 5% dark orange -->
+
+    <!-- Mixed premium gradient -->
+    <color name="gradient_mix_start">#145A7411</color>     <!-- 8% primary -->
+    <color name="gradient_mix_end">#14E04E00</color>       <!-- 8% accent -->
+
+    <!-- Light background gradients -->
+    <color name="gradient_bg_soft_start">#F5F5F5</color>
+    <color name="gradient_bg_soft_end">#E8F0D6</color>
+
+    <!-- Card neutral gradient -->
+    <color name="gradient_card_start">#FFFFFF</color>
+    <color name="gradient_card_end">#F0F3E8</color>
+
+    <!-- Text Colors -->
+    <color name="text_dark">#5A4D47</color>
+    <color name="text_light">#FFFFFF</color>
+    <color name="warm_grey">#DEDAD4</color>
+    <color name="navy">#253746</color>
+    <color name="teal">#00869D</color>
+    <color name="olive">#698714</color>
 
     <!-- Semantic aliases -->
     <color name="purple_500">@color/primary</color>

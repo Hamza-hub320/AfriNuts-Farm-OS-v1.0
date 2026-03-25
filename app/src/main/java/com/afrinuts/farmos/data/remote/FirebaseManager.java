@@ -347,12 +347,36 @@ public class FirebaseManager {
         void onProgress(double progress);
     }
 
-    public void uploadPhoto(File photoFile, String photoId, String farmId, PhotoUploadCallback callback) {
-        StorageReference storageRef = storage.getReference()
-                .child("farms")
-                .child(farmId)
-                .child("photos")
-                .child(photoId + ".jpg");
+    // Callback for Firestore operations (success/error, no return value)
+    public interface FirestoreCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+
+    // In FirebaseManager.java
+    public void uploadPhoto(File photoFile, String photoId, String farmId,
+                            Long blockId, Long taskId, Long expenseId,
+                            PhotoUploadCallback callback) {
+
+        // Build the path without reassigning the reference
+        String path;
+
+        // Determine the correct path based on attachment type
+        if (blockId != null && blockId > 0) {
+            path = "farms/" + farmId + "/blocks/" + blockId + "/photos/" + photoId + ".jpg";
+        } else if (taskId != null && taskId > 0) {
+            path = "farms/" + farmId + "/tasks/" + taskId + "/photos/" + photoId + ".jpg";
+        } else if (expenseId != null && expenseId > 0) {
+            path = "farms/" + farmId + "/expenses/" + expenseId + "/photos/" + photoId + ".jpg";
+        } else {
+            path = "farms/" + farmId + "/photos/" + photoId + ".jpg";
+        }
+
+        final String finalPath = path;  // Make it final for lambda
+
+        StorageReference storageRef = storage.getReference().child(finalPath);
+
+        Log.d(TAG, "📤 Uploading photo to: " + finalPath);
 
         UploadTask uploadTask = storageRef.putFile(Uri.fromFile(photoFile));
 
@@ -361,9 +385,14 @@ public class FirebaseManager {
             callback.onProgress(progress);
         }).addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                Log.d(TAG, "✅ Photo uploaded successfully: " + uri.toString());
                 callback.onSuccess(uri.toString());
+            }).addOnFailureListener(e -> {
+                Log.e(TAG, "❌ Failed to get download URL", e);
+                callback.onError(e.getMessage());
             });
         }).addOnFailureListener(e -> {
+            Log.e(TAG, "❌ Upload failed", e);
             callback.onError(e.getMessage());
         });
     }
@@ -376,23 +405,55 @@ public class FirebaseManager {
         photoMap.put("taskId", photo.getTaskId());
         photoMap.put("expenseId", photo.getExpenseId());
         photoMap.put("filePath", downloadUrl);
-        photoMap.put("thumbnailPath", photo.getThumbnailPath());
         photoMap.put("caption", photo.getCaption());
         photoMap.put("takenAt", photo.getTakenAt());
-        photoMap.put("latitude", photo.getLatitude());
-        photoMap.put("longitude", photo.getLongitude());
         photoMap.put("photoType", photo.getPhotoType());
         photoMap.put("createdAt", photo.getCreatedAt());
         photoMap.put("updatedAt", System.currentTimeMillis());
 
-        // Save under farms/{farmId}/photos/{photoId}
+        String docId = String.valueOf(photo.getId());
+        Log.d(TAG, "📝 Saving photo metadata to: farms/" + farmId + "/photos/" + docId);
+
+        db.collection("farms")
+                .document(farmId)
+                .collection("photos")
+                .document(docId)
+                .set(photoMap)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Photo metadata saved"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save metadata", e));
+    }
+
+    // Overloaded version with callback
+    public void savePhotoMetadata(PhotoEntity photo, String farmId, String downloadUrl, FirestoreCallback callback) {
+        Map<String, Object> photoMap = new HashMap<>();
+        photoMap.put("id", photo.getId());
+        photoMap.put("farmId", farmId);
+        photoMap.put("blockId", photo.getBlockId());
+        photoMap.put("taskId", photo.getTaskId());
+        photoMap.put("expenseId", photo.getExpenseId());
+        photoMap.put("filePath", downloadUrl);
+        photoMap.put("caption", photo.getCaption());
+        photoMap.put("takenAt", photo.getTakenAt());
+        photoMap.put("photoType", photo.getPhotoType());
+        photoMap.put("createdAt", photo.getCreatedAt());
+        photoMap.put("updatedAt", System.currentTimeMillis());
+
+        String docId = String.valueOf(photo.getId());
+        Log.d(TAG, "📝 Saving photo metadata to: farms/" + farmId + "/photos/" + docId);
+
         db.collection(COLLECTION_FARMS)
                 .document(farmId)
                 .collection(SUBCOLLECTION_PHOTOS)
-                .document(String.valueOf(photo.getId()))
+                .document(docId)
                 .set(photoMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Photo metadata saved: " + photo.getId()))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving photo metadata", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Photo metadata saved");
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Failed to save metadata", e);
+                    if (callback != null) callback.onError(e.getMessage());
+                });
     }
 
     public Task<QuerySnapshot> getPhotosForFarm(String farmId) {

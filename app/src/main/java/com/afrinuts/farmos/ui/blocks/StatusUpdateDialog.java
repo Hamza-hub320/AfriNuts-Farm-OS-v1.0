@@ -133,9 +133,9 @@ public class StatusUpdateDialog extends DialogFragment {
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Update Block Status")
+                .setTitle("")
                 .setView(view)
-                .setPositiveButton("Update", null) // We'll override this
+                .setPositiveButton("Update", null)
                 .setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();

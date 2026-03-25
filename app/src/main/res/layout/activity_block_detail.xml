@@ -6,32 +6,83 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-            <!-- Header Card -->
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Blocks Details"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header Card - Modern Glass Morphism -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_primary">
+
+                <!-- Edge Effect (3D border) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_edge_effect"
+                    android:alpha="0.3" />
+
+                <!-- Glassy Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glassy_overlay"
+                    android:alpha="0.4" />
+
+                <!-- Inner Shadow -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_inner_shadow" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -52,7 +103,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Block A1"
-                            style="@style/Text.H1"
+                            style="@style/Text.H2"
                             android:textColor="@color/primary" />
 
                         <TextView
@@ -75,13 +126,35 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Timeline Card -->
+            <!-- Timeline Card - Modern Glass Morphism -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_secondary">
+
+                <!-- Edge Effect (3D border) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_edge_effect"
+                    android:alpha="0.3" />
+
+                <!-- Glassy Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glassy_overlay"
+                    android:alpha="0.4" />
+
+                <!-- Inner Shadow -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_inner_shadow" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -96,12 +169,20 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_today"
-                            app:tint="@color/primary"
-                            android:layout_marginEnd="8dp" />
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_icon_container_small"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_today"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -119,10 +200,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="12dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:background="@drawable/bg_card_primary"
+                        android:padding="12dp"
+                        app:cornerRadius="12dp">
 
                         <TextView
-                            android:layout_width="100dp"
+                            android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:text="Cleared:"
                             style="@style/Text.Label" />
@@ -133,7 +217,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 15, 2024"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body"
+                            android:textColor="@color/primary" />
 
                     </LinearLayout>
 
@@ -144,10 +229,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="12dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:background="@drawable/bg_card_primary"
+                        android:padding="12dp"
+                        app:cornerRadius="12dp">
 
                         <TextView
-                            android:layout_width="100dp"
+                            android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:text="Plowed:"
                             style="@style/Text.Label" />
@@ -158,7 +246,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 20, 2024"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body"
+                            android:textColor="@color/primary" />
 
                     </LinearLayout>
 
@@ -168,10 +257,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:background="@drawable/bg_card_primary"
+                        android:padding="12dp"
+                        app:cornerRadius="12dp">
 
                         <TextView
-                            android:layout_width="100dp"
+                            android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:text="Planted:"
                             style="@style/Text.Label" />
@@ -182,7 +274,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mar 25, 2024"
-                            style="@style/Text.Body.Small" />
+                            style="@style/Text.Body"
+                            android:textColor="@color/primary" />
 
                     </LinearLayout>
 
@@ -190,15 +283,39 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Add after Timeline Card or before Notes Card -->
+            <!-- Photo Gallery Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/photoSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp"
-                android:visibility="visible">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_accent"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <!-- Edge Effect (3D border) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_edge_effect"
+                    android:alpha="0.3" />
+
+                <!-- Glassy Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glassy_overlay"
+                    android:alpha="0.4" />
+
+                <!-- Inner Shadow -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_inner_shadow" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -206,19 +323,22 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
                     android:id="@+id/btnPhotoGallery">
 
-                    <ImageView
+                    <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_photo"
-                        app:tint="@color/primary"
-                        android:background="@color/warm_grey"
-                        android:padding="12dp"
-                        android:layout_marginEnd="16dp" />
+                        android:background="@drawable/bg_icon_container"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_photo"
+                            app:tint="@color/accent" />
+
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -230,14 +350,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Photos"
-                            style="@style/Text.H5" />
+                            style="@style/Text.H5"
+                            android:textColor="@color/accent" />
 
                         <TextView
                             android:id="@+id/tvPhotoCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 photos"
-                            style="@style/Text.Caption" />
+                            style="@style/Text.Caption"
+                            android:textColor="@color/navy" />
 
                     </LinearLayout>
 
@@ -257,9 +379,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:visibility="gone">
+                android:background="@drawable/bg_card_primary">
+
+                <!-- Edge Effect (3D border) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_edge_effect"
+                    android:alpha="0.3" />
+
+                <!-- Glassy Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glassy_overlay"
+                    android:alpha="0.4" />
+
+                <!-- Inner Shadow -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_inner_shadow" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -274,13 +418,20 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_grass"
-                            
-                            app:tint="@color/primary"
-                            android:layout_marginEnd="8dp" />
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_icon_container_small"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_grass"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -296,7 +447,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        style="@style/Widget.AfriNuts.EditText">
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="@android:color/white">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etSurvivalRate"
@@ -330,7 +482,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        style="@style/Widget.AfriNuts.EditText">
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="@android:color/white">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etReplacementCount"
@@ -347,23 +500,32 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:gravity="center_vertical">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_card_secondary"
+                            android:padding="12dp"
+                            app:cornerRadius="12dp">
 
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_park"
-                                
-                                app:tint="@color/primary"
-                                android:layout_marginEnd="4dp" />
+                            <FrameLayout
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/bg_icon_container_small"
+                                android:layout_marginEnd="8dp">
+
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_park"
+                                    app:tint="@color/primary" />
+
+                            </FrameLayout>
 
                             <TextView
                                 android:id="@+id/aliveTreesText"
@@ -380,14 +542,26 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="horizontal"
-                            android:gravity="end">
+                            android:gravity="end"
+                            android:background="@drawable/bg_card_secondary"
+                            android:padding="12dp"
+                            android:layout_marginStart="12dp"
+                            app:cornerRadius="12dp">
 
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_heart_broken"
-                                app:tint="@color/accent"
-                                android:layout_marginEnd="4dp" />
+                            <FrameLayout
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/bg_icon_container_small"
+                                android:layout_marginEnd="8dp">
+
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_heart_broken"
+                                    app:tint="@color/accent" />
+
+                            </FrameLayout>
 
                             <TextView
                                 android:id="@+id/deadTreesText"
@@ -411,7 +585,29 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="4dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_card_secondary">
+
+                <!-- Edge Effect (3D border) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_edge_effect"
+                    android:alpha="0.3" />
+
+                <!-- Glassy Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_glassy_overlay"
+                    android:alpha="0.4" />
+
+                <!-- Inner Shadow -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_inner_shadow" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -426,13 +622,20 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="12dp">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_note"
-                            
-                            app:tint="@color/primary"
-                            android:layout_marginEnd="8dp" />
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_icon_container_small"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_note"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -446,13 +649,15 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.AfriNuts.EditText">
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="@android:color/white">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNotes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Add notes here..."
+                            android:background="@drawable/bg_rounded_description"
                             android:inputType="textMultiLine"
                             android:minLines="3"
                             android:enabled="false" />
@@ -470,12 +675,13 @@
                 android:orientation="horizontal"
                 android:gravity="center_horizontal"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="24dp"
+                android:weightSum="2">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
@@ -483,12 +689,13 @@
                     android:backgroundTint="@color/accent"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconPadding="12dp"
+                    app:cornerRadius="28dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
@@ -496,20 +703,22 @@
                     android:backgroundTint="@color/primary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
+                    app:iconPadding="12dp"
+                    app:cornerRadius="28dp"
                     android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_weight="1"
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button"
                     android:backgroundTint="@android:color/holo_red_dark"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconPadding="12dp"
+                    app:cornerRadius="28dp" />
 
             </LinearLayout>
 
@@ -524,8 +733,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_edit"
+        android:src="@drawable/ic_edit"
         android:contentDescription="Edit block"
-        app:backgroundTint="@color/accent" />
+        app:backgroundTint="@color/accent"
+        app:tint="@android:color/white" />
 
 </LinearLayout>

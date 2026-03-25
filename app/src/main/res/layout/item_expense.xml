@@ -4,10 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    style="@style/Widget.AfriNuts.CardView"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:background="@drawable/bg_card_primary"
+    style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,16 +26,23 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <ImageView
-                android:id="@+id/ivCategoryIcon"
+            <!-- Icon with Glass Container -->
+            <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_attach_money"
-                app:tint="@color/primary"
-                android:background="@color/warm_grey"
-                android:padding="12dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Category icon" />
+                android:background="@drawable/bg_icon_container_large"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:id="@+id/ivCategoryIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/primary"
+                    android:contentDescription="Category icon" />
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -45,14 +55,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Land Clearing"
-                    style="@style/Text.H5" />
+                    style="@style/Text.H5"
+                    android:textColor="@color/primary" />
 
                 <TextView
                     android:id="@+id/tvBlockInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm-Wide"
-                    style="@style/Text.Caption" />
+                    style="@style/Text.Caption"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -61,7 +73,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5,250,000 XAF"
-                style="@style/Text.Stat.Small" />
+                style="@style/Text.Stat.Small"
+                android:textColor="@color/accent" />
 
         </LinearLayout>
 
@@ -99,7 +112,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Jan 15, 2024"
-                    style="@style/Text.Caption" />
+                    style="@style/Text.Caption"
+                    android:textColor="@color/navy" />
 
             </LinearLayout>
 
@@ -110,6 +124,7 @@
                 android:layout_weight="1"
                 android:text="Land clearing for 35-hectare plantation"
                 style="@style/Text.Caption"
+                android:textColor="@color/text_dark"
                 android:maxLines="2"
                 android:ellipsize="end" />
 

@@ -23,7 +23,6 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ public class ProfitDashboardActivity extends BaseActivity {
     private TextView marginPercent;
     private LinearLayout recentTransactionsContainer;
     private View progressBar;
+    private LinearLayout emptyView;
 
     private String currentDateRange = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
 
@@ -89,7 +89,8 @@ public class ProfitDashboardActivity extends BaseActivity {
     }
 
     private void initViews() {
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        // Note: Using AppCompat Toolbar instead of MaterialToolbar for glass morphism
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
@@ -103,17 +104,12 @@ public class ProfitDashboardActivity extends BaseActivity {
         marginPercent = findViewById(R.id.marginPercent);
         recentTransactionsContainer = findViewById(R.id.recentTransactionsContainer);
         progressBar = findViewById(R.id.progressBar);
+        emptyView = findViewById(R.id.emptyView);
     }
 
     private void setupToolbar() {
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        if (toolbar.getOverflowIcon() != null) {
-            toolbar.getOverflowIcon().setTint(
-                    getResources().getColor(android.R.color.white)
-            );
-        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -127,7 +123,7 @@ public class ProfitDashboardActivity extends BaseActivity {
             refreshData();
         });
 
-        // Configure colors for the refresh indicator - using ContextCompat.getColor()
+        // Configure colors for the refresh indicator
         swipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(this, R.color.primary),
                 ContextCompat.getColor(this, R.color.accent),
@@ -223,6 +219,7 @@ public class ProfitDashboardActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     showLoading(false);
                     swipeRefreshLayout.setRefreshing(false);
+                    showEmptyState(true);
                 });
             }
         });
@@ -328,6 +325,9 @@ public class ProfitDashboardActivity extends BaseActivity {
 
         // Recent transactions
         displayRecentTransactions();
+
+        // Hide empty state if we have data
+        showEmptyState(false);
     }
 
     private void displayRecentTransactions() {
@@ -382,12 +382,24 @@ public class ProfitDashboardActivity extends BaseActivity {
         }
     }
 
+    private void showEmptyState(boolean show) {
+        if (emptyView != null) {
+            emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (recentTransactionsContainer != null) {
+            recentTransactionsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
     private void showLoading(boolean show) {
         if (progressBar != null) {
             progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         }
         if (recentTransactionsContainer != null) {
             recentTransactionsContainer.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+        if (emptyView != null && !show) {
+            emptyView.setVisibility(View.GONE);
         }
     }
 

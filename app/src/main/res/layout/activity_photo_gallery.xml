@@ -10,16 +10,45 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
+        <!-- Modern Glass Morphism Toolbar -->
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary"
-            app:titleTextColor="@android:color/white"
-            app:navigationIconTint="@android:color/white" />
+            android:background="@drawable/bg_glass_toolbar"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:elevation="0dp"
+            android:translationZ="0dp">
 
-        <!-- Empty State (shown when no photos) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_afrinuts_foreground"
+                    android:alpha="0.95"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Photo Gallery"
+                    android:textColor="@color/text_dark"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01" />
+
+            </LinearLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- Empty State (shown when no photos) - Modern Design -->
         <LinearLayout
             android:id="@+id/emptyView"
             android:layout_width="match_parent"
@@ -28,17 +57,27 @@
             android:gravity="center"
             android:visibility="gone">
 
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_photo"
-                app:tint="@color/warm_grey" />
+            <!-- Glass Container for Icon -->
+            <FrameLayout
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:background="@drawable/bg_icon_glass_large">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_photo"
+                    app:tint="@color/warm_grey" />
+
+            </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="No photos yet"
                 style="@style/Text.H3"
+                android:textColor="@color/navy"
                 android:layout_marginTop="16dp" />
 
             <TextView
@@ -46,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:text="Tap + to add your first photo"
                 style="@style/Text.Caption"
+                android:textColor="@color/navy"
                 android:layout_marginTop="8dp" />
 
         </LinearLayout>
@@ -61,7 +101,7 @@
 
     </LinearLayout>
 
-    <!-- Floating Action Button - placed outside LinearLayout to overlay -->
+    <!-- Floating Action Button - Modern Design -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddPhoto"
         android:layout_width="wrap_content"
@@ -71,6 +111,8 @@
         android:src="@drawable/ic_add"
         android:contentDescription="Add photo"
         app:backgroundTint="@color/accent"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        app:rippleColor="@color/primary_light"
+        app:elevation="8dp" />
 
 </FrameLayout>

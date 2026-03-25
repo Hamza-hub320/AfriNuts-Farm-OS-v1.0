@@ -23,8 +23,10 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -51,6 +53,8 @@ public class TaskDetailActivity extends BaseActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
+    private LinearLayout btnPhotoGallery;
+    private TextView tvPhotoCount;
     private ImageView tvTaskIcon;
     private TextView tvTaskTitle;
     private TextView tvTaskType;
@@ -154,9 +158,6 @@ public class TaskDetailActivity extends BaseActivity {
         btnAssignWorker.setOnClickListener(v -> showAssignWorkerDialog());
         btnEdit.setOnClickListener(v -> enableEditMode());
         btnDelete.setOnClickListener(v -> confirmDelete());
-
-        // Apply role-based UI visibility
-        setupRoleBasedUI();
     }
 
     private void setupRoleBasedUI() {

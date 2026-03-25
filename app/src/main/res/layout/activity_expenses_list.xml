@@ -6,91 +6,145 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Expenses" />
-
-    <!-- Total Expenses Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="8dp"
-        style="@style/Widget.AfriNuts.CardView"
-        app:cardElevation="2dp">
+        android:background="@drawable/bg_glass_toolbar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_attach_money"
-                app:tint="@color/primary"
-                android:layout_marginEnd="8dp" />
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Expenses"
+                android:textColor="@color/text_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Total Expenses Card - Modern Glass -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        style="@style/Widget.AfriNuts.CardView"
+        android:background="@drawable/bg_card_accent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="20dp">
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_icon_glass_large"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/accent" />
+
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Total Expenses"
-                style="@style/Text.H5"
-                android:textColor="@color/navy" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/totalExpensesText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 XAF"
-                style="@style/Text.Stat" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Expenses"
+                    style="@style/Text.H5"
+                    android:textColor="@color/navy" />
+
+                <TextView
+                    android:id="@+id/totalExpensesText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 XAF"
+                    style="@style/Text.Stat"
+                    android:textColor="@color/accent"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Filter Chips -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/filterChipGroup"
+    <!-- Filter Chips - Modern Styling -->
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        android:layout_marginBottom="16dp"
+        android:scrollbars="none">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAll"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All Expenses"
-            android:checked="true"
-            style="@style/Widget.AfriNuts.Chip" />
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipFarmWide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Farm-Wide"
-            style="@style/Widget.AfriNuts.Chip" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Expenses"
+                android:checked="true"
+                style="@style/Widget.AfriNuts.Chip" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipByBlock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Per Block"
-            style="@style/Widget.AfriNuts.Chip" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFarmWide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Farm-Wide"
+                style="@style/Widget.AfriNuts.Chip" />
 
-    </com.google.android.material.chip.ChipGroup>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipByBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Per Block"
+                style="@style/Widget.AfriNuts.Chip" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
 
     <!-- Progress Bar -->
     <ProgressBar
@@ -103,7 +157,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State - Modern Design -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -113,18 +167,26 @@
         android:layout_marginTop="64dp"
         android:visibility="gone">
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_attach_money"
-            app:tint="@color/warm_grey"
-            android:contentDescription="No expenses" />
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_icon_glass_large">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_attach_money"
+                app:tint="@color/warm_grey" />
+
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No expenses yet"
             style="@style/Text.H3"
+            android:textColor="@color/navy"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -132,6 +194,7 @@
             android:layout_height="wrap_content"
             android:text="Tap + to add your first expense"
             style="@style/Text.Body.Small"
+            android:textColor="@color/navy"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
@@ -156,6 +219,7 @@
         android:src="@drawable/ic_add"
         android:contentDescription="Add expense"
         app:backgroundTint="@color/accent"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        app:rippleColor="@color/primary_light" />
 
 </LinearLayout>

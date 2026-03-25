@@ -1,88 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@color/warm_grey"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    android:background="@drawable/bg_card_secondary"
+    style="@style/Widget.AfriNuts.CardView">
 
-    <!-- Worker and Duration Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_person"
-            app:tint="@color/primary"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="Worker" />
-
-        <TextView
-            android:id="@+id/tvHistoryWorker"
-            android:layout_width="0dp"
+        <!-- Worker and Duration Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="John Doe"
-            style="@style/Text.Label"
-            android:textColor="@color/primary" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/ic_timer"
-            app:tint="@color/navy"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="Duration" />
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_icon_glass"
+                android:layout_marginEnd="12dp">
 
-        <TextView
-            android:id="@+id/tvHistoryDuration"
-            android:layout_width="wrap_content"
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/primary"
+                    android:contentDescription="Worker" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvHistoryWorker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="John Doe"
+                style="@style/Text.H6"
+                android:textColor="@color/primary" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_icon_glass"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                app:cornerRadius="16dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_timer"
+                    app:tint="@color/accent"
+                    android:layout_marginEnd="4dp"
+                    android:contentDescription="Duration" />
+
+                <TextView
+                    android:id="@+id/tvHistoryDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 days"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="@color/accent" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Dates Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2 days"
-            style="@style/Text.Caption.Small"
-            android:textColor="@color/navy" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_icon_glass"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_today"
+                    app:tint="@color/olive"
+                    android:contentDescription="Date" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvHistoryDates"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Mar 10 → Mar 12, 2024"
+                style="@style/Text.Body.Small"
+                android:textColor="@color/navy" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_arrow_forward"
+                app:tint="@color/accent"
+                android:alpha="0.7"
+                android:visibility="visible" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Dates Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/ic_today"
-            app:tint="@color/navy"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="Date" />
-
-        <TextView
-            android:id="@+id/tvHistoryDates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mar 10 → Mar 12, 2024"
-            style="@style/Text.Caption.Small"
-            android:textColor="@color/navy" />
-
-        <!-- Right arrow icon for visual flair -->
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/ic_arrow_forward"
-            app:tint="@color/navy"
-            android:layout_marginHorizontal="4dp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>
