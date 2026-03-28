@@ -364,9 +364,15 @@ public class AddRevenueDialog extends DialogFragment {
 
             // FILTER: Only show blocks that have NOT been harvested yet
             List<String> availableBlockNames = new ArrayList<>();
+            BlockEntity nextSuggestedBlock = null;
             for (BlockEntity block : sortedBlocks) {
                 if (!blocksWithRevenue.contains(block.getId())) {
                     availableBlockNames.add(block.getBlockName() + " - " + block.getStatus().getDisplayName());
+
+                    // First unharvested block becomes the suggested one
+                    if (nextSuggestedBlock == null) {
+                        nextSuggestedBlock = block;
+                    }
                 }
             }
 
@@ -383,9 +389,26 @@ public class AddRevenueDialog extends DialogFragment {
                     );
                     etBlock.setAdapter(adapter);
 
-                    // Auto-select the first available block
-                    if (!isEditMode) {
-                        etBlock.setText(availableBlockNames.get(0), false);
+                    BlockEntity tempNextSuggestedBlock = null;
+
+                    for (BlockEntity block : sortedBlocks) {
+                        if (!blocksWithRevenue.contains(block.getId())) {
+                            if (tempNextSuggestedBlock == null) {
+                                tempNextSuggestedBlock = block;
+                            }
+                        }
+                    }
+
+                    final BlockEntity finalNextSuggestedBlock = tempNextSuggestedBlock;
+
+                    // Auto-select the suggested block and show toast
+                    if (!isEditMode && finalNextSuggestedBlock != null) {
+                        String suggestedText = finalNextSuggestedBlock.getBlockName() + " - " + finalNextSuggestedBlock.getStatus().getDisplayName();
+                        etBlock.setText(suggestedText, false);
+
+                        Toast.makeText(getContext(),
+                                "Suggested next block: " + finalNextSuggestedBlock.getBlockName(),
+                                Toast.LENGTH_SHORT).show();
                     } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
                         // For edit mode, show the current block
                         for (BlockEntity block : allBlocks) {
@@ -493,6 +516,23 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             }
 
+            // Check if user is skipping order
+            BlockEntity nextExpectedBlock = null;
+            for (BlockEntity block : allBlocks) {
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByBlockId(block.getId());
+                if (revenues.isEmpty()) {
+                    nextExpectedBlock = block;
+                    break;
+                }
+            }
+
+            if (nextExpectedBlock != null && (blockId == null || nextExpectedBlock.getId() != blockId)) {
+                Toast.makeText(getContext(),
+                        "Warning: You are skipping the suggested harvest order. Next suggested block is "
+                                + nextExpectedBlock.getBlockName(),
+                        Toast.LENGTH_LONG).show();
+            }
+
             if (blockId == null) {
                 Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
                 return;
@@ -500,6 +540,7 @@ public class AddRevenueDialog extends DialogFragment {
 
             // Check if block has already been harvested
             List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByBlockId(blockId);
+            final Long finalBlockId = blockId;
             if (!existingRevenues.isEmpty()) {
                 Toast.makeText(getContext(),
                         "Block " + blockName + " has already been harvested! Each block can only be harvested once per season.",
@@ -659,7 +700,24 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             }
 
-            if (existingRevenue.getBlockId() != null && !existingRevenue.getBlockId().equals(blockId)) {
+            // Check if user is skipping order
+            BlockEntity nextExpectedBlock = null;
+            for (BlockEntity block : allBlocks) {
+                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByBlockId(block.getId());
+                if (revenues.isEmpty()) {
+                    nextExpectedBlock = block;
+                    break;
+                }
+            }
+
+            if (nextExpectedBlock != null && (blockId == null || nextExpectedBlock.getId() != blockId)) {
+                Toast.makeText(getContext(),
+                        "Warning: You are skipping the suggested harvest order. Next suggested block is "
+                                + nextExpectedBlock.getBlockName(),
+                        Toast.LENGTH_LONG).show();
+            }
+
+            if (existingRevenue.getBlockId() != null && (blockId == null || existingRevenue.getBlockId() != blockId)) {
                 Toast.makeText(getContext(),
                         "Cannot change block after harvest is recorded.",
                         Toast.LENGTH_LONG).show();

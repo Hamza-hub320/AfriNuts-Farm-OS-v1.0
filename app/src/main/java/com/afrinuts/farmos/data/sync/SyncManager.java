@@ -71,8 +71,8 @@ public class SyncManager {
     }
 
     public void init(LifecycleOwner lifecycleOwner, long farmId, SyncListener listener) {
-        if (isInitialized && this.currentFarmId == farmId && this.listener == listener) {
-            Log.d(TAG, "Already initialized with same farmId and listener");
+        if (isInitialized) {
+            Log.d(TAG, "Sync already initialized, skipping");
             return;
         }
 
@@ -103,6 +103,7 @@ public class SyncManager {
         schedulePeriodicSync();
 
         isInitialized = true;
+        Log.d(TAG, "SyncManager initialized for farm: " + farmId);
     }
 
     private void debouncedTriggerSync() {
@@ -119,6 +120,12 @@ public class SyncManager {
      * Queue an item for sync
      */
     public void queueForSync(String entityType, long entityId, SyncEntity.SyncAction action) {
+        // 🚫 CRITICAL FIX: Prevent syncing USERS from local → Firestore
+        // Users must ONLY be created from Authentication + Admin flow
+        if ("users".equalsIgnoreCase(entityType)) {
+            Log.w(TAG, "⛔ Blocking user sync to prevent duplicates. entityId: " + entityId);
+            return;
+        }
         if (currentFarmId <= 0) {
             Log.e(TAG, "No farm ID set, cannot queue sync");
             return;

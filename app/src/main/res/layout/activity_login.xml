@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background"
-    android:gravity="center_horizontal"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
+    <!-- Background Image with Overlay -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bg_farm_field"
+        android:scaleType="centerCrop"
+        android:alpha="0.6" />
+
+    <!-- Dark Overlay for better text contrast -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000" />
+
+    <!-- Your existing content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:padding="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,19 +33,19 @@
 
             <!-- Logo with Gradient Background -->
             <FrameLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_marginTop="40dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_logo_container">
+                android:layout_marginBottom="16dp">
 
                 <ImageView
                     android:id="@+id/logoImage"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_logo_afrinuts_round"
-                    android:alpha="0.95" />
+                    android:alpha="0.95"
+                    app:tint="@android:color/white" />
 
             </FrameLayout>
 
@@ -43,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="AfriNuts Farm OS"
                 style="@style/Text.H2"
-                android:textColor="@color/primary"
+                android:textColor="@android:color/white"
                 android:layout_marginBottom="4dp" />
 
             <TextView
@@ -51,7 +63,8 @@
                 android:layout_height="wrap_content"
                 android:text="Secure Farm Management"
                 style="@style/Text.Body.Small"
-                android:textColor="@color/navy"
+                android:textColor="@android:color/white"
+                android:alpha="0.9"
                 android:layout_marginBottom="32dp" />
 
             <!-- Modern Login Card with Glass Morphism -->
@@ -62,7 +75,7 @@
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
-                android:background="@drawable/bg_card_primary">
+                android:background="@drawable/bg_card_glass">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -78,9 +91,11 @@
                         android:layout_height="wrap_content"
                         android:text="Select User"
                         style="@style/Text.H5"
-                        android:textColor="@color/primary"
+                        android:textColor="@color/navy"
                         android:layout_marginBottom="16dp"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:drawableStart="@drawable/ic_cloud_lock"
+                        android:drawablePadding="8dp" />
 
                     <View
                         android:id="@+id/userSelectorDivider"
@@ -88,7 +103,8 @@
                         android:layout_height="1dp"
                         style="@style/Widget.AfriNuts.Divider"
                         android:layout_marginBottom="16dp"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:background="#33FFFFFF" />
 
                     <!-- User Chips Container -->
                     <HorizontalScrollView
@@ -177,4 +193,4 @@
 
     </ScrollView>
 
-</LinearLayout>
+</FrameLayout>

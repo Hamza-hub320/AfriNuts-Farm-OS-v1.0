@@ -7,27 +7,27 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.remote.WeatherResponse;
+import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class WeatherActivity extends AppCompatActivity {
-
-    private WeatherResponse weather;
+public class WeatherActivity extends BaseHubActivity {
 
     private TextView tvLocation;
     private TextView tvLastUpdated;
+    private ImageView ivWeatherIcon;
     private TextView tvTemp;
     private TextView tvCondition;
     private TextView tvFeelsLike;
@@ -37,53 +37,29 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView tvSunrise;
     private TextView tvSunset;
     private TextView tvFarmAdvice;
-    // REMOVED: private LinearLayout rainAlertContainer;
     private LinearLayout forecastContainer;
-    private ImageView ivIcon;
-    private CardView adviceCard;
+    private View adviceCard;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather);
+    protected int getLayoutResourceId() {
+        return R.layout.activity_weather;
+    }
 
-        setupToolbar();
+    @Override
+    protected int getCurrentNavItem() {
+        return -1; // Weather is not a main nav item
+    }
+
+    @Override
+    protected void onHubCreate(Bundle savedInstanceState) {
         initViews();
-
-        String weatherJson = getIntent().getStringExtra("weather_json");
-
-        if (weatherJson != null) {
-            weather = new Gson().fromJson(weatherJson, WeatherResponse.class);
-            displayWeather();
-            generateFarmAdvice();  // REMOVED checkRainAlert()
-        }
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
-            getSupportActionBar().setTitle("Weather Forecast");
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        loadWeatherData();
     }
 
     private void initViews() {
         tvLocation = findViewById(R.id.tvLocation);
         tvLastUpdated = findViewById(R.id.tvLastUpdated);
+        ivWeatherIcon = findViewById(R.id.ivWeatherIcon);
         tvTemp = findViewById(R.id.tvTemp);
         tvCondition = findViewById(R.id.tvCondition);
         tvFeelsLike = findViewById(R.id.tvFeelsLike);
@@ -92,16 +68,28 @@ public class WeatherActivity extends AppCompatActivity {
         tvUvIndex = findViewById(R.id.tvUvIndex);
         tvSunrise = findViewById(R.id.tvSunrise);
         tvSunset = findViewById(R.id.tvSunset);
-        // REMOVED: rainAlertContainer = findViewById(R.id.rainAlertContainer);
         tvFarmAdvice = findViewById(R.id.tvFarmAdvice);
         forecastContainer = findViewById(R.id.forecastContainer);
-        ivIcon = findViewById(R.id.ivWeatherIcon);
         adviceCard = findViewById(R.id.adviceCard);
     }
 
-    private void displayWeather() {
+    private void loadWeatherData() {
+        String weatherJson = getIntent().getStringExtra("weather_json");
+
+        if (weatherJson == null) {
+            Toast.makeText(this, "No weather data available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        WeatherResponse weather = new Gson().fromJson(weatherJson, WeatherResponse.class);
+
         if (weather == null) return;
 
+        displayWeather(weather);
+        generateFarmAdvice(weather);
+    }
+
+    private void displayWeather(WeatherResponse weather) {
         WeatherResponse.Location location = weather.getLocation();
         WeatherResponse.Current current = weather.getCurrent();
 
@@ -116,10 +104,9 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
         if (current != null) {
-            setWeatherIcon(ivIcon, current.getCondition().getText());
+            setWeatherIcon(ivWeatherIcon, current.getCondition().getText());
 
-            tvTemp.setText(String.format(Locale.getDefault(),
-                    "%.0f°C", current.getTempC()));
+            tvTemp.setText(String.format(Locale.getDefault(), "%.0f°C", current.getTempC()));
 
             if (current.getCondition() != null) {
                 tvCondition.setText(current.getCondition().getText());
@@ -137,10 +124,10 @@ public class WeatherActivity extends AppCompatActivity {
                     "%.0f", current.getUv()));
         }
 
-        displayForecast();
+        displayForecast(weather);
     }
 
-    private void displayForecast() {
+    private void displayForecast(WeatherResponse weather) {
         if (weather.getForecast() == null ||
                 weather.getForecast().getForecastday() == null) return;
 
@@ -177,10 +164,8 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
 
-    // REMOVED: checkRainAlert() method entirely
-
-    private void generateFarmAdvice() {
-        if (weather == null || weather.getForecast() == null) return;
+    private void generateFarmAdvice(WeatherResponse weather) {
+        if (weather.getForecast() == null) return;
 
         WeatherResponse.ForecastDay today = weather.getForecast().getForecastday().get(0);
         int rainChance = today.getDay().getDailyChanceOfRain();
@@ -208,7 +193,6 @@ public class WeatherActivity extends AppCompatActivity {
 
         tvFarmAdvice.setText(advice);
 
-        // Update advice card icon
         ImageView adviceIconView = adviceCard.findViewById(R.id.adviceIcon);
         if (adviceIconView != null) {
             adviceIconView.setImageResource(adviceIcon);
@@ -240,8 +224,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
+    protected boolean checkRoleAccess() {
         return true;
     }
 }

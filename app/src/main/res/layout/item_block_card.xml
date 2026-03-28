@@ -10,26 +10,6 @@
     app:cardElevation="4dp"
     android:background="@drawable/bg_card_secondary">
 
-    <!-- Edge Effect (3D border) -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_edge_effect"
-        android:alpha="0.3" />
-
-    <!-- Glassy Overlay -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_glassy_overlay"
-        android:alpha="0.4" />
-
-    <!-- Inner Shadow -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_inner_shadow" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

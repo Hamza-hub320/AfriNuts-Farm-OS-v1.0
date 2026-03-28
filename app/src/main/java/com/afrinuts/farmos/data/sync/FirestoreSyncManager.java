@@ -228,11 +228,26 @@ public class FirestoreSyncManager {
                             RevenueEntity remoteRevenue = EntityMapper.fromFirestoreRevenue(dc.getDocument());
                             if (remoteRevenue == null) continue;
 
-                            // Verify farm exists
+                            // ✅ First ensure the farm exists
                             FarmEntity farm = database.farmDao().getFarmById(remoteRevenue.getFarmId());
                             if (farm == null) {
-                                Log.w(TAG, "Skipping revenue " + remoteRevenue.getId() + " - farm not found");
+                                Log.w(TAG, "⚠️ Skipping revenue " + remoteRevenue.getId() +
+                                        " - farm " + remoteRevenue.getFarmId() + " not found");
+                                // Create default farm if it's farm 1
+                                if (remoteRevenue.getFarmId() == 1) {
+                                    createDefaultFarm();
+                                }
                                 continue;
+                            }
+
+                            // ✅ If block-specific, ensure block exists
+                            if (remoteRevenue.getBlockId() != null) {
+                                BlockEntity block = database.blockDao().getBlockById(remoteRevenue.getBlockId());
+                                if (block == null) {
+                                    Log.w(TAG, "⚠️ Skipping revenue " + remoteRevenue.getId() +
+                                            " - block " + remoteRevenue.getBlockId() + " not found");
+                                    continue;
+                                }
                             }
 
                             switch (dc.getType()) {
@@ -245,16 +260,16 @@ public class FirestoreSyncManager {
                                     if (localRevenue == null) {
                                         try {
                                             database.revenueDao().insert(remoteRevenue);
-                                            Log.d(TAG, "New revenue: " + remoteRevenue.getId());
+                                            Log.d(TAG, "✅ New revenue: " + remoteRevenue.getId());
                                         } catch (Exception e) {
                                             Log.e(TAG, "Error inserting revenue", e);
                                         }
                                     } else {
                                         if (remoteRevenue.getUpdatedAt() > localRevenue.getUpdatedAt()) {
                                             database.revenueDao().update(remoteRevenue);
-                                            Log.d(TAG, "Updated revenue (remote newer): " + remoteRevenue.getId());
+                                            Log.d(TAG, "📝 Updated revenue (remote newer): " + remoteRevenue.getId());
                                         } else {
-                                            Log.d(TAG, "Skipped revenue (local newer): " + remoteRevenue.getId());
+                                            Log.d(TAG, "⏭️ Skipped revenue (local newer): " + remoteRevenue.getId());
                                         }
                                     }
 
@@ -263,12 +278,28 @@ public class FirestoreSyncManager {
 
                                 case REMOVED:
                                     database.revenueDao().delete(remoteRevenue);
-                                    Log.d(TAG, "Revenue deleted: " + remoteRevenue.getId());
+                                    Log.d(TAG, "❌ Revenue deleted: " + remoteRevenue.getId());
                                     break;
                             }
                         }
                     });
                 });
+    }
+
+    private void createDefaultFarm() {
+        executor.execute(() -> {
+            FarmEntity farm = new FarmEntity(
+                    "AfriNuts Odienné",
+                    "Odienné, Côte d'Ivoire",
+                    35.0,
+                    35.0,
+                    100,
+                    2024
+            );
+            farm.setId(1);
+            database.farmDao().insert(farm);
+            Log.d(TAG, "Created default farm with ID: 1");
+        });
     }
 
     // ========================================
@@ -449,7 +480,6 @@ public class FirestoreSyncManager {
                                 continue;
                             }
 
-                            // Validate that user has a UID
                             if (remoteUser.getUid() == null || remoteUser.getUid().isEmpty()) {
                                 Log.e(TAG, "User has no UID, skipping");
                                 continue;
@@ -458,36 +488,42 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
-
+                                    // ✅ First try to find by UID
                                     UserEntity existingByUid = database.userDao().getUserByUid(remoteUser.getUid());
+
+                                    // ✅ If not found by UID, try by email
+                                    if (existingByUid == null && remoteUser.getEmail() != null) {
+                                        existingByUid = database.userDao().getUserByEmail(remoteUser.getEmail());
+                                    }
 
                                     isApplyingRemoteUpdate = true;
 
                                     try {
                                         if (existingByUid == null) {
-                                            remoteUser.setLocalId(0); // Let Room auto-generate ID
-
+                                            // Brand new user - insert
+                                            // ✅ Let Room auto-generate the localId
                                             long id = database.userDao().insert(remoteUser);
                                             remoteUser.setLocalId(id);
-
-                                            Log.d(TAG, "New user added from Firestore: " + remoteUser.getName() +
-                                                    " (UID: " + remoteUser.getUid() + ")");
+                                            Log.d(TAG, "✅ New user added: " + remoteUser.getName() + " (localId: " + id + ")");
                                         } else {
-                                            // Defensive check for invalid localId
-                                            if (existingByUid.getLocalId() <= 0) {
-                                                Log.w(TAG, "Existing user has invalid localId, fixing...");
-                                            }
-                                            // User exists - update, preserving local ID
+                                            // ✅ User exists - UPDATE (not insert)
+                                            boolean isOwner = "owner@afrinuts.com".equals(remoteUser.getEmail());
+
+                                            // Preserve the existing localId
                                             remoteUser.setLocalId(existingByUid.getLocalId());
 
-                                            // Compare timestamps to avoid unnecessary updates
-                                            if (remoteUser.getUpdatedAt() > existingByUid.getUpdatedAt()) {
+                                            if (isOwner) {
+                                                // Always update owner from Firestore
                                                 database.userDao().update(remoteUser);
-                                                Log.d(TAG, "Updated user from Firestore (remote newer): " +
-                                                        remoteUser.getName());
+                                                Log.d(TAG, "🔄 FORCE SYNC: Updated owner from Firestore: " + remoteUser.getName());
                                             } else {
-                                                Log.d(TAG, "kipped user update (local newer): " +
-                                                        remoteUser.getName());
+                                                // Normal users: compare timestamps
+                                                if (remoteUser.getUpdatedAt() > existingByUid.getUpdatedAt()) {
+                                                    database.userDao().update(remoteUser);
+                                                    Log.d(TAG, "📝 Updated user (remote newer): " + remoteUser.getName());
+                                                } else {
+                                                    Log.d(TAG, "⏭️ Skipped user (local newer): " + remoteUser.getName());
+                                                }
                                             }
                                         }
                                     } catch (Exception e) {
@@ -501,7 +537,7 @@ public class FirestoreSyncManager {
                                     UserEntity userToDelete = database.userDao().getUserByUid(remoteUser.getUid());
                                     if (userToDelete != null) {
                                         database.userDao().delete(userToDelete);
-                                        Log.d(TAG, "User deleted from Firestore: " + remoteUser.getName());
+                                        Log.d(TAG, "❌ User deleted: " + remoteUser.getName());
                                     }
                                     break;
                             }

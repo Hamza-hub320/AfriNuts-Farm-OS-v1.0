@@ -3,21 +3,17 @@ package com.afrinuts.farmos;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.ui.analytics.AnalyticsDashboardActivity;
+import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
-import com.afrinuts.farmos.ui.expenses.AddExpenseDialog;
+import com.afrinuts.farmos.ui.blocks.BlocksActivity;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
-import com.afrinuts.farmos.ui.expenses.ExpenseChartsActivity;
-import com.afrinuts.farmos.ui.reports.ReportsActivity;
-import com.afrinuts.farmos.ui.revenue.AddRevenueDialog;
-import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
-import com.afrinuts.farmos.ui.settings.SettingsActivity;
-import com.afrinuts.farmos.ui.tasks.TasksListActivity;
-import com.afrinuts.farmos.ui.tasks.AddTaskDialog;
-import com.afrinuts.farmos.ui.theme.CircularProgressView;
-import com.afrinuts.farmos.ui.users.UsersListActivity;
-import com.afrinuts.farmos.ui.weather.WeatherActivity;
-import com.afrinuts.farmos.ui.workers.WorkerDashboardActivity;
+import com.afrinuts.farmos.ui.farm.FarmHubActivity;
+import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
 import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
+import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
+import com.afrinuts.farmos.ui.tasks.TasksListActivity;
+import com.afrinuts.farmos.ui.theme.CircularProgressView;
+import com.afrinuts.farmos.ui.weather.WeatherActivity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
@@ -41,7 +37,6 @@ import android.view.MotionEvent;
 import java.text.SimpleDateFormat;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
@@ -53,9 +48,8 @@ import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.ui.sync.SyncStatusReceiver;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -68,18 +62,14 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.ui.blocks.BlocksActivity;
-import com.afrinuts.farmos.ui.blocks.BlockDialog;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
-import android.view.Menu;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,6 +78,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -100,15 +92,27 @@ public class MainActivity extends AppCompatActivity {
     private SyncService syncService;
     private boolean isBound = false;
     private SyncStatusReceiver syncReceiver;
-    private MenuItem syncMenuItem;
     private boolean isSyncInitialized = false;
 
+    // UI Elements - Bottom Navigation
+    private LinearLayout navHome;
+    private LinearLayout navFarm;
+    private LinearLayout navFinance;
+    private LinearLayout navAnalytics;
+    private ImageView navHomeIcon;
+    private ImageView navFarmIcon;
+    private ImageView navFinanceIcon;
+    private ImageView navAnalyticsIcon;
+    private TextView navHomeText;
+    private TextView navFarmText;
+    private TextView navFinanceText;
+    private TextView navAnalyticsText;
+
     // UI Elements - Toolbar
-    // Toolbar elements
+    private ImageButton btnProfile;
     private TextView toolbarSyncStatus;
     private TextView toolbarUserName;
     private View syncStatusDot;
-    private MaterialToolbar toolbar;
     private ImageButton btnToolbarSync;
     private ImageButton btnToolbarLogout;
 
@@ -122,7 +126,14 @@ public class MainActivity extends AppCompatActivity {
 
     // Progress Ring
     private CircularProgressView progressRing;
-    private TextView progressPercentText;
+
+    // Farm Summary Views
+    private TextView blocksPlantedText;
+    private TextView treesAliveText;
+    private ProgressBar blocksProgress;
+    private ProgressBar treesProgress;
+    private TextView blocksPercentText;
+    private TextView treesPercentText;
 
     // Financial Snapshot
     private TextView monthlyRevenueText;
@@ -131,23 +142,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView revenueTrend;
     private TextView expenseTrend;
     private TextView viewFinancialDetails;
-
-    // Quick Action Buttons
-    private CardView btnViewBlocksCard;
-    private CardView btnAddBlockCard;
-    private CardView btnTasksListCard;
-    private CardView btnAddTaskCard;
-    private CardView btnAddExpenseCard;
-    private CardView btnViewExpensesCard;
-    private CardView btnAddRevenueCard;
-    private CardView btnViewRevenueCard;
-    private CardView btnWorkerAnalyticsCard;
-    private CardView btnUsersCard;
-    private CardView btnProfitDashboardCard;
-    private CardView btnExpenseChartsCard;
-    private CardView btnReportsCard;
-    private CardView btnAnalyticsCard;
-    private CardView btnSettingsCard;
 
     // Recent Activity
     private LinearLayout recentActivityContainer;
@@ -188,6 +182,9 @@ public class MainActivity extends AppCompatActivity {
     private ListenerRegistration revenuesListener;
     private ListenerRegistration tasksListener;
 
+    // Navigation state
+    private int currentNavItem = 0; // 0=Home, 1=Farm, 2=Finance, 3=Analytics
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -209,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         sessionManager = new SessionManager(this);
 
@@ -217,10 +215,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        setContentView(R.layout.activity_main);
-
         initViews();
+        setupBottomNavigation();
         setupToolbar();
+        setupProfileButton();
 
         database = AppDatabase.getInstance(this);
 
@@ -234,12 +232,12 @@ public class MainActivity extends AppCompatActivity {
         ensureFarmExists();
 
         setupSyncManager();
-        setupRoleBasedUI();
-        setupClickListeners();
-        setupHoverEffects();
         setupWeather();
 
         loadWeatherData();
+
+        // Setup Financial Snapshot Click Listener
+        setupFinancialSnapshotClick();
     }
 
     @Override
@@ -255,6 +253,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // Shutdown executor gracefully
+        if (databaseExecutor != null && !databaseExecutor.isShutdown()) {
+            databaseExecutor.shutdown();
+            try {
+                // Wait up to 1 second for tasks to complete
+                if (!databaseExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                    databaseExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                databaseExecutor.shutdownNow();
+            }
+        }
+
         if (isBound) {
             unbindService(connection);
         }
@@ -267,15 +279,10 @@ public class MainActivity extends AppCompatActivity {
         if (weatherRepository != null) {
             weatherRepository.shutdown();
         }
-
         if (blocksListener != null) blocksListener.remove();
         if (expensesListener != null) expensesListener.remove();
         if (revenuesListener != null) revenuesListener.remove();
         if (tasksListener != null) tasksListener.remove();
-        databaseExecutor.shutdown();
-        if (firestoreSyncManager != null) {
-            firestoreSyncManager.stopListening();
-        }
     }
 
     // ========================================
@@ -283,10 +290,27 @@ public class MainActivity extends AppCompatActivity {
     // ========================================
 
     private void initViews() {
+        // Bottom Navigation
+        navHome = findViewById(R.id.navHome);
+        navFarm = findViewById(R.id.navFarm);
+        navFinance = findViewById(R.id.navFinance);
+        navAnalytics = findViewById(R.id.navAnalytics);
+        navHomeIcon = findViewById(R.id.navHomeIcon);
+        navFarmIcon = findViewById(R.id.navFarmIcon);
+        navFinanceIcon = findViewById(R.id.navFinanceIcon);
+        navAnalyticsIcon = findViewById(R.id.navAnalyticsIcon);
+        navHomeText = findViewById(R.id.navHomeText);
+        navFarmText = findViewById(R.id.navFarmText);
+        navFinanceText = findViewById(R.id.navFinanceText);
+        navAnalyticsText = findViewById(R.id.navAnalyticsText);
+
         // Toolbar
-        toolbar = findViewById(R.id.toolbar);
         btnToolbarSync = findViewById(R.id.btnToolbarSync);
         btnToolbarLogout = findViewById(R.id.btnToolbarLogout);
+        btnProfile = findViewById(R.id.btnProfile);
+        toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
+        toolbarUserName = findViewById(R.id.toolbarUserName);
+        syncStatusDot = findViewById(R.id.syncStatusDot);
 
         // Welcome Header
         welcomeUserName = findViewById(R.id.welcomeUserName);
@@ -299,6 +323,14 @@ public class MainActivity extends AppCompatActivity {
         // Progress Ring
         progressRing = findViewById(R.id.progressRing);
 
+        // Farm Summary
+        blocksPlantedText = findViewById(R.id.blocksPlantedText);
+        treesAliveText = findViewById(R.id.treesAliveText);
+        blocksProgress = findViewById(R.id.blocksProgress);
+        treesProgress = findViewById(R.id.treesProgress);
+        blocksPercentText = findViewById(R.id.blocksPercentText);
+        treesPercentText = findViewById(R.id.treesPercentText);
+
         // Financial Snapshot
         monthlyRevenueText = findViewById(R.id.monthlyRevenueText);
         monthlyExpensesText = findViewById(R.id.monthlyExpensesText);
@@ -307,27 +339,10 @@ public class MainActivity extends AppCompatActivity {
         expenseTrend = findViewById(R.id.expenseTrend);
         viewFinancialDetails = findViewById(R.id.viewFinancialDetails);
 
-        // Quick Action Buttons
-        btnViewBlocksCard = findViewById(R.id.btnViewBlocksCard);
-        btnAddBlockCard = findViewById(R.id.btnAddBlockCard);
-        btnTasksListCard = findViewById(R.id.btnTasksListCard);
-        btnAddTaskCard = findViewById(R.id.btnAddTaskCard);
-        btnAddExpenseCard = findViewById(R.id.btnAddExpenseCard);
-        btnViewExpensesCard = findViewById(R.id.btnViewExpensesCard);
-        btnAddRevenueCard = findViewById(R.id.btnAddRevenueCard);
-        btnViewRevenueCard = findViewById(R.id.btnViewRevenueCard);
-        btnWorkerAnalyticsCard = findViewById(R.id.btnWorkerAnalyticsCard);
-        btnUsersCard = findViewById(R.id.btnUsersCard);
-        btnProfitDashboardCard = findViewById(R.id.btnProfitDashboardCard);
-        btnExpenseChartsCard = findViewById(R.id.btnExpenseChartsCard);
-        btnReportsCard = findViewById(R.id.btnReportsCard);
-        btnAnalyticsCard = findViewById(R.id.btnAnalyticsCard);
-        btnSettingsCard = findViewById(R.id.btnSettingsCard);
-
         // Recent Activity
         recentActivityContainer = findViewById(R.id.recentActivityContainer);
 
-        // Weather - MODERN DESIGN (ALL VIEWS)
+        // Weather
         weatherCard = findViewById(R.id.weatherCard);
         weatherIcon = findViewById(R.id.weatherIcon);
         weatherTemp = findViewById(R.id.weatherTemp);
@@ -339,23 +354,131 @@ public class MainActivity extends AppCompatActivity {
         weatherLocationDetail = findViewById(R.id.weatherLocationDetail);
         forecastContainer = findViewById(R.id.forecastContainer);
 
-        // Toolbar (new location)
-        btnToolbarSync = findViewById(R.id.btnToolbarSync);
-        btnToolbarLogout = findViewById(R.id.btnToolbarLogout);
-        toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
-        toolbarUserName = findViewById(R.id.toolbarUserName);
-        syncStatusDot = findViewById(R.id.syncStatusDot);
-
         // Offline Banner
         offlineBanner = findViewById(R.id.offlineBanner);
     }
 
-    private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+    private void setupFinancialSnapshotClick() {
+        CardView financialCard = findViewById(R.id.financialCard);
+        if (financialCard != null) {
+            financialCard.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
+                    // Optional: Add transition animation
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                } else {
+                    Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            // Add hover effect for better UX
+            financialCard.setOnTouchListener((v, event) -> {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        v.animate().scaleX(0.98f).scaleY(0.98f).setDuration(100).start();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                        break;
+                }
+                return false;
+            });
         }
 
+        // Also handle the "View Details" text separately if needed
+        if (viewFinancialDetails != null) {
+            viewFinancialDetails.setOnClickListener(v -> {
+                if (currentFarm != null) {
+                    startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
+                }
+            });
+        }
+    }
+
+    private void setupBottomNavigation() {
+        navHome.setOnClickListener(v -> navigateToHome());
+        navFarm.setOnClickListener(v -> navigateToFarm());
+        navFinance.setOnClickListener(v -> navigateToFinance());
+        navAnalytics.setOnClickListener(v -> navigateToAnalytics());
+
+        // Set default selected state
+        setNavItemSelected(0);
+    }
+
+    private void navigateToHome() {
+        if (currentNavItem == 0) return;
+        currentNavItem = 0;
+        setNavItemSelected(0);
+        // Show home content (already visible)
+        // Refresh data
+        loadFarmData();
+    }
+
+    private void navigateToFarm() {
+        if (currentNavItem == 1) return;
+        currentNavItem = 1;
+        setNavItemSelected(1);
+        startActivity(new Intent(MainActivity.this, FarmHubActivity.class));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
+
+    private void navigateToFinance() {
+        if (currentNavItem == 2) return;
+        currentNavItem = 2;
+        setNavItemSelected(2);
+        startActivity(new Intent(MainActivity.this, FinanceHubActivity.class));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
+
+    private void navigateToAnalytics() {
+        if (currentNavItem == 3) return;
+        currentNavItem = 3;
+        setNavItemSelected(3);
+        startActivity(new Intent(MainActivity.this, AnalyticsHubActivity.class));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
+
+    private void setNavItemSelected(int position) {
+        // Reset all icons and text colors
+        int inactiveColor = getColor(R.color.navy);
+        int activeColor = getColor(R.color.primary);
+
+        navHomeIcon.setColorFilter(inactiveColor);
+        navFarmIcon.setColorFilter(inactiveColor);
+        navFinanceIcon.setColorFilter(inactiveColor);
+        navAnalyticsIcon.setColorFilter(inactiveColor);
+
+        navHomeText.setTextColor(inactiveColor);
+        navFarmText.setTextColor(inactiveColor);
+        navFinanceText.setTextColor(inactiveColor);
+        navAnalyticsText.setTextColor(inactiveColor);
+
+        // Set selected item
+        switch (position) {
+            case 0:
+                navHomeIcon.setColorFilter(activeColor);
+                navHomeText.setTextColor(activeColor);
+                break;
+            case 1:
+                navFarmIcon.setColorFilter(activeColor);
+                navFarmText.setTextColor(activeColor);
+                break;
+            case 2:
+                navFinanceIcon.setColorFilter(activeColor);
+                navFinanceText.setTextColor(activeColor);
+                break;
+            case 3:
+                navAnalyticsIcon.setColorFilter(activeColor);
+                navAnalyticsText.setTextColor(activeColor);
+                break;
+        }
+    }
+
+    private void setupToolbar() {
         if (btnToolbarSync != null) {
             btnToolbarSync.setOnClickListener(v -> {
                 if (currentFarm != null && syncManager != null) {
@@ -375,6 +498,35 @@ public class MainActivity extends AppCompatActivity {
         if (btnToolbarLogout != null) {
             btnToolbarLogout.setOnClickListener(v -> showLogoutDialog());
         }
+    }
+
+    private void setupProfileButton() {
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> showProfileMenu());
+        }
+    }
+
+    private void showProfileMenu() {
+        String[] options;
+        if (sessionManager.isOwner()) {
+            options = new String[]{"Team", "Settings"};
+        } else {
+            options = new String[]{"Settings"};
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Account")
+                .setItems(options, (dialog, which) -> {
+                    if (options[which].equals("Team")) {
+                        if (currentFarm != null) {
+                            Intent intent = new Intent(MainActivity.this, com.afrinuts.farmos.ui.users.UsersListActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (options[which].equals("Settings")) {
+                        startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.settings.SettingsActivity.class));
+                    }
+                })
+                .show();
     }
 
     // ========================================
@@ -431,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    // ========================================
+// ========================================
     // FARM MANAGEMENT
     // ========================================
 
@@ -487,82 +639,112 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadFarmData() {
-        databaseExecutor.execute(() -> {
-            FarmEntity farm = database.farmDao().getFirstFarm();
+        // ✅ Check if executor is still alive
+        if (databaseExecutor == null || databaseExecutor.isShutdown() || databaseExecutor.isTerminated()) {
+            Log.w(TAG, "loadFarmData called after executor shutdown");
+            return;
+        }
 
-            if (farm != null) {
-                List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+        try {
+            databaseExecutor.execute(() -> {
+                try {
+                    FarmEntity farm = database.farmDao().getFirstFarm();
 
-                Log.d(TAG, "Loaded " + blocks.size() + " blocks from database");
-                for (BlockEntity block : blocks) {
-                    Log.d(TAG, "Block: " + block.getBlockName() + " - Status: " + block.getStatus());
-                }
+                    if (farm != null) {
+                        List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
 
-                int totalBlocks = blocks.size();
-                int plantedBlocks = 0;
-                int totalAliveTrees = 0;
-                double totalSurvivalRate = 0;
+                        int totalBlocks = blocks.size();
+                        int plantedBlocks = 0;
+                        int totalAliveTrees = 0;
+                        double totalSurvivalRate = 0;
 
-                for (BlockEntity block : blocks) {
-                    if (block.isPlanted()) {
-                        plantedBlocks++;
-                        totalAliveTrees += block.getAliveTrees();
-                        totalSurvivalRate += block.getSurvivalRate();
+                        for (BlockEntity block : blocks) {
+                            if (block.isPlanted()) {
+                                plantedBlocks++;
+                                totalAliveTrees += block.getAliveTrees();
+                                totalSurvivalRate += block.getSurvivalRate();
+                            }
+                        }
+
+                        double avgSurvivalRate = plantedBlocks > 0 ?
+                                totalSurvivalRate / plantedBlocks : 0;
+                        int plantedProgressValue = totalBlocks > 0 ?
+                                (plantedBlocks * 100 / totalBlocks) : 0;
+
+                        final int finalTotalBlocks = totalBlocks;
+                        final int finalPlantedBlocks = plantedBlocks;
+                        final int finalTotalAliveTrees = totalAliveTrees;
+                        final double finalAvgSurvivalRate = avgSurvivalRate;
+                        final int finalPlantedProgress = plantedProgressValue;
+                        final FarmEntity finalFarm = farm;
+                        final List<BlockEntity> finalBlocks = blocks;
+
+                        runOnUiThread(() -> {
+                            currentFarm = finalFarm;
+                            allBlocks = finalBlocks;
+                            updateUI(
+                                    finalTotalBlocks,
+                                    finalPlantedBlocks,
+                                    finalTotalAliveTrees,
+                                    finalAvgSurvivalRate,
+                                    finalPlantedProgress
+                            );
+                        });
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error loading farm data", e);
                 }
-
-                double avgSurvivalRate = plantedBlocks > 0 ? totalSurvivalRate / plantedBlocks : 0;
-                int plantedProgressValue = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
-
-                final int finalTotalBlocks = totalBlocks;
-                final int finalPlantedBlocks = plantedBlocks;
-                final int finalTotalAliveTrees = totalAliveTrees;
-                final double finalAvgSurvivalRate = avgSurvivalRate;
-                final int finalPlantedProgress = plantedProgressValue;
-                final List<BlockEntity> finalBlocks = blocks;
-
-                runOnUiThread(() -> {
-                    allBlocks = finalBlocks;
-                    updateUI(finalTotalBlocks, finalPlantedBlocks, finalTotalAliveTrees,
-                            finalAvgSurvivalRate, finalPlantedProgress);
-
-                    if (currentFarm != null && currentUser != null) {
-                        setupSyncListener();
-                    }
-                });
-            }
-        });
+            });
+        } catch (RejectedExecutionException e) {
+            Log.w(TAG, "loadFarmData rejected - executor already shut down", e);
+        }
     }
 
     private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
                           double avgSurvivalRate, int plantedProgressValue) {
 
-        // Update farm stats
+        // Farm details (only for views that exist in new layout)
         if (currentFarm != null) {
+            // Update Farm Summary Card
+            int blocksPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
+            int totalTrees = (int)(currentFarm.getCashewHectares() * currentFarm.getTreesPerHectare());
+            int treesPercent = totalTrees > 0 ? (totalAliveTrees * 100 / totalTrees) : 0;
+
+            blocksPlantedText.setText(String.format(Locale.getDefault(),
+                    "%d/%d", plantedBlocks, totalBlocks));
+            treesAliveText.setText(String.format(Locale.getDefault(),
+                    "%d/%d", totalAliveTrees, totalTrees));
+
+            blocksProgress.setProgress(blocksPercent);
+            treesProgress.setProgress(treesPercent);
+
+            blocksPercentText.setText(blocksPercent + "%");
+            treesPercentText.setText(treesPercent + "%");
+
+            // Update stats cards
             totalHectaresText.setText(String.format(Locale.getDefault(),
                     "%.0f", currentFarm.getTotalHectares()));
 
-            int totalTrees = (int) (currentFarm.getCashewHectares() *
-                    currentFarm.getTreesPerHectare());
             totalTreesText.setText(String.format(Locale.getDefault(),
                     "%,d", totalTrees));
+
+            // Update welcome header
+            welcomeUserName.setText(sessionManager.getUserName() != null ?
+                    sessionManager.getUserName() : "Farmer");
+
+            // Update progress ring (circular progress)
+            updateProgressRing();
+
+            // Update financial snapshot (revenue, expenses, profit)
+            updateFinancialSnapshot();
+
+            // Load recent activity
+            loadRecentActivity();
         }
-
-        // Update progress ring (circular progress)
-        updateProgressRing();
-
-        // Update financial snapshot (revenue, expenses, profit)
-        updateFinancialSnapshot();
-
-        // Load recent activity
-        loadRecentActivity();
     }
 
     private void updateProgressRing() {
-        if (allBlocks == null || progressRing == null) {
-            Log.d(TAG, "updateProgressRing: allBlocks is null or progressRing null");
-            return;
-        }
+        if (allBlocks == null || progressRing == null) return;
 
         int totalBlocks = allBlocks.size();
         int plantedBlocks = 0;
@@ -570,16 +752,10 @@ public class MainActivity extends AppCompatActivity {
         for (BlockEntity block : allBlocks) {
             if (block.isPlanted()) {
                 plantedBlocks++;
-                Log.d(TAG, "Planted block: " + block.getBlockName());
             }
         }
 
         int progressPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
-
-        Log.d(TAG, "Total blocks: " + totalBlocks);
-        Log.d(TAG, "Planted blocks: " + plantedBlocks);
-        Log.d(TAG, "Progress percent: " + progressPercent + "%");
-
         progressRing.setProgress(progressPercent);
         progressRing.setMax(100);
     }
@@ -708,7 +884,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Add tasks
                 for (TaskEntity task : recentTasks) {
-                    if (count >= 5) break;
+                    if (count >= 3) break;
                     if (task.getUpdatedAt() >= oneWeekAgo) {
                         String blockName = getBlockName(task.getBlockId());
                         String subtitle = blockName != null ? "Block " + blockName : "Farm-Wide";
@@ -726,7 +902,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Add expenses
                 for (ExpenseEntity expense : recentExpenses) {
-                    if (count >= 5) break;
+                    if (count >= 3) break;
                     if (expense.getUpdatedAt() >= oneWeekAgo) {
                         String blockName = getBlockName(expense.getBlockId());
                         String subtitle = blockName != null ? "Block " + blockName : "Farm-Wide";
@@ -744,7 +920,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Add revenues
                 for (RevenueEntity revenue : recentRevenues) {
-                    if (count >= 5) break;
+                    if (count >= 3) break;
                     if (revenue.getUpdatedAt() >= oneWeekAgo) {
                         String blockName = getBlockName(revenue.getBlockId());
                         String subtitle = blockName != null ? "Block " + blockName : "Processing Center";
@@ -808,24 +984,6 @@ public class MainActivity extends AppCompatActivity {
         recentActivityContainer.addView(itemView);
     }
 
-    private String formatDate(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd", Locale.getDefault());
-        return sdf.format(new Date(timestamp));
-    }
-
-    private String formatCurrency(double amount) {
-        if (amount >= 1_000_000) {
-            return String.format(Locale.getDefault(), "%.1fM XAF", amount / 1_000_000);
-        } else if (amount >= 1_000) {
-            return String.format(Locale.getDefault(), "%.0fK XAF", amount / 1_000);
-        }
-        return String.format(Locale.getDefault(), "%.0f XAF", amount);
-    }
-
-    private String formatTrend(double percent) {
-        return String.format(Locale.getDefault(), "%+.1f%%", percent);
-    }
-
     private String getNextAvailableBlockName() {
         if (allBlocks == null) return "A1";
 
@@ -847,6 +1005,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return "FULL";
     }
+
 
     // ========================================
     // SYNC MANAGEMENT
@@ -873,7 +1032,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSyncStarted() {
                 runOnUiThread(() -> {
-                    // Update toolbar status
                     if (toolbarSyncStatus != null) {
                         toolbarSyncStatus.setText("Syncing...");
                         toolbarSyncStatus.setVisibility(View.VISIBLE);
@@ -890,11 +1048,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSyncCompleted(int syncedItems) {
                 runOnUiThread(() -> {
-                    // Update toolbar status
                     if (toolbarSyncStatus != null) {
                         toolbarSyncStatus.setText("Synced");
                         toolbarSyncStatus.setVisibility(View.VISIBLE);
-                        // Hide after 2 seconds
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             if (toolbarSyncStatus != null) {
                                 toolbarSyncStatus.setVisibility(View.GONE);
@@ -1319,173 +1475,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ========================================
-    // CLICK LISTENERS
-    // ========================================
-
-    private void setupRoleBasedUI() {
-        if (!sessionManager.isOwner() && btnUsersCard != null) {
-            btnUsersCard.setVisibility(View.GONE);
-        }
-
-        if (!sessionManager.canEditData()) {
-            if (btnAddBlockCard != null) btnAddBlockCard.setVisibility(View.GONE);
-            if (btnAddExpenseCard != null) btnAddExpenseCard.setVisibility(View.GONE);
-            if (btnAddRevenueCard != null) btnAddRevenueCard.setVisibility(View.GONE);
-            if (btnAddTaskCard != null) btnAddTaskCard.setVisibility(View.GONE);
-        }
-
-        if (sessionManager.isInvestor() && btnWorkerAnalyticsCard != null) {
-            btnWorkerAnalyticsCard.setVisibility(View.GONE);
-        }
-    }
-
-    private void setupClickListeners() {
-        // Farm Operations
-        btnViewBlocksCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, BlocksActivity.class));
-            }
-        });
-
-        btnAddBlockCard.setOnClickListener(v -> {
-            if (currentFarm != null && sessionManager.canEditData()) {
-                String nextBlock = getNextAvailableBlockName();
-                if (nextBlock.equals("FULL")) {
-                    Toast.makeText(this, "All 35 blocks created", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
-                dialog.setNextBlockName(nextBlock);
-                dialog.setOnBlockAddedListener(() -> loadFarmData());
-                dialog.show(getSupportFragmentManager(), "BlockDialog");
-            }
-        });
-
-        btnTasksListCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, TasksListActivity.class));
-            }
-        });
-
-        btnAddTaskCard.setOnClickListener(v -> {
-            if (currentFarm != null && sessionManager.canEditData()) {
-                AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
-                dialog.setOnTaskAddedListener(() -> loadFarmData());
-                dialog.show(getSupportFragmentManager(), "AddTaskDialog");
-            }
-        });
-
-        // Financial
-        btnAddExpenseCard.setOnClickListener(v -> {
-            if (currentFarm != null && sessionManager.canEditData()) {
-                AddExpenseDialog dialog = AddExpenseDialog.newInstance(currentFarm.getId());
-                dialog.setOnExpenseAddedListener(() -> loadFarmData());
-                dialog.show(getSupportFragmentManager(), "AddExpenseDialog");
-            }
-        });
-
-        btnViewExpensesCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, ExpensesListActivity.class));
-            }
-        });
-
-        btnAddRevenueCard.setOnClickListener(v -> {
-            if (currentFarm != null && sessionManager.canEditData()) {
-                AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
-                dialog.setOnRevenueAddedListener(() -> loadFarmData());
-                dialog.show(getSupportFragmentManager(), "AddRevenueDialog");
-            }
-        });
-
-        btnViewRevenueCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, RevenuesListActivity.class));
-            }
-        });
-
-        // Management
-        btnWorkerAnalyticsCard.setOnClickListener(v -> {
-            if (currentFarm != null && !sessionManager.isInvestor()) {
-                startActivity(new Intent(MainActivity.this, WorkerDashboardActivity.class));
-            }
-        });
-
-        btnUsersCard.setOnClickListener(v -> {
-            if (currentFarm != null && sessionManager.isOwner()) {
-                startActivity(new Intent(MainActivity.this, UsersListActivity.class));
-            }
-        });
-
-        btnProfitDashboardCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
-            }
-        });
-
-        btnExpenseChartsCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, ExpenseChartsActivity.class));
-            }
-        });
-
-        // Reports & Settings
-        btnReportsCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, ReportsActivity.class));
-            }
-        });
-
-        btnAnalyticsCard.setOnClickListener(v -> {
-            if (currentFarm != null) {
-                startActivity(new Intent(MainActivity.this, AnalyticsDashboardActivity.class));
-            }
-        });
-
-        btnSettingsCard.setOnClickListener(v -> {
-            if (sessionManager.isLoggedIn()) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            }
-        });
-
-        if (viewFinancialDetails != null) {
-            viewFinancialDetails.setOnClickListener(v -> {
-                startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
-            });
-        }
-    }
-
-    private void setupHoverEffects() {
-        View[] clickableCards = {
-                btnViewBlocksCard, btnAddBlockCard, btnTasksListCard, btnAddTaskCard,
-                btnAddExpenseCard, btnViewExpensesCard, btnAddRevenueCard, btnViewRevenueCard,
-                btnWorkerAnalyticsCard, btnUsersCard, btnProfitDashboardCard,
-                btnExpenseChartsCard, btnReportsCard, btnAnalyticsCard, btnSettingsCard,
-                weatherCard
-        };
-
-        for (View card : clickableCards) {
-            if (card != null) {
-                card.setOnTouchListener((v, event) -> {
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            v.animate().scaleX(0.98f).scaleY(0.98f).setDuration(100).start();
-                            break;
-                        case MotionEvent.ACTION_UP:
-                        case MotionEvent.ACTION_CANCEL:
-                            v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
-                            break;
-                    }
-                    return false;
-                });
-            }
-        }
-    }
-
-    // ========================================
     // WEATHER
     // ========================================
-
     private void setupWeather() {
         weatherRepository = new WeatherRepository(this);
         if (weatherCard != null) {
@@ -1530,13 +1521,11 @@ public class MainActivity extends AppCompatActivity {
         WeatherResponse.Current current = weather.getCurrent();
         WeatherResponse.Location location = weather.getLocation();
 
-        // Location - with null check
         if (weatherLocationDetail != null && location != null) {
             weatherLocationDetail.setText(location.getRegion() != null ?
                     location.getRegion() : "Côte d'Ivoire");
         }
 
-        // Update time - with null check
         if (weatherUpdateTime != null && location != null && location.getLocaltime() != null) {
             String timeStr = location.getLocaltime();
             try {
@@ -1718,6 +1707,19 @@ public class MainActivity extends AppCompatActivity {
             case PROCESSING: return R.drawable.ic_factory;
             default: return R.drawable.ic_download;
         }
+    }
+
+    private String formatCurrency(double amount) {
+        if (amount >= 1_000_000) {
+            return String.format(Locale.getDefault(), "%.1fM XAF", amount / 1_000_000);
+        } else if (amount >= 1_000) {
+            return String.format(Locale.getDefault(), "%.0fK XAF", amount / 1_000);
+        }
+        return String.format(Locale.getDefault(), "%.0f XAF", amount);
+    }
+
+    private String formatTrend(double percent) {
+        return String.format(Locale.getDefault(), "%+.1f%%", percent);
     }
 
     private String formatTimeAgo(long timestamp) {

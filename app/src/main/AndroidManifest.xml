@@ -107,6 +107,17 @@
             android:name=".ui.users.UserDetailActivity"
             android:parentActivityName=".ui.users.UsersListActivity" />
 
+        <activity
+            android:name=".ui.farm.FarmHubActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.finance.FinanceHubActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.analytics.AnalyticsHubActivity"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Add file provider for camera photos -->
         <provider
             android:name="androidx.core.content.FileProvider"

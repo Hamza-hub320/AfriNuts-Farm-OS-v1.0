@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -43,11 +44,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -84,7 +88,24 @@ public class LoginActivity extends AppCompatActivity {
         firebaseManager = FirebaseManager.getInstance();
         initViews();
 
+        cleanupDuplicateUsers();
+
+        cleanupDuplicateLocalUsers();
+
         fixExistingUserFarmIds();
+
+        // ✅ Add Firebase Auth state listener
+        FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                if (currentUser != null) {
+                    Log.d(TAG, "Auth state changed: User logged in - UID: " + currentUser.getUid());
+                    // Ensure this user exists in Firestore
+                    ensureUserInFirestore(currentUser);
+                }
+            }
+        });
 
         animateLogoEntrance();
         syncUsersFromFirestore();
@@ -106,6 +127,93 @@ public class LoginActivity extends AppCompatActivity {
         userChipsContainer = findViewById(R.id.userChipsContainer);
 
         btnLogin.setOnClickListener(v -> attemptLogin());
+    }
+
+    private void ensureUserInFirestore(FirebaseUser firebaseUser) {
+        String uid = firebaseUser.getUid();
+        String email = firebaseUser.getEmail();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        Log.w(TAG, "User exists in Auth but not in Firestore! Re-creating...");
+
+                        // ✅ First check local database for existing user
+                        databaseExecutor.execute(() -> {
+                            UserEntity localUser = database.userDao().getUserByEmail(email);
+
+                            // Determine role and name from local DB
+                            String role = "OWNER"; // Default to OWNER for owner@afrinuts.com
+                            String userName = "Farm Owner";
+                            String phone = "+225 00 00 00 00";
+                            long localId = 0;
+
+                            if (localUser != null) {
+                                // Use existing local user data
+                                role = localUser.getRole().name();
+                                userName = localUser.getName();
+                                phone = localUser.getPhone() != null ? localUser.getPhone() : "";
+                                localId = localUser.getLocalId();
+                                Log.d(TAG, "Found local user: " + userName + " with role: " + role);
+                            } else {
+                                Log.d(TAG, "No local user found, creating new owner");
+                            }
+
+                            final String finalRole = role;
+                            final String finalUserName = userName;
+                            final String finalPhone = phone;
+                            final long finalLocalId = localId;
+
+                            runOnUiThread(() -> {
+                                Map<String, Object> userMap = new HashMap<>();
+                                userMap.put("uid", uid);
+                                userMap.put("email", email);
+                                userMap.put("name", finalUserName);
+                                userMap.put("role", finalRole);
+                                userMap.put("phone", finalPhone);
+                                userMap.put("authMethod", "PASSWORD");
+                                userMap.put("isActive", true);
+                                userMap.put("farmId", "1");
+                                userMap.put("createdAt", System.currentTimeMillis());
+                                userMap.put("updatedAt", System.currentTimeMillis());
+                                if (finalLocalId > 0) {
+                                    userMap.put("localId", finalLocalId);
+                                }
+
+                                db.collection("users").document(uid)
+                                        .set(userMap)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d(TAG, "✅ Re-created user in Firestore: " + uid + " with role: " + finalRole);
+                                            loadLocalUsers();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "❌ Failed to re-create user in Firestore", e);
+                                        });
+                            });
+                        });
+                    } else {
+                        Log.d(TAG, "User exists in Firestore: " + uid);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to check user existence in Firestore", e);
+                });
+    }
+
+    private void saveToFirestore(String uid, Map<String, Object> userMap) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(uid)
+                .set(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Re-created user in Firestore: " + uid);
+                    // Refresh local users
+                    loadLocalUsers();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Failed to re-create user in Firestore", e);
+                });
     }
 
     private void animateLogoEntrance() {
@@ -156,97 +264,109 @@ public class LoginActivity extends AppCompatActivity {
                 .whereEqualTo("farmId", farmId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    Log.d(TAG, "✅ SUCCESS: Found " + queryDocumentSnapshots.size() + " users with farmId=" + farmId);
+                    Log.d(TAG, "✅ SUCCESS: Found " + queryDocumentSnapshots.size() + " users");
 
-                    // Log each user found
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        Log.d(TAG, "   User in Firestore: ID=" + doc.getId() +
-                                ", email=" + doc.getString("email") +
-                                ", name=" + doc.getString("name"));
+                    // Check if executor is still alive
+                    if (databaseExecutor.isShutdown() || databaseExecutor.isTerminated()) {
+                        Log.w(TAG, "Executor already shut down, skipping user sync");
+                        loadLocalUsers();
+                        return;
                     }
 
                     databaseExecutor.execute(() -> {
-                        int addedCount = 0;
-                        int updatedCount = 0;
-                        int skippedCount = 0;
+                        try {
+                            int addedCount = 0;
+                            int updatedCount = 0;
 
-                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                            UserEntity user = documentToUser(doc);
-                            if (user != null) {
-                                Log.d(TAG, "Processing user: " + user.getEmail() + ", UID: " + user.getUid());
+                            Set<String> firestoreUids = new HashSet<>();
 
-                                // Check if user exists by uid (Firebase Auth UID)
-                                UserEntity existing = database.userDao().getUserByUid(user.getUid());
+                            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                UserEntity user = documentToUser(doc);
+                                if (user != null && user.getUid() != null && !user.getUid().isEmpty()) {
+                                    firestoreUids.add(user.getUid());
 
-                                if (existing == null) {
-                                    // Also check by email
-                                    existing = database.userDao().getUserByEmail(user.getEmail());
-                                }
+                                    UserEntity existing = database.userDao().getUserByUid(user.getUid());
 
-                                if (existing == null) {
-                                    // Insert new user
-                                    long id = database.userDao().insert(user);
-                                    addedCount++;
-                                    Log.d(TAG, "✅ Added user: " + user.getEmail() + " (localId: " + id + ")");
-                                } else {
-                                    // User exists - check if we need to update
-                                    boolean needsUpdate = false;
-
-                                    // Update UID if missing
-                                    if (existing.getUid() == null || existing.getUid().isEmpty()) {
-                                        existing.setUid(user.getUid());
-                                        needsUpdate = true;
-                                        Log.d(TAG, "   Updating UID for " + user.getEmail() + ": " + user.getUid());
+                                    if (existing == null) {
+                                        existing = database.userDao().getUserByEmail(user.getEmail());
                                     }
 
-                                    // Update farmId if wrong
-                                    if (existing.getFarmId() != user.getFarmId()) {
-                                        existing.setFarmId(user.getFarmId());
-                                        needsUpdate = true;
-                                        Log.d(TAG, "   Updating farmId for " + user.getEmail() + ": " + user.getFarmId());
-                                    }
-
-                                    // Update name if changed
-                                    if (!existing.getName().equals(user.getName())) {
+                                    if (existing == null) {
+                                        long id = database.userDao().insert(user);
+                                        addedCount++;
+                                        Log.d(TAG, "✅ Added user: " + user.getEmail());
+                                    } else {
                                         existing.setName(user.getName());
-                                        needsUpdate = true;
-                                        Log.d(TAG, "   Updating name for " + user.getEmail() + ": " + user.getName());
-                                    }
-
-                                    if (needsUpdate) {
+                                        existing.setRole(user.getRole());
+                                        existing.setPhone(user.getPhone());
+                                        existing.setActive(user.isActive());
+                                        if (existing.getUid() == null || existing.getUid().isEmpty()) {
+                                            existing.setUid(user.getUid());
+                                        }
+                                        if (existing.getFarmId() != 1L) {
+                                            existing.setFarmId(1L);
+                                        }
                                         database.userDao().update(existing);
                                         updatedCount++;
                                         Log.d(TAG, "📝 Updated user: " + user.getEmail());
-                                    } else {
-                                        skippedCount++;
-                                        Log.d(TAG, "⏭️ Skipped user (no changes): " + user.getEmail());
                                     }
                                 }
-                            } else {
-                                Log.e(TAG, "❌ Failed to convert document to user: " + doc.getId());
                             }
+
+                            List<UserEntity> localUsers = database.userDao().getAllUsers();
+                            for (UserEntity localUser : localUsers) {
+                                if (localUser.getUid() != null && !localUser.getUid().isEmpty()) {
+                                    if (!firestoreUids.contains(localUser.getUid())) {
+                                        Log.w(TAG, "⚠️ User exists locally but NOT in Firestore: " + localUser.getEmail());
+                                        saveUserToFirestore(localUser);
+                                    }
+                                }
+                            }
+
+                            final int finalAddedCount = addedCount;
+                            final int finalUpdatedCount = updatedCount;
+
+                            runOnUiThread(() -> {
+                                Log.d(TAG, "Added: " + finalAddedCount + ", Updated: " + finalUpdatedCount);
+                                loadLocalUsers();
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error in user sync", e);
+                            runOnUiThread(() -> loadLocalUsers());
                         }
-
-                        final int finalAddedCount = addedCount;
-                        final int finalUpdatedCount = updatedCount;
-                        final int finalSkippedCount = skippedCount;
-
-                        runOnUiThread(() -> {
-                            Log.d(TAG, "========== SYNC COMPLETE ==========");
-                            Log.d(TAG, "Added: " + finalAddedCount);
-                            Log.d(TAG, "Updated: " + finalUpdatedCount);
-                            Log.d(TAG, "Skipped: " + finalSkippedCount);
-                            Log.d(TAG, "================================");
-
-                            // AFTER users are synced, load local users
-                            loadLocalUsers();
-                        });
                     });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "❌ FAILED to sync users from Firestore", e);
-                    Log.e(TAG, "Error details: " + e.getMessage());
+                    Log.e(TAG, "❌ Failed to sync users", e);
                     loadLocalUsers();
+                });
+    }
+
+    // ✅ Add this helper method
+    private void saveUserToFirestore(UserEntity user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("uid", user.getUid());
+        userMap.put("localId", user.getLocalId());
+        userMap.put("name", user.getName());
+        userMap.put("role", user.getRole().name());
+        userMap.put("phone", user.getPhone());
+        userMap.put("email", user.getEmail());
+        userMap.put("authMethod", user.getAuthMethod().name());
+        userMap.put("isActive", user.isActive());
+        userMap.put("createdAt", user.getCreatedAt());
+        userMap.put("updatedAt", System.currentTimeMillis());
+        userMap.put("farmId", String.valueOf(user.getFarmId()));
+
+        db.collection("users")
+                .document(user.getUid())
+                .set(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Saved missing user to Firestore: " + user.getEmail());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Failed to save missing user: " + user.getEmail(), e);
                 });
     }
 
@@ -403,6 +523,71 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to sync tasks", e));
+    }
+
+    private void cleanupDuplicateLocalUsers() {
+        databaseExecutor.execute(() -> {
+            List<UserEntity> allUsers = database.userDao().getAllUsers();
+            Log.d(TAG, "Cleaning up " + allUsers.size() + " local users");
+
+            // Map to track unique UIDs and emails
+            Map<String, UserEntity> uniqueByUid = new HashMap<>();
+            Map<String, UserEntity> uniqueByEmail = new HashMap<>();
+            List<UserEntity> toDelete = new ArrayList<>();
+
+            for (UserEntity user : allUsers) {
+                String uid = user.getUid();
+                String email = user.getEmail();
+
+                // Check by UID
+                if (uid != null && !uid.isEmpty()) {
+                    if (uniqueByUid.containsKey(uid)) {
+                        // Duplicate UID found - mark for deletion
+                        toDelete.add(user);
+                        Log.d(TAG, "Duplicate by UID: " + uid + " (keeping " + uniqueByUid.get(uid).getLocalId() + ", deleting " + user.getLocalId() + ")");
+                    } else {
+                        uniqueByUid.put(uid, user);
+                    }
+                }
+
+                // Check by email (for users without UID)
+                if (email != null && !email.isEmpty()) {
+                    if (uniqueByEmail.containsKey(email)) {
+                        // Duplicate email found - mark for deletion
+                        if (!toDelete.contains(user)) {
+                            toDelete.add(user);
+                            Log.d(TAG, "Duplicate by email: " + email + " (keeping " + uniqueByEmail.get(email).getLocalId() + ", deleting " + user.getLocalId() + ")");
+                        }
+                    } else {
+                        uniqueByEmail.put(email, user);
+                    }
+                }
+            }
+
+            // Delete duplicates
+            for (UserEntity user : toDelete) {
+                database.userDao().delete(user);
+                Log.d(TAG, "Deleted duplicate user: " + user.getName() + " (ID: " + user.getLocalId() + ")");
+            }
+
+            // Verify owner exists and has correct data
+            UserEntity owner = database.userDao().getUserByEmail("owner@afrinuts.com");
+            if (owner != null) {
+                Log.d(TAG, "Owner exists: " + owner.getName() + " (ID: " + owner.getLocalId() + ", UID: " + owner.getUid() + ")");
+
+                // Ensure owner has correct phone number
+                if (owner.getPhone() == null || owner.getPhone().isEmpty()) {
+                    owner.setPhone("+225 00 00 00 00");
+                    database.userDao().update(owner);
+                    Log.d(TAG, "Updated owner phone number");
+                }
+            }
+
+            runOnUiThread(() -> {
+                Log.d(TAG, "Cleanup complete. Removed " + toDelete.size() + " duplicates.");
+                loadLocalUsers();
+            });
+        });
     }
 
     // ========================================
@@ -724,38 +909,37 @@ public class LoginActivity extends AppCompatActivity {
                 // Create owner in local DB if not exists
                 String hashedPassword = AuthUtils.hash("admin123");
 
-                // Create with placeholder UID, will be updated after Firebase Auth
-                // IMPORTANT: farmId should be 1 (your default farm)
-                long defaultFarmId = 1L;
-
+                // ✅ Ensure role is OWNER and name is "Farm Owner"
                 owner = new UserEntity(
                         "", // Temporary UID, will be updated
-                        "Farm Owner",
-                        UserEntity.UserRole.OWNER,
+                        "Farm Owner",  // ← Correct name
+                        UserEntity.UserRole.OWNER,  // ← Correct role
                         "+225 00 00 00 00",
                         "owner@afrinuts.com",
                         hashedPassword,
-                        defaultFarmId  // ← Set farmId correctly here
+                        1L // farmId
                 );
 
                 // Insert into local DB
                 long localId = database.userDao().insert(owner);
                 owner.setLocalId(localId);
-                Log.d(TAG, "Created owner in local DB");
-            }
+                Log.d(TAG, "✅ Created owner in local DB with name: Farm Owner, role: OWNER");
+            } else {
+                // ✅ Ensure existing owner has correct role and name
+                boolean needsUpdate = false;
 
-            // If we have a Firebase user, update the UID to match
-            if (firebaseUser != null && owner != null) {
-                boolean needsUpdate = false;  // ← Declare the variable here
-
-                String realUid = firebaseUser.getUid();
-                if (!realUid.equals(owner.getUid())) {
-                    owner.setUid(realUid);
+                if (owner.getRole() != UserEntity.UserRole.OWNER) {
+                    owner.setRole(UserEntity.UserRole.OWNER);
                     needsUpdate = true;
-                    Log.d(TAG, "Updated local owner with real Firebase UID: " + realUid);
+                    Log.d(TAG, "Fixed owner role to OWNER");
                 }
 
-                // ✅ Ensure farmId is 1
+                if (!"Farm Owner".equals(owner.getName())) {
+                    owner.setName("Farm Owner");
+                    needsUpdate = true;
+                    Log.d(TAG, "Fixed owner name to Farm Owner");
+                }
+
                 if (owner.getFarmId() != 1L) {
                     owner.setFarmId(1L);
                     needsUpdate = true;
@@ -764,9 +948,33 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (needsUpdate) {
                     database.userDao().update(owner);
+                    Log.d(TAG, "✅ Updated existing owner with correct data");
+                } else {
+                    Log.d(TAG, "Owner already exists in local DB with correct data");
+                }
+            }
+
+            // If we have a Firebase user, update the UID and save to Firestore
+            if (firebaseUser != null && owner != null) {
+                boolean needsUpdate = false;
+                String realUid = firebaseUser.getUid();
+
+                if (!realUid.equals(owner.getUid())) {
+                    owner.setUid(realUid);
+                    needsUpdate = true;
+                    Log.d(TAG, "Updated local owner with real Firebase UID: " + realUid);
                 }
 
-                // Save to Firestore with correct UID
+                if (owner.getFarmId() != 1L) {
+                    owner.setFarmId(1L);
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate) {
+                    database.userDao().update(owner);
+                }
+
+                // Save to Firestore with correct UID and role
                 saveOwnerToFirestore(owner);
             } else {
                 Log.d(TAG, "No Firebase user yet, will save after authentication");
@@ -787,36 +995,134 @@ public class LoginActivity extends AppCompatActivity {
         // CRITICAL: Use the REAL Firebase UID as document ID
         String realUid = currentUser.getUid();
 
-        // ✅ Ensure farmId is correct (should be 1, not "0")
-        String farmIdStr = String.valueOf(owner.getFarmId() != 0 ? owner.getFarmId() : 1L);
+        // ✅ Ensure role is OWNER
+        String role = "OWNER";
+        String name = "Farm Owner";
+
+        if (owner != null) {
+            if (owner.getRole() == UserEntity.UserRole.OWNER) {
+                role = "OWNER";
+            } else {
+                Log.w(TAG, "Owner role was " + owner.getRole() + ", forcing to OWNER");
+            }
+            name = owner.getName();
+            if (name == null || name.isEmpty() || !name.equals("Farm Owner")) {
+                name = "Farm Owner";
+            }
+        }
 
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("uid", realUid);  // Store the real UID
-        userMap.put("localId", owner.getLocalId());
-        userMap.put("name", owner.getName());
-        userMap.put("role", owner.getRole().name());
-        userMap.put("phone", owner.getPhone());
-        userMap.put("email", owner.getEmail());
-        userMap.put("authMethod", owner.getAuthMethod().name());
-        userMap.put("isActive", owner.isActive());
-        userMap.put("createdAt", owner.getCreatedAt());
-        userMap.put("farmId", String.valueOf(owner.getFarmId()));
+        userMap.put("uid", realUid);
+        userMap.put("localId", owner != null ? owner.getLocalId() : 1);
+        userMap.put("name", name);
+        userMap.put("role", role);  // ← Ensure role is OWNER
+        userMap.put("phone", owner != null ? owner.getPhone() : "+225 00 00 00 00");
+        userMap.put("email", "owner@afrinuts.com");
+        userMap.put("authMethod", "PASSWORD");
+        userMap.put("isActive", true);
+        userMap.put("createdAt", owner != null ? owner.getCreatedAt() : System.currentTimeMillis());
+        userMap.put("farmId", "1");
 
-        Log.d(TAG, "Saving owner to Firestore with UID: " + realUid);
+        Log.d(TAG, "Saving owner to Firestore with UID: " + realUid + ", role: " + role + ", name: " + name);
 
         db.collection("users")
-                .document(realUid)  // Use REAL Firebase UID as document ID
+                .document(realUid)
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "✅ Owner saved to Firestore with UID: " + realUid);
-
-                    // Also update local user with the correct UID
-                    owner.setUid(realUid);
-                    database.userDao().update(owner);
+                    Log.d(TAG, "✅ Owner saved to Firestore with UID: " + realUid + ", role: OWNER");
+                    if (owner != null && !realUid.equals(owner.getUid())) {
+                        owner.setUid(realUid);
+                        database.userDao().update(owner);
+                    }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "❌ Error saving owner to Firestore", e);
                 });
+    }
+
+    private void authenticateWithEmail(String email, String password) {
+        Log.d(TAG, "Attempting login with email: " + email);
+
+        // First check if user exists locally and verify password
+        databaseExecutor.execute(() -> {
+            UserEntity localUser = database.userDao().getUserByEmail(email);
+            if (localUser != null) {
+                Log.d(TAG, "Local user found: " + localUser.getName() + ", role: " + localUser.getRole());
+                Log.d(TAG, "Local password hash: " + localUser.getPasswordHash());
+                Log.d(TAG, "Entered password hash: " + AuthUtils.hash(password));
+
+                if (localUser.getPasswordHash() != null &&
+                        localUser.getPasswordHash().equals(AuthUtils.hash(password))) {
+                    Log.d(TAG, "Local password verification SUCCESS");
+                    // Proceed with Firebase auth
+                } else {
+                    Log.w(TAG, "Local password verification FAILED");
+                }
+            } else {
+                Log.d(TAG, "No local user found with email: " + email);
+            }
+        });
+
+        firebaseManager.signInWithEmail(email, password, new FirebaseManager.AuthCallback() {
+            @Override
+            public void onSuccess(FirebaseUser user) {
+                Log.d(TAG, "Firebase auth SUCCESS for UID: " + user.getUid());
+                // After Firebase success, ensure user exists in local DB
+                ensureUserInLocalDB(user);
+                loginSuccess();
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Firebase auth FAILED: " + error);
+                loginFailed("Authentication failed: " + error);
+            }
+        });
+    }
+
+    private void ensureUserInLocalDB(FirebaseUser firebaseUser) {
+        databaseExecutor.execute(() -> {
+            UserEntity existingUser = database.userDao().getUserByUid(firebaseUser.getUid());
+
+            if (existingUser == null) {
+                // User doesn't exist in local DB, create from Firebase data
+                Log.d(TAG, "Creating local user from Firebase data");
+
+                String email = firebaseUser.getEmail();
+                String name = email != null ? email.split("@")[0] : "User";
+
+                // Check if this is the owner email
+                if ("owner@afrinuts.com".equals(email)) {
+                    name = "Farm Owner";
+                    UserEntity owner = new UserEntity(
+                            firebaseUser.getUid(),
+                            name,
+                            UserEntity.UserRole.OWNER,
+                            "+225 00 00 00 00",
+                            email,
+                            AuthUtils.hash("admin123"), // Default password hash
+                            1L
+                    );
+                    database.userDao().insert(owner);
+                    Log.d(TAG, "✅ Created owner in local DB with password hash for 'admin123'");
+                } else {
+                    // For other users, create with temporary data
+                    UserEntity user = new UserEntity(
+                            firebaseUser.getUid(),
+                            name,
+                            UserEntity.UserRole.MANAGER,
+                            "",
+                            email,
+                            "", // No password hash for now
+                            1L
+                    );
+                    database.userDao().insert(user);
+                    Log.d(TAG, "Created local user: " + name);
+                }
+            } else {
+                Log.d(TAG, "User already exists in local DB");
+            }
+        });
     }
 
     private void fixExistingUserFarmIds() {
@@ -840,38 +1146,56 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadLocalUsers() {
+        // Check if executor is already shut down
+        if (databaseExecutor.isShutdown() || databaseExecutor.isTerminated()) {
+            Log.w(TAG, "loadLocalUsers called after executor shutdown");
+            return;
+        }
+
         databaseExecutor.execute(() -> {
-            List<UserEntity> userList = database.userDao().getAllUsers();
+            try {
+                List<UserEntity> userList = database.userDao().getAllUsers();
 
-            // Remove any potential duplicates by UID (keep the first occurrence)
-            Map<String, UserEntity> uniqueByUid = new LinkedHashMap<>();
-            for (UserEntity user : userList) {
-                String key = user.getUid();
-                if (key == null || key.isEmpty()) {
-                    // For users without UID (PIN users), use email
-                    key = user.getEmail();
+                // Remove any potential duplicates by UID (keep the first occurrence)
+                Map<String, UserEntity> uniqueByUid = new LinkedHashMap<>();
+                for (UserEntity user : userList) {
+                    String key = user.getUid();
+                    if (key == null || key.isEmpty()) {
+                        // For users without UID (PIN users), use email
+                        key = user.getEmail();
+                    }
+                    if (!uniqueByUid.containsKey(key)) {
+                        uniqueByUid.put(key, user);
+                    }
                 }
-                if (!uniqueByUid.containsKey(key)) {
-                    uniqueByUid.put(key, user);
-                }
+
+                List<UserEntity> uniqueUsers = new ArrayList<>(uniqueByUid.values());
+
+                runOnUiThread(() -> {
+                    users = uniqueUsers;
+                    if (users.isEmpty()) {
+                        createDefaultOwner();
+                    } else {
+                        displayUserChips();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading local users", e);
+                runOnUiThread(() -> {
+                    Toast.makeText(LoginActivity.this, "Error loading users", Toast.LENGTH_SHORT).show();
+                });
             }
-
-            List<UserEntity> uniqueUsers = new ArrayList<>(uniqueByUid.values());
-
-            runOnUiThread(() -> {
-                users = uniqueUsers;
-                if (users.isEmpty()) {
-                    createDefaultOwner();
-                } else {
-                    displayUserChips();
-                }
-            });
         });
     }
 
     private void createDefaultOwner() {
         String defaultEmail = "owner@afrinuts.com";
         String defaultPassword = "admin123";
+
+        // Log the hash for debugging
+        String hashedPassword = AuthUtils.hash(defaultPassword);
+        Log.d(TAG, "Creating default owner with password hash: " + hashedPassword);
+        Log.d(TAG, "Expected password: admin123");
 
         Toast.makeText(this, "Creating default owner...", Toast.LENGTH_SHORT).show();
 
@@ -925,20 +1249,62 @@ public class LoginActivity extends AppCompatActivity {
                 "+225 00 00 00 00",
                 email,
                 hashedPassword,
-                1L // farmId
+                defaultFarmId
         );
 
         databaseExecutor.execute(() -> {
             UserEntity existing = database.userDao().getUserByEmail(email);
+
             if (existing == null) {
-                database.userDao().insert(owner);
-            } else if (existing.getUid() == null || existing.getUid().isEmpty()) {
-                existing.setUid(firebaseUid);
+                // No existing user - insert new
+                long id = database.userDao().insert(owner);
+                owner.setLocalId(id);
+                Log.d(TAG, "✅ Created new owner in local DB");
+            } else {
+                // User exists - check what needs updating
+                boolean needsUpdate = false;
+
+                // Update UID if missing
+                if (existing.getUid() == null || existing.getUid().isEmpty()) {
+                    existing.setUid(firebaseUid);
+                    needsUpdate = true;
+                    Log.d(TAG, "   Updated UID: " + firebaseUid);
+                }
+
+                // Update role to OWNER if not already
+                if (existing.getRole() != UserEntity.UserRole.OWNER) {
+                    existing.setRole(UserEntity.UserRole.OWNER);
+                    needsUpdate = true;
+                    Log.d(TAG, "   Updated role to OWNER");
+                }
+
+                // Update name to "Farm Owner" if different
+                if (!"Farm Owner".equals(existing.getName())) {
+                    existing.setName("Farm Owner");
+                    needsUpdate = true;
+                    Log.d(TAG, "   Updated name to Farm Owner");
+                }
+
+                // Update phone if missing
+                if (existing.getPhone() == null || existing.getPhone().isEmpty()) {
+                    existing.setPhone("+225 00 00 00 00");
+                    needsUpdate = true;
+                    Log.d(TAG, "   Updated phone");
+                }
+
+                // Update farmId if incorrect
                 if (existing.getFarmId() != 1L) {
                     existing.setFarmId(1L);
+                    needsUpdate = true;
+                    Log.d(TAG, "   Updated farmId to 1");
                 }
-                database.userDao().update(existing);
-                Log.d(TAG, "Updated existing user with farmId: " + existing.getFarmId());
+
+                if (needsUpdate) {
+                    database.userDao().update(existing);
+                    Log.d(TAG, "📝 Updated existing user with correct data");
+                } else {
+                    Log.d(TAG, "✅ Existing user already has correct data");
+                }
             }
 
             runOnUiThread(() -> {
@@ -947,6 +1313,144 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 loadLocalUsers();
             });
+        });
+    }
+
+    private void forceSyncOwnerFromFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String ownerEmail = "owner@afrinuts.com";
+
+        // Get current Firebase user UID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.w(TAG, "No Firebase user, cannot force sync owner");
+            return;
+        }
+
+        String ownerUid = currentUser.getUid();
+
+        db.collection("users").document(ownerUid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        UserEntity firestoreOwner = documentToUser(documentSnapshot);
+                        if (firestoreOwner != null) {
+                            databaseExecutor.execute(() -> {
+                                UserEntity localOwner = database.userDao().getUserByEmail(ownerEmail);
+
+                                if (localOwner != null) {
+                                    // Force update local owner with Firestore data
+                                    boolean needsUpdate = false;
+
+                                    if (!"Farm Owner".equals(firestoreOwner.getName())) {
+                                        localOwner.setName("Farm Owner");
+                                        needsUpdate = true;
+                                    }
+
+                                    if (localOwner.getRole() != UserEntity.UserRole.OWNER) {
+                                        localOwner.setRole(UserEntity.UserRole.OWNER);
+                                        needsUpdate = true;
+                                    }
+
+                                    if (localOwner.getPhone() == null || localOwner.getPhone().isEmpty()) {
+                                        localOwner.setPhone("+225 00 00 00 00");
+                                        needsUpdate = true;
+                                    }
+
+                                    if (localOwner.getUid() == null || localOwner.getUid().isEmpty()) {
+                                        localOwner.setUid(ownerUid);
+                                        needsUpdate = true;
+                                    }
+
+                                    if (needsUpdate) {
+                                        database.userDao().update(localOwner);
+                                        Log.d(TAG, "✅ Force synced owner from Firestore");
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to force sync owner", e));
+    }
+
+    private void cleanupDuplicateUsers() {
+        databaseExecutor.execute(() -> {
+            // Get all users
+            List<UserEntity> allUsers = database.userDao().getAllUsers();
+
+            // Find users with same email
+            Map<String, List<UserEntity>> usersByEmail = new HashMap<>();
+            for (UserEntity user : allUsers) {
+                String email = user.getEmail();
+                if (email != null && !email.isEmpty()) {
+                    usersByEmail.computeIfAbsent(email, k -> new ArrayList<>()).add(user);
+                }
+            }
+
+            for (Map.Entry<String, List<UserEntity>> entry : usersByEmail.entrySet()) {
+                List<UserEntity> duplicates = entry.getValue();
+                if (duplicates.size() > 1) {
+                    Log.d(TAG, "Found " + duplicates.size() + " users with email: " + entry.getKey());
+
+                    // Keep the one with the correct UID (if available)
+                    UserEntity keeper = null;
+                    for (UserEntity user : duplicates) {
+                        if (user.getUid() != null && !user.getUid().isEmpty()) {
+                            keeper = user;
+                            break;
+                        }
+                    }
+
+                    // If no UID, keep the one with the phone number
+                    if (keeper == null) {
+                        for (UserEntity user : duplicates) {
+                            if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                                keeper = user;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Delete all others
+                    if (keeper != null) {
+                        for (UserEntity user : duplicates) {
+                            if (user.getLocalId() != keeper.getLocalId()) {
+                                database.userDao().delete(user);
+                                Log.d(TAG, "Deleted duplicate user: " + user.getName() + " (ID: " + user.getLocalId() + ")");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Ensure owner has correct data
+            UserEntity owner = database.userDao().getUserByEmail("owner@afrinuts.com");
+            if (owner != null) {
+                boolean needsUpdate = false;
+
+                if (owner.getRole() != UserEntity.UserRole.OWNER) {
+                    owner.setRole(UserEntity.UserRole.OWNER);
+                    needsUpdate = true;
+                }
+
+                if (!"Farm Owner".equals(owner.getName())) {
+                    owner.setName("Farm Owner");
+                    needsUpdate = true;
+                }
+
+                if (owner.getPhone() == null || owner.getPhone().isEmpty()) {
+                    owner.setPhone("+225 00 00 00 00");
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate) {
+                    database.userDao().update(owner);
+                    Log.d(TAG, "Updated owner with correct data");
+                }
+            }
+
+            // Reload users
+            runOnUiThread(this::loadLocalUsers);
         });
     }
 
@@ -1091,20 +1595,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void authenticateWithEmail(String email, String password) {
-        firebaseManager.signInWithEmail(email, password, new FirebaseManager.AuthCallback() {
-            @Override
-            public void onSuccess(FirebaseUser user) {
-                loginSuccess();
-            }
-
-            @Override
-            public void onError(String error) {
-                loginFailed("Authentication failed: " + error);
-            }
-        });
-    }
-
+    // After successful login
     private void loginSuccess() {
         selectedUser.setLastLoginAt(System.currentTimeMillis());
 
@@ -1114,6 +1605,11 @@ public class LoginActivity extends AppCompatActivity {
             sessionManager.createLoginSession(selectedUser);
 
             runOnUiThread(() -> {
+                // ✅ Force sync owner data after login
+                if ("owner@afrinuts.com".equals(selectedUser.getEmail())) {
+                    forceSyncOwnerFromFirestore();
+                }
+
                 // Success animation
                 btnLogin.animate().scaleX(1.05f).scaleY(1.05f).setDuration(150)
                         .withEndAction(() -> {
@@ -1156,6 +1652,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Shutdown executor gracefully
         databaseExecutor.shutdown();
+        // Optionally await termination
+        try {
+            if (!databaseExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                databaseExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            databaseExecutor.shutdownNow();
+        }
     }
 }

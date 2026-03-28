@@ -26,14 +26,14 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends BaseHubActivity {
 
     private CardView cardChangePassword;
     private CardView cardChangePin;
@@ -56,24 +56,27 @@ public class SettingsActivity extends BaseActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+    protected int getLayoutResourceId() {
+        return R.layout.activity_settings;
+    }
 
+    @Override
+    protected int getCurrentNavItem() {
+        return -1;
+    }
+
+    @Override
+    protected void onHubCreate(Bundle savedInstanceState) {
         database = AppDatabase.getInstance(this);
         syncManager = SyncManager.getInstance(this);
         firebaseManager = FirebaseManager.getInstance();
 
         initViews();
-        setupToolbar();
         setupClickListeners();
         loadSettings();
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         cardChangePassword = findViewById(R.id.cardChangePassword);
         cardChangePin = findViewById(R.id.cardChangePin);
         cardLanguage = findViewById(R.id.cardLanguage);
@@ -95,16 +98,7 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
-            getSupportActionBar().setTitle("Settings");
-        }
-    }
+
 
     private void setupClickListeners() {
         cardChangePassword.setOnClickListener(v -> showChangePasswordDialog());
@@ -470,7 +464,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,161 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:ndroid="http://schemas.android.com/tools"
     android:background="@color/background">
 
-    <LinearLayout
+    <!-- Main Scrollable Content (Home Screen) -->
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:layout_marginBottom="80dp"
+        android:scrollbars="vertical">
 
-        <include layout="@layout/toolbar_main" />
-
-        <!-- ========== WELCOME HEADER ========== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp">
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- ========== TOOLBAR ========== -->
+            <include layout="@layout/toolbar_main" />
+
+            <!-- ========== WELCOME HEADER ========== -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Good morning,"
-                style="@style/Text.Body"
-                android:textColor="@color/navy" />
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
 
-            <TextView
-                android:id="@+id/welcomeUserName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hamza"
-                style="@style/Text.H2"
-                android:textColor="@color/primary"
-                android:layout_marginBottom="4dp" />
-
-            <TextView
-                android:id="@+id/locationText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Odienné, Côte d'Ivoire"
-                style="@style/Text.Caption"
-                android:drawableStart="@drawable/ic_location"
-                android:drawablePadding="4dp" />
-
-        </LinearLayout>
-
-        <!-- ========== STATS CARDS (Progress Ring + Quick Stats) ========== -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp"
-            android:weightSum="2">
-
-            <!-- Progress Ring Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:background="@drawable/bg_card_secondary">
-
-                <!-- Edge Effect (3D border) -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
-
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_glassy_overlay"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="20dp"
-                    android:background="@drawable/bg_card_accent">
+                    android:text="Good morning,"
+                    style="@style/Text.Body"
+                    android:textColor="@color/navy" />
 
-                    <com.afrinuts.farmos.ui.theme.CircularProgressView
-                        android:id="@+id/progressRing"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        app:progressColor="@color/primary"
-                        app:backgroundColor="@color/warm_grey"
-                        app:textColor="@color/primary"
-                        app:textSize="32sp" />
+                <TextView
+                    android:id="@+id/welcomeUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hamza"
+                    style="@style/Text.H2"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/locationText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Odienné, Côte d'Ivoire"
+                    style="@style/Text.Caption"
+                    android:drawableStart="@drawable/ic_location"
+                    android:drawablePadding="4dp" />
+
+            </LinearLayout>
+
+            <!-- ========== STATS CARDS ========== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp"
+                android:weightSum="2">
+
+                <!-- Progress Ring Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    style="@style/Widget.AfriNuts.CardView"
+                    android:background="@drawable/bg_card_secondary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Farm Completion"
-                        style="@style/Text.Caption"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="12dp" />
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="16dp"
+                        android:background="@drawable/bg_card_accent">
 
-                </LinearLayout>
+                        <com.afrinuts.farmos.ui.theme.CircularProgressView
+                            android:id="@+id/progressRing"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:progressColor="@color/primary"
+                            app:backgroundColor="@color/warm_grey"
+                            app:textColor="@color/primary"
+                            app:textSize="28sp" />
 
-            </androidx.cardview.widget.CardView>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Farm Completion"
+                            style="@style/Text.Caption"
+                            android:layout_marginTop="8dp"
+                            android:textAlignment="center" />
 
-            <!-- Quick Stats Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:startColor="@color/bg_start"
-                android:endColor="@color/bg_end">
+                    </LinearLayout>
 
-                <!-- Edge Effect (3D border) -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
+                </androidx.cardview.widget.CardView>
 
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_glassy_overlay"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Quick Stats Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    style="@style/Widget.AfriNuts.CardView"
                     android:background="@drawable/bg_card_primary">
 
-                    <!-- Trees Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:background="@drawable/bg_card_primary">
+
+                        <!-- Trees Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_park"
+                                app:tint="@color/primary"
+                                android:background="@drawable/bg_icon_container"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Total Trees"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="@color/navy" />
+
+                                <TextView
+                                    android:id="@+id/totalTreesText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3,500"
+                                    style="@style/Text.H4"
+                                    android:textColor="@color/primary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Hectares Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:src="@drawable/ic_straighten"
+                                app:tint="@color/primary"
+                                android:background="@drawable/bg_icon_container"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Total Hectares"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="@color/navy" />
+
+                                <TextView
+                                    android:id="@+id/totalHectaresText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="35"
+                                    style="@style/Text.H4"
+                                    android:textColor="@color/primary" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <!-- ========== FARM SUMMARY CARD ========== -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:background="@drawable/bg_card_primary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Header with Icon -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -163,14 +237,54 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
 
-                        <ImageView
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_icon_container"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_farm"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Farm Summary"
+                            style="@style/Text.H5"
+                            android:textColor="@color/primary"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Blocks Progress -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <FrameLayout
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_park"
-                            app:tint="@color/primary"
-                            android:background="@drawable/bg_icon_container"
-                            android:padding="6dp"
-                            android:layout_marginEnd="12dp" />
+                            android:background="@drawable/bg_icon_container_small"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_inventory"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -178,40 +292,84 @@
                             android:layout_weight="1"
                             android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Total Trees"
-                                style="@style/Text.Caption"
-                                android:textColor="@color/navy" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="8dp">
 
-                            <TextView
-                                android:id="@+id/totalTreesText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="3,500"
-                                style="@style/Text.H3"
-                                android:textColor="@color/primary" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Blocks Planted"
+                                    style="@style/Text.Body"
+                                    android:textColor="@color/navy" />
+
+                                <TextView
+                                    android:id="@+id/blocksPlantedText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0/35"
+                                    style="@style/Text.H6"
+                                    android:textColor="@color/primary" />
+
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <ProgressBar
+                                    android:id="@+id/blocksProgress"
+                                    style="@style/Widget.AfriNuts.ProgressBar"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="8dp"
+                                    android:progress="0"
+                                    android:max="100"
+                                    android:progressTint="@color/primary"
+                                    android:progressBackgroundTint="@color/warm_grey" />
+
+                                <TextView
+                                    android:id="@+id/blocksPercentText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="end"
+                                    android:text="0%"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="@color/primary"
+                                    android:layout_marginTop="-12dp"
+                                    android:layout_marginEnd="4dp" />
+
+                            </FrameLayout>
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <!-- Hectares Row -->
+                    <!-- Trees Progress -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
-                        <ImageView
+                        <FrameLayout
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_straighten"
-                            app:tint="@color/primary"
-                            android:background="@drawable/bg_icon_container"
-                            android:padding="6dp"
-                            android:layout_marginEnd="12dp" />
+                            android:background="@drawable/bg_icon_container_small"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_park"
+                                app:tint="@color/primary" />
+
+                        </FrameLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -219,20 +377,57 @@
                             android:layout_weight="1"
                             android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Total Hectares"
-                                style="@style/Text.Caption"
-                                android:textColor="@color/navy" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="8dp">
 
-                            <TextView
-                                android:id="@+id/totalHectaresText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="35"
-                                style="@style/Text.H3"
-                                android:textColor="@color/primary" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Trees Alive"
+                                    style="@style/Text.Body"
+                                    android:textColor="@color/navy" />
+
+                                <TextView
+                                    android:id="@+id/treesAliveText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0/3500"
+                                    style="@style/Text.H6"
+                                    android:textColor="@color/primary" />
+
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <ProgressBar
+                                    android:id="@+id/treesProgress"
+                                    style="@style/Widget.AfriNuts.ProgressBar"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="8dp"
+                                    android:progress="0"
+                                    android:max="100"
+                                    android:progressTint="@color/primary"
+                                    android:progressBackgroundTint="@color/warm_grey" />
+
+                                <TextView
+                                    android:id="@+id/treesPercentText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="end"
+                                    android:text="0%"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="@color/primary"
+                                    android:layout_marginTop="-12dp"
+                                    android:layout_marginEnd="4dp" />
+
+                            </FrameLayout>
 
                         </LinearLayout>
 
@@ -242,53 +437,24 @@
 
             </androidx.cardview.widget.CardView>
 
-        </LinearLayout>
-
-        <!-- ========== FINANCIAL SNAPSHOT - WEBSITE STYLE ========== -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/financialCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:backgroundTint="@color/primary_light"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
-
-            <LinearLayout
+            <!-- ========== FINANCIAL SNAPSHOT ========== -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/financialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clickable="true"
+                android:focusable="true">
 
-                <!-- Header with Info Badge -->
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_card_primary">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -296,1353 +462,596 @@
                         android:text="Financial Snapshot"
                         style="@style/Text.H5"
                         android:textColor="@color/primary"
-                        android:textStyle="bold" />
+                        android:layout_marginBottom="4dp" />
 
-                    <!-- Info Badge (like the website) -->
-                    <FrameLayout
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/bg_info_badge"
-                        android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="This Month"
+                        style="@style/Text.Caption"
+                        android:textColor="@color/navy"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Revenue Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_attach_money"
+                            app:tint="@color/primary"
+                            android:background="@drawable/bg_icon_container"
+                            android:padding="6dp"
+                            android:layout_marginEnd="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Revenue"
+                                style="@style/Text.Caption"
+                                android:textColor="@color/navy" />
+
+                            <TextView
+                                android:id="@+id/monthlyRevenueText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 XAF"
+                                style="@style/Text.H4"
+                                android:textColor="@color/primary" />
+
+                        </LinearLayout>
 
                         <TextView
+                            android:id="@+id/revenueTrend"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="i"
-                            android:textColor="@android:color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:text="+0%"
+                            style="@style/Text.Body"
+                            android:textColor="@android:color/holo_green_dark" />
 
-                    </FrameLayout>
+                    </LinearLayout>
 
-                </RelativeLayout>
+                    <!-- Expenses Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
 
-                <!-- Subtitle (Period) -->
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_money_off"
+                            app:tint="@color/accent"
+                            android:background="@drawable/bg_icon_container"
+                            android:padding="6dp"
+                            android:layout_marginEnd="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Expenses"
+                                style="@style/Text.Caption"
+                                android:textColor="@color/navy" />
+
+                            <TextView
+                                android:id="@+id/monthlyExpensesText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 XAF"
+                                style="@style/Text.H4"
+                                android:textColor="@color/accent" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/expenseTrend"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0%"
+                            style="@style/Text.Body"
+                            android:textColor="@android:color/holo_orange_dark" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="@color/warm_grey" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Net Profit"
+                                style="@style/Text.H5"
+                                android:textColor="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/netProfitText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 XAF"
+                                style="@style/Text.H3"
+                                android:textColor="@color/accent" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/viewFinancialDetails"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View Details →"
+                            style="@style/Text.Caption"
+                            android:textColor="@color/accent" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- ========== RECENT ACTIVITY ========== -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recent Activity"
+                style="@style/Text.H5"
+                android:layout_marginBottom="12dp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/recentActivityContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- ========== WEATHER CARD ========== -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/weatherCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_card_primary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Odienné"
+                                style="@style/Text.H4"
+                                android:textColor="@color/primary"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/weatherLocationDetail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Côte d'Ivoire"
+                                style="@style/Text.Caption.Small" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/weatherUpdateTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Updated just now"
+                            style="@style/Text.Caption.Small" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
+
+                        <FrameLayout
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:layout_marginEnd="16dp"
+                            android:background="@drawable/bg_icon_container_large">
+
+                            <ImageView
+                                android:id="@+id/weatherIcon"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_wb_sunny"
+                                app:tint="@color/accent" />
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/weatherTemp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="32°C"
+                                style="@style/Text.Display.Small"
+                                android:textColor="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/weatherCondition"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Partly Cloudy"
+                                style="@style/Text.Body"
+                                android:textColor="@color/navy"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="end">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Feels like"
+                                style="@style/Text.Caption.Small" />
+
+                            <TextView
+                                android:id="@+id/weatherFeelsLike"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="31°C"
+                                style="@style/Text.H4"
+                                android:textColor="@color/accent" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginEnd="8dp"
+                            android:padding="12dp"
+                            app:cornerRadius="12dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_water_drop"
+                                app:tint="@color/primary"
+                                android:layout_marginEnd="12dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/weatherHumidity"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="45%"
+                                    style="@style/Text.H5"
+                                    android:textColor="@color/primary" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Humidity"
+                                    style="@style/Text.Caption.Small" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginStart="8dp"
+                            android:padding="12dp"
+                            app:cornerRadius="12dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_air"
+                                app:tint="@color/primary"
+                                android:layout_marginEnd="12dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/weatherWind"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="12 km/h"
+                                    style="@style/Text.H5"
+                                    android:textColor="@color/primary" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Wind"
+                                    style="@style/Text.Caption.Small" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Offline Banner -->
+            <LinearLayout
+                android:id="@+id/offlineBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@color/warm_grey"
+                android:padding="8dp"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp"
+                app:cornerRadius="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_warning"
+                    app:tint="@color/navy"
+                    android:layout_marginEnd="8dp" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="This Month"
-                    style="@style/Text.Caption"
+                    android:text="Offline mode. Changes will sync when online."
                     android:textColor="@color/navy"
-                    android:layout_marginBottom="16dp" />
-
-                <!-- Revenue Row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_attach_money"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"
-                        android:padding="6dp"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Revenue"
-                            style="@style/Text.Caption"
-                            android:textColor="@color/navy" />
-
-                        <TextView
-                            android:id="@+id/monthlyRevenueText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 XAF"
-                            style="@style/Text.H4"
-                            android:textColor="@color/primary" />
-
-                    </LinearLayout>
-
-                    <!-- Revenue Trend as MaterialButton -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/revenueTrend"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+0%"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/holo_green_dark"
-                        app:backgroundTint="@color/warm_grey"
-                        app:cornerRadius="12dp"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:focusable="false"
-                        android:clickable="false" />
-
-                </LinearLayout>
-
-                <!-- Expenses Row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_money_off"
-                        app:tint="@color/accent"
-                        android:background="@drawable/bg_icon_container"
-                        android:padding="6dp"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Expenses"
-                            style="@style/Text.Caption"
-                            android:textColor="@color/navy" />
-
-                        <TextView
-                            android:id="@+id/monthlyExpensesText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 XAF"
-                            style="@style/Text.H4"
-                            android:textColor="@color/accent" />
-
-                    </LinearLayout>
-
-                    <!-- Expense Trend as MaterialButton -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/expenseTrend"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+0%"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/holo_orange_dark"
-                        app:backgroundTint="@color/warm_grey"
-                        app:cornerRadius="12dp"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:focusable="false"
-                        android:clickable="false" />
-
-                </LinearLayout>
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginVertical="12dp"
-                    android:background="@color/warm_grey" />
-
-                <!-- Net Profit Row (Highlighted) -->
-                <LinearLayout
-                    android:layout_width="305dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            style="@style/Text.H5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Net Profit"
-                            android:textColor="@color/primary" />
-
-                        <TextView
-                            android:id="@+id/netProfitText"
-                            style="@style/Text.H3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 XAF"
-                            android:textColor="@color/accent" />
-
-                    </LinearLayout>
-
-                    <!-- View Details as MaterialButton -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/viewFinancialDetails"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="8dp"
-                        android:stateListAnimator="@null"
-                        android:text="View Details →"
-                        android:textColor="@color/accent"
-                        android:textSize="14sp"
-                        app:backgroundTint="@android:color/transparent"
-                        app:cornerRadius="16dp" />
-
-                </LinearLayout>
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
-
-        <!-- ========== QUICK ACTIONS - FARM OPERATIONS ========== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Farm Operations"
-            style="@style/Text.H5"
-            android:textColor="@color/primary"
-            android:layout_marginBottom="12dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:weightSum="4">
-
-            <!-- Blocks -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnViewBlocksCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_accent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_view_list"
-                        app:tint="@color/accent"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Blocks"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Add Block -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddBlockCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/accent"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Add Block"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Tasks -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnTasksListCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_accent">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_grass"
-                        app:tint="@color/accent"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Tasks"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Add Task -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddTaskCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_accent">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_check_circle"
-                        app:tint="@color/accent"
-                        ndroid:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Add Task"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
-        <!-- ========== QUICK ACTIONS - FINANCIAL ========== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Financial"
-            style="@style/Text.H5"
-            android:textColor="@color/primary"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp" />
+    </ScrollView>
+
+    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomNavCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="12dp"
+        android:backgroundTint="@android:color/white"
+        app:cardBackgroundColor="@android:color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="12dp"
             android:weightSum="4">
 
-            <!-- Add Expense -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddExpenseCard"
+            <!-- Home -->
+            <LinearLayout
+                android:id="@+id/navHome"
                 android:layout_width="0dp"
-                android:layout_height="110dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/bg_card_primary">
+                android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_secondary">
+                <ImageView
+                    android:id="@+id/navHomeIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/primary" />
 
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_money_off"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
+                <TextView
+                    android:id="@+id/navHomeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home"
+                    android:textSize="11sp"
+                    android:textColor="@color/primary"
+                    android:layout_marginTop="4dp" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Add Expense"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
+            </LinearLayout>
 
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- View Expenses -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnViewExpensesCard"
+            <!-- Farm -->
+            <LinearLayout
+                android:id="@+id/navFarm"
                 android:layout_width="0dp"
-                android:layout_height="110dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/bg_card_primary">
+                android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_secondary">
+                <ImageView
+                    android:id="@+id/navFarmIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_park"
+                    app:tint="@color/primary" />
 
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_bar_chart"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
+                <TextView
+                    android:id="@+id/navFarmText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Farm"
+                    android:textSize="11sp"
+                    android:textColor="@color/navy"
+                    android:layout_marginTop="4dp" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Expenses"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
+            </LinearLayout>
 
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Add Revenue -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAddRevenueCard"
+            <!-- Finance -->
+            <LinearLayout
+                android:id="@+id/navFinance"
                 android:layout_width="0dp"
-                android:layout_height="110dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/bg_card_primary">
+                android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_secondary">
+                <ImageView
+                    android:id="@+id/navFinanceIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_attach_money"
+                    app:tint="@color/primary" />
 
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_download"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
+                <TextView
+                    android:id="@+id/navFinanceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Finance"
+                    android:textSize="11sp"
+                    android:textColor="@color/navy"
+                    android:layout_marginTop="4dp" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Add Revenue"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/olive"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- View Revenue -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnViewRevenueCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_secondary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_money_bag"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Revenue"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- ========== QUICK ACTIONS - MANAGEMENT & ANALYTICS ========== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Management and Analytics"
-            style="@style/Text.H5"
-            android:textColor="@color/primary"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:weightSum="4">
-
-            <!-- Workers -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnWorkerAnalyticsCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_people"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Workers"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Team -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnUsersCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_people"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Team"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Profit Dashboard -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnProfitDashboardCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_trending_up"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Profit"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+            </LinearLayout>
 
             <!-- Analytics -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnExpenseChartsCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_trending_up"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Analytics"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- ========== QUICK ACTIONS - REPORTS & SETTINGS ========== -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp"
-            android:weightSum="4">
-
-            <!-- Reports -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnReportsCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_pdf"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Reports"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Yield / Analytics Dashboard -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAnalyticsCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_yield"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Yield"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Settings -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnSettingsCard"
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/bg_card_primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:background="@drawable/bg_card_primary">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_settings"
-                        app:tint="@color/primary"
-                        android:background="@drawable/bg_icon_container"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Settings"
-                        style="@style/Text.Caption"
-                        android:textSize="12sp"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:maxLines="2"
-                        android:lines="2"
-                        android:ellipsize="end" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Placeholder for future -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="110dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:visibility="invisible"
-                app:cardCornerRadius="16dp"
-                style="@style/Widget.AfriNuts.CardView" />
-
-        </LinearLayout>
-
-    <!-- ========== RECENT ACTIVITY ========== -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recent Activity"
-        style="@style/Text.H5"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="12dp"
-        android:background="@drawable/bg_card_primary"/>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        style="@style/Widget.AfriNuts.CardView"
-        android:background="@drawable/bg_card_secondary">
-
-        <LinearLayout
-            android:id="@+id/recentActivityContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp"
-            android:background="@drawable/bg_card_accent"/>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- ========== WEATHER CARD - MODERN DESIGN ========== -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/weatherCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        style="@style/Widget.AfriNuts.CardView"
-        android:background="@drawable/bg_card_accent"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
-
-        <!-- Edge Effect (3D border) -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_edge_effect"
-            android:alpha="0.3" />
-
-        <!-- Glassy Overlay -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_glassy_overlay"
-            android:alpha="0.4" />
-
-        <!-- Inner Shadow -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_inner_shadow" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@drawable/bg_card_primary">
-
-            <!-- Header with Location and Time -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/navAnalytics"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Odienné"
-                        style="@style/Text.H4"
-                        android:textColor="@color/primary"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/weatherLocationDetail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Côte d'Ivoire"
-                        style="@style/Text.Caption.Small"
-                        android:textColor="@color/navy" />
-
-                </LinearLayout>
+                <ImageView
+                    android:id="@+id/navAnalyticsIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_trending_up"
+                    app:tint="@color/primary" />
 
                 <TextView
-                    android:id="@+id/weatherUpdateTime"
+                    android:id="@+id/navAnalyticsText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Updated just now"
-                    style="@style/Text.Caption.Small"
+                    android:text="Analytics"
+                    android:textSize="11sp"
                     android:textColor="@color/navy"
-
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
-                    app:cornerRadius="12dp" />
-
-            </LinearLayout>
-
-            <!-- Main Weather Info -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="20dp">
-
-                <!-- Weather Icon -->
-                <FrameLayout
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@drawable/bg_icon_container_large">
-
-                    <ImageView
-                        android:id="@+id/weatherIcon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_wb_sunny"
-                        app:tint="@color/accent" />
-
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/weatherTemp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="32°C"
-                        style="@style/Text.Display.Small"
-                        android:textColor="@color/primary" />
-
-                    <TextView
-                        android:id="@+id/weatherCondition"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Partly Cloudy"
-                        style="@style/Text.Body"
-                        android:textColor="@color/navy"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <!-- Feels Like -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="end">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Feels like"
-                        style="@style/Text.Caption.Small"
-                        android:textColor="@color/navy" />
-
-                    <TextView
-                        android:id="@+id/weatherFeelsLike"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="31°C"
-                        style="@style/Text.H4"
-                        android:textColor="@color/accent" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Weather Stats Row - Using MaterialButton for badges -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp"
-                android:weightSum="2">
-
-                <!-- Humidity Card -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginEnd="8dp"
-
-                    android:padding="12dp"
-                    app:cornerRadius="12dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_water_drop"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/weatherHumidity"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="45%"
-                            style="@style/Text.H5"
-                            android:textColor="@color/primary" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Humidity"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="@color/navy" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <!-- Wind Card -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginStart="8dp"
-
-                    android:padding="12dp"
-                    app:cornerRadius="12dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_air"
-                        app:tint="@color/primary"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/weatherWind"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="12 km/h"
-                            style="@style/Text.H5"
-                            android:textColor="@color/primary" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Wind"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="@color/navy" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
+                    android:layout_marginTop="4dp" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Offline Banner -->
-    <LinearLayout
-        android:id="@+id/offlineBanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:background="@color/warm_grey"
-        android:padding="8dp"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp"
-        app:cornerRadius="8dp">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/ic_warning"
-            app:tint="@color/navy"
-            android:layout_marginEnd="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Offline mode. Changes will sync when online."
-            android:textColor="@color/navy"
-            android:textSize="12sp" />
-
-    </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</FrameLayout>

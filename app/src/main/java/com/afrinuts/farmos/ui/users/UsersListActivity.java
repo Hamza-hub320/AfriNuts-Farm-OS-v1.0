@@ -9,26 +9,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.data.repository.UserRepository;
-import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class UsersListActivity extends BaseActivity {
+public class UsersListActivity extends BaseHubActivity {
 
     private RecyclerView recyclerView;
     private UserAdapter adapter;
@@ -40,11 +35,9 @@ public class UsersListActivity extends BaseActivity {
     private ChipGroup filterChipGroup;
 
     private AppDatabase database;
-    private UserRepository userRepository;
     private long farmId = 1L;
     private List<UserEntity> allUsers = new ArrayList<>();
     private List<UserEntity> filteredUsers = new ArrayList<>();
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, OWNERS, MANAGERS, WORKERS, INVESTORS
 
@@ -54,15 +47,19 @@ public class UsersListActivity extends BaseActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users_list);
+    protected int getLayoutResourceId() {
+        return R.layout.activity_users_list;
+    }
 
+    @Override
+    protected int getCurrentNavItem() {
+        return -1;
+    }
+
+    @Override
+    protected void onHubCreate(Bundle savedInstanceState) {
         database = AppDatabase.getInstance(this);
-        userRepository = new UserRepository(this, farmId);
-
         initViews();
-        setupToolbar();
         setupFilters();
         setupFab();
         loadData();
@@ -80,21 +77,10 @@ public class UsersListActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
-            getSupportActionBar().setTitle("Team Members");
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -157,13 +143,10 @@ public class UsersListActivity extends BaseActivity {
     private void loadData() {
         showLoading(true);
 
-        // Use LiveData from repository
-        userRepository.getAllUsers().observe(this, new Observer<List<UserEntity>>() {
-            @Override
-            public void onChanged(List<UserEntity> users) {
-                allUsers.clear();
-                allUsers.addAll(users);
+        new Thread(() -> {
+            allUsers = database.userDao().getAllUsers();
 
+            runOnUiThread(() -> {
                 showLoading(false);
 
                 if (allUsers.isEmpty()) {
@@ -173,8 +156,8 @@ public class UsersListActivity extends BaseActivity {
                     updateSummaryStats();
                     applyFilter();
                 }
-            }
-        });
+            });
+        }).start();
     }
 
     private void updateSummaryStats() {
@@ -251,9 +234,5 @@ public class UsersListActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (userRepository != null) {
-            userRepository.shutdown();
-        }
-        executor.shutdown();
     }
 }

@@ -20,7 +20,8 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
-import com.afrinuts.farmos.ui.BaseActivity;
+import android.widget.ProgressBar;
+import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -32,7 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ProfitDashboardActivity extends BaseActivity {
+public class ProfitDashboardActivity extends BaseHubActivity {
 
     private AppDatabase database;
     private FarmEntity currentFarm;
@@ -53,7 +54,7 @@ public class ProfitDashboardActivity extends BaseActivity {
     private TextView profitPerTree;
     private TextView marginPercent;
     private LinearLayout recentTransactionsContainer;
-    private View progressBar;
+    private ProgressBar progressBar;
     private LinearLayout emptyView;
 
     private String currentDateRange = "ALL_TIME"; // ALL_TIME, THIS_YEAR, THIS_MONTH
@@ -65,34 +66,25 @@ public class ProfitDashboardActivity extends BaseActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profit_dashboard);
+    protected int getLayoutResourceId() {
+        return R.layout.activity_profit_dashboard;
+    }
 
-        // Initialize views
-        initViews();
+    @Override
+    protected int getCurrentNavItem() {
+        return 2; // Finance tab
+    }
 
-        // Setup toolbar
-        setupToolbar();
-
-        // Setup swipe to refresh
-        setupSwipeRefresh();
-
-        // Initialize database
+    @Override
+    protected void onHubCreate(Bundle savedInstanceState) {
         database = AppDatabase.getInstance(this);
-
-        // Setup filters
+        initViews();
+        setupSwipeRefresh();
         setupDateRangeFilters();
-
-        // Load data
         loadData();
     }
 
     private void initViews() {
-        // Note: Using AppCompat Toolbar instead of MaterialToolbar for glass morphism
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         dateRangeChipGroup = findViewById(R.id.dateRangeChipGroup);
         totalRevenueValue = findViewById(R.id.totalRevenueValue);
@@ -107,16 +99,6 @@ public class ProfitDashboardActivity extends BaseActivity {
         emptyView = findViewById(R.id.emptyView);
     }
 
-    private void setupToolbar() {
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
-            getSupportActionBar().setTitle("Profit Dashboard");
-        }
-    }
 
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -140,27 +122,6 @@ public class ProfitDashboardActivity extends BaseActivity {
         loadData();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_refresh, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            // Navigate back to MainActivity
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-            return true;
-        } else if (item.getItemId() == R.id.action_refresh) {
-            refreshData();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private void setupDateRangeFilters() {
         Chip chipAllTime = findViewById(R.id.chipAllTime);
@@ -403,15 +364,6 @@ public class ProfitDashboardActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        // Navigate back to MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        finish();
-        super.onBackPressed();
-    }
 
     @Override
     protected void onDestroy() {

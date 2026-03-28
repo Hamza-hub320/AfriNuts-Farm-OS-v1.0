@@ -104,16 +104,16 @@ public class AddUserDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("")
-                .setView(view)
-                .setPositiveButton("Add", null)
-                .setNegativeButton("Cancel", null);
+                .setView(view);
 
         AlertDialog dialog = builder.create();
 
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> saveUser());
-        });
+        // Wire up custom buttons from the layout
+        Button btnSave = view.findViewById(R.id.btnSave);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+
+        btnSave.setOnClickListener(v -> saveUser());
+        btnCancel.setOnClickListener(v -> dismiss());
 
         return dialog;
     }

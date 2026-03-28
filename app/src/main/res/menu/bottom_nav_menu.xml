@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_farm"
+        android:icon="@drawable/ic_park"
+        android:title="Farm" />
+
+    <item
+        android:id="@+id/nav_finance"
+        android:icon="@drawable/ic_attach_money"
+        android:title="Finance" />
+
+    <item
+        android:id="@+id/nav_team"
+        android:icon="@drawable/ic_people"
+        android:title="Team" />
+
+    <item
+        android:id="@+id/nav_analytics"
+        android:icon="@drawable/ic_trending_up"
+        android:title="Analytics" />
+
+</menu>
