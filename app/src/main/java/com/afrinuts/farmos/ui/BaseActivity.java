@@ -20,12 +20,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Check if user is logged in
-        if (!sessionManager.isLoggedIn()) {
-            redirectToLogin();
-            return;
-        }
-
         // Check role-specific access
         if (!checkRoleAccess()) {
             Toast.makeText(this, "You don't have permission to access this section",

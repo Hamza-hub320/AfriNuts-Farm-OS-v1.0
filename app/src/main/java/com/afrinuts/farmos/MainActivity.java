@@ -23,6 +23,7 @@ import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -208,12 +209,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize session manager
         sessionManager = new SessionManager(this);
 
+        Log.d("MainActivity", "isLoggedIn: " + sessionManager.isLoggedIn());
+        Log.d("MainActivity", "savedInstanceState: " + savedInstanceState);
+
+        // Check if user is logged in
         if (!sessionManager.isLoggedIn()) {
+            Log.d("MainActivity", "Not logged in, redirecting to Login");
             redirectToLogin();
             return;
         }
+
 
         initViews();
         setupBottomNavigation();
@@ -534,34 +542,218 @@ public class MainActivity extends AppCompatActivity {
     // ========================================
 
     private void loadCurrentUser() {
+        // First check if session is valid
+        if (!sessionManager.isLoggedIn()) {
+            Log.d(TAG, "Session not logged in, redirecting to login");
+            redirectToLogin();
+            return;
+        }
+
+        long userId = sessionManager.getUserId();
+        String userUid = sessionManager.getUserUid();
+
+        Log.d(TAG, "Loading user - ID: " + userId + ", UID: " + userUid);
+
+        // Validate user ID
+        if (userId <= 0) {
+            Log.e(TAG, "Invalid user ID: " + userId);
+            sessionManager.logout();
+            redirectToLogin();
+            return;
+        }
+
         databaseExecutor.execute(() -> {
-            long userId = sessionManager.getUserId();
-            if (userId != -1) {
-                UserEntity user = database.userDao().getUserById(userId);
-                runOnUiThread(() -> {
-                    currentUser = user;
-                    if (currentUser == null) {
+            UserEntity user = database.userDao().getUserById(userId);
+            runOnUiThread(() -> {
+                if (user == null) {
+                    Log.e(TAG, "User ID " + userId + " not found in local database");
+
+                    // Only try to recover if we have a valid UID
+                    if (userUid != null && !userUid.isEmpty() && !"null".equals(userUid)) {
+                        fetchUserFromFirestore(userUid);
+                    } else {
+                        Log.e(TAG, "No valid UID for recovery, logging out");
                         sessionManager.logout();
                         redirectToLogin();
-                    } else {
-                        // Update toolbar with user name
-                        String firstName = currentUser.getName() != null && !currentUser.getName().isEmpty()
-                                ? currentUser.getName().split(" ")[0]
-                                : "User";
-
-                        if (toolbarUserName != null) {
-                            toolbarUserName.setText("Hi, " + firstName);
-                            toolbarUserName.setVisibility(View.VISIBLE);
-                        }
-
-                        if (welcomeUserName != null) {
-                            welcomeUserName.setText(firstName);
-                        }
-                        initializeSyncListener();
                     }
-                });
-            }
+                } else {
+                    currentUser = user;
+
+                    // Update toolbar with user name
+                    String firstName = currentUser.getName() != null && !currentUser.getName().isEmpty()
+                            ? currentUser.getName().split(" ")[0]
+                            : "User";
+
+                    if (toolbarUserName != null) {
+                        toolbarUserName.setText("Hi, " + firstName);
+                        toolbarUserName.setVisibility(View.VISIBLE);
+                    }
+
+                    if (welcomeUserName != null) {
+                        welcomeUserName.setText(firstName);
+                    }
+
+                    // Only initialize sync if user is active
+                    if (currentUser.isActive()) {
+                        initializeSyncListener();
+                    } else {
+                        Log.e(TAG, "User is inactive, logging out");
+                        sessionManager.logout();
+                        redirectToLogin();
+                    }
+                }
+            });
         });
+    }
+
+    private void fetchUserFromFirestore(String userUid) {
+        Log.d(TAG, "Attempting to recover user from Firestore with UID: " + userUid);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userUid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean isActive = documentSnapshot.getBoolean("isActive");
+                        if (isActive != null && !isActive) {
+                            Log.e(TAG, "User is inactive in Firestore");
+                            sessionManager.logout();
+                            redirectToLogin();
+                            return;
+                        }
+
+                        UserEntity user = documentToUser(documentSnapshot);
+                        if (user != null) {
+                            // Save to local database
+                            databaseExecutor.execute(() -> {
+                                // Check if user already exists to avoid duplicates
+                                UserEntity existing = database.userDao().getUserByUid(user.getUid());
+                                long id;
+                                if (existing != null) {
+                                    // Update existing
+                                    user.setLocalId(existing.getLocalId());
+                                    database.userDao().update(user);
+                                    id = existing.getLocalId();
+                                    Log.d(TAG, "Updated existing user from Firestore: " + user.getName());
+                                } else {
+                                    // Insert new
+                                    id = database.userDao().insert(user);
+                                    user.setLocalId(id);
+                                    Log.d(TAG, "Created new user from Firestore: " + user.getName());
+                                }
+
+                                final long finalId = id;
+                                runOnUiThread(() -> {
+                                    currentUser = user;
+
+                                    // Update session with correct local ID
+                                    sessionManager.logout(); // Clear old session
+                                    sessionManager.createLoginSession(user);
+
+                                    String firstName = user.getName().split(" ")[0];
+                                    if (toolbarUserName != null) {
+                                        toolbarUserName.setText("Hi, " + firstName);
+                                    }
+                                    if (welcomeUserName != null) {
+                                        welcomeUserName.setText(firstName);
+                                    }
+
+                                    Toast.makeText(this, "Welcome back, " + firstName, Toast.LENGTH_SHORT).show();
+                                    initializeSyncListener();
+                                });
+                            });
+                        } else {
+                            Log.e(TAG, "Failed to convert user from Firestore");
+                            sessionManager.logout();
+                            redirectToLogin();
+                        }
+                    } else {
+                        Log.e(TAG, "User not found in Firestore");
+                        sessionManager.logout();
+                        redirectToLogin();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to fetch user from Firestore", e);
+                    sessionManager.logout();
+                    redirectToLogin();
+                });
+    }
+
+    private UserEntity documentToUser(DocumentSnapshot doc) {
+        try {
+            String uid = doc.getId();
+            String name = doc.getString("name");
+            String roleStr = doc.getString("role");
+            String phone = doc.getString("phone");
+            String email = doc.getString("email");
+            String authMethodStr = doc.getString("authMethod");
+            Boolean isActive = doc.getBoolean("isActive");
+            Long createdAt = doc.getLong("createdAt");
+            Long localId = doc.getLong("localId");
+
+            // ✅ IMPORTANT: Get password hash from Firestore
+            String passwordHash = doc.getString("passwordHash");
+
+            UserEntity.UserRole role;
+            try {
+                role = UserEntity.UserRole.valueOf(roleStr);
+            } catch (Exception e) {
+                Log.e(TAG, "Invalid role: " + roleStr);
+                return null;
+            }
+
+            Object farmIdObj = doc.get("farmId");
+            long farmId = 1;
+            if (farmIdObj instanceof Long) {
+                farmId = (Long) farmIdObj;
+            } else if (farmIdObj instanceof String) {
+                try {
+                    farmId = Long.parseLong((String) farmIdObj);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Invalid farmId format");
+                }
+            }
+
+            UserEntity user;
+
+            if (UserEntity.AuthMethod.PASSWORD.name().equals(authMethodStr)) {
+                // ✅ For password users, use the Firebase Auth constructor
+                user = new UserEntity(
+                        uid,
+                        name,
+                        role,
+                        phone,
+                        email,
+                        passwordHash != null ? passwordHash : "", // Use password hash from Firestore
+                        farmId
+                );
+            } else {
+                // For PIN users
+                user = new UserEntity(
+                        name,
+                        role,
+                        phone,
+                        "", // pinHash will be set separately
+                        farmId
+                );
+                user.setUid(uid);
+            }
+
+            user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethodStr));
+            user.setActive(isActive != null ? isActive : true);
+            if (createdAt != null) user.setCreatedAt(createdAt);
+            if (localId != null && localId > 0) user.setLocalId(localId);
+
+            // ✅ For password users, ensure password hash is set
+            if (UserEntity.AuthMethod.PASSWORD.name().equals(authMethodStr) && passwordHash != null) {
+                user.setPasswordHash(passwordHash);
+            }
+
+            return user;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting document to user", e);
+            return null;
+        }
     }
 
     private void initializeSyncListener() {
@@ -1174,30 +1366,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to load users from Firestore", e));
     }
 
-    private UserEntity documentToUser(DocumentSnapshot doc) {
-        try {
-            String name = doc.getString("name");
-            String role = doc.getString("role");
-            String phone = doc.getString("phone");
-            String email = doc.getString("email");
-            String authMethod = doc.getString("authMethod");
-            Boolean isActive = doc.getBoolean("isActive");
-
-            if (name == null || role == null || email == null) return null;
-
-            UserEntity user = new UserEntity(name, UserEntity.UserRole.valueOf(role),
-                    phone != null ? phone : "", email, "");
-            if (authMethod != null) {
-                user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethod));
-            }
-            user.setActive(isActive != null ? isActive : true);
-            return user;
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting document to user", e);
-            return null;
-        }
-    }
-
     // ========================================
     // FIRESTORE REAL-TIME LISTENERS
     // ========================================
@@ -1661,7 +1829,17 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Logout")
                 .setMessage("Are you sure you want to logout?")
                 .setPositiveButton("Logout", (dialog, which) -> {
+                    // Clear everything before logout
                     sessionManager.logout();
+
+                    // Also sign out from Firebase
+                    FirebaseAuth.getInstance().signOut();
+
+                    // Clear any pending sync
+                    if (syncManager != null) {
+                        syncManager.shutdown();
+                    }
+
                     redirectToLogin();
                 })
                 .setNegativeButton("Cancel", null)

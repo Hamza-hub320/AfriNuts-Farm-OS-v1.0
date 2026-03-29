@@ -418,6 +418,27 @@ public class FirestoreSyncManager {
                             PhotoEntity remotePhoto = EntityMapper.fromFirestorePhoto(dc.getDocument());
                             if (remotePhoto == null) continue;
 
+                            // ✅ Ensure farm exists
+                            FarmEntity farm = database.farmDao().getFarmById(remotePhoto.getFarmId());
+                            if (farm == null) {
+                                Log.w(TAG, "⚠️ Skipping photo " + remotePhoto.getId() +
+                                        " - farm " + remotePhoto.getFarmId() + " not found");
+                                if (remotePhoto.getFarmId() == 1) {
+                                    createDefaultFarm();
+                                }
+                                continue;
+                            }
+
+                            // ✅ Ensure block exists if applicable
+                            if (remotePhoto.getBlockId() != null) {
+                                BlockEntity block = database.blockDao().getBlockById(remotePhoto.getBlockId());
+                                if (block == null) {
+                                    Log.w(TAG, "⚠️ Skipping photo " + remotePhoto.getId() +
+                                            " - block " + remotePhoto.getBlockId() + " not found");
+                                    continue;
+                                }
+                            }
+
                             // Defensive log at the start of the loop to detect stuck processing
                             Log.d(TAG, "Processing photo change: " + dc.getType() + " ID=" + remotePhoto.getId());
 
@@ -475,59 +496,28 @@ public class FirestoreSyncManager {
                     executor.execute(() -> {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             UserEntity remoteUser = EntityMapper.fromFirestoreUser(dc.getDocument());
-                            if (remoteUser == null) {
-                                Log.e(TAG, "Failed to map user from Firestore");
-                                continue;
-                            }
-
-                            if (remoteUser.getUid() == null || remoteUser.getUid().isEmpty()) {
-                                Log.e(TAG, "User has no UID, skipping");
-                                continue;
-                            }
+                            if (remoteUser == null) continue;
 
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
-                                    // ✅ First try to find by UID
-                                    UserEntity existingByUid = database.userDao().getUserByUid(remoteUser.getUid());
-
-                                    // ✅ If not found by UID, try by email
-                                    if (existingByUid == null && remoteUser.getEmail() != null) {
-                                        existingByUid = database.userDao().getUserByEmail(remoteUser.getEmail());
-                                    }
+                                    // ✅ Only sync if user already exists locally
+                                    UserEntity existing = database.userDao().getUserByUid(remoteUser.getUid());
 
                                     isApplyingRemoteUpdate = true;
-
                                     try {
-                                        if (existingByUid == null) {
-                                            // Brand new user - insert
-                                            // ✅ Let Room auto-generate the localId
-                                            long id = database.userDao().insert(remoteUser);
-                                            remoteUser.setLocalId(id);
-                                            Log.d(TAG, "✅ New user added: " + remoteUser.getName() + " (localId: " + id + ")");
+                                        if (existing != null) {
+                                            // User exists locally - update
+                                            existing.setName(remoteUser.getName());
+                                            existing.setRole(remoteUser.getRole());
+                                            existing.setPhone(remoteUser.getPhone());
+                                            existing.setActive(remoteUser.isActive());
+                                            database.userDao().update(existing);
+                                            Log.d(TAG, "📝 Updated user from Firestore: " + remoteUser.getName());
                                         } else {
-                                            // ✅ User exists - UPDATE (not insert)
-                                            boolean isOwner = "owner@afrinuts.com".equals(remoteUser.getEmail());
-
-                                            // Preserve the existing localId
-                                            remoteUser.setLocalId(existingByUid.getLocalId());
-
-                                            if (isOwner) {
-                                                // Always update owner from Firestore
-                                                database.userDao().update(remoteUser);
-                                                Log.d(TAG, "🔄 FORCE SYNC: Updated owner from Firestore: " + remoteUser.getName());
-                                            } else {
-                                                // Normal users: compare timestamps
-                                                if (remoteUser.getUpdatedAt() > existingByUid.getUpdatedAt()) {
-                                                    database.userDao().update(remoteUser);
-                                                    Log.d(TAG, "📝 Updated user (remote newer): " + remoteUser.getName());
-                                                } else {
-                                                    Log.d(TAG, "⏭️ Skipped user (local newer): " + remoteUser.getName());
-                                                }
-                                            }
+                                            Log.w(TAG, "⚠️ User not in local DB, skipping sync: " + remoteUser.getUid());
+                                            // ❌ NO INSERT - user must be created by owner only
                                         }
-                                    } catch (Exception e) {
-                                        Log.e(TAG, "Error processing user sync", e);
                                     } finally {
                                         isApplyingRemoteUpdate = false;
                                     }
@@ -537,14 +527,13 @@ public class FirestoreSyncManager {
                                     UserEntity userToDelete = database.userDao().getUserByUid(remoteUser.getUid());
                                     if (userToDelete != null) {
                                         database.userDao().delete(userToDelete);
-                                        Log.d(TAG, "❌ User deleted: " + remoteUser.getName());
+                                        Log.d(TAG, "❌ User deleted from Firestore: " + remoteUser.getName());
                                     }
                                     break;
                             }
                         }
                     });
                 });
-        Log.d(TAG, "Users listener registered");
     }
 
     // ========================================
