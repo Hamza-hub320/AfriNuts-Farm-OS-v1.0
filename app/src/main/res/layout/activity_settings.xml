@@ -6,17 +6,19 @@
     android:background="@color/background">
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:paddingBottom="90dp"
-        android:clipToPadding="false"
-        android:fillViewport="true">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="80dp"
+    android:clipToPadding="false"
+    android:fillViewport="true">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
             <!-- Security Section Header -->
             <TextView
@@ -408,11 +410,16 @@
 
             </androidx.cardview.widget.CardView>
 
+        <!-- Spacer for bottom navigation -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <!--FLOATING BOTTOM NAVIGATION BAR -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -421,19 +428,25 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="12dp"
-        android:backgroundTint="@android:color/white"
-        app:cardBackgroundColor="@android:color/white">
+        android:backgroundTint="@color/white"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="36dp"
+        app:cardElevation="28dp"
+        android:elevation="16dp"
+        app:strokeColor="#1A000000"
+        app:strokeWidth="1dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="8dp"
+            android:paddingVertical="6dp"
             android:paddingHorizontal="12dp"
-            android:weightSum="4">
+            android:weightSum="4"
+            android:background="@drawable/bg_navbar_3d">
 
             <!-- Home -->
             <LinearLayout
@@ -443,26 +456,44 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navHomeIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navHomeIcon"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_home"
+                        app:tint="@color/primary" />
+
+                    <!-- Active indicator dot -->
+                    <View
+                        android:id="@+id/navHomeIndicator"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navHomeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Home"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="@color/primary"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -474,26 +505,43 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navFarmIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_park"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navFarmIcon"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_park"
+                        app:tint="@color/navy" />
+
+                    <View
+                        android:id="@+id/navFarmIndicator"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navFarmText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -505,26 +553,43 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navFinanceIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_attach_money"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navFinanceIcon"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_attach_money"
+                        app:tint="@color/navy" />
+
+                    <View
+                        android:id="@+id/navFinanceIndicator"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navFinanceText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Finance"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -536,26 +601,43 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navAnalyticsIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_trending_up"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navAnalyticsIcon"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_trending_up"
+                        app:tint="@color/navy" />
+
+                    <View
+                        android:id="@+id/navAnalyticsIndicator"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navAnalyticsText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Analytics"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 

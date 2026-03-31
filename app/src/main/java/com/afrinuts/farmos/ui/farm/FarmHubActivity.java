@@ -72,7 +72,7 @@ public class FarmHubActivity extends BaseHubActivity {
     private void updateFabForTab(int position) {
         if (position == 0) {
             // Blocks tab
-            fabAdd.setImageResource(R.drawable.ic_add);
+            fabAdd.setImageResource(R.drawable.ic_park);
             fabAdd.setOnClickListener(v -> {
                 BlocksFragment fragment = (BlocksFragment) pagerAdapter.getFragment(position);
                 if (fragment != null) {
@@ -83,7 +83,7 @@ public class FarmHubActivity extends BaseHubActivity {
             });
         } else {
             // Tasks tab
-            fabAdd.setImageResource(R.drawable.ic_add);
+            fabAdd.setImageResource(R.drawable.ic_check_circle);
             fabAdd.setOnClickListener(v -> {
                 TasksFragment fragment = (TasksFragment) pagerAdapter.getFragment(position);
                 if (fragment != null) {

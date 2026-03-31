@@ -13,7 +13,6 @@
     <color name="bg_end">#FFF5E6</color>
 
     <!-- Gradient Colors (Derived from Brand Colors) -->
-    <!-- Primary soft gradient (like website cards) -->
     <color name="gradient_primary_start">#0D5A7411</color> <!-- 5% primary -->
     <color name="gradient_primary_end">#0DA0C800</color>   <!-- 5% secondary -->
 

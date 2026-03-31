@@ -70,7 +70,7 @@ public class FinanceHubActivity extends BaseHubActivity {
     }
 
     private void updateFabForTab(int position) {
-        fabAdd.setImageResource(R.drawable.ic_add);
+        fabAdd.setImageResource(R.drawable.ic_add_business);
         if (position == 0) {
             // Expenses tab
             fabAdd.setOnClickListener(v -> {
