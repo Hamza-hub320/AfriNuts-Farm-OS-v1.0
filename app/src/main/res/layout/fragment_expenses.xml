@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Total Expenses Card - Modern Glass -->
+    <!-- Total Expenses Card - Theme-Aware Glass -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,19 +15,20 @@
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
         style="@style/Widget.AfriNuts.CardView"
-        android:background="@drawable/bg_card_accent">
+        android:background="?attr/cardBackgroundAccent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:background="?attr/cardBackgroundSecondary">
 
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_icon_glass_large"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="12dp">
 
                 <ImageView
@@ -35,7 +36,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_attach_money"
-                    app:tint="@color/accent" />
+                    app:tint="?attr/colorSecondary" />
 
             </FrameLayout>
 
@@ -50,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Expenses"
                     style="@style/Text.H5"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <TextView
                     android:id="@+id/totalExpensesText"
@@ -58,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
                     style="@style/Text.Stat"
-                    android:textColor="@color/accent"
+                    android:textColor="?attr/colorSecondary"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
@@ -67,7 +68,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Filter Chips - Modern Styling -->
+    <!-- Filter Chips - Theme-Aware -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -119,7 +120,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State - Modern Design -->
+    <!-- Empty State - Theme-Aware Modern Design -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -132,14 +133,15 @@
         <FrameLayout
             android:layout_width="96dp"
             android:layout_height="96dp"
-            android:background="@drawable/bg_icon_glass_large">
+            android:background="?attr/iconBackgroundGlass">
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_attach_money"
-                app:tint="@color/warm_grey" />
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.5" />
 
         </FrameLayout>
 
@@ -148,7 +150,7 @@
             android:layout_height="wrap_content"
             android:text="No expenses yet"
             style="@style/Text.H3"
-            android:textColor="@color/navy"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -156,7 +158,8 @@
             android:layout_height="wrap_content"
             android:text="Tap + to add your first expense"
             style="@style/Text.Body.Small"
-            android:textColor="@color/navy"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
@@ -171,4 +174,8 @@
         android:clipToPadding="false"
         android:visibility="gone" />
 
+    <!-- Spacer for bottom navigation -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="90dp" />
 </LinearLayout>

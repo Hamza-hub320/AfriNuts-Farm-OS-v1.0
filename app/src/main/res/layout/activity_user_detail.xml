@@ -11,10 +11,14 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_glass_toolbar"
+        android:background="?attr/tabBackground"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
-        android:translationZ="0dp">
+        android:translationZ="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,8 +38,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Team Member Details"
-                android:textColor="@color/text_dark"
+                android:text="User Details"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.01" />
@@ -61,7 +65,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_primary"
+                android:background="?attr/cardBackgroundPrimary"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -75,7 +79,7 @@
                     <FrameLayout
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:background="@drawable/bg_icon_glass_large"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginBottom="12dp">
 
                         <TextView
@@ -86,7 +90,7 @@
                             android:text="JD"
                             android:textSize="36sp"
                             android:textStyle="bold"
-                            android:textColor="@color/primary"
+                            android:textColor="?attr/colorPrimary"
                             android:includeFontPadding="false" />
 
                     </FrameLayout>
@@ -97,7 +101,7 @@
                         android:layout_height="wrap_content"
                         android:text="John Doe"
                         style="@style/Text.H2"
-                        android:textColor="@color/primary"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -106,7 +110,7 @@
                         android:layout_height="wrap_content"
                         android:text="Owner"
                         style="@style/Text.H5"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/colorSecondary"
                         android:layout_marginBottom="16dp" />
 
                     <!-- Status Chip -->
@@ -117,7 +121,7 @@
                         android:text="Active"
                         style="@style/Widget.AfriNuts.Chip"
                         android:checked="true"
-                        app:chipBackgroundColor="@color/primary"
+                        app:chipBackgroundColor="?attr/colorPrimary"
                         android:textColor="@android:color/white"
                         app:chipIcon="@drawable/ic_check_circle"
                         app:chipIconTint="@android:color/white" />
@@ -133,7 +137,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_secondary"
+                android:background="?attr/cardBackgroundSecondary"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -147,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:text="Contact Information"
                         style="@style/Text.H5"
-                        android:textColor="@color/olive"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="16dp" />
 
                     <!-- Phone -->
@@ -158,13 +162,14 @@
                         android:gravity="center_vertical"
                         android:layout_marginBottom="12dp"
                         android:padding="12dp"
-                        android:background="@drawable/bg_contact_item">
+                        android:background="?attr/cardBackgroundPrimary"
+                        app:cornerRadius="12dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_phone"
-                            app:tint="@color/primary"
+                            app:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -173,7 +178,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="+225 07 89 45 67"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <Button
                             android:id="@+id/btnCall"
@@ -181,7 +187,7 @@
                             android:layout_height="36dp"
                             android:text="Call"
                             style="@style/Widget.AfriNuts.Button.Small"
-                            android:backgroundTint="@color/primary"
+                            android:backgroundTint="?attr/colorPrimary"
                             android:visibility="gone"
                             app:cornerRadius="18dp" />
 
@@ -197,13 +203,14 @@
                         android:layout_marginBottom="12dp"
                         android:visibility="visible"
                         android:padding="12dp"
-                        android:background="@drawable/bg_contact_item">
+                        android:background="?attr/cardBackgroundPrimary"
+                        app:cornerRadius="12dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_email"
-                            app:tint="@color/primary"
+                            app:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -212,7 +219,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="john@afrinuts.com"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <Button
                             android:id="@+id/btnEmail"
@@ -220,7 +228,7 @@
                             android:layout_height="36dp"
                             android:text="Email"
                             style="@style/Widget.AfriNuts.Button.Small"
-                            android:backgroundTint="@color/primary"
+                            android:backgroundTint="?attr/colorPrimary"
                             android:visibility="gone"
                             app:cornerRadius="18dp" />
 
@@ -235,13 +243,14 @@
                         android:gravity="center_vertical"
                         android:visibility="gone"
                         android:padding="12dp"
-                        android:background="@drawable/bg_contact_item">
+                        android:background="?attr/cardBackgroundPrimary"
+                        app:cornerRadius="12dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_lock"
-                            app:tint="@color/primary"
+                            app:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -249,7 +258,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="PIN Authentication"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnResetPin"
@@ -257,7 +267,7 @@
                             android:layout_height="36dp"
                             android:text="Reset PIN"
                             style="@style/Widget.AfriNuts.Button.Small"
-                            android:backgroundTint="@color/accent"
+                            android:backgroundTint="?attr/colorSecondary"
                             app:cornerRadius="18dp" />
 
                     </LinearLayout>
@@ -273,7 +283,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_accent"
+                android:background="?attr/cardBackgroundAccent"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -287,7 +297,7 @@
                         android:layout_height="wrap_content"
                         android:text="Access Level"
                         style="@style/Text.H5"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/colorSecondary"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -303,7 +313,8 @@
                             android:layout_weight="1"
                             android:text="Role:"
                             style="@style/Text.Label"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvAccessRole"
@@ -311,7 +322,7 @@
                             android:layout_height="wrap_content"
                             android:text="Owner"
                             style="@style/Text.Body"
-                            android:textColor="@color/accent" />
+                            android:textColor="?attr/colorSecondary" />
 
                     </LinearLayout>
 
@@ -327,7 +338,8 @@
                             android:layout_weight="1"
                             android:text="Access Level:"
                             style="@style/Text.Label"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvAccessLevel"
@@ -335,7 +347,7 @@
                             android:layout_height="wrap_content"
                             android:text="100 (Full Access)"
                             style="@style/Text.Body"
-                            android:textColor="@color/accent" />
+                            android:textColor="?attr/colorSecondary" />
 
                     </LinearLayout>
 
@@ -353,7 +365,8 @@
                         android:layout_height="wrap_content"
                         android:text="Full access to all farm data and settings"
                         style="@style/Text.Caption"
-                        android:textColor="@color/navy"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
                         android:layout_marginTop="12dp" />
 
                 </LinearLayout>
@@ -367,7 +380,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_primary"
+                android:background="?attr/cardBackgroundPrimary"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -381,7 +394,7 @@
                         android:layout_height="wrap_content"
                         android:text="Account Information"
                         style="@style/Text.H5"
-                        android:textColor="@color/primary"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -395,7 +408,8 @@
                             android:layout_height="wrap_content"
                             android:text="Member Since:"
                             style="@style/Text.Label"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvMemberSince"
@@ -404,7 +418,7 @@
                             android:layout_weight="1"
                             android:text="Jan 15, 2024"
                             style="@style/Text.Body"
-                            android:textColor="@color/text_dark" />
+                            android:textColor="?attr/colorOnSurface" />
 
                     </LinearLayout>
 
@@ -419,7 +433,8 @@
                             android:layout_height="wrap_content"
                             android:text="Last Login:"
                             style="@style/Text.Label"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvLastLogin"
@@ -428,7 +443,7 @@
                             android:layout_weight="1"
                             android:text="Today, 08:30 AM"
                             style="@style/Text.Body"
-                            android:textColor="@color/text_dark" />
+                            android:textColor="?attr/colorOnSurface" />
 
                     </LinearLayout>
 
@@ -442,7 +457,8 @@
                             android:layout_height="wrap_content"
                             android:text="Auth Method:"
                             style="@style/Text.Label"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                         <TextView
                             android:id="@+id/tvAuthMethod"
@@ -451,7 +467,7 @@
                             android:layout_weight="1"
                             android:text="Password"
                             style="@style/Text.Body"
-                            android:textColor="@color/text_dark" />
+                            android:textColor="?attr/colorOnSurface" />
 
                     </LinearLayout>
 
@@ -476,7 +492,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
                     style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@color/accent"
+                    android:backgroundTint="?attr/colorSecondary"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white"

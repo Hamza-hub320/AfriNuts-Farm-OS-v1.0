@@ -6,21 +6,25 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    android:background="@drawable/bg_card_secondary"
-    style="@style/Widget.AfriNuts.CardView">
+    android:background="?attr/cardBackgroundSecondary"
+    style="@style/Widget.AfriNuts.CardView"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="12dp">
+        android:padding="10dp"
+        android:background="?attr/cardBackgroundSecondary">
 
         <!-- Rank Badge (Optional - adds visual hierarchy) -->
         <FrameLayout
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/bg_icon_glass"
+            android:background="?attr/iconBackgroundGlass"
             android:layout_marginEnd="12dp">
 
             <TextView
@@ -29,47 +33,53 @@
                 android:layout_gravity="center"
                 android:text="1"
                 style="@style/Text.Caption"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:textStyle="bold" />
 
         </FrameLayout>
 
+        <!-- Category Name -->
         <TextView
             android:id="@+id/tvTopCategory"
             style="@style/Text.Body"
-            android:layout_width="150dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minWidth="80dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Land Clearing"
-            android:textColor="@color/text_dark" />
+            android:textColor="?attr/colorOnSurface" />
 
+        <!-- Amount -->
         <TextView
             android:id="@+id/tvTopAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="5,250,000 XAF"
             style="@style/Text.Label.Small"
-            android:textColor="@color/accent"
-            android:layout_marginEnd="12dp"
+            android:textColor="?attr/colorSecondary"
+            android:layout_marginEnd="8dp"
             android:textStyle="bold" />
 
+        <!-- Date Badge -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@color/warm_grey"
+            android:background="?attr/cardBackgroundPrimary"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
+            android:layout_marginStart="4dp"
             app:cornerRadius="12dp">
 
             <ImageView
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:src="@drawable/ic_today"
-                app:tint="@color/navy"
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.7"
                 android:layout_marginEnd="4dp" />
 
             <TextView
@@ -78,7 +88,8 @@
                 android:layout_height="wrap_content"
                 android:text="Jan 2024"
                 style="@style/Text.Caption.Small"
-                android:textColor="@color/navy" />
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7" />
 
         </LinearLayout>
 

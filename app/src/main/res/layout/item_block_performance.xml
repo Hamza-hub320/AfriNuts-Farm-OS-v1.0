@@ -3,39 +3,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    android:background="@drawable/bg_card_primary">
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="?attr/colorSurface"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp"
+        android:background="?attr/colorSurface">
 
+        <!-- Header Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
             <!-- Rank with Glass Container -->
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_icon_glass"
+                android:id="@+id/rankContainer"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="12dp">
 
-                <TextView
-                    android:id="@+id/tvRank"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/ivRank"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
-                    android:text="🥇"
-                    android:textSize="20sp" />
+                    android:src="@drawable/ic_trophy_gold"
+                    android:contentDescription="Rank" />
 
             </FrameLayout>
 
@@ -45,15 +50,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Block A1"
-                style="@style/Text.H5"
-                android:textColor="@color/primary" />
+                style="@style/Text.H6"
+                android:textSize="14sp"
+                android:textColor="?attr/colorPrimary" />
 
             <ImageView
                 android:id="@+id/ivTrend"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_trending_up"
-                app:tint="@android:color/holo_green_dark" />
+                app:tint="?attr/colorSecondary" />
 
         </LinearLayout>
 
@@ -63,32 +69,37 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Survival Rate:"
-                style="@style/Text.Label"
-                android:textColor="@color/navy" />
+                android:text="Survival:"
+                style="@style/Text.Caption"
+                android:textSize="11sp"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7" />
 
             <TextView
                 android:id="@+id/tvSurvivalRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="95%"
-                style="@style/Text.Body"
-                android:textColor="@color/primary"
+                style="@style/Text.Body.Small"
+                android:textSize="12sp"
+                android:textColor="?attr/colorPrimary"
                 android:layout_marginEnd="12dp" />
 
             <ProgressBar
                 android:id="@+id/progressSurvival"
                 style="@style/Widget.AfriNuts.ProgressBar"
-                android:layout_width="100dp"
-                android:layout_height="6dp"
+                android:layout_width="80dp"
+                android:layout_height="4dp"
                 android:progress="95"
-                android:max="100" />
+                android:max="100"
+                android:progressTint="?attr/colorPrimary"
+                android:progressBackgroundTint="?attr/colorSurfaceVariant" />
 
         </LinearLayout>
 
@@ -104,16 +115,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Profit:"
-                style="@style/Text.Label"
-                android:textColor="@color/navy" />
+                style="@style/Text.Caption"
+                android:textSize="11sp"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7" />
 
             <TextView
                 android:id="@+id/tvProfit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="125,000 XAF"
-                style="@style/Text.Body"
-                android:textColor="@color/primary"
+                android:text="125k XAF"
+                style="@style/Text.Body.Small"
+                android:textSize="12sp"
+                android:textColor="?attr/colorPrimary"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -121,8 +135,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="15%"
-                style="@style/Text.Caption"
-                android:textColor="@color/accent" />
+                style="@style/Text.Caption.Small"
+                android:textSize="10sp"
+                android:textColor="?attr/colorSecondary" />
 
         </LinearLayout>
 

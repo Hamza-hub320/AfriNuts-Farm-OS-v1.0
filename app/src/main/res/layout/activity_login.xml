@@ -4,21 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Background Image with Overlay -->
+    <!-- Background Image with Overlay - Only visible in light mode -->
     <ImageView
+        android:id="@+id/bgImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/bg_farm_field"
         android:scaleType="centerCrop"
-        android:alpha="0.6" />
+        android:alpha="0.3" />
 
-    <!-- Dark Overlay for better text contrast -->
+    <!-- Adaptive Overlay - changes with theme -->
     <View
+        android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#66000000" />
+        android:background="#66000000"/>
 
-    <!-- Your existing content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,19 +34,18 @@
 
             <!-- Logo with Gradient Background -->
             <FrameLayout
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginBottom="16dp">
 
                 <ImageView
                     android:id="@+id/logoImage"
-                    android:layout_width="130dp"
-                    android:layout_height="130dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_logo_afrinuts_round"
-                    android:alpha="0.95"
-                    app:tint="@android:color/white" />
+                    android:alpha="0.95" />
 
             </FrameLayout>
 
@@ -55,16 +55,17 @@
                 android:layout_height="wrap_content"
                 android:text="AfriNuts Farm OS"
                 style="@style/Text.H2"
-                android:textColor="@android:color/white"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Secure Farm Management"
-                style="@style/Text.Body.Small"
-                android:textColor="@android:color/white"
-                android:alpha="0.9"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                android:alpha="0.8"
                 android:layout_marginBottom="32dp" />
 
             <!-- Modern Login Card with Glass Morphism -->
@@ -75,14 +76,17 @@
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
-                android:background="@drawable/bg_card_glass">
+                android:background="?attr/cardBackgroundPrimary"
+                android:clipChildren="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="24dp"
-                    android:background="@drawable/bg_card_accent">
+                    android:background="?attr/cardBackgroundPrimary"
+                    android:outlineProvider="background"
+                    android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <!-- User Selection Section -->
                     <TextView
@@ -91,11 +95,12 @@
                         android:layout_height="wrap_content"
                         android:text="Select User"
                         style="@style/Text.H5"
-                        android:textColor="@color/navy"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="16dp"
                         android:visibility="gone"
-                        android:drawableStart="@drawable/ic_cloud_lock"
-                        android:drawablePadding="8dp" />
+                        android:drawableStart="@drawable/ic_people"
+                        android:drawablePadding="8dp"
+                        app:drawableTint="?attr/colorPrimary" />
 
                     <View
                         android:id="@+id/userSelectorDivider"
@@ -103,8 +108,7 @@
                         android:layout_height="1dp"
                         style="@style/Widget.AfriNuts.Divider"
                         android:layout_marginBottom="16dp"
-                        android:visibility="gone"
-                        android:background="#33FFFFFF" />
+                        android:visibility="gone" />
 
                     <!-- User Chips Container -->
                     <HorizontalScrollView
@@ -130,9 +134,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.AfriNuts.EditText"
-                        app:endIconMode="clear_text"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxStrokeColor="@color/primary">
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEmailPin"
@@ -149,9 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
                         style="@style/Widget.AfriNuts.EditText"
-                        app:passwordToggleEnabled="true"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxStrokeColor="@color/primary">
+                        app:passwordToggleEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPassword"
@@ -169,11 +169,12 @@
                         android:layout_height="56dp"
                         android:text="Login"
                         style="@style/Widget.AfriNuts.Button"
-                        android:backgroundTint="@color/primary"
+                        android:backgroundTint="?attr/colorPrimary"
                         android:layout_marginBottom="8dp"
                         app:icon="@drawable/ic_login"
                         app:iconGravity="textStart"
-                        app:iconPadding="12dp" />
+                        app:iconPadding="12dp"
+                        app:iconTint="@android:color/white" />
 
                     <!-- Forgot Credentials -->
                     <TextView
@@ -181,7 +182,8 @@
                         android:layout_height="wrap_content"
                         android:text="Forgot credentials? Contact farm owner"
                         style="@style/Text.Caption.Small"
-                        android:textColor="@color/navy"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.6"
                         android:layout_gravity="center_horizontal"
                         android:padding="8dp" />
 

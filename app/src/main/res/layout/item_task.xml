@@ -3,19 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    android:background="?attr/cardBackgroundPrimary"
     android:clickable="true"
-    android:focusable="true"
-    android:background="@drawable/bg_card_primary">
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Top Row: Icon + Title + Status -->
         <LinearLayout
@@ -23,22 +22,22 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
-            <!-- Icon Container with Gradient Background -->
+            <!-- Icon Container - Smaller -->
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/bg_icon_container">
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="10dp"
+                android:background="?attr/iconBackgroundGlass">
 
                 <ImageView
                     android:id="@+id/tvTaskIcon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_tractor"
-                    app:tint="@color/primary"
+                    app:tint="?attr/colorPrimary"
                     android:contentDescription="Task icon" />
 
             </FrameLayout>
@@ -54,8 +53,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Clear Block A1"
-                    style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    style="@style/Text.H6"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -63,12 +63,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Block A1"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
-            <!-- Status Badge with Dynamic Background -->
+            <!-- Status Badge - Smaller -->
             <TextView
                 android:id="@+id/tvTaskStatus"
                 android:layout_width="wrap_content"
@@ -76,35 +78,37 @@
                 style="@style/Widget.AfriNuts.StatusBadge"
                 android:text="Pending"
                 android:textSize="12sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                app:cornerRadius="16dp" />
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
 
-        <!-- Description (if available) with Rounded Background -->
+        <!-- Description (if available) - Compact -->
         <TextView
             android:id="@+id/tvTaskDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Clear land for planting cashew trees"
-            style="@style/Text.Body.Small"
-            android:textColor="@color/text_dark"
-            android:layout_marginBottom="12dp"
+            style="@style/Text.Caption"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.8"
+            android:layout_marginBottom="8dp"
             android:maxLines="2"
             android:ellipsize="end"
-            android:background="@drawable/bg_rounded_description"
-            android:padding="10dp" />
+            android:background="?attr/cardBackgroundPrimary"
+            android:padding="8dp" />
 
-        <!-- Bottom Row: Due Date + Overdue Warning - Modern Glass Style -->
+        <!-- Bottom Row: Due Date + Overdue Warning - Compact -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_glassy_overlay"
-            android:padding="12dp"
-            app:cardCornerRadius="12dp">
+            android:background="?attr/cardBackgroundSecondary"
+            android:padding="8dp"
+            app:cardCornerRadius="10dp">
 
             <!-- Due Date Section -->
             <LinearLayout
@@ -115,24 +119,26 @@
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:src="@drawable/ic_today"
-                    app:tint="@color/primary"
-                    android:layout_marginEnd="8dp"
+                    app:tint="?attr/colorPrimary"
+                    android:layout_marginEnd="6dp"
                     android:contentDescription="Due date" />
 
                 <TextView
                     android:id="@+id/tvDueDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Due: Mar 15, 2024"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    android:text="Due: Mar 15"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
-            <!-- Overdue Warning Section -->
+            <!-- Overdue Warning Section - Compact -->
             <LinearLayout
                 android:id="@+id/overdueLayout"
                 android:layout_width="wrap_content"
@@ -140,17 +146,17 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@drawable/bg_warning"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
                 android:visibility="gone"
-                app:cardCornerRadius="12dp">
+                app:cardCornerRadius="8dp">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
                     android:src="@drawable/ic_warning"
-                    app:tint="@android:color/holo_red_dark"
-                    android:layout_marginEnd="4dp"
+                    app:tint="@color/error"
+                    android:layout_marginEnd="3dp"
                     android:contentDescription="Overdue warning" />
 
                 <TextView
@@ -159,7 +165,8 @@
                     android:layout_height="wrap_content"
                     android:text="Overdue"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@android:color/holo_red_dark" />
+                    android:textSize="11sp"
+                    android:textColor="@color/error" />
 
             </LinearLayout>
 

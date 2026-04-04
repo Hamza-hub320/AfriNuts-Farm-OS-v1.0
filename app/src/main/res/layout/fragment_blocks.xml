@@ -27,18 +27,26 @@
         android:gravity="center"
         android:visibility="gone">
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_inventory"
-            app:tint="@color/warm_grey"
-            android:contentDescription="Empty blocks" />
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="?attr/iconBackgroundGlass">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_inventory"
+                app:tint="?attr/colorPrimary" />
+
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No blocks found"
             style="@style/Text.H3"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -46,6 +54,7 @@
             android:layout_height="wrap_content"
             android:text="Add your first block to start tracking"
             style="@style/Text.Body.Small"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>

@@ -1,9 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:startColor="#0D5A7411"
-        android:endColor="#0DEA580C"
-        android:angle="135"
-        android:type="linear" />
-    <corners android:radius="20dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Glass Base with Translucency -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <solid android:color="#E8FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Primary Gradient Overlay (Your Brand Colors) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#305A7411"
+                android:endColor="#30EA580C"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Primary Light Reflection -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#40FFFFFF"
+                android:centerColor="#20FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Secondary Glow Effect -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#00FFFFFF"
+                android:centerColor="#15FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="0"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Highlight Edge - Top -->
+    <item android:top="1.5dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#50FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Soft Shadow Edge - Bottom -->
+    <item android:bottom="1.5dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#00FFFFFF"
+                android:endColor="#30A0A0A0"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Crisp Border Definition -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <stroke
+                android:width="0.8dp"
+                android:color="#30FFFFFF" />
+        </shape>
+    </item>
+
+</layer-list>

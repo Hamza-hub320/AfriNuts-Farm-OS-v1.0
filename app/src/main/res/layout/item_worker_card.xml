@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
-    android:background="@drawable/bg_card_primary"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    android:background="?attr/cardBackgroundPrimary"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
@@ -16,29 +16,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <!-- Worker Header -->
+        <!-- Worker Header - Compact -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_icon_glass"
-                android:layout_marginEnd="12dp">
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/iconBackgroundGlass"
+                android:layout_marginEnd="10dp">
 
                 <ImageView
                     android:id="@+id/tvWorkerIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_person"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -53,16 +53,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="John Doe"
-                    style="@style/Text.H4"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.H5"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/tvWorkerStats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5 tasks • 3 completed"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption.Small"
+                    android:textSize="10sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -71,31 +74,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="75%"
-                style="@style/Text.H5"
-                android:textColor="@color/accent"
-                android:background="@drawable/bg_icon_glass"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                app:cornerRadius="20dp" />
+                style="@style/Text.Label"
+                android:textSize="12sp"
+                android:textColor="?attr/colorSecondary"
+                android:background="?attr/iconBackgroundGlass"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
 
-        <!-- Progress Bar -->
+        <!-- Progress Bar - Compact -->
         <ProgressBar
             android:id="@+id/workerProgress"
             style="@style/Widget.AfriNuts.ProgressBar"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
+            android:layout_height="4dp"
             android:progress="75"
             android:max="100"
-            android:progressTint="@color/accent"
-            android:layout_marginBottom="12dp" />
+            android:progressTint="?attr/colorSecondary"
+            android:progressBackgroundTint="?attr/colorSurfaceVariant"
+            android:layout_marginBottom="8dp" />
 
-        <!-- Task Type Chips -->
+        <!-- Task Type Chips - Compact -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="8dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -106,53 +111,58 @@
 
         </HorizontalScrollView>
 
-        <!-- Time Stats -->
+        <!-- Time Stats - Compact -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@drawable/bg_card_secondary"
-            android:padding="12dp"
+            android:background="?attr/cardBackgroundSecondary"
+            android:padding="8dp"
             android:gravity="center_vertical"
-            app:cardCornerRadius="16dp">
+            app:cardCornerRadius="12dp">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@drawable/ic_timer"
-                app:tint="@color/primary"
-                android:layout_marginEnd="8dp" />
+                app:tint="?attr/colorPrimary"
+                android:layout_marginEnd="6dp" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Total Time"
+                android:text="Total"
                 style="@style/Text.Caption.Small"
-                android:textColor="@color/navy" />
+                android:textSize="10sp"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7" />
 
             <TextView
                 android:id="@+id/tvTotalTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2d 4h"
-                style="@style/Text.Stat.Small"
-                android:textColor="@color/primary"
-                android:layout_marginEnd="16dp" />
+                style="@style/Text.Label"
+                android:textSize="11sp"
+                android:textColor="?attr/colorPrimary"
+                android:layout_marginEnd="12dp" />
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@drawable/ic_timer_off"
-                app:tint="@color/primary"
-                android:layout_marginEnd="8dp" />
+                app:tint="?attr/colorPrimary"
+                android:layout_marginEnd="6dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Avg"
                 style="@style/Text.Caption.Small"
-                android:textColor="@color/navy"
+                android:textSize="10sp"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7"
                 android:layout_marginEnd="4dp" />
 
             <TextView
@@ -160,8 +170,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3h"
-                style="@style/Text.Stat.Small"
-                android:textColor="@color/accent" />
+                style="@style/Text.Label"
+                android:textSize="11sp"
+                android:textColor="?attr/colorSecondary" />
 
         </LinearLayout>
 

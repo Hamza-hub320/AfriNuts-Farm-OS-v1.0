@@ -22,7 +22,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="@drawable/bg_logo_container"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -30,7 +30,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_add"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -40,7 +40,7 @@
                 android:layout_weight="1"
                 android:text="Create New Task"
                 style="@style/Text.H2"
-                android:textColor="@color/primary" />
+                android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
 
@@ -52,7 +52,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_primary">
+            android:background="?attr/cardBackgroundPrimary">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -85,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:text="Task Details"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -93,12 +93,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTaskTitle"
@@ -113,18 +113,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTaskDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_rounded_description"
                         android:hint="Description"
                         android:inputType="textMultiLine"
                         android:minLines="3" />
@@ -143,7 +142,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -176,21 +175,21 @@
                     android:layout_height="wrap_content"
                     android:text="Task Type"
                     style="@style/Text.H5"
-                    android:textColor="@color/olive"
+                    android:textColor="?attr/colorPrimaryVariant"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:endIconMode="dropdown_menu"
                     app:endIconDrawable="@drawable/ic_arrow_drop_down"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/olive">
+                    app:boxStrokeColor="?attr/colorPrimaryVariant">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etTaskType"
@@ -213,7 +212,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_accent">
+            android:background="?attr/cardBackgroundAccent">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -246,7 +245,7 @@
                     android:layout_height="wrap_content"
                     android:text="Task Scope"
                     style="@style/Text.H5"
-                    android:textColor="@color/accent"
+                    android:textColor="?attr/colorSecondary"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButtonToggleGroup
@@ -286,12 +285,12 @@
                     android:hint="Select Block"
                     app:endIconMode="dropdown_menu"
                     app:endIconDrawable="@drawable/ic_arrow_drop_down"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/accent">
+                    app:boxStrokeColor="?attr/colorSecondary">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etBlock"
@@ -313,7 +312,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_primary">
+            android:background="?attr/cardBackgroundPrimary">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -346,7 +345,7 @@
                     android:layout_height="wrap_content"
                     android:text="Due Date"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -355,12 +354,12 @@
                     style="@style/Widget.AfriNuts.EditText"
                     app:endIconMode="clear_text"
                     app:endIconDrawable="@drawable/ic_today"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDueDate"
@@ -384,7 +383,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -417,19 +416,19 @@
                     android:layout_height="wrap_content"
                     android:text="Status"
                     style="@style/Text.H5"
-                    android:textColor="@color/olive"
+                    android:textColor="?attr/colorPrimaryVariant"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/olive">
+                    app:boxStrokeColor="?attr/colorPrimaryVariant">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etStatus"
@@ -473,7 +472,7 @@
                 android:layout_height="56dp"
                 android:text="Create Task"
                 style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="?attr/colorPrimary"
                 app:icon="@drawable/ic_add"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"

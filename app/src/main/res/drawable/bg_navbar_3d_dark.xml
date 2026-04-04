@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Dark Glass Base -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <solid android:color="#E81E293B" />
+        </shape>
+    </item>
+
+    <!-- Subtle Brand Gradient Overlay -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <gradient
+                android:startColor="#157A9C2E"
+                android:endColor="#15F05C1A"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Glass Reflection -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <gradient
+                android:startColor="#20FFFFFF"
+                android:centerColor="#10FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Inner Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <gradient
+                android:startColor="#00FFFFFF"
+                android:centerColor="#08FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="0"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Top Highlight Edge -->
+    <item android:top="1.5dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <gradient
+                android:startColor="#30FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Bottom Shadow -->
+    <item android:bottom="1.5dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <gradient
+                android:startColor="#00FFFFFF"
+                android:endColor="#20000000"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Border -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="36dp" />
+            <stroke
+                android:width="0.8dp"
+                android:color="#40FFFFFF" />
+        </shape>
+    </item>
+
+</layer-list>

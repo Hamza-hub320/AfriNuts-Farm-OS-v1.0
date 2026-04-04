@@ -17,7 +17,7 @@
 
         <!-- Background colors -->
         <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/warm_grey</item>
+        <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/text_dark</item>
         <item name="colorSurfaceVariant">@color/warm_grey</item>
 
@@ -38,6 +38,18 @@
 
         <!-- Window background gradient -->
         <item name="android:windowBackground">@drawable/bg_app_gradient</item>
+
+        <!-- Custom theme flag -->
+        <item name="isLightTheme">true</item>
+
+        <!-- ======================================== -->
+        <!-- CARD BACKGROUND ATTRIBUTES (LIGHT MODE) -->
+        <!-- ======================================== -->
+        <item name="cardBackgroundPrimary">@drawable/bg_card_primary</item>
+        <item name="cardBackgroundAccent">@drawable/bg_card_accent</item>
+        <item name="cardBackgroundSecondary">@drawable/bg_card_secondary</item>
+        <item name="iconBackgroundGlass">@drawable/bg_icon_glass</item>
+        <item name="tabBackground">@drawable/bg_glass_tabs</item>
     </style>
 
     <!-- ======================================== -->
@@ -164,7 +176,7 @@
     </style>
 
     <style name="Text.Stat.Large" parent="Text.Stat">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">22sp</item>
     </style>
 
     <style name="Text.Stat.Small" parent="Text.Stat">
@@ -305,7 +317,6 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@drawable/status_background</item>
     </style>
-
     <!-- ======================================== -->
     <!-- GRADIENTS -->
     <!-- ======================================== -->

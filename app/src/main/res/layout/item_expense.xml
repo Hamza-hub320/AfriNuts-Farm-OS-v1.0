@@ -9,7 +9,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/bg_card_primary"
+    android:background="?attr/cardBackgroundPrimary"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
@@ -30,7 +30,7 @@
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_icon_container_large"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="12dp">
 
                 <ImageView
@@ -39,7 +39,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_attach_money"
-                    app:tint="@color/primary"
+                    app:tint="?attr/colorPrimary"
                     android:contentDescription="Category icon" />
 
             </FrameLayout>
@@ -56,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:text="Land Clearing"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/tvBlockInfo"
@@ -64,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:text="Farm-Wide"
                     style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -74,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:text="5,250,000 XAF"
                 style="@style/Text.Stat.Small"
-                android:textColor="@color/accent" />
+                android:textColor="?attr/colorSecondary" />
 
         </LinearLayout>
 
@@ -103,7 +104,8 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_today"
-                    app:tint="@color/navy"
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="0.6"
                     android:layout_marginEnd="4dp"
                     android:contentDescription="Date" />
 
@@ -113,7 +115,8 @@
                     android:layout_height="wrap_content"
                     android:text="Jan 15, 2024"
                     style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -124,7 +127,8 @@
                 android:layout_weight="1"
                 android:text="Land clearing for 35-hectare plantation"
                 style="@style/Text.Caption"
-                android:textColor="@color/text_dark"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.8"
                 android:maxLines="2"
                 android:ellipsize="end" />
 

@@ -333,12 +333,11 @@ public class WorkerDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, WorkerDashboardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        // Navigate back to WorkerDashboardFragment by popping the back stack.
+        // Assumes this activity was started from a fragment and the parent activity
+        // hosts WorkerDashboardFragment.
         finish();
-
-        super.onBackPressed();
+        // No need to call super.onBackPressed() as finish() is sufficient.
     }
 
     private void showEmptyState() {

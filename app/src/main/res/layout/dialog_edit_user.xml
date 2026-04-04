@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background">
+    android:background="?android:attr/colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="@drawable/bg_logo_container"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -30,7 +30,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_edit"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -40,7 +40,7 @@
                 android:layout_weight="1"
                 android:text="Edit User"
                 style="@style/Text.H1"
-                android:textColor="@color/primary" />
+                android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
 
@@ -51,7 +51,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -64,7 +64,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_info"
-                    app:tint="@color/accent"
+                    app:tint="?attr/colorSecondary"
                     android:layout_marginEnd="12dp" />
 
                 <TextView
@@ -74,7 +74,8 @@
                     android:layout_weight="1"
                     android:text="Note: Email/password changes require the user to update through Settings"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.8" />
 
             </LinearLayout>
 
@@ -88,7 +89,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_primary">
+            android:background="?attr/cardBackgroundPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -101,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:text="User Information"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <!-- Name -->
@@ -110,12 +111,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
@@ -133,12 +134,12 @@
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
                     app:prefixText="+225 "
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPhone"
@@ -162,7 +163,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -175,19 +176,19 @@
                     android:layout_height="wrap_content"
                     android:text="Email Address"
                     style="@style/Text.H5"
-                    android:textColor="@color/olive"
+                    android:textColor="?attr/colorPrimaryVariant"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/olive">
+                    app:boxStrokeColor="?attr/colorPrimaryVariant">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEmail"
@@ -210,7 +211,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_accent">
+            android:background="?attr/cardBackgroundAccent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -223,7 +224,7 @@
                     android:layout_height="wrap_content"
                     android:text="Password Change"
                     style="@style/Text.H5"
-                    android:textColor="@color/accent"
+                    android:textColor="?attr/colorSecondary"
                     android:layout_marginBottom="16dp" />
 
                 <!-- New Password -->
@@ -234,12 +235,12 @@
                     style="@style/Widget.AfriNuts.EditText"
                     app:passwordToggleEnabled="true"
                     app:helperText="Leave blank to keep current password"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/accent">
+                    app:boxStrokeColor="?attr/colorSecondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNewPassword"
@@ -256,12 +257,12 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
                     app:passwordToggleEnabled="true"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/accent">
+                    app:boxStrokeColor="?attr/colorSecondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etConfirmPassword"
@@ -296,7 +297,7 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 app:iconGravity="textStart"
-                app:iconTint="@color/accent"
+                app:iconTint="?attr/colorSecondary"
                 app:cornerRadius="28dp" />
 
             <Button
@@ -305,14 +306,15 @@
                 android:layout_height="56dp"
                 android:text="Save Changes"
                 style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="?attr/colorPrimary"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
                 android:minWidth="140dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                app:cornerRadius="28dp" />
+                app:cornerRadius="28dp"
+                app:iconTint="@android:color/white" />
 
         </LinearLayout>
 

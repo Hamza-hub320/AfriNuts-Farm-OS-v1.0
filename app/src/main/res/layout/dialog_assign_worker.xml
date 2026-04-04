@@ -3,15 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background"
+    android:background="@drawable/bg_dialog_rounded"
     android:fillViewport="true">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:background="@drawable/bg_card_primary">
+        android:layout_margin="8dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        android:background="@android:color/transparent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="?attr/cardBackgroundPrimary">
 
         <!-- Header with Icon -->
         <LinearLayout
@@ -24,7 +32,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="@drawable/bg_logo_container"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -32,7 +40,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_people"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -42,7 +50,7 @@
                 android:layout_weight="1"
                 android:text="Assign Worker"
                 style="@style/Text.H2"
-                android:textColor="@color/primary" />
+                android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
 
@@ -51,7 +59,8 @@
             android:layout_height="wrap_content"
             android:text="Select an existing worker or add a new one"
             style="@style/Text.Body.Small"
-            android:textColor="@color/navy"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
             android:layout_marginBottom="24dp" />
 
         <!-- Existing Worker Card -->
@@ -61,7 +70,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -74,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:text="Existing Worker"
                     style="@style/Text.H6"
-                    android:textColor="@color/olive"
+                    android:textColor="?attr/colorSecondary"
                     android:layout_marginBottom="12dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -84,13 +93,13 @@
                     android:hint="Select existing worker"
                     app:endIconMode="dropdown_menu"
                     app:startIconDrawable="@drawable/ic_people"
-                    app:startIconTint="@color/primary"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:startIconTint="?attr/colorPrimary"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/olive">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etWorkerName"
@@ -117,21 +126,22 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/warm_grey" />
+                android:background="?attr/colorSurfaceVariant" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="OR"
                 style="@style/Text.Overline"
-                android:textColor="@color/navy"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6"
                 android:paddingHorizontal="16dp" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/warm_grey" />
+                android:background="?attr/colorSurfaceVariant" />
 
         </LinearLayout>
 
@@ -142,7 +152,7 @@
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_primary">
+            android:background="?attr/cardBackgroundPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -155,7 +165,7 @@
                     android:layout_height="wrap_content"
                     android:text="New Worker"
                     style="@style/Text.H6"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="12dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -164,13 +174,13 @@
                     style="@style/Widget.AfriNuts.EditText"
                     android:hint="Enter new worker name"
                     app:startIconDrawable="@drawable/ic_person"
-                    app:startIconTint="@color/primary"
-                    app:boxBackgroundColor="@android:color/white"
+                    app:startIconTint="?attr/colorPrimary"
+                    app:boxBackgroundColor="?attr/colorSurface"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/primary">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNewWorker"
@@ -185,8 +195,45 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Note: The dialog's positive/negative buttons are handled in code -->
+        <!-- Custom Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="8dp">
 
-    </LinearLayout>
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Cancel"
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                android:backgroundTint="@android:color/transparent"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorSecondary" />
+
+            <!-- Assign Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAssign"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Assign"
+                style="@style/Widget.AfriNuts.Button"
+                android:backgroundTint="?attr/colorPrimary"
+                app:icon="@drawable/ic_check_circle"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white" />
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </ScrollView>

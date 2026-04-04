@@ -6,44 +6,45 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Summary Cards Row (2 columns) - Modern Glass Cards -->
+    <!-- Summary Cards Row (2 columns) - Compact -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="12dp"
         android:weightSum="2">
 
-        <!-- Total Revenue Card -->
+        <!-- Total Revenue Card - Compact -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            android:background="@drawable/bg_card_primary"
-            style="@style/Widget.AfriNuts.CardView">
+            android:layout_marginEnd="6dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:background="?attr/cardBackgroundPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp">
+                android:padding="12dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glass"
-                    android:layout_marginBottom="8dp">
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/iconBackgroundGlass"
+                    android:layout_marginBottom="4dp">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="@color/primary"
+                        app:tint="?attr/colorPrimary"
                         android:contentDescription="Revenue icon" />
 
                 </FrameLayout>
@@ -53,51 +54,55 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
-                    style="@style/Text.Stat.Small"
-                    android:textColor="@color/primary"
-                    android:layout_marginTop="4dp" />
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Revenue"
+                    android:text="Revenue"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="10sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Total Harvest Card -->
+        <!-- Total Harvest Card - Compact -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            android:background="@drawable/bg_card_secondary"
-            style="@style/Widget.AfriNuts.CardView">
+            android:layout_marginStart="6dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp">
+                android:padding="12dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glass"
-                    android:layout_marginBottom="8dp">
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/iconBackgroundGlass"
+                    android:layout_marginBottom="4dp">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_inventory"
-                        app:tint="@color/olive"
+                        app:tint="?attr/colorSecondary"
                         android:contentDescription="Harvest icon" />
 
                 </FrameLayout>
@@ -107,16 +112,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 kg"
-                    style="@style/Text.Stat.Small"
-                    android:textColor="@color/olive"
-                    android:layout_marginTop="4dp" />
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginTop="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Harvest"
+                    android:text="Harvest"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="10sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -124,11 +132,11 @@
 
     </LinearLayout>
 
-    <!-- Filter Chips - Modern Styling -->
+    <!-- Filter Chips - Compact -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="12dp"
         android:scrollbars="none"
         android:fadingEdgeLength="20dp"
         android:requiresFadingEdge="horizontal">
@@ -137,11 +145,11 @@
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:paddingVertical="4dp"
+            android:layout_marginHorizontal="12dp"
+            android:paddingVertical="2dp"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:chipSpacing="8dp">
+            app:chipSpacing="6dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
@@ -149,6 +157,7 @@
                 android:layout_height="wrap_content"
                 android:text="Revenue"
                 android:checked="true"
+                app:chipIconTint="?attr/colorPrimary"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
@@ -156,6 +165,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Blocks"
+                app:chipIconTint="?attr/colorPrimary"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
@@ -163,6 +173,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Processing"
+                app:chipIconTint="?attr/colorPrimary"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
@@ -171,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:text="Premium"
                 app:chipIcon="@drawable/ic_star"
-                app:chipIconTint="@color/accent"
+                app:chipIconTint="?attr/colorSecondary"
                 app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 
@@ -181,7 +192,7 @@
                 android:layout_height="wrap_content"
                 android:text="Standard"
                 app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="@color/primary"
+                app:chipIconTint="?attr/colorPrimary"
                 app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 
@@ -189,56 +200,60 @@
 
     </HorizontalScrollView>
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar - Compact -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.AfriNuts.ProgressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State - Modern Design -->
+    <!-- Empty State - Compact -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="48dp"
         android:visibility="gone">
 
         <FrameLayout
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:background="@drawable/bg_icon_glass_large">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_grass"
-                app:tint="@color/warm_grey" />
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.5" />
 
         </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No harvest records yet"
+            android:text="No harvest records"
             style="@style/Text.H4"
-            android:textColor="@color/navy"
-            android:layout_marginTop="16dp" />
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap + to add your first harvest"
-            style="@style/Text.Body.Small"
-            android:textColor="@color/navy"
-            android:layout_marginTop="8dp" />
+            android:text="Tap + to add harvest"
+            style="@style/Text.Caption"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 
@@ -248,8 +263,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
+        android:padding="6dp"
         android:clipToPadding="false"
         android:visibility="gone" />
+
+    <!-- Spacer for bottom navigation -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="90dp" />
 
 </LinearLayout>

@@ -6,6 +6,11 @@
     <color name="accent">#E04E00</color>
     <color name="dark_orange">#9C3D10</color>
     <color name="secondary">#A0C800</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_tertiary">#64748B</color>
+
 
     <!-- Background Colors - NEW -->
     <color name="background">#F5F5F5</color>
@@ -45,4 +50,10 @@
     <color name="purple_700">@color/olive</color>
     <color name="white">@color/text_light</color>
     <color name="black">#FF000000</color>
+
+    <!-- Status Colors -->
+    <color name="success">#22C55E</color>
+    <color name="warning">#F59E0B</color>
+    <color name="error">#EF4444</color>
+    <color name="info">#3B82F6</color>
 </resources>

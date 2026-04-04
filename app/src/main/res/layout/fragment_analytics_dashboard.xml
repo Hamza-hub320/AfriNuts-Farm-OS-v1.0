@@ -6,19 +6,22 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Modern Tab Layout -->
+    <!-- Modern Tab Layout - Compact -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/background"
-        app:tabIndicatorColor="@color/primary"
-        app:tabSelectedTextColor="@color/primary"
-        app:tabTextColor="@color/navy"
+        android:layout_height="48dp"
+        android:background="?attr/tabBackground"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabTextColor="?attr/colorOnSurface"
         app:tabMode="fixed"
         app:tabGravity="fill"
-        app:tabRippleColor="@color/primary_light"
-        android:elevation="0dp">
+        app:tabRippleColor="?attr/colorPrimary"
+        app:tabIndicatorFullWidth="false"
+        app:tabTextAppearance="@style/Text.Caption"
+        android:elevation="0dp"
+        app:tabIndicatorHeight="3dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -45,15 +48,15 @@
     <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         style="@style/Widget.AfriNuts.ProgressBar"
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State - Compact -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -61,20 +64,21 @@
         android:orientation="vertical"
         android:gravity="center"
         android:visibility="gone"
-        android:layout_marginTop="64dp">
+        android:layout_marginTop="48dp">
 
         <FrameLayout
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:background="@drawable/bg_icon_glass_large"
-            android:layout_marginBottom="16dp">
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?attr/iconBackgroundGlass"
+            android:layout_marginBottom="12dp">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_trending_up"
-                app:tint="@color/warm_grey" />
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.5" />
 
         </FrameLayout>
 
@@ -82,17 +86,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No analytics data"
-            style="@style/Text.H3"
-            android:textColor="@color/navy"
-            android:layout_marginTop="16dp" />
+            style="@style/Text.H4"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add blocks and harvest data to see analytics"
+            android:text="Add blocks and harvest data"
             style="@style/Text.Caption"
-            android:textColor="@color/navy"
-            android:layout_marginTop="8dp" />
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 
@@ -100,7 +106,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="12dp"
         android:paddingTop="0dp"
         android:clipToPadding="false">
 
@@ -117,43 +123,44 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <!-- Current Year Prediction Card - Modern Glass -->
+                <!-- Current Year Prediction Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardCurrentYear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_accent">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundAccent">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Current Year Prediction"
-                            style="@style/Text.H5"
-                            android:textColor="@color/accent"
-                            android:layout_marginBottom="16dp" />
+                            android:text="Current Year"
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorSecondary"
+                            android:layout_marginBottom="8dp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="12dp">
 
                             <FrameLayout
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:background="@drawable/bg_icon_glass_large"
-                                android:layout_marginEnd="16dp">
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="?attr/iconBackgroundGlass"
+                                android:layout_marginEnd="12dp">
 
                                 <TextView
                                     android:id="@+id/tvCurrentYear"
@@ -161,8 +168,9 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:text="2026"
-                                    style="@style/Text.H2"
-                                    android:textColor="@color/accent" />
+                                    style="@style/Text.H4"
+                                    android:textSize="18sp"
+                                    android:textColor="?attr/colorSecondary" />
 
                             </FrameLayout>
 
@@ -177,15 +185,19 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="45,000 kg"
-                                    style="@style/Text.H3"
-                                    android:textColor="@color/text_dark" />
+                                    style="@style/Text.Body"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Predicted Yield"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
@@ -195,7 +207,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginBottom="12dp"
+                            android:layout_marginBottom="8dp"
                             android:weightSum="2">
 
                             <LinearLayout
@@ -210,15 +222,18 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="75%"
-                                    style="@style/Text.H4"
-                                    android:textColor="@color/accent" />
+                                    style="@style/Text.H5"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorSecondary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Confidence"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
@@ -234,15 +249,18 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Medium"
-                                    style="@style/Text.H4"
-                                    android:textColor="@color/accent" />
+                                    style="@style/Text.H5"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorSecondary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Risk Level"
+                                    android:text="Risk"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
@@ -252,77 +270,82 @@
                             android:id="@+id/tvRecommendation"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Consider increasing irrigation during dry months to improve yield."
-                            style="@style/Text.Body"
-                            android:background="@color/warm_grey"
-                            android:padding="12dp"
-                            android:layout_marginTop="8dp" />
+                            android:text="Consider increasing irrigation"
+                            style="@style/Text.Caption"
+                            android:textSize="11sp"
+                            android:background="?attr/cardBackgroundPrimary"
+                            android:padding="8dp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:textColor="?attr/colorOnSurface" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Yearly Yield Chart Card -->
+                <!-- Yearly Yield Chart Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_primary">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Yearly Yield History"
-                            style="@style/Text.H5"
-                            android:textColor="@color/primary"
-                            android:layout_marginBottom="16dp" />
+                            android:text="Yearly Yield"
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorPrimary"
+                            android:layout_marginBottom="12dp" />
 
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/barChartYearlyYield"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp" />
+                            android:layout_height="160dp" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Yield Factors Chart Card -->
+                <!-- Yield Factors Chart Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_secondary">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundSecondary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Yield Factors"
-                            style="@style/Text.H5"
-                            android:textColor="@color/olive"
-                            android:layout_marginBottom="16dp" />
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorPrimary"
+                            android:layout_marginBottom="12dp" />
 
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChartYieldFactors"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp" />
+                            android:layout_height="160dp" />
 
                     </LinearLayout>
 
@@ -338,43 +361,45 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- Revenue Trend Card -->
+                <!-- Revenue Trend Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_accent">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundAccent">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="12dp">
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Revenue Trend"
-                                style="@style/Text.H5"
-                                android:textColor="@color/accent" />
+                                android:text="Revenue"
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
+                                android:textColor="?attr/colorSecondary" />
 
                             <TextView
                                 android:id="@+id/tvRevenueTrend"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="+15%"
-                                style="@style/Text.H5"
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
                                 android:textColor="@android:color/holo_green_dark" />
 
                         </LinearLayout>
@@ -382,49 +407,51 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartRevenue"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp" />
+                            android:layout_height="160dp" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Expense Trend Card -->
+                <!-- Expense Trend Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_primary">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="12dp">
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Expense Trend"
-                                style="@style/Text.H5"
-                                android:textColor="@color/primary" />
+                                android:text="Expenses"
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
+                                android:textColor="?attr/colorPrimary" />
 
                             <TextView
                                 android:id="@+id/tvExpenseTrend"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="+5%"
-                                style="@style/Text.H5"
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
                                 android:textColor="@android:color/holo_red_dark" />
 
                         </LinearLayout>
@@ -432,7 +459,7 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartExpenses"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp" />
+                            android:layout_height="160dp" />
 
                     </LinearLayout>
 
@@ -440,7 +467,7 @@
 
             </LinearLayout>
 
-            <!-- Blocks Tab Content -->
+            <!-- Blocks Tab Content - Standalone List -->
             <LinearLayout
                 android:id="@+id/contentBlocks"
                 android:layout_width="match_parent"
@@ -448,42 +475,25 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- Block Performance List Card -->
-                <androidx.cardview.widget.CardView
+                <!-- Section Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Block Rankings"
+                    style="@style/Text.H5"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- RecyclerView for Block Performance - Standalone -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerBlockPerformance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_secondary">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Block Performance Ranking"
-                            style="@style/Text.H5"
-                            android:textColor="@color/olive"
-                            android:layout_marginBottom="16dp" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerBlockPerformance"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:nestedScrollingEnabled="false" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
+                    android:nestedScrollingEnabled="false" />
 
             </LinearLayout>
 
-            <!-- Forecast Tab Content -->
+            <!-- Forecast Tab Content - Compact -->
             <LinearLayout
                 android:id="@+id/contentForecast"
                 android:layout_width="match_parent"
@@ -491,29 +501,29 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- 3-Year Forecast Cards -->
+                <!-- 3-Year Forecast Cards - Compact -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardForecast1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    android:background="@drawable/bg_card_primary">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:padding="16dp"
+                        android:padding="12dp"
                         android:gravity="center_vertical">
 
                         <FrameLayout
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:background="@drawable/bg_icon_glass_large"
-                            android:layout_marginEnd="12dp">
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYear1"
@@ -521,8 +531,9 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="2026"
-                                style="@style/Text.H3"
-                                android:textColor="@color/primary" />
+                                style="@style/Text.H5"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorPrimary" />
 
                         </FrameLayout>
 
@@ -531,24 +542,27 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="12dp">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="45,000 kg"
-                                style="@style/Text.Body"
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/text_dark" />
+                                android:textColor="?attr/colorOnSurface" />
 
                             <TextView
                                 android:id="@+id/tvForecastRevenue1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="27,000,000 XAF"
+                                android:text="27.0M XAF"
                                 style="@style/Text.Caption"
-                                android:textColor="@color/navy" />
+                                android:textSize="10sp"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.7" />
 
                         </LinearLayout>
 
@@ -557,36 +571,36 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="+15%"
-                            style="@style/Text.H5"
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
                             android:textColor="@android:color/holo_green_dark" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Forecast Card 2 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardForecast2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    android:background="@drawable/bg_card_secondary">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    android:background="?attr/cardBackgroundSecondary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:padding="16dp"
+                        android:padding="12dp"
                         android:gravity="center_vertical">
 
                         <FrameLayout
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:background="@drawable/bg_icon_glass_large"
-                            android:layout_marginEnd="12dp">
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYear2"
@@ -594,8 +608,9 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="2027"
-                                style="@style/Text.H3"
-                                android:textColor="@color/olive" />
+                                style="@style/Text.H5"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorPrimary" />
 
                         </FrameLayout>
 
@@ -604,22 +619,27 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="12dp">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="52,000 kg"
-                                style="@style/Text.Body"
-                                android:textStyle="bold" />
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface" />
 
                             <TextView
                                 android:id="@+id/tvForecastRevenue2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="31,200,000 XAF"
-                                style="@style/Text.Caption" />
+                                android:text="31.2M XAF"
+                                style="@style/Text.Caption"
+                                android:textSize="10sp"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.7" />
 
                         </LinearLayout>
 
@@ -628,36 +648,36 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="+20%"
-                            style="@style/Text.H5"
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
                             android:textColor="@android:color/holo_green_dark" />
 
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Forecast Card 3 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardForecast3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    android:background="@drawable/bg_card_accent">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    android:background="?attr/cardBackgroundAccent">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:padding="16dp"
+                        android:padding="12dp"
                         android:gravity="center_vertical">
 
                         <FrameLayout
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:background="@drawable/bg_icon_glass_large"
-                            android:layout_marginEnd="12dp">
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYear3"
@@ -665,8 +685,9 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="2028"
-                                style="@style/Text.H3"
-                                android:textColor="@color/accent" />
+                                style="@style/Text.H5"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorSecondary" />
 
                         </FrameLayout>
 
@@ -675,22 +696,27 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="12dp">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="60,000 kg"
-                                style="@style/Text.Body"
-                                android:textStyle="bold" />
+                                style="@style/Text.Caption"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface" />
 
                             <TextView
                                 android:id="@+id/tvForecastRevenue3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="36,000,000 XAF"
-                                style="@style/Text.Caption" />
+                                android:text="36.0M XAF"
+                                style="@style/Text.Caption"
+                                android:textSize="10sp"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.7" />
 
                         </LinearLayout>
 
@@ -699,7 +725,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="+25%"
-                            style="@style/Text.H5"
+                            style="@style/Text.Caption"
+                            android:textSize="12sp"
                             android:textColor="@android:color/holo_green_dark" />
 
                     </LinearLayout>

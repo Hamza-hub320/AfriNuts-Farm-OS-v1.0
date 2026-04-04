@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.settings;
 
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,11 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.utils.LanguageHelper;
 import com.github.mikephil.charting.BuildConfig;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.AuthCredential;
 
@@ -44,6 +47,8 @@ public class SettingsActivity extends BaseHubActivity {
     private TextView tvVersion;
     private TextView tvLanguage;
     private TextView tvUnits;
+    private CardView cardDarkMode;
+    private SwitchMaterial darkModeSwitch;
 
     private AppDatabase database;
     private SyncManager syncManager;
@@ -74,6 +79,7 @@ public class SettingsActivity extends BaseHubActivity {
         initViews();
         setupClickListeners();
         loadSettings();
+        setupDarkModeToggle();
     }
 
     private void initViews() {
@@ -86,6 +92,8 @@ public class SettingsActivity extends BaseHubActivity {
         tvVersion = findViewById(R.id.tvVersion);
         tvLanguage = findViewById(R.id.tvLanguage);
         tvUnits = findViewById(R.id.tvUnits);
+        cardDarkMode = findViewById(R.id.cardDarkMode);
+        darkModeSwitch = findViewById(R.id.darkModeSwitch);
 
         // Hide PIN change for non-PIN users
         if (sessionManager.getUserRole() != UserEntity.UserRole.WORKER) {
@@ -95,6 +103,52 @@ public class SettingsActivity extends BaseHubActivity {
         // Hide password change for PIN users
         if (sessionManager.getUserRole() == UserEntity.UserRole.WORKER) {
             cardChangePassword.setVisibility(View.GONE);
+        }
+    }
+
+    // Add this method for dark mode
+    private void setupDarkModeToggle() {
+        if (darkModeSwitch == null) return;
+
+        // Get current mode
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        boolean isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+        darkModeSwitch.setChecked(isDarkMode);
+
+        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Enable dark mode
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                // Disable dark mode
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+
+            // Save preference
+            getSharedPreferences("settings", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("dark_mode", isChecked)
+                    .apply();
+
+            // Show message before recreating
+            Toast.makeText(this,
+                    "Theme changed. App will restart to apply changes.",
+                    Toast.LENGTH_SHORT).show();
+
+            // Recreate activity to apply changes
+            recreate();
+        });
+    }
+
+    // Add this method to load dark mode preference on startup
+    private void loadDarkModePreference() {
+        boolean darkModeEnabled = getSharedPreferences("settings", MODE_PRIVATE)
+                .getBoolean("dark_mode", false);
+
+        if (darkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
 

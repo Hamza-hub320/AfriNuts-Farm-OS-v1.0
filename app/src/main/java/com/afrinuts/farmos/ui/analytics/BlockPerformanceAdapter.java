@@ -44,7 +44,8 @@ public class BlockPerformanceAdapter extends RecyclerView.Adapter<BlockPerforman
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvRank;
+        // Updated: Changed from TextView to ImageView for trophy
+        private ImageView ivRank;
         private TextView tvBlockName;
         private TextView tvSurvivalRate;
         private ProgressBar progressSurvival;
@@ -55,7 +56,8 @@ public class BlockPerformanceAdapter extends RecyclerView.Adapter<BlockPerforman
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvRank = itemView.findViewById(R.id.tvRank);
+            // Updated: Find the ImageView instead of TextView
+            ivRank = itemView.findViewById(R.id.ivRank);
             tvBlockName = itemView.findViewById(R.id.tvBlockName);
             tvSurvivalRate = itemView.findViewById(R.id.tvSurvivalRate);
             progressSurvival = itemView.findViewById(R.id.progressSurvival);
@@ -66,7 +68,25 @@ public class BlockPerformanceAdapter extends RecyclerView.Adapter<BlockPerforman
         }
 
         void bind(BlockPerformance perf) {
-            tvRank.setText(perf.getRankingSuffix());
+            // Set trophy icon based on ranking
+            switch (perf.getRanking()) {
+                case 1:
+                    ivRank.setImageResource(R.drawable.ic_trophy_gold);
+                    break;
+                case 2:
+                    ivRank.setImageResource(R.drawable.ic_trophy_silver);
+                    break;
+                case 3:
+                    ivRank.setImageResource(R.drawable.ic_trophy_bronze);
+                    break;
+                default:
+                    // For 4th place and beyond, use a medal icon
+                    ivRank.setImageResource(R.drawable.ic_medal);
+                    ivRank.setColorFilter(ContextCompat.getColor(itemView.getContext(),
+                            R.color.accent));
+                    break;
+            }
+
             tvBlockName.setText(perf.getBlock().getBlockName());
 
             tvSurvivalRate.setText(perf.getFormattedSurvivalRate());
@@ -86,7 +106,7 @@ public class BlockPerformanceAdapter extends RecyclerView.Adapter<BlockPerforman
                         android.R.color.holo_red_dark));
             }
 
-            // Highlight top performers
+            // Highlight top performer
             if (perf.getRanking() == 1) {
                 cardView.setCardBackgroundColor(ContextCompat.getColor(itemView.getContext(),
                         R.color.primary_light));

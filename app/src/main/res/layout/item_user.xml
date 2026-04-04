@@ -9,7 +9,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/bg_card_primary"
+    android:background="?attr/cardBackgroundPrimary"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
@@ -29,7 +29,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="@drawable/bg_icon_glass_large"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="12dp">
 
                 <ImageView
@@ -38,7 +38,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_person"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:text="John Doe"
                     style="@style/Text.H4"
-                    android:textColor="@color/primary" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
                     <FrameLayout
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_glass"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="6dp">
 
                         <ImageView
@@ -76,7 +76,7 @@
                             android:layout_height="16dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_person"
-                            app:tint="@color/primary" />
+                            app:tint="?attr/colorPrimary" />
 
                     </FrameLayout>
 
@@ -86,7 +86,8 @@
                         android:layout_height="wrap_content"
                         android:text="Owner"
                         style="@style/Text.Body.Small"
-                        android:textColor="@color/navy" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7" />
 
                 </LinearLayout>
 
@@ -96,7 +97,7 @@
             <FrameLayout
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="@drawable/bg_icon_glass"
+                android:background="?attr/iconBackgroundGlass"
                 android:visibility="visible">
 
                 <ImageView
@@ -105,7 +106,7 @@
                     android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_check_circle"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorSecondary" />
 
             </FrameLayout>
 
@@ -116,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@drawable/bg_card_secondary"
+            android:background="?attr/cardBackgroundSecondary"
             android:padding="12dp"
             app:cardCornerRadius="12dp">
 
@@ -131,7 +132,8 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_phone"
-                    app:tint="@color/navy"
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="0.6"
                     android:layout_marginEnd="6dp" />
 
                 <TextView
@@ -140,7 +142,8 @@
                     android:layout_height="wrap_content"
                     android:text="+225 07 89 45 67"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -155,7 +158,8 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_email"
-                    app:tint="@color/navy"
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="0.6"
                     android:layout_marginEnd="6dp" />
 
                 <TextView
@@ -164,7 +168,8 @@
                     android:layout_height="wrap_content"
                     android:text="john@afrinuts.com"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 

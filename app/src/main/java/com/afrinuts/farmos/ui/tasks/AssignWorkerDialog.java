@@ -117,17 +117,18 @@ public class AssignWorkerDialog extends DialogFragment {
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("")
                 .setView(view)
-                .setPositiveButton("Assign", null)
-                .setNegativeButton("Cancel", null);
+                .setCancelable(false);
 
         AlertDialog dialog = builder.create();
 
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> assignWorker());
-        });
+        // Get custom buttons from the layout
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnAssign = view.findViewById(R.id.btnAssign);
+
+        // Set click listeners
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnAssign.setOnClickListener(v -> assignWorker());
 
         return dialog;
     }

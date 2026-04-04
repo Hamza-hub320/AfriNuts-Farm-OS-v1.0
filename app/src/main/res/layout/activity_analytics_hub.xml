@@ -13,17 +13,21 @@
         android:padding="16dp"
         android:paddingBottom="80dp">
 
-        <!-- Tab Layout -->
+        <!-- Tab Layout - Using theme attribute for background -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background"
-            app:tabIndicatorColor="@color/primary"
-            app:tabSelectedTextColor="@color/primary"
-            app:tabTextColor="@color/navy"
+            android:background="?attr/tabBackground"
+            app:tabIndicatorColor="?attr/colorPrimary"
+            app:tabSelectedTextColor="?attr/colorPrimary"
+            app:tabTextColor="?attr/colorOnSurface"
             app:tabMode="fixed"
-            app:tabGravity="fill" />
+            app:tabGravity="fill"
+            android:elevation="2dp"
+            android:layout_marginBottom="8dp"
+            app:tabRippleColor="#1A5A7411"
+            app:tabBackground="@drawable/tab_selector_glass" />
 
         <!-- ViewPager2 -->
         <androidx.viewpager2.widget.ViewPager2
@@ -41,9 +45,12 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_add"
             android:contentDescription="Action"
-            app:backgroundTint="@color/accent"
+            app:backgroundTint="?attr/colorSecondary"
             app:tint="@android:color/white"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:fabSize="normal"
+            app:elevation="4dp"
+            app:rippleColor="#80FFFFFF" />
 
         <!-- Spacer for bottom navigation -->
         <View
@@ -52,7 +59,7 @@
 
     </LinearLayout>
 
-    <!--FLOATING BOTTOM NAVIGATION BAR -->
+    <!-- FLOATING BOTTOM NAVIGATION BAR (Theme-Aware) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -61,12 +68,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/white"
-        app:cardBackgroundColor="@color/white"
+        android:backgroundTint="?attr/colorSurface"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="36dp"
-        app:cardElevation="28dp"
-        android:elevation="16dp"
-        app:strokeColor="#1A000000"
+        app:cardElevation="18dp"
+        android:elevation="8dp"
+        app:strokeColor="?attr/colorPrimary"
         app:strokeWidth="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
@@ -79,7 +86,7 @@
             android:paddingVertical="6dp"
             android:paddingHorizontal="12dp"
             android:weightSum="4"
-            android:background="@drawable/bg_navbar_3d">
+            android:background="@drawable/bg_navbar_3d_selector">
 
             <!-- Home -->
             <LinearLayout
@@ -103,9 +110,8 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_home"
-                        app:tint="@color/primary" />
+                        app:tint="?attr/colorPrimary" />
 
-                    <!-- Active indicator dot -->
                     <View
                         android:id="@+id/navHomeIndicator"
                         android:layout_width="6dp"
@@ -124,7 +130,7 @@
                     android:layout_height="wrap_content"
                     android:text="Home"
                     android:textSize="10sp"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -151,8 +157,8 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/ic_park"
-                        app:tint="@color/navy" />
+                        android:src="@drawable/ic_farming"
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navFarmIndicator"
@@ -172,7 +178,7 @@
                     android:layout_height="wrap_content"
                     android:text="Farm"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -200,7 +206,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="@color/navy" />
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navFinanceIndicator"
@@ -220,7 +226,7 @@
                     android:layout_height="wrap_content"
                     android:text="Finance"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -247,8 +253,8 @@
                         android:id="@+id/navAnalyticsIcon"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/ic_trending_up"
-                        app:tint="@color/navy" />
+                        android:src="@drawable/ic_finance_analytics"
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navAnalyticsIndicator"
@@ -268,7 +274,7 @@
                     android:layout_height="wrap_content"
                     android:text="Analytics"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 

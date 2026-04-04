@@ -49,21 +49,20 @@ public class BlockPerformance {
     }
 
     public String getFormattedProfit() {
+        // Shorten large numbers (e.g., 125,000 → 125k)
+        if (Math.abs(profit) >= 1_000_000) {
+            return String.format(Locale.getDefault(), "%.1fM XAF", profit / 1_000_000);
+        } else if (Math.abs(profit) >= 1_000) {
+            return String.format(Locale.getDefault(), "%.0fk XAF", profit / 1_000);
+        }
         return String.format(Locale.getDefault(), "%,.0f XAF", profit);
     }
 
     public String getFormattedProfitMargin() {
-        return String.format(Locale.getDefault(), "%.1f%%", profitMargin);
+        return String.format(Locale.getDefault(), "%.0f%%", profitMargin);
     }
 
     public String getFormattedSurvivalRate() {
-        return String.format(Locale.getDefault(), "%.1f%%", survivalRate);
-    }
-
-    public String getRankingSuffix() {
-        if (ranking == 1) return "🥇";
-        if (ranking == 2) return "🥈";
-        if (ranking == 3) return "🥉";
-        return ranking + "th";
+        return String.format(Locale.getDefault(), "%.0f%%", survivalRate);
     }
 }

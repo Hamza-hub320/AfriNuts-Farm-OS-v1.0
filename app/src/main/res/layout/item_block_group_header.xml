@@ -8,7 +8,7 @@
     style="@style/Widget.AfriNuts.CardView"
     app:cardCornerRadius="20dp"
     app:cardElevation="4dp"
-    android:backgroundTint="@color/primary_light"
+    android:background="?attr/cardBackgroundPrimary"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -19,9 +19,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:background="?attr/cardBackgroundAccent">
 
         <!-- Row Header -->
         <LinearLayout
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:text="BLOCK A"
                 style="@style/Text.H4"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:layout_marginEnd="8dp" />
 
@@ -47,7 +47,8 @@
                 android:layout_height="wrap_content"
                 android:text="(A1-A7)"
                 style="@style/Text.Caption.Small"
-                android:textColor="@color/navy"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7"
                 android:layout_weight="1" />
 
             <ImageView
@@ -55,7 +56,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_expand_more"
-                app:tint="@color/accent"
+                app:tint="?attr/colorSecondary"
                 android:contentDescription="Expand/Collapse" />
 
         </LinearLayout>
@@ -77,23 +78,23 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_card_secondary"
+                android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="10dp">
 
                 <FrameLayout
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="6dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_grass"
-                        app:tint="@color/primary" />
+                        app:tint="?attr/colorPrimary" />
 
                 </FrameLayout>
 
@@ -103,8 +104,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="5/7"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/primary"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="0dp" />
@@ -119,23 +120,23 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginHorizontal="3dp"
-                android:background="@drawable/bg_card_secondary"
+                android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="10dp">
 
                 <FrameLayout
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="6dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_bar_chart"
-                        app:tint="@color/accent" />
+                        app:tint="?attr/colorSecondary" />
 
                 </FrameLayout>
 
@@ -145,8 +146,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="91%"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/accent"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="?attr/colorSecondary"
                     android:textStyle="bold"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="0dp" />
@@ -161,23 +162,23 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginStart="6dp"
-                android:background="@drawable/bg_card_secondary"
+                android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="10dp">
 
                 <FrameLayout
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/bg_icon_container_small"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="6dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_park"
-                        app:tint="@color/primary" />
+                        app:tint="?attr/colorPrimary" />
 
                 </FrameLayout>
 
@@ -187,8 +188,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="500/700"
-                    style="@style/Text.Caption"
-                    android:textColor="@color/primary"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="0dp" />
@@ -206,8 +207,8 @@
             android:layout_marginTop="8dp"
             android:progress="71"
             android:max="100"
-            android:progressTint="@color/primary"
-            android:progressBackgroundTint="@color/warm_grey" />
+            android:progressTint="?attr/colorPrimary"
+            android:progressBackgroundTint="?attr/colorSurfaceVariant" />
 
     </LinearLayout>
 

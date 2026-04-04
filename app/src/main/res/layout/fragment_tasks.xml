@@ -6,12 +6,12 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Summary Cards Row -->
+    <!-- Summary Cards Row - Compact -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="12dp"
         android:weightSum="3">
 
         <!-- Pending Tasks Card -->
@@ -19,27 +19,36 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            android:layout_marginEnd="3dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
-            android:background="@drawable/bg_card_primary">
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/bg_card_accent">
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_hourglass_empty"
-                    android:background="@drawable/bg_icon_container"
-                    app:tint="@color/primary"
-                    android:contentDescription="Pending tasks" />
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_hourglass_empty"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="Pending tasks" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/pendingTasksValue"
@@ -47,15 +56,18 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat"
-                    android:textColor="@color/primary"
-                    android:layout_marginTop="4dp" />
+                    android:textSize="20sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pending"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -66,28 +78,37 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
-            android:background="@drawable/bg_card_secondary">
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/bg_card_primary">
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundSecondary">
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_sync"
-                    android:background="@drawable/bg_icon_container"
-                    app:tint="@color/olive"
-                    android:contentDescription="In progress tasks" />
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_sync"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="In progress tasks" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/inProgressTasksValue"
@@ -95,15 +116,18 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat"
-                    android:textColor="@color/olive"
-                    android:layout_marginTop="4dp" />
+                    android:textSize="20sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="In Progress"
+                    android:text="Progress"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -114,27 +138,36 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            android:layout_marginStart="3dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
-            android:background="@drawable/bg_card_accent">
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="@drawable/bg_card_secondary">
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundAccent">
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_task"
-                    android:background="@drawable/bg_icon_container"
-                    app:tint="@color/accent"
-                    android:contentDescription="Completed tasks" />
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="?attr/colorSecondary"
+                        android:contentDescription="Completed tasks" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/completedTasksValue"
@@ -142,15 +175,18 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat"
-                    android:textColor="@color/accent"
-                    android:layout_marginTop="4dp" />
+                    android:textSize="20sp"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginTop="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Completed"
+                    android:text="Complete"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -158,21 +194,21 @@
 
     </LinearLayout>
 
-    <!-- Filter Chips -->
+    <!-- Filter Chips - Compact -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:fillViewport="true"
         android:scrollbars="none"
-        android:paddingVertical="4dp">
+        android:paddingVertical="2dp">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             app:selectionRequired="true"
             app:singleSelection="true">
 
@@ -182,83 +218,89 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="All Tasks"
+                android:text="All"
+                android:textSize="13sp"
                 app:chipIcon="@drawable/ic_view_list"
-                app:chipIconTint="@color/primary" />
+                app:chipIconTint="?attr/colorPrimary" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPending"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textSize="13sp"
                 app:chipIcon="@drawable/ic_hourglass_empty"
-                app:chipIconTint="@color/primary"
-                android:text="Pending" />
+                app:chipIconTint="?attr/colorPrimary" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipInProgress"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Progress"
+                android:textSize="13sp"
                 app:chipIcon="@drawable/ic_sync"
-                app:chipIconTint="@color/olive"
-                android:text="In Progress" />
+                app:chipIconTint="?attr/colorPrimary" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCompleted"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Complete"
+                android:textSize="13sp"
                 app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="@color/accent"
-                android:text="Completed" />
+                app:chipIconTint="?attr/colorSecondary" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOverdue"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Overdue"
+                android:textSize="13sp"
                 app:chipIcon="@drawable/ic_warning"
-                app:chipIconTint="@color/accent"
-                android:text="Overdue" />
+                app:chipIconTint="?attr/colorSecondary" />
 
         </com.google.android.material.chip.ChipGroup>
 
     </HorizontalScrollView>
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar - Smaller -->
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         style="@style/Widget.AfriNuts.ProgressBar"
-        android:indeterminateTint="@color/primary"
+        android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State - Compact -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="48dp"
         android:visibility="gone">
 
         <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@drawable/bg_icon_container_large"
-            android:padding="12dp">
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?attr/iconBackgroundGlass"
+            android:padding="8dp">
 
             <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_view_list"
-                app:tint="@color/warm_grey"
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.5"
                 android:contentDescription="No tasks" />
 
         </FrameLayout>
@@ -266,18 +308,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No tasks yet"
-            style="@style/Text.H3"
-            android:textColor="@color/text_dark"
-            android:layout_marginTop="16dp" />
+            android:text="No tasks"
+            style="@style/Text.H4"
+            android:textSize="18sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap + to create your first task"
-            style="@style/Text.Body.Small"
-            android:textColor="@color/navy"
-            android:layout_marginTop="8dp" />
+            android:text="Tap + to create"
+            style="@style/Text.Caption"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 
@@ -287,8 +332,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
+        android:padding="6dp"
         android:clipToPadding="false"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:background="@color/background" />
 
 </LinearLayout>

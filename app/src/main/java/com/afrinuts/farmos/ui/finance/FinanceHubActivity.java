@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.finance;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.expenses.ExpensesFragment;
+import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
 import com.afrinuts.farmos.ui.revenue.RevenueFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -54,9 +56,12 @@ public class FinanceHubActivity extends BaseHubActivity {
             if (position == 0) {
                 tab.setText("Expenses");
                 tab.setIcon(R.drawable.ic_money_off);
-            } else {
+            } else if (position == 1) {
                 tab.setText("Revenue");
                 tab.setIcon(R.drawable.ic_attach_money);
+            } else {
+                tab.setText("Charts");
+                tab.setIcon(R.drawable.ic_insert_chart);
             }
         }).attach();
 
@@ -70,9 +75,9 @@ public class FinanceHubActivity extends BaseHubActivity {
     }
 
     private void updateFabForTab(int position) {
-        fabAdd.setImageResource(R.drawable.ic_add_business);
         if (position == 0) {
-            // Expenses tab
+            fabAdd.setVisibility(View.VISIBLE);
+            fabAdd.setImageResource(R.drawable.ic_add_business);
             fabAdd.setOnClickListener(v -> {
                 ExpensesFragment fragment = (ExpensesFragment) pagerAdapter.getFragment(position);
                 if (fragment != null) {
@@ -81,8 +86,9 @@ public class FinanceHubActivity extends BaseHubActivity {
                     Toast.makeText(this, "Error opening expense dialog", Toast.LENGTH_SHORT).show();
                 }
             });
-        } else {
-            // Revenue tab
+        } else if (position == 1) {
+            fabAdd.setVisibility(View.VISIBLE);
+            fabAdd.setImageResource(R.drawable.ic_add_business);
             fabAdd.setOnClickListener(v -> {
                 RevenueFragment fragment = (RevenueFragment) pagerAdapter.getFragment(position);
                 if (fragment != null) {
@@ -91,11 +97,15 @@ public class FinanceHubActivity extends BaseHubActivity {
                     Toast.makeText(this, "Error opening revenue dialog", Toast.LENGTH_SHORT).show();
                 }
             });
+        } else {
+            // Charts tab → hide FAB
+            fabAdd.setVisibility(View.GONE);
         }
     }
 
     private void setupFab() {
         // Initial state (Expenses tab)
+        fabAdd.setVisibility(View.VISIBLE);
         fabAdd.setImageResource(R.drawable.ic_add);
         fabAdd.setOnClickListener(v -> {
             ExpensesFragment fragment = (ExpensesFragment) pagerAdapter.getFragment(0);
@@ -115,11 +125,13 @@ public class FinanceHubActivity extends BaseHubActivity {
 
         private final ExpensesFragment expensesFragment;
         private final RevenueFragment revenueFragment;
+        private final ExpenseChartsFragment chartsFragment;
 
         public FinancePagerAdapter(FinanceHubActivity activity) {
             super(activity);
             expensesFragment = new ExpensesFragment();
             revenueFragment = new RevenueFragment();
+            chartsFragment = new ExpenseChartsFragment();
         }
 
         @NonNull
@@ -127,21 +139,25 @@ public class FinanceHubActivity extends BaseHubActivity {
         public Fragment createFragment(int position) {
             if (position == 0) {
                 return expensesFragment;
-            } else {
+            } else if (position == 1) {
                 return revenueFragment;
+            } else {
+                return chartsFragment;
             }
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return 3;
         }
 
         public Fragment getFragment(int position) {
             if (position == 0) {
                 return expensesFragment;
-            } else {
+            } else if (position == 1) {
                 return revenueFragment;
+            } else {
+                return chartsFragment;
             }
         }
     }

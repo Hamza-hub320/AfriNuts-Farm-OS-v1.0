@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.R;
@@ -357,6 +358,10 @@ public class UserDetailActivity extends BaseActivity {
         TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
         TextView tvHelper = dialogView.findViewById(R.id.tvHelperText);
 
+        // Find custom buttons
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
+
         etName.setText(user.getName());
         etPhone.setText(user.getPhone());
 
@@ -368,6 +373,10 @@ public class UserDetailActivity extends BaseActivity {
             tvHelper.setText("You are updating YOUR OWN account.");
             etEmail.setEnabled(false);
             etEmail.setHint("Email (cannot be changed)");
+
+            // For current user, password change is allowed
+            etNewPassword.setEnabled(true);
+            etConfirmPassword.setEnabled(true);
         } else {
             tvHelper.setText("You are updating another user.");
             etEmail.setEnabled(false);
@@ -380,26 +389,99 @@ public class UserDetailActivity extends BaseActivity {
             etEmail.setText(user.getEmail());
         }
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Edit User")
+        // Create custom dialog without default buttons
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("")
                 .setView(dialogView)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    String newName = etName.getText().toString().trim();
-                    String newPhone = etPhone.getText().toString().trim();
+                .setCancelable(false)
+                .create();
 
-                    if (TextUtils.isEmpty(newName)) {
-                        Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
+        // Set custom button click listeners
+        dialog.setOnShowListener(dialogInterface -> {
+            btnSave.setOnClickListener(v -> {
+                String newName = etName.getText().toString().trim();
+                String newPhone = etPhone.getText().toString().trim();
+                String newPassword = etNewPassword.getText().toString().trim();
+                String confirmPassword = etConfirmPassword.getText().toString().trim();
+
+                if (TextUtils.isEmpty(newName)) {
+                    Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                user.setName(newName);
+                user.setPhone(newPhone);
+
+                // Handle password change for current user
+                if (isCurrentUser && !TextUtils.isEmpty(newPassword)) {
+                    if (newPassword.length() < 6) {
+                        Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (!newPassword.equals(confirmPassword)) {
+                        Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    user.setName(newName);
-                    user.setPhone(newPhone);
+                    // Show loading state
+                    btnSave.setEnabled(false);
+                    btnSave.setText("Saving...");
 
+                    // Update password in Firebase
+                    com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser()
+                            .updatePassword(newPassword)
+                            .addOnSuccessListener(aVoid -> {
+                                // Update local password hash
+                                user.setPasswordHash(AuthUtils.hash(newPassword));
+                                userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean result) {
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(UserDetailActivity.this,
+                                                    "Password updated! Please log in with your new password.",
+                                                    Toast.LENGTH_LONG).show();
+
+                                            // Log out and redirect to login
+                                            sessionManager.logout();
+                                            Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+                                        runOnUiThread(() -> {
+                                            btnSave.setEnabled(true);
+                                            btnSave.setText("Save Changes");
+                                            Toast.makeText(UserDetailActivity.this,
+                                                    "Error: " + error, Toast.LENGTH_SHORT).show();
+                                        });
+                                    }
+                                });
+                            })
+                            .addOnFailureListener(e -> {
+                                runOnUiThread(() -> {
+                                    btnSave.setEnabled(true);
+                                    btnSave.setText("Save Changes");
+                                    Toast.makeText(UserDetailActivity.this,
+                                            "Failed to update password: " + e.getMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                });
+                            });
+                } else {
+                    // Update profile only (no password change)
                     updateLocalUserOnly();
                     Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                    dialog.dismiss();
+                }
+            });
+
+            btnCancel.setOnClickListener(v -> dialog.dismiss());
+        });
+
+        dialog.show();
     }
 
     @Override

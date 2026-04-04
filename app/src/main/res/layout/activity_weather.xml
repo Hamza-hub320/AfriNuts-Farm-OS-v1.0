@@ -25,21 +25,23 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_accent"
-                style="@style/Widget.AfriNuts.CardView">
+                android:background="@drawable/bg_card_selector_accent"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clipChildren="false"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:gravity="center"
-                    android:background="@drawable/bg_card_primary">
+                    android:gravity="center">
 
                     <FrameLayout
                         android:layout_width="56dp"
                         android:layout_height="56dp"
-                        android:background="@drawable/bg_icon_glass_large"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginBottom="8dp">
 
                         <ImageView
@@ -47,7 +49,7 @@
                             android:layout_height="28dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_location"
-                            app:tint="@color/accent" />
+                            app:tint="?attr/colorSecondary" />
 
                     </FrameLayout>
 
@@ -57,7 +59,7 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.H3"
                         android:text="Odienné, Côte d'Ivoire"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/colorSecondary"
                         android:visibility="gone" />
 
                     <TextView
@@ -66,7 +68,7 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.Caption.Small"
                         android:text="Updated: "
-                        android:textColor="@color/navy"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginTop="4dp"
                         android:visibility="gone" />
 
@@ -81,21 +83,23 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_primary"
-                style="@style/Widget.AfriNuts.CardView">
+                android:background="@drawable/bg_card_selector"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clipChildren="false"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_card_accent"
                     android:padding="24dp"
                     android:gravity="center">
 
                     <FrameLayout
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:background="@drawable/bg_icon_glass_large"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginBottom="12dp">
 
                         <ImageView
@@ -104,7 +108,7 @@
                             android:layout_height="56dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_wb_sunny"
-                            app:tint="@color/accent"
+                            app:tint="?attr/colorSecondary"
                             android:contentDescription="Weather icon" />
 
                     </FrameLayout>
@@ -115,7 +119,7 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.Stat.Large"
                         android:text="32°C"
-                        android:textColor="@color/primary" />
+                        android:textColor="?attr/colorPrimary" />
 
                     <TextView
                         android:id="@+id/tvCondition"
@@ -123,23 +127,26 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.H4"
                         android:text="Sunny"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/colorSecondary"
                         android:layout_marginBottom="20dp" />
 
                     <!-- Weather Details Grid - Modern Card Layout -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_secondary"
                         app:cardCornerRadius="16dp"
-                        android:padding="8dp">
+                        android:padding="8dp"
+                        android:background="@drawable/bg_card_selector_secondary"
+                        android:clipChildren="false"
+                        android:outlineProvider="background"
+                        android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                         <GridLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:columnCount="2"
                             android:rowCount="2"
-                            android:background="@drawable/bg_card_primary">
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <!-- Feels Like -->
                             <LinearLayout
@@ -155,7 +162,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Feels Like"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
                                     android:id="@+id/tvFeelsLike"
@@ -163,7 +170,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="35°C"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/primary"
+                                    android:textColor="?attr/colorPrimary"
                                     android:layout_marginTop="4dp" />
 
                             </LinearLayout>
@@ -182,7 +189,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Humidity"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
                                     android:id="@+id/tvHumidity"
@@ -190,7 +197,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="45%"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/primary"
+                                    android:textColor="?attr/colorPrimary"
                                     android:layout_marginTop="4dp" />
 
                             </LinearLayout>
@@ -209,7 +216,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Wind"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
                                     android:id="@+id/tvWind"
@@ -217,7 +224,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="12 km/h"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/primary"
+                                    android:textColor="?attr/colorPrimary"
                                     android:layout_marginTop="4dp" />
 
                             </LinearLayout>
@@ -236,7 +243,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="UV Index"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
                                     android:id="@+id/tvUvIndex"
@@ -244,7 +251,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="5"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/primary"
+                                    android:textColor="?attr/colorPrimary"
                                     android:layout_marginTop="4dp" />
 
                             </LinearLayout>
@@ -264,15 +271,17 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_secondary"
-                style="@style/Widget.AfriNuts.CardView">
+                android:background="@drawable/bg_card_selector_secondary"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clipChildren="false"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:background="@drawable/bg_card_secondary">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -284,7 +293,7 @@
                         <FrameLayout
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_glass"
+                            android:background="?attr/iconBackgroundGlass"
                             android:layout_marginBottom="8dp">
 
                             <ImageView
@@ -292,7 +301,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_wb_sunny"
-                                app:tint="@color/accent"
+                                app:tint="?attr/colorSecondary"
                                 android:contentDescription="Sunrise icon" />
 
                         </FrameLayout>
@@ -302,7 +311,7 @@
                             android:layout_height="wrap_content"
                             android:text="Sunrise"
                             style="@style/Text.Caption"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface" />
 
                         <TextView
                             android:id="@+id/tvSunrise"
@@ -310,7 +319,7 @@
                             android:layout_height="wrap_content"
                             android:text="06:15"
                             style="@style/Text.H4"
-                            android:textColor="@color/primary"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -325,7 +334,7 @@
                         <FrameLayout
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:background="@drawable/bg_icon_glass"
+                            android:background="?attr/iconBackgroundGlass"
                             android:layout_marginBottom="8dp">
 
                             <ImageView
@@ -333,7 +342,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_wb_sunny"
-                                app:tint="@color/accent"
+                                app:tint="?attr/colorSecondary"
                                 android:contentDescription="Sunset icon" />
 
                         </FrameLayout>
@@ -343,7 +352,7 @@
                             android:layout_height="wrap_content"
                             android:text="Sunset"
                             style="@style/Text.Caption"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface" />
 
                         <TextView
                             android:id="@+id/tvSunset"
@@ -351,7 +360,7 @@
                             android:layout_height="wrap_content"
                             android:text="18:30"
                             style="@style/Text.H4"
-                            android:textColor="@color/primary"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -368,21 +377,23 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_accent"
-                style="@style/Widget.AfriNuts.CardView">
+                android:background="@drawable/bg_card_selector_accent"
+                style="@style/Widget.AfriNuts.CardView"
+                android:clipChildren="false"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp"
-                    android:background="@drawable/bg_card_accent">
+                    android:padding="20dp">
 
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_icon_glass"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="12dp">
 
                         <ImageView
@@ -391,7 +402,7 @@
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_park"
-                            app:tint="@color/accent"
+                            app:tint="?attr/colorSecondary"
                             android:contentDescription="Farm advice icon" />
 
                     </FrameLayout>
@@ -407,7 +418,7 @@
                             android:layout_height="wrap_content"
                             android:text="Farm Advice"
                             style="@style/Text.H5"
-                            android:textColor="@color/primary"
+                            android:textColor="?attr/colorPrimary"
                             android:layout_marginBottom="4dp" />
 
                         <TextView
@@ -416,7 +427,7 @@
                             android:layout_height="wrap_content"
                             android:text="Good conditions for planting"
                             style="@style/Text.Body"
-                            android:textColor="@color/text_dark" />
+                            android:textColor="?attr/colorOnSurface" />
 
                     </LinearLayout>
 
@@ -430,7 +441,7 @@
                 android:layout_height="wrap_content"
                 android:text="3-Day Forecast"
                 style="@style/Text.H5"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:layout_marginBottom="12dp" />
 
             <!-- Forecast Container -->
@@ -449,7 +460,7 @@
 
     </ScrollView>
 
-    <!--FLOATING BOTTOM NAVIGATION BAR -->
+    <!-- FLOATING BOTTOM NAVIGATION BAR -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -458,12 +469,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/white"
-        app:cardBackgroundColor="@color/white"
+        android:backgroundTint="?attr/colorSurface"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="36dp"
-        app:cardElevation="28dp"
-        android:elevation="16dp"
-        app:strokeColor="#1A000000"
+        app:cardElevation="18dp"
+        android:elevation="8dp"
+        app:strokeColor="?attr/colorPrimary"
         app:strokeWidth="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
@@ -500,9 +511,8 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_home"
-                        app:tint="@color/primary" />
+                        app:tint="?attr/colorPrimary" />
 
-                    <!-- Active indicator dot -->
                     <View
                         android:id="@+id/navHomeIndicator"
                         android:layout_width="6dp"
@@ -521,7 +531,7 @@
                     android:layout_height="wrap_content"
                     android:text="Home"
                     android:textSize="10sp"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -548,8 +558,8 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/ic_park"
-                        app:tint="@color/navy" />
+                        android:src="@drawable/ic_farming"
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navFarmIndicator"
@@ -569,7 +579,7 @@
                     android:layout_height="wrap_content"
                     android:text="Farm"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -597,7 +607,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="@color/navy" />
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navFinanceIndicator"
@@ -617,7 +627,7 @@
                     android:layout_height="wrap_content"
                     android:text="Finance"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 
@@ -644,8 +654,8 @@
                         android:id="@+id/navAnalyticsIcon"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/ic_trending_up"
-                        app:tint="@color/navy" />
+                        android:src="@drawable/ic_finance_analytics"
+                        app:tint="?attr/colorOnSurface" />
 
                     <View
                         android:id="@+id/navAnalyticsIndicator"
@@ -665,7 +675,7 @@
                     android:layout_height="wrap_content"
                     android:text="Analytics"
                     android:textSize="10sp"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium" />
 

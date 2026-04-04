@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AfriNuts Brand Colors - Dark Theme -->
+    <color name="primary">#7A9C2E</color>        <!-- Slightly brighter green for dark mode -->
+    <color name="accent">#F05C1A</color>         <!-- Brighter orange for dark mode -->
+    <color name="dark_orange">#B55A2A</color>
+    <color name="secondary">#B8E030</color>      <!-- Brighter secondary green -->
+    <color name="background">#0F172A</color>     <!-- Dark navy background -->
+    <color name="surface">#1E293B</color>        <!-- Dark surface color -->
+    <color name="text_primary">#F1F5F9</color>   <!-- Light text -->
+    <color name="text_secondary">#CBD5E1</color> <!-- Slightly muted light text -->
+    <color name="text_tertiary">#94A3B8</color>  <!-- Muted light text -->
+    <color name="text_dark">#E2E8F0</color>      <!-- Light text for dark mode -->
+    <color name="text_light">#FFFFFF</color>
+    <color name="warm_grey">#334155</color>      <!-- Darker grey for dark mode -->
+    <color name="navy">#1E293B</color>           <!-- Dark navy -->
+    <color name="teal">#2DD4BF</color>           <!-- Brighter teal -->
+    <color name="olive">#86B349</color>          <!-- Brighter olive -->
+
+    <!-- Status Colors - Slightly adjusted for dark mode -->
+    <color name="success">#4ADE80</color>
+    <color name="warning">#FBBF24</color>
+    <color name="error">#F87171</color>
+    <color name="info">#60A5FA</color>
+</resources>

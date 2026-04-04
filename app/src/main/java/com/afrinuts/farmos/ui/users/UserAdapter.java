@@ -73,9 +73,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         void bind(UserEntity user, OnUserClickListener listener) {
-            // Set avatar with initials
-            userAvatar.setImageResource(R.drawable.ic_person);
-            userAvatar.setImageTintList(null);
+            String initials = user.getInitials();
+            if (initials != null && !initials.isEmpty()) {
+                userAvatar.setImageResource(R.drawable.ic_person);
+                userAvatar.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+            }
 
             userName.setText(user.getName());
 

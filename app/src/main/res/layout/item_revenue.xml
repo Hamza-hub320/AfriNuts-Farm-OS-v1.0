@@ -3,20 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/bg_card_primary"
+    android:background="?attr/cardBackgroundPrimary"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Top Row: Icon + Quality + Amount -->
         <LinearLayout
@@ -24,22 +24,22 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
-            <!-- Icon with Glass Container -->
+            <!-- Icon with Glass Container - Compact -->
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_icon_glass"
-                android:layout_marginEnd="12dp">
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/iconBackgroundGlass"
+                android:layout_marginEnd="8dp">
 
                 <ImageView
                     android:id="@+id/tvQualityIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_star"
-                    app:tint="@color/accent"
+                    app:tint="?attr/colorSecondary"
                     android:contentDescription="Quality icon" />
 
             </FrameLayout>
@@ -55,16 +55,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Premium Grade"
-                    style="@style/Text.H5"
-                    android:textColor="@color/primary" />
+                    style="@style/Text.H6"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/tvSource"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Block A1"
-                    style="@style/Text.Body.Small"
-                    android:textColor="@color/navy" />
+                    style="@style/Text.Caption"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 
@@ -72,28 +75,29 @@
                 android:id="@+id/tvAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="525,000 XAF"
-                style="@style/Text.Stat.Small"
-                android:textColor="@color/accent" />
+                android:text="525k XAF"
+                style="@style/Text.Stat"
+                android:textSize="16sp"
+                android:textColor="?attr/colorSecondary" />
 
         </LinearLayout>
 
-        <!-- Stats Row - Modern Glass Card -->
+        <!-- Stats Row - Compact -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            android:background="@drawable/bg_card_secondary"
-            android:backgroundTint="@color/warm_grey">
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="12dp">
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <!-- Quantity -->
                 <LinearLayout
@@ -104,17 +108,17 @@
                     android:gravity="center_vertical">
 
                     <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_glass"
-                        android:layout_marginEnd="8dp">
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?attr/iconBackgroundGlass"
+                        android:layout_marginEnd="6dp">
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_inventory"
-                            app:tint="@color/olive"
+                            app:tint="?attr/colorPrimary"
                             android:contentDescription="Quantity" />
 
                     </FrameLayout>
@@ -125,7 +129,8 @@
                         android:layout_height="wrap_content"
                         android:text="350 kg"
                         style="@style/Text.Caption"
-                        android:textColor="@color/olive"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorPrimary"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -139,17 +144,17 @@
                     android:gravity="center_vertical">
 
                     <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_glass"
-                        android:layout_marginEnd="8dp">
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?attr/iconBackgroundGlass"
+                        android:layout_marginEnd="6dp">
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_attach_money"
-                            app:tint="@color/primary"
+                            app:tint="?attr/colorPrimary"
                             android:contentDescription="Price" />
 
                     </FrameLayout>
@@ -158,9 +163,10 @@
                         android:id="@+id/tvPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1,500 XAF/kg"
+                        android:text="1.5k XAF/kg"
                         style="@style/Text.Caption"
-                        android:textColor="@color/primary"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorPrimary"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -169,7 +175,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Bottom Row: Date + Buyer -->
+        <!-- Bottom Row: Date + Buyer - Compact -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -185,10 +191,11 @@
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
                     android:src="@drawable/ic_today"
-                    app:tint="@color/navy"
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="0.6"
                     android:layout_marginEnd="4dp"
                     android:contentDescription="Date" />
 
@@ -196,30 +203,32 @@
                     android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mar 15, 2024"
+                    android:text="Mar 15"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.6" />
 
             </LinearLayout>
 
-            <!-- Buyer -->
+            <!-- Buyer Badge - Compact -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="horizontal"
-                android:gravity="end"
-                android:background="@drawable/bg_icon_glass"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                app:cardCornerRadius="12dp">
+                android:gravity="center_vertical"
+                android:background="?attr/iconBackgroundGlass"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="3dp"
+                app:cardCornerRadius="8dp">
 
                 <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
                     android:src="@drawable/ic_person"
-                    app:tint="@color/navy"
-                    android:layout_marginEnd="4dp"
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="1"
+                    android:layout_marginEnd="3dp"
                     android:contentDescription="Buyer" />
 
                 <TextView
@@ -228,7 +237,9 @@
                     android:layout_height="wrap_content"
                     android:text="Olam"
                     style="@style/Text.Caption.Small"
-                    android:textColor="@color/navy" />
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
             </LinearLayout>
 

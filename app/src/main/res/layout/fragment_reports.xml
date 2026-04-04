@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="12dp"
         android:paddingTop="0dp"
         android:clipToPadding="false">
 
@@ -18,35 +18,36 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Date Range Card - Modern Glass -->
+            <!-- Date Range Card - Compact -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                android:background="@drawable/bg_card_primary">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Date Range"
-                        style="@style/Text.H5"
-                        android:textColor="@color/primary"
-                        android:layout_marginBottom="16dp" />
+                        style="@style/Text.H6"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginBottom="10dp" />
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/toggleDateRange"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="10dp"
                         app:singleSelection="true">
 
                         <Button
@@ -57,7 +58,8 @@
                             android:text="All Time"
                             android:checked="true"
                             style="@style/Widget.AfriNuts.Button.Outlined"
-                            app:cornerRadius="24dp" />
+                            android:textSize="12sp"
+                            app:cornerRadius="20dp" />
 
                         <Button
                             android:id="@+id/btnThisYear"
@@ -66,7 +68,8 @@
                             android:layout_weight="1"
                             android:text="This Year"
                             style="@style/Widget.AfriNuts.Button.Outlined"
-                            app:cornerRadius="24dp" />
+                            android:textSize="12sp"
+                            app:cornerRadius="20dp" />
 
                         <Button
                             android:id="@+id/btnThisMonth"
@@ -75,7 +78,8 @@
                             android:layout_weight="1"
                             android:text="This Month"
                             style="@style/Widget.AfriNuts.Button.Outlined"
-                            app:cornerRadius="24dp" />
+                            android:textSize="12sp"
+                            app:cornerRadius="20dp" />
 
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -91,18 +95,19 @@
                             android:layout_weight="1"
                             android:layout_marginEnd="4dp"
                             style="@style/Widget.AfriNuts.EditText"
-                            app:boxBackgroundColor="@android:color/white"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxStrokeColor="@color/primary">
+                            app:boxBackgroundColor="?attr/colorSurface"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxStrokeColor="?attr/colorPrimary">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etStartDate"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Start Date"
+                                android:hint="Start"
+                                android:textSize="12sp"
                                 android:focusable="false"
                                 android:clickable="true"
                                 android:drawableEnd="@drawable/ic_today" />
@@ -116,18 +121,19 @@
                             android:layout_weight="1"
                             android:layout_marginStart="4dp"
                             style="@style/Widget.AfriNuts.EditText"
-                            app:boxBackgroundColor="@android:color/white"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxStrokeColor="@color/primary">
+                            app:boxBackgroundColor="?attr/colorSurface"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxStrokeColor="?attr/colorPrimary">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etEndDate"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="End Date"
+                                android:hint="End"
+                                android:textSize="12sp"
                                 android:focusable="false"
                                 android:clickable="true"
                                 android:drawableEnd="@drawable/ic_today" />
@@ -140,62 +146,64 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Report Types Card - Modern Glass -->
+            <!-- Report Types Card - Compact -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                android:background="@drawable/bg_card_secondary">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Report Types"
-                        style="@style/Text.H5"
-                        android:textColor="@color/olive"
-                        android:layout_marginBottom="16dp" />
+                        style="@style/Text.H6"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorSecondary"
+                        android:layout_marginBottom="10dp" />
 
                     <!-- Farm Summary Report -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardFarmSummary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="8dp"
                         style="@style/Widget.AfriNuts.CardView"
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="16dp"
-                        android:background="@drawable/bg_card_primary">
+                        app:cardCornerRadius="20dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:padding="16dp">
+                            android:padding="10dp"
+                            android:background="?attr/cardBackgroundSecondary">
 
                             <FrameLayout
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="@drawable/bg_icon_glass"
-                                android:layout_marginEnd="12dp">
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/iconBackgroundGlass"
+                                android:layout_marginEnd="10dp">
 
                                 <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_farm"
-                                    app:tint="@color/primary" />
+                                    app:tint="?attr/colorPrimary" />
 
                             </FrameLayout>
 
@@ -208,24 +216,27 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Farm Summary Report"
-                                    style="@style/Text.H5"
-                                    android:textColor="@color/primary" />
+                                    android:text="Farm Summary"
+                                    style="@style/Text.H6"
+                                    android:textSize="13sp"
+                                    android:textColor="?attr/colorPrimary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Complete farm overview with statistics"
+                                    android:text="Overview &amp; stats"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:src="@drawable/ic_arrow_forward"
-                                app:tint="@color/accent" />
+                                app:tint="?attr/colorSecondary" />
 
                         </LinearLayout>
 
@@ -240,28 +251,29 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="16dp"
-                        android:background="@drawable/bg_card_primary">
+                        app:cardCornerRadius="20dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:padding="16dp">
+                            android:padding="10dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <FrameLayout
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="@drawable/bg_icon_glass"
-                                android:layout_marginEnd="12dp">
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/iconBackgroundGlass"
+                                android:layout_marginEnd="10dp">
 
                                 <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_attach_money"
-                                    app:tint="@color/primary" />
+                                    app:tint="?attr/colorPrimary" />
 
                             </FrameLayout>
 
@@ -274,24 +286,27 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Financial Statement"
-                                    style="@style/Text.H5"
-                                    android:textColor="@color/primary" />
+                                    android:text="Financial"
+                                    style="@style/Text.H6"
+                                    android:textSize="13sp"
+                                    android:textColor="?attr/colorPrimary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Revenue, expenses, and profit details"
+                                    android:text="Revenue &amp; expenses"
                                     style="@style/Text.Caption"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:src="@drawable/ic_arrow_forward"
-                                app:tint="@color/accent" />
+                                app:tint="?attr/colorSecondary" />
 
                         </LinearLayout>
 
@@ -309,7 +324,7 @@
                 android:background="#80000000"
                 android:visibility="gone" />
 
-            <!-- Progress indicator -->
+            <!-- Progress indicator - Compact -->
             <LinearLayout
                 android:id="@+id/layoutProgress"
                 android:layout_width="match_parent"
@@ -317,15 +332,15 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:visibility="gone"
-                android:padding="32dp"
-                android:elevation="8dp"
-                android:background="@drawable/bg_card_primary"
-                app:cardCornerRadius="20dp">
+                android:padding="20dp"
+                android:elevation="6dp"
+                android:background="?attr/cardBackgroundPrimary"
+                app:cardCornerRadius="16dp">
 
                 <ProgressBar
                     android:id="@+id/progressBar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     style="@style/Widget.AfriNuts.ProgressBar"
                     android:indeterminate="true" />
 
@@ -333,10 +348,11 @@
                     android:id="@+id/tvProgressMessage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Generating PDF..."
-                    style="@style/Text.H5"
-                    android:textColor="@color/primary"
-                    android:layout_marginTop="16dp" />
+                    android:text="Generating..."
+                    style="@style/Text.Caption"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="12dp" />
 
             </LinearLayout>
 

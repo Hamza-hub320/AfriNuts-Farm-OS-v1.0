@@ -12,10 +12,23 @@
         <attr name="showInfoBadge" format="boolean" />
         <attr name="ctaText" format="string" />
     </declare-styleable>
+
     <declare-styleable name="CircularProgressView">
         <attr name="progressColor" format="color" />
         <attr name="backgroundColor" format="color" />
         <attr name="textColor" format="color" />
         <attr name="textSize" format="dimension" />
+        <attr name="tabBackgroundDark" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="Theme">
+        <attr name="isLightTheme" format="boolean" />
+    </declare-styleable>
+
+    <!-- Theme attributes for automatic light/dark switching -->
+    <attr name="cardBackgroundPrimary" format="reference" />
+    <attr name="cardBackgroundAccent" format="reference" />
+    <attr name="cardBackgroundSecondary" format="reference" />
+    <attr name="iconBackgroundGlass" format="reference" />
+    <attr name="tabBackground" format="reference" />
 </resources>

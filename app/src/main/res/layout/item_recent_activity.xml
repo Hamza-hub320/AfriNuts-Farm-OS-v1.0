@@ -18,11 +18,11 @@
         android:clickable="true"
         android:focusable="true">
 
-        <!-- Icon Container with Gradient Background -->
+        <!-- Icon Container with Theme-Aware Gradient Background -->
         <FrameLayout
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_activity_icon"
+            android:background="?attr/iconBackgroundGlass"
             android:layout_marginEnd="12dp">
 
             <ImageView
@@ -31,7 +31,7 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_grass"
-                app:tint="@color/primary" />
+                app:tint="?attr/colorPrimary" />
 
         </FrameLayout>
 
@@ -49,7 +49,7 @@
                 android:text="Task Completed"
                 style="@style/Text.Body"
                 android:textStyle="bold"
-                android:textColor="@color/text_dark" />
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/activitySubtitle"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:text="Block A1 was cleared"
                 style="@style/Text.Caption"
-                android:textColor="@color/navy"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="2dp" />
 
         </LinearLayout>
@@ -75,14 +75,14 @@
                 android:layout_height="wrap_content"
                 android:text="2h ago"
                 style="@style/Text.Caption.Small"
-                android:textColor="@color/navy" />
+                android:textColor="?attr/colorOnSurface" />
 
             <ImageView
                 android:id="@+id/activityStatus"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_check_circle"
-                app:tint="@color/primary"
+                app:tint="?attr/colorPrimary"
                 android:layout_marginTop="4dp"
                 android:visibility="gone" />
 

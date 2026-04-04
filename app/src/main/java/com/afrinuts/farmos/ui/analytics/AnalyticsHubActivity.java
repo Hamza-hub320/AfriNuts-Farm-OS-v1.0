@@ -83,29 +83,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     }
 
     private void updateFabForTab(int position) {
-        if (position == 2) {
-            // Reports tab - FAB to generate new report
-            fabAction.setImageResource(R.drawable.ic_add);
-            fabAction.setOnClickListener(v -> {
-                Intent intent = new Intent(AnalyticsHubActivity.this, ReportsActivity.class);
-                startActivity(intent);
-            });
-            fabAction.show();
-        } else if (position == 1) {
-            // Workers tab - FAB to refresh data
-            fabAction.setImageResource(R.drawable.ic_sync);
-            fabAction.setOnClickListener(v -> {
-                WorkerDashboardFragment fragment = (WorkerDashboardFragment) pagerAdapter.getFragment(position);
-                if (fragment != null) {
-                    fragment.refreshData();
-                    Toast.makeText(this, "Refreshing worker data...", Toast.LENGTH_SHORT).show();
-                }
-            });
-            fabAction.show();
-        } else {
-            // Analytics tab - no FAB
-            fabAction.hide();
-        }
+        // No FAB for any tab
+        fabAction.hide();
     }
 
     private void setupFab() {

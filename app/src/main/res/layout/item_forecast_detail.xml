@@ -6,16 +6,18 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    android:background="@drawable/bg_card_primary"
-    style="@style/Widget.AfriNuts.CardView">
+    android:background="?attr/cardBackgroundPrimary"
+    style="@style/Widget.AfriNuts.CardView"
+    android:clipChildren="false"
+    android:outlineProvider="background"
+    android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp"
-        android:background="@drawable/bg_card_secondary">
+        android:padding="16dp">
 
         <!-- Day -->
         <TextView
@@ -25,13 +27,13 @@
             android:layout_weight="2"
             style="@style/Text.Body"
             android:text="Monday, Mar 10"
-            android:textColor="@color/text_dark" />
+            android:textColor="?attr/colorOnSurface" />
 
         <!-- Weather Icon -->
         <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_icon_glass"
+            android:background="?attr/iconBackgroundGlass"
             android:layout_marginEnd="12dp">
 
             <ImageView
@@ -40,7 +42,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_wb_sunny"
-                app:tint="@color/accent" />
+                app:tint="?attr/colorSecondary" />
 
         </FrameLayout>
 
@@ -52,7 +54,7 @@
             android:layout_weight="2"
             style="@style/Text.Body"
             android:text="H:32° L:24°"
-            android:textColor="@color/primary" />
+            android:textColor="?attr/colorPrimary" />
 
         <!-- Rain Probability -->
         <LinearLayout
@@ -67,7 +69,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_water_drop"
-                app:tint="@color/navy"
+                app:tint="?attr/colorOnSurface"
                 android:layout_marginEnd="4dp" />
 
             <TextView
@@ -76,7 +78,7 @@
                 android:layout_height="wrap_content"
                 style="@style/Text.Caption.Small"
                 android:text="20%"
-                android:textColor="@color/navy" />
+                android:textColor="?attr/colorOnSurface" />
 
         </LinearLayout>
 

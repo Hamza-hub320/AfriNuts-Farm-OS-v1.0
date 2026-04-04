@@ -15,7 +15,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
+            android:padding="12dp"
             android:fillViewport="true">
 
             <LinearLayout
@@ -23,36 +23,36 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Overall Stats Card - Modern Glass -->
+                <!-- Overall Stats Card - Compact -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    android:background="@drawable/bg_card_primary">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="12dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Workforce Overview"
-                            style="@style/Text.H4"
-                            android:textColor="@color/primary"
-                            android:layout_marginBottom="16dp" />
+                            android:text="Workforce"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary"
+                            android:layout_marginBottom="8dp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:weightSum="3"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="8dp">
 
                             <!-- Total Workers -->
                             <LinearLayout
@@ -63,17 +63,17 @@
                                 android:gravity="center">
 
                                 <FrameLayout
-                                    android:layout_width="48dp"
-                                    android:layout_height="48dp"
-                                    android:background="@drawable/bg_icon_glass"
-                                    android:layout_marginBottom="8dp">
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:background="?attr/iconBackgroundGlass"
+                                    android:layout_marginBottom="4dp">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_people"
-                                        app:tint="@color/primary" />
+                                        app:tint="?attr/colorPrimary" />
 
                                 </FrameLayout>
 
@@ -82,15 +82,18 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    style="@style/Text.Stat.Large"
-                                    android:textColor="@color/primary" />
+                                    style="@style/Text.Stat"
+                                    android:textSize="20sp"
+                                    android:textColor="?attr/colorPrimary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Workers"
                                     style="@style/Text.Caption.Small"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
@@ -103,17 +106,17 @@
                                 android:gravity="center">
 
                                 <FrameLayout
-                                    android:layout_width="48dp"
-                                    android:layout_height="48dp"
-                                    android:background="@drawable/bg_icon_glass"
-                                    android:layout_marginBottom="8dp">
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:background="?attr/iconBackgroundGlass"
+                                    android:layout_marginBottom="4dp">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_task"
-                                        app:tint="@color/olive" />
+                                        app:tint="?attr/colorPrimary" />
 
                                 </FrameLayout>
 
@@ -122,15 +125,18 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    style="@style/Text.Stat.Large"
-                                    android:textColor="@color/olive" />
+                                    style="@style/Text.Stat"
+                                    android:textSize="20sp"
+                                    android:textColor="?attr/colorPrimary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Tasks"
                                     style="@style/Text.Caption.Small"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
@@ -143,17 +149,17 @@
                                 android:gravity="center">
 
                                 <FrameLayout
-                                    android:layout_width="48dp"
-                                    android:layout_height="48dp"
-                                    android:background="@drawable/bg_icon_glass"
-                                    android:layout_marginBottom="8dp">
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:background="?attr/iconBackgroundGlass"
+                                    android:layout_marginBottom="4dp">
 
                                     <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_check_circle"
-                                        app:tint="@color/accent" />
+                                        app:tint="?attr/colorSecondary" />
 
                                 </FrameLayout>
 
@@ -162,54 +168,60 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0%"
-                                    style="@style/Text.Stat.Large"
-                                    android:textColor="@color/accent" />
+                                    style="@style/Text.Stat"
+                                    android:textSize="20sp"
+                                    android:textColor="?attr/colorSecondary" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Completed"
+                                    android:text="Complete"
                                     style="@style/Text.Caption.Small"
-                                    android:textColor="@color/navy" />
+                                    android:textSize="10sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.7" />
 
                             </LinearLayout>
 
                         </LinearLayout>
 
-                        <!-- Average Time Card -->
+                        <!-- Average Time Card - Compact -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:background="@drawable/bg_card_secondary"
-                            android:padding="16dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            android:padding="10dp"
                             android:gravity="center_vertical"
-                            app:cardCornerRadius="16dp">
+                            app:cardCornerRadius="12dp">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
                                 android:src="@drawable/ic_timer"
-                                app:tint="@color/primary"
-                                android:layout_marginEnd="12dp"
-                                android:background="@drawable/bg_icon_glass"
-                                android:padding="4dp" />
+                                app:tint="?attr/colorPrimary"
+                                android:layout_marginEnd="8dp"
+                                android:background="?attr/iconBackgroundGlass"
+                                android:padding="2dp" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Avg. Task Completion Time"
-                                style="@style/Text.Body.Small"
-                                android:textColor="@color/navy" />
+                                android:text="Avg. Completion Time"
+                                style="@style/Text.Caption"
+                                android:textSize="11sp"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.8" />
 
                             <TextView
                                 android:id="@+id/avgTaskTimeValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0 hours"
-                                style="@style/Text.Stat.Small"
-                                android:textColor="@color/primary" />
+                                android:text="0h"
+                                style="@style/Text.Label"
+                                android:textSize="12sp"
+                                android:textColor="?attr/colorPrimary" />
 
                         </LinearLayout>
 
@@ -217,47 +229,49 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Worker Performance List Title -->
+                <!-- Worker Performance List Title - Compact -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Worker Performance"
-                    style="@style/Text.H5"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="12dp" />
+                    style="@style/Text.Caption"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Progress Bar -->
                 <ProgressBar
                     android:id="@+id/progressBar"
                     style="@style/Widget.AfriNuts.ProgressBar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="24dp"
                     android:indeterminate="true"
                     android:visibility="gone" />
 
-                <!-- Empty State - Modern Design -->
+                <!-- Empty State - Compact -->
                 <LinearLayout
                     android:id="@+id/emptyView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginTop="64dp"
+                    android:layout_marginTop="48dp"
                     android:visibility="gone">
 
                     <FrameLayout
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:background="@drawable/bg_icon_glass_large">
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="?attr/iconBackgroundGlass">
 
                         <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_people"
-                            app:tint="@color/warm_grey" />
+                            app:tint="?attr/colorOnSurface"
+                            android:alpha="0.5" />
 
                     </FrameLayout>
 
@@ -265,17 +279,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No workers yet"
-                        style="@style/Text.H3"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="16dp" />
+                        style="@style/Text.H4"
+                        android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="12dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Assign tasks to workers to see performance data"
-                        style="@style/Text.Body.Small"
-                        android:textColor="@color/navy"
-                        android:layout_marginTop="8dp" />
+                        android:text="Assign tasks to see performance"
+                        style="@style/Text.Caption"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
+                        android:layout_marginTop="4dp" />
 
                 </LinearLayout>
 

@@ -4,17 +4,17 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="6dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
-    android:background="@drawable/bg_card_secondary">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    android:background="?attr/cardBackgroundPrimary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header with block name and status -->
         <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:id="@+id/blockNameText"
@@ -30,41 +30,45 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Block A1"
-                style="@style/Text.H4"
-                android:textColor="@color/primary" />
+                style="@style/Text.H5"
+                android:textSize="18sp"
+                android:textColor="?attr/colorPrimary" />
 
             <TextView
                 android:id="@+id/statusText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/Widget.AfriNuts.StatusBadge"
-                android:text="Planted" />
+                android:text="Planted"
+                android:textSize="12sp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp" />
 
         </LinearLayout>
 
-        <!-- Quick Stats -->
+        <!-- Quick Stats - Compact -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_card_primary"
-            android:padding="8dp"
-            app:cornerRadius="12dp">
+            android:layout_marginBottom="8dp"
+            android:background="?attr/cardBackgroundSecondary"
+            android:padding="6dp"
+            app:cornerRadius="8dp">
 
             <FrameLayout
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:background="@drawable/bg_icon_container_small"
-                android:layout_marginEnd="12dp">
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/iconBackgroundGlass"
+                android:layout_marginEnd="8dp">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_park"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -74,8 +78,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Alive: 95 | Dead: 5"
-                style="@style/Text.Body.Small"
-                android:textColor="@color/text_dark" />
+                style="@style/Text.Caption"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurface" />
 
         </LinearLayout>
 
@@ -86,11 +91,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="4dp"
+            android:padding="2dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="4dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -98,20 +103,21 @@
                 android:layout_weight="1"
                 android:text="View details"
                 style="@style/Text.Caption"
-                android:textColor="@color/accent" />
+                android:textSize="12sp"
+                android:textColor="?attr/colorSecondary" />
 
             <FrameLayout
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:background="@drawable/bg_icon_container_small">
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/iconBackgroundGlass">
 
                 <ImageView
                     android:id="@+id/expandIcon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_expand_more"
-                    app:tint="@color/accent" />
+                    app:tint="?attr/colorSecondary" />
 
             </FrameLayout>
 
@@ -124,40 +130,43 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="8dp">
 
             <!-- Planting Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="6dp"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_card_primary"
-                android:padding="8dp"
-                app:cornerRadius="12dp">
+                android:background="?attr/cardBackgroundSecondary"
+                android:padding="6dp"
+                app:cornerRadius="8dp">
 
                 <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_container_small"
-                    android:layout_marginEnd="12dp">
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="?attr/iconBackgroundGlass"
+                    android:layout_marginEnd="8dp">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_today"
-                        app:tint="@color/navy" />
+                        app:tint="?attr/colorOnSurface"
+                        android:alpha="0.7" />
 
                 </FrameLayout>
 
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:text="Planted:"
                     style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
                 <TextView
                     android:id="@+id/dateText"
@@ -166,7 +175,8 @@
                     android:layout_weight="1"
                     android:text="Mar 15, 2024"
                     style="@style/Text.Caption"
-                    android:textColor="@color/text_dark" />
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 
@@ -175,33 +185,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="6dp"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_card_primary"
-                android:padding="8dp"
-                app:cornerRadius="12dp">
+                android:background="?attr/cardBackgroundSecondary"
+                android:padding="6dp"
+                app:cornerRadius="8dp">
 
                 <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_container_small"
-                    android:layout_marginEnd="12dp">
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="?attr/iconBackgroundGlass"
+                    android:layout_marginEnd="8dp">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_sync"
-                        app:tint="@color/navy" />
+                        app:tint="?attr/colorOnSurface"
+                        android:alpha="0.7" />
 
                 </FrameLayout>
 
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:text="Replacements:"
+                    android:text="Replace:"
                     style="@style/Text.Caption"
-                    android:textColor="@color/navy" />
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
 
                 <TextView
                     android:id="@+id/replacementText"
@@ -210,48 +223,52 @@
                     android:layout_weight="1"
                     android:text="2 trees"
                     style="@style/Text.Caption"
-                    android:textColor="@color/text_dark" />
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 
-            <!-- Survival Rate -->
+            <!-- Survival Rate - Compact -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_card_primary"
-                android:padding="12dp"
-                app:cornerRadius="12dp">
+                android:layout_marginBottom="6dp"
+                android:background="?attr/cardBackgroundSecondary"
+                android:padding="8dp"
+                app:cornerRadius="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="4dp">
 
                     <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_container_small"
-                        android:layout_marginEnd="12dp">
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="?attr/iconBackgroundGlass"
+                        android:layout_marginEnd="8dp">
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_trending_up"
-                            app:tint="@color/navy" />
+                            app:tint="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                     </FrameLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Survival Rate"
+                        android:text="Survival"
                         style="@style/Text.Caption"
-                        android:textColor="@color/navy" />
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7" />
 
                 </LinearLayout>
 
@@ -263,11 +280,11 @@
                         android:id="@+id/survivalProgress"
                         style="@style/Widget.AfriNuts.ProgressBar"
                         android:layout_width="match_parent"
-                        android:layout_height="8dp"
+                        android:layout_height="6dp"
                         android:progress="95"
                         android:max="100"
-                        android:progressTint="@color/primary"
-                        android:progressBackgroundTint="@color/warm_grey" />
+                        android:progressTint="?attr/colorPrimary"
+                        android:progressBackgroundTint="?attr/colorSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/survivalText"
@@ -275,46 +292,47 @@
                         android:layout_height="wrap_content"
                         android:text="95%"
                         style="@style/Text.Caption.Small"
-                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_gravity="end"
-                        android:layout_marginTop="-12dp"
-                        android:layout_marginEnd="4dp" />
+                        android:layout_marginTop="-8dp"
+                        android:layout_marginEnd="2dp" />
 
                 </FrameLayout>
 
             </LinearLayout>
 
-            <!-- Notes -->
+            <!-- Notes - Compact -->
             <LinearLayout
                 android:id="@+id/notesSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_card_primary"
-                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:background="?attr/cardBackgroundSecondary"
+                android:padding="8dp"
                 android:visibility="gone"
-                app:cornerRadius="12dp">
+                app:cornerRadius="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="4dp">
 
                     <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_container_small"
-                        android:layout_marginEnd="12dp">
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="?attr/iconBackgroundGlass"
+                        android:layout_marginEnd="8dp">
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_note"
-                            app:tint="@color/primary" />
+                            app:tint="?attr/colorPrimary" />
 
                     </FrameLayout>
 
@@ -323,7 +341,8 @@
                         android:layout_height="wrap_content"
                         android:text="Notes"
                         style="@style/Text.Caption"
-                        android:textColor="@color/primary" />
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorPrimary" />
 
                 </LinearLayout>
 
@@ -333,8 +352,8 @@
                     android:layout_height="wrap_content"
                     android:text="Sample notes here"
                     style="@style/Text.Caption"
-                    android:textColor="@color/text_dark"
-                    android:layout_marginStart="40dp" />
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 

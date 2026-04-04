@@ -59,6 +59,10 @@ public class AddUserDialog extends DialogFragment {
     private UserEntity.UserRole selectedRole = UserEntity.UserRole.WORKER;
     private UserEntity.AuthMethod selectedAuthMethod = UserEntity.AuthMethod.PIN;
 
+    // Custom buttons
+    private Button btnCancel;
+    private Button btnSave;
+
     public interface OnUserAddedListener {
         void onUserAdded();
     }
@@ -76,6 +80,7 @@ public class AddUserDialog extends DialogFragment {
         dialog.setArguments(args);
         return dialog;
     }
+
     public void setOnUserAddedListener(OnUserAddedListener listener) {
         this.listener = listener;
     }
@@ -102,18 +107,23 @@ public class AddUserDialog extends DialogFragment {
         setupRoleDropdown();
         setupAuthMethodToggle();
 
+        // Find custom buttons from layout
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
+
+        // Create dialog without default buttons
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("")
-                .setView(view);
+                .setView(view)
+                .setCancelable(false); // Prevent dismissing by tapping outside
 
         AlertDialog dialog = builder.create();
 
-        // Wire up custom buttons from the layout
-        Button btnSave = view.findViewById(R.id.btnSave);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-
-        btnSave.setOnClickListener(v -> saveUser());
-        btnCancel.setOnClickListener(v -> dismiss());
+        // Set custom button click listeners after dialog is created
+        dialog.setOnShowListener(dialogInterface -> {
+            btnSave.setOnClickListener(v -> saveUser());
+            btnCancel.setOnClickListener(v -> dismiss());
+        });
 
         return dialog;
     }
@@ -255,14 +265,20 @@ public class AddUserDialog extends DialogFragment {
     private void createLocalPinUser(String name, String phone, String pin) {
         Toast.makeText(getContext(), "Creating PIN user...", Toast.LENGTH_SHORT).show();
 
+        // Disable save button while processing
+        btnSave.setEnabled(false);
+        btnSave.setText("Creating...");
+
         executor.execute(() -> {
             String pinHash = AuthUtils.hash(pin);
-            // FIXED: Add farmId parameter
             UserEntity user = new UserEntity(name, selectedRole, phone, pinHash, farmId);
 
             long id = database.userDao().insert(user);
 
             requireActivity().runOnUiThread(() -> {
+                btnSave.setEnabled(true);
+                btnSave.setText("Add User");
+
                 if (id > 0) {
                     Toast.makeText(getContext(),
                             "PIN user added successfully!", Toast.LENGTH_SHORT).show();
@@ -281,6 +297,10 @@ public class AddUserDialog extends DialogFragment {
     private void createFirebaseUser(String name, String phone, String email, String password) {
         Toast.makeText(getContext(), "Creating user in Firebase...", Toast.LENGTH_SHORT).show();
 
+        // Disable save button while processing
+        btnSave.setEnabled(false);
+        btnSave.setText("Creating...");
+
         firebaseManager.signUpWithEmail(email, password, new FirebaseManager.AuthCallback() {
             @Override
             public void onSuccess(FirebaseUser firebaseUser) {
@@ -294,6 +314,9 @@ public class AddUserDialog extends DialogFragment {
             public void onError(String error) {
                 Log.e(TAG, "Firebase creation failed: " + error);
                 requireActivity().runOnUiThread(() -> {
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Add User");
+
                     String errorMessage;
                     if (error.contains("email-already-in-use")) {
                         errorMessage = "This email is already registered";
@@ -324,6 +347,9 @@ public class AddUserDialog extends DialogFragment {
             saveUserToFirestore(user, firebaseUid);
 
             requireActivity().runOnUiThread(() -> {
+                btnSave.setEnabled(true);
+                btnSave.setText("Add User");
+
                 if (id > 0) {
                     Toast.makeText(getContext(),
                             "Team member added successfully!", Toast.LENGTH_SHORT).show();
@@ -352,6 +378,7 @@ public class AddUserDialog extends DialogFragment {
         userMap.put("isActive", user.isActive());
         userMap.put("createdAt", user.getCreatedAt());
         userMap.put("farmId", "1");
+        userMap.put("uid", firebaseUid); // Add UID for reference
 
         db.collection("users")
                 .document(firebaseUid)

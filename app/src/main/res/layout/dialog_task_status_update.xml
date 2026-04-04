@@ -23,7 +23,7 @@
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_logo_container"
+                android:background="@drawable/bg_icon_container_large"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -31,7 +31,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_sync"
-                    app:tint="@color/primary" />
+                    app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
 
@@ -41,7 +41,7 @@
                 android:layout_weight="1"
                 android:text="Update Task Status"
                 style="@style/Text.H3"
-                android:textColor="@color/primary" />
+                android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
 
@@ -53,7 +53,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_secondary">
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@drawable/bg_icon_container_large">
+                    android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
                         android:id="@+id/ivCurrentStatusIcon"
@@ -74,7 +74,7 @@
                         android:layout_height="28dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_hourglass_empty"
-                        app:tint="@color/primary" />
+                        app:tint="?attr/colorPrimary" />
 
                 </FrameLayout>
 
@@ -89,7 +89,8 @@
                         android:layout_height="wrap_content"
                         android:text="Current Status"
                         style="@style/Text.Label"
-                        android:textColor="@color/navy"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
                         android:layout_marginBottom="4dp" />
 
                     <TextView
@@ -98,7 +99,7 @@
                         android:layout_height="wrap_content"
                         android:text="PENDING"
                         style="@style/Text.H4"
-                        android:textColor="@color/primary" />
+                        android:textColor="?attr/colorPrimary" />
 
                 </LinearLayout>
 
@@ -114,7 +115,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            android:background="@drawable/bg_card_primary">
+            android:background="?attr/cardBackgroundPrimary">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -147,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:text="Select New Status"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <RadioGroup
@@ -163,16 +164,17 @@
                         android:text="Pending"
                         android:textSize="16sp"
                         android:padding="12dp"
-                        android:buttonTint="@color/primary"
+                        android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_hourglass_empty"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
+                        android:textColor="?attr/colorOnSurface"
                         style="@style/Widget.AfriNuts.RadioButton" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/warm_grey"
+                        android:background="?attr/colorSurfaceVariant"
                         android:layout_marginVertical="8dp" />
 
                     <RadioButton
@@ -182,16 +184,17 @@
                         android:text="In Progress"
                         android:textSize="16sp"
                         android:padding="12dp"
-                        android:buttonTint="@color/primary"
+                        android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_sync"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
+                        android:textColor="?attr/colorOnSurface"
                         style="@style/Widget.AfriNuts.RadioButton" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/warm_grey"
+                        android:background="?attr/colorSurfaceVariant"
                         android:layout_marginVertical="8dp" />
 
                     <RadioButton
@@ -201,16 +204,17 @@
                         android:text="Completed"
                         android:textSize="16sp"
                         android:padding="12dp"
-                        android:buttonTint="@color/primary"
+                        android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_check_circle"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
+                        android:textColor="?attr/colorOnSurface"
                         style="@style/Widget.AfriNuts.RadioButton" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/warm_grey"
+                        android:background="?attr/colorSurfaceVariant"
                         android:layout_marginVertical="8dp" />
 
                     <RadioButton
@@ -220,10 +224,11 @@
                         android:text="Cancelled"
                         android:textSize="16sp"
                         android:padding="12dp"
-                        android:buttonTint="@color/primary"
+                        android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_cancel"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
+                        android:textColor="?attr/colorOnSurface"
                         style="@style/Widget.AfriNuts.RadioButton" />
 
                 </RadioGroup>
@@ -260,7 +265,7 @@
                 android:layout_height="56dp"
                 android:text="Update Status"
                 style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="?attr/colorPrimary"
                 app:icon="@drawable/ic_sync"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"

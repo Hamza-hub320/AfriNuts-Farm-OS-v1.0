@@ -11,10 +11,14 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_glass_toolbar"
+        android:background="?attr/tabBackground"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
-        android:translationZ="0dp">
+        android:translationZ="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -35,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Expense Details"
-                android:textColor="@color/text_dark"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.01" />
@@ -62,7 +66,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_accent"
+                android:background="?attr/cardBackgroundAccent"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -75,7 +79,7 @@
                     <FrameLayout
                         android:layout_width="56dp"
                         android:layout_height="56dp"
-                        android:background="@drawable/bg_icon_glass_large"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="16dp">
 
                         <ImageView
@@ -84,7 +88,7 @@
                             android:layout_height="32dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_attach_money"
-                            app:tint="@color/accent"
+                            app:tint="?attr/colorSecondary"
                             android:contentDescription="Category icon" />
 
                     </FrameLayout>
@@ -101,7 +105,7 @@
                             android:layout_height="wrap_content"
                             android:text="Land Clearing"
                             style="@style/Text.H3"
-                            android:textColor="@color/accent" />
+                            android:textColor="?attr/colorSecondary" />
 
                         <TextView
                             android:id="@+id/tvBlockInfo"
@@ -109,7 +113,8 @@
                             android:layout_height="wrap_content"
                             android:text="Farm-Wide"
                             style="@style/Text.Body.Small"
-                            android:textColor="@color/navy"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -127,7 +132,7 @@
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_accent"
+                android:background="?attr/cardBackgroundAccent"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -143,7 +148,7 @@
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_icon_container"
+                        android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="16dp">
 
                         <ImageView
@@ -151,7 +156,7 @@
                             android:layout_height="28dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_photo"
-                            app:tint="@color/accent" />
+                            app:tint="?attr/colorSecondary" />
 
                     </FrameLayout>
 
@@ -166,7 +171,7 @@
                             android:layout_height="wrap_content"
                             android:text="Photos"
                             style="@style/Text.H5"
-                            android:textColor="@color/accent" />
+                            android:textColor="?attr/colorSecondary" />
 
                         <TextView
                             android:id="@+id/tvPhotoCount"
@@ -174,7 +179,8 @@
                             android:layout_height="wrap_content"
                             android:text="0 photos"
                             style="@style/Text.Caption"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                     </LinearLayout>
 
@@ -182,7 +188,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="@color/accent" />
+                        app:tint="?attr/colorSecondary" />
 
                 </LinearLayout>
 
@@ -195,7 +201,7 @@
                 android:layout_marginBottom="20dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                android:background="@drawable/bg_card_primary"
+                android:background="?attr/cardBackgroundPrimary"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -305,7 +311,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
                     style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@color/accent"
+                    android:backgroundTint="?attr/colorSecondary"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white"
@@ -319,7 +325,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@color/primary"
+                    android:backgroundTint="?attr/colorPrimary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white"
@@ -354,7 +360,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_edit"
         android:contentDescription="Edit expense"
-        app:backgroundTint="@color/accent"
+        app:backgroundTint="?attr/colorSecondary"
         app:tint="@android:color/white" />
 
 </LinearLayout>
