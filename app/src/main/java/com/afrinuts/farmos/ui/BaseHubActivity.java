@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -87,8 +89,8 @@ public abstract class BaseHubActivity extends BaseActivity {
     }
 
     protected void updateNavSelection(int selectedPosition) {
-        int inactiveColor = getColor(R.color.navy);
-        int activeColor = getColor(R.color.primary);
+        int inactiveColor = getThemeColor(R.attr.navbarIconColor);
+        int activeColor = ContextCompat.getColor(this, R.color.primary);
 
         // Reset all icons and text colors
         navHomeIcon.setColorFilter(inactiveColor);
@@ -120,5 +122,10 @@ public abstract class BaseHubActivity extends BaseActivity {
                 navAnalyticsText.setTextColor(activeColor);
                 break;
         }
+    }
+    private int getThemeColor(int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
     }
 }

@@ -42,6 +42,12 @@
         <!-- Custom theme flag -->
         <item name="isLightTheme">true</item>
 
+            <item name="buttonLiquidGlass">@drawable/bg_button_liquid_glass</item>
+            <item name="buttonLiquidGlassPrimary">@drawable/bg_button_liquid_glass_primary</item>
+            <item name="buttonLiquidGlassAccent">@drawable/bg_button_liquid_glass_accent</item>
+            <item name="buttonLiquidGlassDanger">@drawable/bg_button_liquid_glass_danger</item>
+
+
         <!-- ======================================== -->
         <!-- CARD BACKGROUND ATTRIBUTES (LIGHT MODE) -->
         <!-- ======================================== -->
@@ -50,8 +56,17 @@
         <item name="cardBackgroundSecondary">@drawable/bg_card_secondary</item>
         <item name="iconBackgroundGlass">@drawable/bg_icon_glass</item>
         <item name="tabBackground">@drawable/bg_glass_tabs</item>
+        <!-- Inside Theme.AfriNutsFarmOS -->
+        <item name="navbarIconColor">@android:color/white</item>
+        <item name="navbarTextColor">@android:color/white</item>
+        <item name="navbarBackground">@drawable/bg_navbar_glass</item>
+
     </style>
 
+    <style name="ThemeOverlay.AfriNuts.GlassNavbar" parent="">
+        <item name="android:textColor">?attr/colorSurface</item>
+        <item name="colorControlNormal">?attr/colorSurface</item>
+    </style>
     <!-- ======================================== -->
     <!-- BASE STYLES -->
     <!-- ======================================== -->
@@ -78,10 +93,6 @@
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">-0.02</item>
         <item name="android:lineSpacingExtra">8sp</item>
-    </style>
-
-    <style name="Text.Display.Large" parent="Text.Display">
-        <item name="android:textSize">40sp</item>
     </style>
 
     <style name="Text.Display.Small" parent="Text.Display">
@@ -133,10 +144,6 @@
         <item name="android:lineSpacingExtra">6sp</item>
     </style>
 
-    <style name="Text.Body.Large" parent="Text.Body">
-        <item name="android:textSize">18sp</item>
-    </style>
-
     <style name="Text.Body.Small" parent="Text">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/navy</item>
@@ -185,11 +192,6 @@
     </style>
 
     <!-- Add this for very large numbers (like total trees) -->
-    <style name="Text.Stat.Compact" parent="Text.Stat">
-        <item name="android:textSize">18sp</item>
-        <item name="android:letterSpacing">-0.03</item>
-        <item name="android:maxWidth">100dp</item>
-    </style>
 
     <!-- Label Text (Form labels, field names) -->
     <style name="Text.Label" parent="Text">
@@ -210,7 +212,49 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/bg_button_liquid_glass_primary</item>
+        <item name="iconTint">@android:color/white</item>
     </style>
+
+    <!-- ======================================== -->
+    <!-- LIQUID GLASS BUTTON STYLES -->
+    <!-- ======================================== -->
+
+    <!-- Liquid Glass Base Button -->
+    <style name="Widget.AfriNuts.Button.LiquidGlass" parent="Widget.MaterialComponents.Button">
+        <item name="android:textAppearance">@style/Text.Button</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="rippleColor">?attr/colorPrimary</item>
+        <item name="cornerRadius">28dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:background">?attr/buttonLiquidGlass</item>
+    </style>
+
+    <!-- Primary Button -->
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Primary" parent="Widget.AfriNuts.Button.LiquidGlass">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:background">?attr/buttonLiquidGlassPrimary</item>
+    </style>
+
+    <!-- Accent Button -->
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Accent" parent="Widget.AfriNuts.Button.LiquidGlass">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:background">?attr/buttonLiquidGlassAccent</item>
+    </style>
+
+    <!-- Danger Button -->
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Danger" parent="Widget.AfriNuts.Button.LiquidGlass">
+        <item name="android:textColor">@color/error</item>
+        <item name="android:background">?attr/buttonLiquidGlassDanger</item>
+    </style>
+
+    <!-- Login Button - Extended from Primary -->
 
     <!-- ======================================== -->
     <!-- WIDGETS -->
@@ -320,13 +364,5 @@
     <!-- ======================================== -->
     <!-- GRADIENTS -->
     <!-- ======================================== -->
-
-    <style name="GradientMain">
-        <item name="android:background">@drawable/gradient_main</item>
-    </style>
-
-    <style name="GradientAlt">
-        <item name="android:background">@drawable/gradient_alt</item>
-    </style>
 
 </resources>

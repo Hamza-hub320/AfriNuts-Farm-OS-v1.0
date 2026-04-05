@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -48,7 +48,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -89,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector_secondary"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -102,7 +103,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -153,7 +155,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector_accent"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -166,7 +168,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -216,7 +219,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -229,7 +232,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -281,7 +285,7 @@
                 android:layout_marginBottom="12dp"
                 android:background="@drawable/bg_card_selector_accent"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
@@ -292,7 +296,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -357,7 +362,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector_secondary"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -370,7 +375,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -421,7 +427,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="@drawable/bg_card_selector_accent"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -434,7 +440,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -487,7 +494,7 @@
 
     </ScrollView>
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <!-- FLOATING BOTTOM NAVIGATION BAR - NIKE STYLE GLASS -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -495,14 +502,11 @@
         android:layout_gravity="bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="?attr/colorSurface"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardCornerRadius="36dp"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="32dp"
         app:cardElevation="18dp"
         android:elevation="8dp"
-        app:strokeColor="?attr/colorPrimary"
-        app:strokeWidth="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
 
@@ -511,10 +515,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="6dp"
-            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="8dp"
             android:weightSum="4"
-            android:background="@drawable/bg_navbar_3d">
+            android:background="?attr/navbarBackground"
+            android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
 
             <!-- Home -->
             <LinearLayout
@@ -524,7 +529,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
@@ -535,15 +540,16 @@
 
                     <ImageView
                         android:id="@+id/navHomeIcon"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_home"
-                        app:tint="?attr/colorPrimary" />
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor"  />
 
+                    <!-- Active indicator dot -->
                     <View
-                        android:id="@+id/navHomeIndicator"
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/circle_green"
                         android:layout_gravity="top|end"
                         android:layout_marginTop="-2dp"
@@ -557,9 +563,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Home"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
+                    android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
@@ -572,7 +580,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
@@ -583,15 +591,15 @@
 
                     <ImageView
                         android:id="@+id/navFarmIcon"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_farming"
-                        app:tint="?attr/colorOnSurface" />
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
-                        android:id="@+id/navFarmIndicator"
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/circle_green"
                         android:layout_gravity="top|end"
                         android:layout_marginTop="-2dp"
@@ -605,9 +613,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="11sp"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
+                    android:textStyle="bold"
+                    android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
@@ -620,7 +630,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
@@ -631,15 +641,15 @@
 
                     <ImageView
                         android:id="@+id/navFinanceIcon"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="?attr/colorOnSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
-                        android:id="@+id/navFinanceIndicator"
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/circle_green"
                         android:layout_gravity="top|end"
                         android:layout_marginTop="-2dp"
@@ -653,9 +663,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Finance"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="11sp"
+                    android:textColor="?attr/navbarTextColor"
+                    android:textStyle="bold"
                     android:layout_marginTop="4dp"
+                    android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
@@ -668,7 +680,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
@@ -679,15 +691,15 @@
 
                     <ImageView
                         android:id="@+id/navAnalyticsIcon"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_finance_analytics"
-                        app:tint="?attr/colorOnSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
-                        android:id="@+id/navAnalyticsIndicator"
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/circle_green"
                         android:layout_gravity="top|end"
                         android:layout_marginTop="-2dp"
@@ -701,9 +713,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Analytics"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
+                    android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
@@ -711,5 +725,4 @@
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 </FrameLayout>

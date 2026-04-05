@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?android:attr/colorBackground"
     android:fillViewport="true">
 
     <LinearLayout
@@ -17,7 +17,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/bg_logo_container_large"
+            android:background="?attr/iconBackgroundGlass"
             android:layout_marginBottom="16dp">
 
             <ImageView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:text="AfriNuts Farm OS"
             style="@style/Text.H2"
-            android:textColor="@color/primary"
+            android:textColor="?attr/colorPrimary"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp" />
 
@@ -51,9 +51,9 @@
                 android:id="@+id/tvVersionValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Version 2.0"
+                android:text="Version 1.1.0"
                 style="@style/Text.Caption"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:layout_marginEnd="8dp" />
 
             <TextView
@@ -62,7 +62,8 @@
                 android:layout_height="wrap_content"
                 android:text="(Build 1)"
                 style="@style/Text.Caption"
-                android:textColor="@color/navy" />
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7" />
 
         </LinearLayout>
 
@@ -70,7 +71,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/warm_grey"
+            android:background="?attr/colorSurfaceVariant"
             android:layout_marginVertical="16dp" />
 
         <!-- Company Info Card -->
@@ -78,31 +79,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_primary"
-            style="@style/Widget.AfriNuts.CardView">
+            style="@style/Widget.AfriNuts.CardView"
+            android:background="?attr/cardBackgroundPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="© 2026 AfriNuts Export"
                     style="@style/Text.Body"
-                    android:textColor="@color/primary" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Odienné, Côte d'Ivoire"
                     style="@style/Text.Body.Small"
-                    android:textColor="@color/navy"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7"
                     android:layout_marginTop="4dp" />
 
                 <TextView
@@ -110,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:text="A complete farm management system for cashew plantations."
                     style="@style/Text.Body.Small"
-                    android:textColor="@color/text_dark"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginTop="12dp"
                     android:gravity="center_horizontal" />
 
@@ -123,23 +126,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_secondary"
-            style="@style/Widget.AfriNuts.CardView">
+            style="@style/Widget.AfriNuts.CardView"
+            android:background="?attr/cardBackgroundSecondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Features"
                     style="@style/Text.H5"
-                    android:textColor="@color/primary"
+                    android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout
@@ -152,49 +156,49 @@
                         android:layout_height="wrap_content"
                         android:text="• 35-hectare block management"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Expense and revenue tracking"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Task assignment and worker tracking"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Photo documentation"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• PDF reports"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Multi-user support"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="6dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Cloud sync"
                         style="@style/Text.Caption"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="?attr/colorOnSurface" />
 
                 </LinearLayout>
 
@@ -207,25 +211,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            android:background="@drawable/bg_card_accent"
             android:foreground="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            style="@style/Widget.AfriNuts.CardView">
+            style="@style/Widget.AfriNuts.CardView"
+            android:background="?attr/cardBackgroundAccent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glass_large"
+                    android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="16dp">
 
                     <ImageView
@@ -233,7 +238,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_email"
-                        app:tint="@color/accent" />
+                        app:tint="?attr/colorSecondary" />
 
                 </FrameLayout>
 
@@ -248,21 +253,22 @@
                         android:layout_height="wrap_content"
                         android:text="For support"
                         style="@style/Text.Body"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="?attr/colorOnSurface" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="support@afrinuts.com"
                         style="@style/Text.H6"
-                        android:textColor="@color/accent" />
+                        android:textColor="?attr/colorSecondary" />
 
                 </LinearLayout>
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/accent" />
+                    android:src="@drawable/ic_arrow_forward"
+                    app:tint="?attr/colorSecondary" />
 
             </LinearLayout>
 

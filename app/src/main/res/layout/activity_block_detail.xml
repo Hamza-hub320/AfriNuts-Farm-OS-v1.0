@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/tabBackground"
+        android:background="?attr/cardBackgroundPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -51,7 +51,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,7 +65,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
@@ -72,7 +75,8 @@
                     android:layout_width="361dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -115,7 +119,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
@@ -125,7 +129,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -253,10 +258,9 @@
 
             <!-- Photo Gallery Card -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/photoSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
@@ -271,7 +275,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="16dp"
-                    android:id="@+id/btnPhotoGallery">
+                    android:id="@+id/btnPhotoGallery"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="48dp"
@@ -513,7 +518,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
@@ -523,7 +528,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -568,6 +574,7 @@
                             android:hint="Add notes here..."
                             android:inputType="textMultiLine"
                             android:minLines="3"
+                            android:background="@drawable/bg_rounded_description"
                             android:enabled="false"
                             android:textColor="?attr/colorOnSurface"
                             android:textColorHint="?attr/colorOnSurface" />
@@ -578,16 +585,16 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_horizontal"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:weightSum="2">
+                android:layout_marginBottom="24dp">
 
+                <!-- Edit Button - Accent -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
@@ -595,14 +602,12 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="?attr/colorSecondary"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="28dp"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="?attr/colorSecondary" />
 
+                <!-- Save Button - Primary -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
                     android:layout_width="0dp"
@@ -610,31 +615,25 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="?attr/colorPrimary"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="28dp"
-                    app:iconTint="@android:color/white"
+                    app:iconTint="?attr/colorPrimary"
                     android:visibility="gone" />
 
-                <Button
+                <!-- Delete Button - Danger (Fixed: Use MaterialButton) -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
                     android:layout_weight="1"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@android:color/holo_red_dark"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="28dp"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="@color/error" />
 
             </LinearLayout>
-
         </LinearLayout>
 
     </ScrollView>
@@ -646,6 +645,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:layout_marginBottom="32dp"
         android:src="@drawable/ic_edit"
         android:contentDescription="Edit block"
         app:backgroundTint="?attr/colorSecondary"

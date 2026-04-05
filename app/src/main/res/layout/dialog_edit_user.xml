@@ -17,7 +17,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="24dp"
+            android:background="?attr/cardBackgroundSecondary">
 
             <FrameLayout
                 android:layout_width="56dp"
@@ -49,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
             android:background="?attr/cardBackgroundSecondary">
 
@@ -58,7 +59,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -87,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
 
@@ -95,7 +97,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -122,6 +125,7 @@
                         android:id="@+id/etName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Full Name"
                         android:inputType="textPersonName" />
 
@@ -145,6 +149,7 @@
                         android:id="@+id/etPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Phone Number"
                         android:inputType="phone" />
 
@@ -161,7 +166,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
 
@@ -169,7 +174,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -193,6 +199,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
+                        android:background="@drawable/bg_rounded_description"
                         android:layout_height="wrap_content"
                         android:hint="Email"
                         android:inputType="textEmailAddress" />
@@ -209,7 +216,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundAccent">
 
@@ -217,7 +224,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundSecondary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -245,6 +253,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNewPassword"
                         android:layout_width="match_parent"
+                        android:background="@drawable/bg_rounded_description"
                         android:layout_height="wrap_content"
                         android:hint="New Password"
                         android:inputType="textPassword" />
@@ -268,6 +277,7 @@
                         android:id="@+id/etConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Confirm New Password"
                         android:inputType="textPassword" />
 
@@ -291,7 +301,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.Outlined"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+
                 android:layout_marginEnd="12dp"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
@@ -305,8 +316,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:text="Save Changes"
-                style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="?attr/colorPrimary"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
@@ -314,7 +324,7 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 app:cornerRadius="28dp"
-                app:iconTint="@android:color/white" />
+                app:iconTint="?attr/colorPrimary" />
 
         </LinearLayout>
 

@@ -5,16 +5,17 @@
     android:layout_height="wrap_content"
     android:background="@android:color/transparent">
 
-    <!-- Modern Toolbar Card -->
+    <!-- Liquid Glass Toolbar Card -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="26dp"
+        android:layout_marginHorizontal="0dp"
+        android:minHeight="56dp"
         android:layout_marginBottom="20dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="4dp"
-        style="@style/Widget.AfriNuts.CardView"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
         app:cardBackgroundColor="@android:color/transparent"
+        style="@style/Widget.AfriNuts.CardView"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,19 +24,26 @@
         android:outlineProvider="background"
         android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
+        <!-- Glass Background Overlay -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_toolbar_glass" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="18dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="2dp"
-            android:background="@drawable/bg_toolbar_gradient">
+            android:paddingVertical="6dp"
+            android:minHeight="18dp"
+            android:paddingHorizontal="16dp">
 
             <!-- Left: Sync Button with Status Indicator -->
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp">
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp">
 
                 <ImageButton
                     android:id="@+id/btnToolbarSync"
@@ -47,7 +55,7 @@
                     android:padding="12dp"
                     app:tint="@android:color/white" />
 
-                <!-- Sync Status Dot (shows when syncing) -->
+                <!-- Sync Status Dot -->
                 <View
                     android:id="@+id/syncStatusDot"
                     android:layout_width="10dp"
@@ -58,14 +66,14 @@
 
             </FrameLayout>
 
-            <!-- Farm Info (instead of just title) -->
+            <!-- Farm Info -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_marginHorizontal="8dp">
+                android:layout_marginHorizontal="2dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -74,7 +82,8 @@
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:letterSpacing="0.02" />
+                    android:letterSpacing="0.02"
+                    android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/toolbarSyncStatus"
@@ -83,7 +92,7 @@
                     android:text="Synced"
                     android:textColor="@android:color/white"
                     android:textSize="10sp"
-                    android:alpha="0.8"
+                    android:alpha="0.7"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -93,7 +102,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginEnd="2dp">
 
                 <!-- Welcome User -->
                 <TextView
@@ -106,6 +116,7 @@
                     android:text="Hi, Hamza"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
+                    android:fontFamily="sans-serif"
                     android:visibility="gone" />
 
                 <!-- Profile/Avatar Button -->
@@ -113,7 +124,7 @@
                     android:id="@+id/btnProfile"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/bg_profile_circle"
+                    android:background="@drawable/bg_profile_circle_glass"
                     android:src="@drawable/ic_person"
                     app:tint="@android:color/white"
                     android:contentDescription="Profile"
@@ -122,8 +133,8 @@
                 <!-- Logout Button -->
                 <ImageButton
                     android:id="@+id/btnToolbarLogout"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Logout"
                     android:padding="12dp"

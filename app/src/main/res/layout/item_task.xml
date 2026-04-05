@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     android:background="?attr/cardBackgroundPrimary"
     android:clickable="true"
@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:background="?attr/cardBackgroundPrimary">
 
         <!-- Top Row: Icon + Title + Status -->
         <LinearLayout
@@ -97,7 +98,7 @@
             android:layout_marginBottom="8dp"
             android:maxLines="2"
             android:ellipsize="end"
-            android:background="?attr/cardBackgroundPrimary"
+            android:background="?attr/cardBackgroundAccent"
             android:padding="8dp" />
 
         <!-- Bottom Row: Due Date + Overdue Warning - Compact -->
@@ -106,7 +107,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="?attr/cardBackgroundAccent"
             android:padding="8dp"
             app:cardCornerRadius="10dp">
 

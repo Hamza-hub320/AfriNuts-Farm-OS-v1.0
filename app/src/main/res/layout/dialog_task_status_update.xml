@@ -18,7 +18,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="24dp"
+            android:background="?attr/cardBackgroundPrimary">
 
             <FrameLayout
                 android:layout_width="48dp"
@@ -51,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
 
@@ -60,7 +61,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="48dp"
@@ -113,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
 
@@ -141,7 +143,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -166,6 +169,7 @@
                         android:padding="12dp"
                         android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_hourglass_empty"
+                        android:background="?attr/cardBackgroundAccent"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
                         android:textColor="?attr/colorOnSurface"
@@ -186,6 +190,7 @@
                         android:padding="12dp"
                         android:buttonTint="?attr/colorPrimary"
                         android:drawableStart="@drawable/ic_sync"
+                        android:background="?attr/cardBackgroundAccent"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
                         android:textColor="?attr/colorOnSurface"
@@ -205,6 +210,7 @@
                         android:textSize="16sp"
                         android:padding="12dp"
                         android:buttonTint="?attr/colorPrimary"
+                        android:background="?attr/cardBackgroundAccent"
                         android:drawableStart="@drawable/ic_check_circle"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
@@ -225,6 +231,7 @@
                         android:textSize="16sp"
                         android:padding="12dp"
                         android:buttonTint="?attr/colorPrimary"
+                        android:background="?attr/cardBackgroundAccent"
                         android:drawableStart="@drawable/ic_cancel"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
@@ -251,7 +258,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.Outlined"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                 android:layout_marginEnd="12dp"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
@@ -264,10 +271,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:text="Update Status"
-                style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="?attr/colorPrimary"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_sync"
                 app:iconGravity="textStart"
+                app:iconTint="?attr/colorPrimary"
                 app:iconPadding="12dp"
                 android:minWidth="140dp"
                 android:paddingStart="20dp"

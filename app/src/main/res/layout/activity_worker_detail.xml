@@ -11,14 +11,16 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/tabBackground"
+        android:background="?attr/cardBackgroundPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:outlineProvider="background"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary">
 
@@ -74,16 +76,16 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:background="@drawable/bg_icon_glass_large"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginEnd="16dp">
 
                         <ImageView
-                            android:id="@+id/workerIcon"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_gravity="center"
@@ -149,16 +151,19 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
-                    android:background="?attr/cardBackgroundSecondary">
+                    android:background="?attr/cardBackgroundSecondary"
+                    android:outlineProvider="background"
+                    android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -203,16 +208,19 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="?attr/cardBackgroundPrimary"
+                    android:outlineProvider="background"
+                    android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -256,16 +264,19 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
-                    android:background="?attr/cardBackgroundAccent">
+                    android:background="?attr/cardBackgroundAccent"
+                    android:outlineProvider="background"
+                    android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="40dp"
@@ -310,15 +321,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundSecondary"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -411,7 +425,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary">
 
@@ -419,7 +433,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -445,7 +460,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundAccent">
 
@@ -453,7 +468,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <TextView
                         android:layout_width="wrap_content"

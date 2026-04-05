@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundAccent"
             style="@style/Widget.AfriNuts.CardView">
@@ -79,7 +79,7 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary"
             style="@style/Widget.AfriNuts.CardView">
@@ -137,7 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary"
             style="@style/Widget.AfriNuts.CardView">
@@ -148,7 +148,7 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="12dp"
-                android:background="?attr/cardBackgroundAccent">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="40dp"
@@ -259,7 +259,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="4dp"
                     android:background="?attr/cardBackgroundPrimary"
                     style="@style/Widget.AfriNuts.CardView">
@@ -281,7 +281,8 @@
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp" />
+                            android:layout_height="220dp"
+                            android:background="?attr/cardBackgroundPrimary"/>
 
                     </LinearLayout>
 
@@ -292,7 +293,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="4dp"
                     android:background="?attr/cardBackgroundSecondary"
                     style="@style/Widget.AfriNuts.CardView">
@@ -314,7 +315,8 @@
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/barChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp" />
+                            android:layout_height="220dp"
+                            android:background="?attr/cardBackgroundPrimary"/>
 
                     </LinearLayout>
 
@@ -325,7 +327,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="4dp"
                     android:background="?attr/cardBackgroundPrimary"
                     style="@style/Widget.AfriNuts.CardView">
@@ -347,7 +349,8 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp" />
+                            android:layout_height="220dp"
+                            android:background="?attr/cardBackgroundPrimary"/>
 
                     </LinearLayout>
 

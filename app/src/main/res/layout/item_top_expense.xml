@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     android:background="?attr/cardBackgroundSecondary"
     style="@style/Widget.AfriNuts.CardView"
@@ -18,7 +18,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="10dp"
-        android:background="?attr/cardBackgroundSecondary">
+        android:background="?attr/cardBackgroundPrimary">
 
         <!-- Rank Badge (Optional - adds visual hierarchy) -->
         <FrameLayout

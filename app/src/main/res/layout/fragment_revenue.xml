@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
             android:background="?attr/cardBackgroundPrimary">
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
             android:background="?attr/cardBackgroundSecondary">
@@ -89,7 +89,7 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="12dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="36dp"

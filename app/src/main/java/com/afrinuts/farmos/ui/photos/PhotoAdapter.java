@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.photos;
 
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
@@ -95,6 +97,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             // Set type icon using the entity's method
             ivTypeIcon.setImageResource(photo.getIconResId());
 
+            // ✅ Simple - just use the color resource directly
+            ivTypeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+
             // Set caption (or placeholder)
             if (photo.getCaption() != null && !photo.getCaption().isEmpty()) {
                 tvCaption.setText(photo.getCaption());
@@ -102,8 +107,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 tvCaption.setText("No caption");
             }
 
-            // Set date
+            // Set date with theme-aware text color
             tvDate.setText(dateFormat.format(new Date(photo.getTakenAt())));
+            tvDate.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_primary));
 
             // Click listener on CardView
             if (cardView != null) {

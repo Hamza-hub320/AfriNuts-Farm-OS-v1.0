@@ -15,10 +15,16 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@drawable/bg_glass_toolbar"
+            android:background="?attr/cardBackgroundPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:elevation="0dp"
-            android:translationZ="0dp">
+            android:translationZ="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center_horizontal"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:navigationIconTint="?attr/colorOnSurface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,17 +38,16 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:src="@drawable/ic_afrinuts_foreground"
-                    android:alpha="0.95"
+                    app:tint="?attr/colorPrimary"
                     android:layout_marginEnd="12dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Photo Gallery"
-                    android:textColor="@color/text_dark"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.01" />
+                    style="@style/Text.H5"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
@@ -61,14 +66,15 @@
             <FrameLayout
                 android:layout_width="96dp"
                 android:layout_height="96dp"
-                android:background="@drawable/bg_icon_glass_large">
+                android:background="?attr/iconBackgroundGlass">
 
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_photo"
-                    app:tint="@color/warm_grey" />
+                    app:tint="?attr/colorOnSurface"
+                    android:alpha="0.5" />
 
             </FrameLayout>
 
@@ -77,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:text="No photos yet"
                 style="@style/Text.H3"
-                android:textColor="@color/navy"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="16dp" />
 
             <TextView
@@ -85,7 +91,8 @@
                 android:layout_height="wrap_content"
                 android:text="Tap + to add your first photo"
                 style="@style/Text.Caption"
-                android:textColor="@color/navy"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7"
                 android:layout_marginTop="8dp" />
 
         </LinearLayout>
@@ -108,11 +115,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_photo"
         android:contentDescription="Add photo"
-        app:backgroundTint="@color/accent"
+        app:backgroundTint="?attr/colorSecondary"
         app:tint="@android:color/white"
-        app:rippleColor="@color/primary_light"
-        app:elevation="8dp" />
+        app:rippleColor="?attr/colorPrimary"
+        app:elevation="8dp"
+        app:pressedTranslationZ="4dp" />
 
 </FrameLayout>

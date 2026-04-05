@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -16,7 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:background="?attr/cardBackgroundPrimary">
 
         <!-- Top Row: Icon + Quality + Amount -->
         <LinearLayout
@@ -97,7 +98,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundAccent">
 
                 <!-- Quantity -->
                 <LinearLayout

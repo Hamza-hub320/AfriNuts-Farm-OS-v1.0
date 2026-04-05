@@ -17,7 +17,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="24dp"
+            android:background="?attr/cardBackgroundPrimary">
 
             <FrameLayout
                 android:layout_width="56dp"
@@ -39,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Add New Block"
-                style="@style/Text.H1"
+                style="@style/Text.H2"
                 android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
@@ -50,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
 
@@ -78,7 +79,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -104,6 +106,7 @@
                         android:id="@+id/etBlockName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Block Name (e.g., A1, B2)"
                         android:inputType="text" />
 
@@ -124,6 +127,7 @@
                         android:id="@+id/etHectareSize"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Hectare Size (usually 1.0)"
                         android:inputType="numberDecimal"
                         android:text="1.0" />
@@ -140,7 +144,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
 
@@ -168,7 +172,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -375,7 +380,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="24dp"
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
@@ -405,7 +410,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -430,6 +436,7 @@
                         android:id="@+id/etNotes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
                         android:hint="Add notes (optional)"
                         android:inputType="textMultiLine"
                         android:minLines="2" />
@@ -440,7 +447,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons - Liquid Glass Dialog Style -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -449,32 +456,32 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
 
+            <!-- Cancel Button - Accent Liquid Glass -->
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.Outlined"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
                 android:layout_marginEnd="12dp"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                app:cornerRadius="28dp" />
+                android:paddingEnd="20dp" />
 
+            <!-- Save Button - Primary Liquid Glass -->
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
-                android:text="Save Block"
-                style="@style/Widget.AfriNuts.Button"
-                android:backgroundTint="?attr/colorPrimary"
+                android:text="Save"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
+                app:iconTint="?attr/colorPrimary"
                 android:minWidth="120dp"
                 android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                app:cornerRadius="28dp" />
+                android:paddingEnd="20dp" />
 
         </LinearLayout>
 

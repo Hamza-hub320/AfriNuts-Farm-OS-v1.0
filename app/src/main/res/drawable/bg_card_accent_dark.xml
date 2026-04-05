@@ -1,81 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Dark Glass Base with Translucency -->
-    <item>
+    <!-- Outer Shadow for Elevation -->
+    <item android:bottom="4dp" android:left="2dp" android:right="2dp" android:top="0dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
-            <solid android:color="#E81E293B" />
+            <gradient
+                android:startColor="#20000000"
+                android:centerColor="#15000000"
+                android:endColor="#05000000"
+                android:angle="90"
+                android:type="linear" />
         </shape>
     </item>
 
-    <!-- Accent Gradient Overlay (Warmer) -->
+    <!-- Base Dark Glass -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <solid android:color="#CC1C1C1E" />
+        </shape>
+    </item>
+
+    <!-- Warm accent tint overlay (very subtle) -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#30F05C1A"
-                android:endColor="#207A9C2E"
+                android:startColor="#15EA580C"
+                android:endColor="#08EA580C"
                 android:angle="135"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Warm Light Reflection -->
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="20dp" />
-            <gradient
-                android:startColor="#20FFE6CC"
-                android:centerColor="#10FFE6CC"
-                android:endColor="#00FFE6CC"
-                android:angle="135"
-                android:type="linear" />
-        </shape>
-    </item>
-
-    <!-- Inner Glow -->
+    <!-- Subtle gradient depth -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
                 android:startColor="#00FFFFFF"
-                android:centerColor="#08FFE6CC"
+                android:endColor="#08FFFFFF"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Soft inner glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:startColor="#05FFFFFF"
+                android:centerColor="#00FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="0"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Highlight Edge - Top -->
-    <item android:top="1.5dp" android:left="2dp" android:right="2dp">
+    <!-- Top highlight edge -->
+    <item android:top="1dp" android:left="1.5dp" android:right="1.5dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#30FFFFFF"
+                android:startColor="#20FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Soft Shadow Edge - Bottom -->
-    <item android:bottom="1.5dp" android:left="2dp" android:right="2dp">
+    <!-- Bottom shadow -->
+    <item android:bottom="2dp" android:left="1.5dp" android:right="1.5dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
                 android:startColor="#00FFFFFF"
-                android:endColor="#20000000"
+                android:endColor="#15000000"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Border with Accent Glow -->
+    <!-- Subtle border with accent tint -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <stroke
-                android:width="0.8dp"
-                android:color="#60F05C1A" />
+                android:width="0.5dp"
+                android:color="#30EA580C" />
         </shape>
     </item>
 

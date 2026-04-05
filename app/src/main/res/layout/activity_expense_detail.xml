@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/tabBackground"
+        android:background="?attr/cardBackgroundPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -64,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundAccent"
                 style="@style/Widget.AfriNuts.CardView">
@@ -74,7 +74,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="56dp"
@@ -125,12 +126,11 @@
 
             <!-- Photos Card -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/photoSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundAccent"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -143,7 +143,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="16dp"
-                    android:id="@+id/btnPhotoGallery">
+                    android:id="@+id/btnPhotoGallery"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="48dp"
@@ -199,7 +200,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary"
                 style="@style/Widget.AfriNuts.CardView">
@@ -208,7 +209,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <!-- Amount Field -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -283,10 +285,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Description"
-                            android:background="@drawable/bg_rounded_description"
                             android:inputType="textMultiLine"
                             android:minLines="3"
-                            android:enabled="false" />
+                            android:enabled="false"
+                            android:background="@drawable/bg_rounded_description"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface"/>
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -294,58 +298,55 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
+        <!-- Action Buttons - Liquid Glass Style -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEdit"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="?attr/colorSecondary"
-                    app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
-                    app:cornerRadius="28dp" />
+            <!-- Edit Button - Accent -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Edit"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorSecondary" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Save"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="?attr/colorPrimary"
-                    app:icon="@drawable/ic_save"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
-                    android:visibility="gone"
-                    app:cornerRadius="28dp" />
+            <!-- Save Button - Primary -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Save"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorPrimary"
+                android:visibility="gone" />
 
-                <Button
-                    android:id="@+id/btnDelete"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@android:color/holo_red_dark"
-                    app:icon="@drawable/ic_delete"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
-                    app:cornerRadius="28dp" />
+            <!-- Delete Button - Danger -->
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="Delete"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconTint="@color/error" />
 
-            </LinearLayout>
+        </LinearLayout>
 
         </LinearLayout>
 

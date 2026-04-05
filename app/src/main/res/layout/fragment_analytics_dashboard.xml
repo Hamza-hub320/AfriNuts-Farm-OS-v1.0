@@ -11,10 +11,11 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="?attr/tabBackground"
+        android:background="?attr/cardBackgroundPrimary"
         app:tabIndicatorColor="?attr/colorPrimary"
         app:tabSelectedTextColor="?attr/colorPrimary"
         app:tabTextColor="?attr/colorOnSurface"
+        app:tabBackground="@drawable/tab_selector_glass"
         app:tabMode="fixed"
         app:tabGravity="fill"
         app:tabRippleColor="?attr/colorPrimary"
@@ -130,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     android:background="?attr/cardBackgroundAccent">
 
@@ -138,7 +139,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -215,7 +217,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:orientation="vertical"
-                                android:gravity="center">
+                                android:gravity="center"
+                                android:background="?attr/cardBackgroundAccent">
 
                                 <TextView
                                     android:id="@+id/tvConfidence"
@@ -242,7 +245,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:orientation="vertical"
-                                android:gravity="center">
+                                android:gravity="center"
+                                android:background="?attr/cardBackgroundAccent">
 
                                 <TextView
                                     android:id="@+id/tvRiskLevel"
@@ -273,7 +277,7 @@
                             android:text="Consider increasing irrigation"
                             style="@style/Text.Caption"
                             android:textSize="11sp"
-                            android:background="?attr/cardBackgroundPrimary"
+                            android:background="?attr/cardBackgroundSecondary"
                             android:padding="8dp"
                             android:maxLines="1"
                             android:ellipsize="end"
@@ -289,7 +293,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     android:background="?attr/cardBackgroundPrimary">
 
@@ -297,7 +301,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -311,7 +316,8 @@
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/barChartYearlyYield"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp" />
+                            android:layout_height="160dp"
+                            android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
 
@@ -323,7 +329,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     android:background="?attr/cardBackgroundSecondary">
 
@@ -331,7 +337,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -345,7 +352,8 @@
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChartYieldFactors"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp" />
+                            android:layout_height="160dp"
+                            android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
 
@@ -367,7 +375,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     android:background="?attr/cardBackgroundAccent">
 
@@ -375,7 +383,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -407,7 +416,8 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartRevenue"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp" />
+                            android:layout_height="160dp"
+                            android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
 
@@ -419,7 +429,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     android:background="?attr/cardBackgroundPrimary">
 
@@ -427,7 +437,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="12dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -459,7 +470,8 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartExpenses"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp" />
+                            android:layout_height="160dp"
+                            android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
 
@@ -508,7 +520,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="1dp"
                     android:background="?attr/cardBackgroundPrimary">
 
@@ -517,7 +529,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="44dp"
@@ -542,7 +555,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp">
+                            android:layout_marginHorizontal="8dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <TextView
                                 android:id="@+id/tvForecastYield1"
@@ -585,7 +599,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="1dp"
                     android:background="?attr/cardBackgroundSecondary">
 
@@ -594,7 +608,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="44dp"
@@ -619,7 +634,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp">
+                            android:layout_marginHorizontal="8dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <TextView
                                 android:id="@+id/tvForecastYield2"
@@ -662,7 +678,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="1dp"
                     android:background="?attr/cardBackgroundAccent">
 
@@ -671,7 +687,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <FrameLayout
                             android:layout_width="44dp"
@@ -696,7 +713,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp">
+                            android:layout_marginHorizontal="8dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <TextView
                                 android:id="@+id/tvForecastYield3"

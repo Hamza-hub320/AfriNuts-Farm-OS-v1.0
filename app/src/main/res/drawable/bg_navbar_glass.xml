@@ -1,19 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Glass Base -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#E8F0D6" /> <!-- Light green background -->
             <corners android:radius="32dp" />
+            <solid android:color="#CC1C1C1E" />
         </shape>
     </item>
+
+    <!-- Glass Depth -->
     <item>
         <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <gradient
+                android:startColor="#15FFFFFF"
+                android:centerColor="#08FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Top Highlight -->
+    <item android:top="1dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <gradient
+                android:startColor="#20FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="90" />
+        </shape>
+    </item>
+
+    <!-- Bottom Shadow -->
+    <item android:bottom="2dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
             <gradient
                 android:startColor="#00FFFFFF"
-                android:centerColor="#10FFFFFF"
-                android:endColor="#20FFFFFF"
-                android:angle="0" />
-            <corners android:radius="32dp" />
+                android:endColor="#25000000"
+                android:angle="90" />
         </shape>
     </item>
+
+    <!-- Border -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <stroke
+                android:width="0.8dp"
+                android:color="#30FFFFFF" />
+        </shape>
+    </item>
+
 </layer-list>

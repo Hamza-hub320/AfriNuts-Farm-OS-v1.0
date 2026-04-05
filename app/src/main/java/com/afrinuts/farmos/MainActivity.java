@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,6 +43,8 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.content.Context;
+
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.afrinuts.farmos.data.sync.SyncService;
@@ -451,15 +454,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavItemSelected(int position) {
-        // Reset all icons and text colors
-        int inactiveColor = getColor(R.color.navy);
-        int activeColor = getColor(R.color.primary);
+        // Get colors - WHITE for inactive, PRIMARY for active
+        int inactiveColor = getThemeColor(R.attr.navbarIconColor);
+        int activeColor = ContextCompat.getColor(this, R.color.primary);
 
+        // Reset all icons
         navHomeIcon.setColorFilter(inactiveColor);
         navFarmIcon.setColorFilter(inactiveColor);
         navFinanceIcon.setColorFilter(inactiveColor);
         navAnalyticsIcon.setColorFilter(inactiveColor);
 
+        // Reset all text colors
         navHomeText.setTextColor(inactiveColor);
         navFarmText.setTextColor(inactiveColor);
         navFinanceText.setTextColor(inactiveColor);
@@ -484,6 +489,12 @@ public class MainActivity extends AppCompatActivity {
                 navAnalyticsText.setTextColor(activeColor);
                 break;
         }
+    }
+
+    private int getThemeColor(int attr) {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
     }
 
     private void setupToolbar() {

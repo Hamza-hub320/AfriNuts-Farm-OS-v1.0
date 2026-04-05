@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/tabBackground"
+        android:background="?attr/cardBackgroundPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -38,7 +38,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Revenue Details"
+                android:text="Block Details"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -64,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundAccent"
                 style="@style/Widget.AfriNuts.CardView">
@@ -74,7 +74,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
                         android:layout_width="64dp"
@@ -128,7 +129,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary"
                 style="@style/Widget.AfriNuts.CardView">
@@ -137,7 +138,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <!-- Section Header -->
                     <LinearLayout
@@ -260,7 +262,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
+                        app:cardCornerRadius="24dp"
                         app:cardElevation="2dp"
                         android:background="?attr/cardBackgroundAccent">
 
@@ -270,7 +272,7 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="16dp"
-                            android:background="?attr/cardBackgroundSecondary">
+                            android:background="?attr/cardBackgroundAccent">
 
                             <FrameLayout
                                 android:layout_width="40dp"
@@ -451,7 +453,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -460,6 +462,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp">
 
+                <!-- Edit Button - Accent -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
@@ -467,28 +470,38 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="?attr/colorSecondary"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
-                    app:cornerRadius="28dp" />
+                    app:iconTint="?attr/colorSecondary" />
 
+                <!-- Save Button - Primary -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSave"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Save"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    app:icon="@drawable/ic_save"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorPrimary"
+                    android:visibility="gone" />
+
+                <!-- Delete Button - Danger -->
                 <Button
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
                     android:layout_weight="1"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@android:color/holo_red_dark"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white"
-                    app:cornerRadius="28dp" />
+                    app:iconTint="@color/error" />
 
             </LinearLayout>
-
         </LinearLayout>
 
     </ScrollView>

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    app:cardCornerRadius="24dp"
+    android:background="?attr/cardBackgroundPrimary">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -16,7 +17,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="?attr/cardBackgroundAccent">
 
             <!-- Date Range Card - Compact -->
             <androidx.cardview.widget.CardView
@@ -24,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="?attr/cardBackgroundPrimary">
 
@@ -32,7 +34,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="12dp"
+                    android:background="?attr/cardBackgroundAccent">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -89,7 +92,6 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/layoutStartDate"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -115,7 +117,6 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/layoutEndDate"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -152,7 +153,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="?attr/cardBackgroundSecondary">
 
@@ -160,7 +161,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="12dp"
+                    android:background="?attr/cardBackgroundAccent">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -181,8 +183,8 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="20dp"
-                        android:background="?attr/cardBackgroundPrimary">
+                        app:cardCornerRadius="24dp"
+                        android:background="?attr/cardBackgroundSecondary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -251,7 +253,7 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="20dp"
+                        app:cardCornerRadius="24dp"
                         android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
@@ -260,7 +262,7 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="10dp"
-                            android:background="?attr/cardBackgroundPrimary">
+                            android:background="?attr/cardBackgroundAccent">
 
                             <FrameLayout
                                 android:layout_width="36dp"

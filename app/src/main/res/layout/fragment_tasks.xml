@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="3dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
@@ -80,7 +80,7 @@
             android:layout_weight="1"
             android:layout_marginStart="3dp"
             android:layout_marginEnd="3dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
@@ -93,7 +93,7 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="22dp"
@@ -139,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="3dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="1dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
@@ -152,7 +152,7 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundAccent">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
                     android:layout_width="22dp"

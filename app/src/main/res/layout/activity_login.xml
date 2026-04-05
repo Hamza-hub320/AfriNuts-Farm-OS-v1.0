@@ -6,7 +6,6 @@
 
     <!-- Background Image with Overlay - Only visible in light mode -->
     <ImageView
-        android:id="@+id/bgImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/bg_farm_field"
@@ -15,7 +14,6 @@
 
     <!-- Adaptive Overlay - changes with theme -->
     <View
-        android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#66000000"/>
@@ -44,6 +42,7 @@
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:layout_gravity="center"
+                    android:textColor="?attr/colorOnSurface"
                     android:src="@drawable/ic_logo_afrinuts_round"
                     android:alpha="0.95" />
 
@@ -76,7 +75,7 @@
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
-                android:background="?attr/cardBackgroundPrimary"
+                android:background="?attr/cardBackgroundSecondary"
                 android:clipChildren="false">
 
                 <LinearLayout
@@ -84,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="24dp"
-                    android:background="?attr/cardBackgroundPrimary"
+                    android:background="?attr/cardBackgroundSecondary"
                     android:outlineProvider="background"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
@@ -162,19 +161,17 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Login Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:text="Login"
-                        style="@style/Widget.AfriNuts.Button"
-                        android:backgroundTint="?attr/colorPrimary"
+                        style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                         android:layout_marginBottom="8dp"
                         app:icon="@drawable/ic_login"
                         app:iconGravity="textStart"
                         app:iconPadding="12dp"
-                        app:iconTint="@android:color/white" />
+                        app:iconTint="?attr/colorPrimary" />
 
                     <!-- Forgot Credentials -->
                     <TextView
