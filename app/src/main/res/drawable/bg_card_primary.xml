@@ -9,7 +9,7 @@
         </shape>
     </item>
 
-    <!-- Pure Glass Depth Gradient - No brand colors -->
+    <!-- Pure Glass Depth Gradient -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />

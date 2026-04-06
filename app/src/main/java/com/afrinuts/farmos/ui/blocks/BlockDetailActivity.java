@@ -82,7 +82,6 @@ public class BlockDetailActivity extends BaseActivity {
     private MaterialButton btnEdit;
     private MaterialButton btnSave;
     private Button btnDelete;
-    private FloatingActionButton fabEdit;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -145,10 +144,8 @@ public class BlockDetailActivity extends BaseActivity {
         btnEdit = findViewById(R.id.btnEdit);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
-        fabEdit = findViewById(R.id.fabEdit);
 
         btnEdit.setOnClickListener(v -> enableEditMode(true));
-        fabEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
 
@@ -207,7 +204,6 @@ public class BlockDetailActivity extends BaseActivity {
                     if (sessionManager.isInvestor()) {
                         btnEdit.setVisibility(View.GONE);
                         btnDelete.setVisibility(View.GONE);
-                        fabEdit.setVisibility(View.GONE);
                     }
                 } else {
                     Toast.makeText(BlockDetailActivity.this,
@@ -351,7 +347,6 @@ public class BlockDetailActivity extends BaseActivity {
 
         btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
-        fabEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
 
         statusBadge.setClickable(enable);
         statusBadge.setFocusable(enable);

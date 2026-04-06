@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:background="?attr/cardBackgroundPrimary">
@@ -129,7 +129,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:background="?attr/cardBackgroundSecondary">
@@ -303,7 +303,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:background="?attr/cardBackgroundPrimary">
@@ -495,7 +495,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:background="?attr/cardBackgroundSecondary">
@@ -549,7 +549,6 @@
                             android:text="Assign"
                             style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                             app:icon="@drawable/ic_add"
-                            app:iconTint="?attr/colorPrimary"
                             app:cornerRadius="20dp" />
 
                     </LinearLayout>
@@ -560,7 +559,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="?attr/cardBackgroundPrimary"
                         android:padding="12dp"
                         android:layout_marginBottom="16dp"
                         android:visibility="gone"
@@ -640,12 +638,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    app:iconTint="@color/error"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart" />
 
@@ -653,21 +650,20 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
-                    app:iconTint="?attr/colorPrimary"
                     android:visibility="gone" />
 
-                <!-- Delete Button - Danger -->
-                <Button
+                <!-- Delete Button - Danger (Fixed: Use MaterialButton) -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"

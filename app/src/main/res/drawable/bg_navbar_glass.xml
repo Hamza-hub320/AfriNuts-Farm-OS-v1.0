@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Glass Base -->
+    <!-- Base Liquid Glass - Solid Dark -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
-            <solid android:color="#CC1C1C1E" />
+            <corners android:radius="28dp" />
+            <solid android:color="#F01C1C1E" />  <!-- 94% opacity -->
         </shape>
     </item>
 
-    <!-- Glass Depth -->
+    <!-- Minimal Glass Reflection -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
             <gradient
-                android:startColor="#15FFFFFF"
-                android:centerColor="#08FFFFFF"
+                android:startColor="#08FFFFFF"
+                android:centerColor="#03FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="135"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Top Highlight -->
-    <item android:top="1dp" android:left="2dp" android:right="2dp">
+    <!-- Top Highlight - Very subtle -->
+    <item android:top="1dp" android:left="1dp" android:right="1dp">
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
             <gradient
-                android:startColor="#20FFFFFF"
+                android:startColor="#10FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Bottom Shadow -->
+    <!-- Bottom Shadow - Stronger -->
     <item android:bottom="2dp" android:left="2dp" android:right="2dp">
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
             <gradient
                 android:startColor="#00FFFFFF"
-                android:endColor="#25000000"
+                android:endColor="#60000000"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Border -->
+    <!-- Very Subtle Border -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
             <stroke
-                android:width="0.8dp"
-                android:color="#30FFFFFF" />
+                android:width="0.5dp"
+                android:color="#15FFFFFF" />
         </shape>
     </item>
 

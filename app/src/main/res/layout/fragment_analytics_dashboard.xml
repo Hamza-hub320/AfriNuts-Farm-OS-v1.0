@@ -277,7 +277,6 @@
                             android:text="Consider increasing irrigation"
                             style="@style/Text.Caption"
                             android:textSize="11sp"
-                            android:background="?attr/cardBackgroundSecondary"
                             android:padding="8dp"
                             android:maxLines="1"
                             android:ellipsize="end"
@@ -555,8 +554,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp"
-                            android:background="?attr/cardBackgroundPrimary">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield1"
@@ -634,8 +632,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp"
-                            android:background="?attr/cardBackgroundPrimary">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield2"
@@ -713,8 +710,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:layout_marginHorizontal="8dp"
-                            android:background="?attr/cardBackgroundPrimary">
+                            android:layout_marginHorizontal="8dp">
 
                             <TextView
                                 android:id="@+id/tvForecastYield3"

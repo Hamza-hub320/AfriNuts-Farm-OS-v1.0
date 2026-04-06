@@ -74,28 +74,29 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Summary Card - Modern Glass -->
+                    <!-- Summary Card - Modern Glass (Accent) -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.AfriNuts.CardView"
-                        app:cardCornerRadius="20dp"
+                        app:cardCornerRadius="24dp"
                         app:cardElevation="4dp"
-                        android:background="@drawable/bg_card_accent">
+                        android:background="?attr/cardBackgroundAccent">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="20dp">
+                            android:padding="20dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Profit &amp; Loss Summary"
                                 style="@style/Text.H5"
-                                android:textColor="@color/accent"
+                                android:textColor="?attr/colorSecondary"
                                 android:layout_marginBottom="16dp" />
 
                             <!-- Revenue Row -->
@@ -115,7 +116,7 @@
                                     <FrameLayout
                                         android:layout_width="32dp"
                                         android:layout_height="32dp"
-                                        android:background="@drawable/bg_icon_glass"
+                                        android:background="?attr/iconBackgroundGlass"
                                         android:layout_marginEnd="8dp">
 
                                         <ImageView
@@ -123,7 +124,7 @@
                                             android:layout_height="16dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_attach_money"
-                                            app:tint="@color/accent" />
+                                            app:tint="?attr/colorSecondary" />
 
                                     </FrameLayout>
 
@@ -131,7 +132,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Total Revenue"
-                                        style="@style/Text.Body" />
+                                        style="@style/Text.Body"
+                                        android:textColor="?attr/colorOnSurface" />
 
                                 </LinearLayout>
 
@@ -161,7 +163,7 @@
                                     <FrameLayout
                                         android:layout_width="32dp"
                                         android:layout_height="32dp"
-                                        android:background="@drawable/bg_icon_glass"
+                                        android:background="?attr/iconBackgroundGlass"
                                         android:layout_marginEnd="8dp">
 
                                         <ImageView
@@ -169,7 +171,7 @@
                                             android:layout_height="16dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_money_off"
-                                            app:tint="@color/navy" />
+                                            app:tint="?attr/colorOnSurface" />
 
                                     </FrameLayout>
 
@@ -177,7 +179,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Total Expenses"
-                                        style="@style/Text.Body" />
+                                        style="@style/Text.Body"
+                                        android:textColor="?attr/colorOnSurface" />
 
                                 </LinearLayout>
 
@@ -222,7 +225,7 @@
                                             android:layout_height="20dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_trending_up"
-                                            app:tint="@color/primary" />
+                                            app:tint="?attr/colorPrimary" />
 
                                     </FrameLayout>
 
@@ -230,7 +233,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Net Profit"
-                                        style="@style/Text.H5" />
+                                        style="@style/Text.H5"
+                                        android:textColor="?attr/colorOnSurface" />
 
                                 </LinearLayout>
 
@@ -240,7 +244,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="0 XAF"
                                     style="@style/Text.Stat"
-                                    android:textColor="@color/primary" />
+                                    android:textColor="?attr/colorPrimary" />
 
                             </LinearLayout>
 
@@ -251,7 +255,8 @@
                                 android:layout_height="wrap_content"
                                 android:text="0% margin"
                                 style="@style/Text.Caption"
-                                android:textColor="@color/navy"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.7"
                                 android:layout_gravity="end" />
 
                         </LinearLayout>
@@ -264,22 +269,23 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.AfriNuts.CardView"
-                        app:cardCornerRadius="20dp"
+                        app:cardCornerRadius="24dp"
                         app:cardElevation="4dp"
-                        android:background="@drawable/bg_card_primary">
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="20dp">
+                            android:padding="20dp"
+                            android:background="?attr/cardBackgroundPrimary">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Per Unit Analysis"
                                 style="@style/Text.H5"
-                                android:textColor="@color/primary"
+                                android:textColor="?attr/colorPrimary"
                                 android:layout_marginBottom="16dp" />
 
                             <LinearLayout
@@ -287,7 +293,8 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:weightSum="3"
-                                android:layout_marginBottom="12dp">
+                                android:layout_marginBottom="12dp"
+                                android:background="?attr/cardBackgroundAccent">
 
                                 <!-- Per Hectare -->
                                 <LinearLayout
@@ -309,7 +316,7 @@
                                             android:layout_height="24dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_straighten"
-                                            app:tint="@color/primary" />
+                                            app:tint="?attr/colorPrimary" />
 
                                     </FrameLayout>
 
@@ -319,14 +326,15 @@
                                         android:layout_height="wrap_content"
                                         android:text="0"
                                         style="@style/Text.Stat.Small"
-                                        android:textColor="@color/primary" />
+                                        android:textColor="?attr/colorPrimary" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="per Ha"
                                         style="@style/Text.Caption.Small"
-                                        android:textColor="@color/navy" />
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:alpha="0.7" />
 
                                 </LinearLayout>
 
@@ -350,7 +358,7 @@
                                             android:layout_height="24dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_park"
-                                            app:tint="@color/olive" />
+                                            app:tint="?attr/colorPrimary" />
 
                                     </FrameLayout>
 
@@ -360,14 +368,15 @@
                                         android:layout_height="wrap_content"
                                         android:text="0"
                                         style="@style/Text.Stat.Small"
-                                        android:textColor="@color/olive" />
+                                        android:textColor="?attr/colorPrimary"/>
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="per Tree"
                                         style="@style/Text.Caption.Small"
-                                        android:textColor="@color/navy" />
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:alpha="0.7" />
 
                                 </LinearLayout>
 
@@ -391,7 +400,7 @@
                                             android:layout_height="24dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_trending_up"
-                                            app:tint="@color/accent" />
+                                            app:tint="?attr/colorSecondary" />
 
                                     </FrameLayout>
 
@@ -401,14 +410,15 @@
                                         android:layout_height="wrap_content"
                                         android:text="0%"
                                         style="@style/Text.Stat.Small"
-                                        android:textColor="@color/accent" />
+                                        android:textColor="?attr/colorSecondary" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Margin"
                                         style="@style/Text.Caption.Small"
-                                        android:textColor="@color/navy" />
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:alpha="0.7" />
 
                                 </LinearLayout>
 
@@ -424,7 +434,7 @@
                         android:layout_height="wrap_content"
                         android:text="Recent Activity"
                         style="@style/Text.H5"
-                        android:textColor="@color/primary"
+                        android:textColor="?attr/colorPrimary"
                         android:layout_marginBottom="12dp" />
 
                     <LinearLayout
@@ -464,7 +474,8 @@
                                 android:layout_height="48dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_inventory"
-                                app:tint="@color/warm_grey" />
+                                app:tint="?attr/colorOnSurface"
+                                android:alpha="0.5" />
 
                         </FrameLayout>
 
@@ -473,9 +484,15 @@
                             android:layout_height="wrap_content"
                             android:text="No transactions found"
                             style="@style/Text.H3"
-                            android:textColor="@color/navy" />
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
 
                     </LinearLayout>
+
+                    <!-- Spacer for bottom navigation -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp" />
 
                 </LinearLayout>
 
@@ -485,7 +502,7 @@
 
     </LinearLayout>
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <!-- FLOATING BOTTOM NAVIGATION BAR - NIKE STYLE GLASS -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -493,11 +510,13 @@
         android:layout_gravity="bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="12dp"
-        android:backgroundTint="@android:color/white"
-        app:cardBackgroundColor="@android:color/white">
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="18dp"
+        android:elevation="8dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -505,8 +524,10 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingVertical="8dp"
-            android:paddingHorizontal="12dp"
-            android:weightSum="4">
+            android:paddingHorizontal="8dp"
+            android:weightSum="4"
+            android:background="?attr/navbarBackground"
+            android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
 
             <!-- Home -->
             <LinearLayout
@@ -521,12 +542,28 @@
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navHomeIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navHomeIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_home"
+                        app:tint="?attr/colorSurface" />
+
+                    <!-- Active indicator dot -->
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navHomeText"
@@ -534,8 +571,10 @@
                     android:layout_height="wrap_content"
                     android:text="Home"
                     android:textSize="11sp"
-                    android:textColor="@color/primary"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="?attr/colorSurface"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.8"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -552,12 +591,27 @@
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navFarmIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_park"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navFarmIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_farming"
+                        app:tint="?attr/colorSurface" />
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navFarmText"
@@ -565,8 +619,10 @@
                     android:layout_height="wrap_content"
                     android:text="Farm"
                     android:textSize="11sp"
-                    android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="?attr/colorSurface"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.8"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -583,12 +639,27 @@
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navFinanceIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_attach_money"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navFinanceIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_attach_money"
+                        app:tint="?attr/colorSurface" />
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navFinanceText"
@@ -596,8 +667,10 @@
                     android:layout_height="wrap_content"
                     android:text="Finance"
                     android:textSize="11sp"
-                    android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="?attr/colorSurface"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.8"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -614,12 +687,27 @@
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackgroundBorderless">
 
-                <ImageView
-                    android:id="@+id/navAnalyticsIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_trending_up"
-                    app:tint="@color/primary" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/navAnalyticsIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_finance_analytics"
+                        app:tint="?attr/colorSurface" />
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="-4dp"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/navAnalyticsText"
@@ -627,13 +715,14 @@
                     android:layout_height="wrap_content"
                     android:text="Analytics"
                     android:textSize="11sp"
-                    android:textColor="@color/navy"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="?attr/colorSurface"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.8"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 </FrameLayout>

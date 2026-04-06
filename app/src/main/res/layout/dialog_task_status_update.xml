@@ -24,7 +24,7 @@
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_icon_container_large"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -274,7 +274,6 @@
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_sync"
                 app:iconGravity="textStart"
-                app:iconTint="?attr/colorPrimary"
                 app:iconPadding="12dp"
                 android:minWidth="140dp"
                 android:paddingStart="20dp"

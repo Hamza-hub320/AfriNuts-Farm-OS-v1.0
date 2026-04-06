@@ -388,7 +388,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
 
@@ -483,7 +483,6 @@
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
-                app:iconTint="?attr/colorPrimary"
                 android:minWidth="120dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />

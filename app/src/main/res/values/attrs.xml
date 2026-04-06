@@ -31,10 +31,11 @@
     <attr name="buttonLiquidGlassPrimary" format="reference" />
     <attr name="buttonLiquidGlassAccent" format="reference" />
     <attr name="buttonLiquidGlassDanger" format="reference" />
-    <attr name="buttonLiquidGlassSuccess" format="reference" />
     <attr name="colorOnPrimary" format="color" />
     <attr name="navbarIconColor" format="color" />
     <attr name="navbarTextColor" format="color" />
+    <attr name="buttonTint" format="color" />
+    <attr name="buttonIcon" format="reference" />
 
     <!-- Card Backgrounds -->
     <attr name="cardBackgroundPrimary" format="reference" />

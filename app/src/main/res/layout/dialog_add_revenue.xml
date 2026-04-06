@@ -619,7 +619,6 @@
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
-                app:iconTint="?attr/colorPrimary"
                 android:minWidth="120dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />

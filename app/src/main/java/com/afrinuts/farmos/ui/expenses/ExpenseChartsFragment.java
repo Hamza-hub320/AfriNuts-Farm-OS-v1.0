@@ -323,6 +323,7 @@ public class ExpenseChartsFragment extends Fragment {
                 return String.format(Locale.getDefault(), "%.0f XAF", value);
             }
         });
+        dataSet.setDrawValues(false); // remove values from slices
 
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
@@ -333,7 +334,7 @@ public class ExpenseChartsFragment extends Fragment {
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleColor(Color.TRANSPARENT);
         pieChart.setTransparentCircleRadius(35f);
-        pieChart.setEntryLabelTextSize(12f);
+        pieChart.setDrawEntryLabels(false); // remove text labels on slices
 
         // Set legend text color based on theme
         Legend legend = pieChart.getLegend();

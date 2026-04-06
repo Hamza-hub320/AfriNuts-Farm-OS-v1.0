@@ -6,12 +6,12 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Summary Cards Row -->
+    <!-- Summary Cards Row - Fixed Height -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="12dp"
         android:weightSum="3">
 
         <!-- Total Expenses Card -->
@@ -21,27 +21,27 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundAccent"
-            style="@style/Widget.AfriNuts.CardView">
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackground">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
+                android:padding="8dp"
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/iconBackgroundGlass"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="2dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_attach_money"
                         app:tint="?attr/colorSecondary" />
@@ -50,23 +50,23 @@
 
                 <TextView
                     android:id="@+id/totalExpensesValue"
-                    style="@style/Text.Stat"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
                     android:text="0"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    android:textColor="?attr/colorSecondary" />
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorSecondary"
+                    android:maxLines="1" />
 
                 <TextView
-                    style="@style/Text.Caption.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Expenses"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
+                    android:alpha="0.7"
+                    android:maxLines="1" />
 
             </LinearLayout>
 
@@ -80,27 +80,27 @@
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundPrimary"
-            style="@style/Widget.AfriNuts.CardView">
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackground">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/iconBackgroundGlass"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="2dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_straighten"
                         app:tint="?attr/colorPrimary" />
@@ -109,23 +109,23 @@
 
                 <TextView
                     android:id="@+id/costPerHectareValue"
-                    style="@style/Text.Stat"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:text="0"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    android:textColor="?attr/colorPrimary" />
-
-                <TextView
-                    style="@style/Text.Caption.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="per Hectare"
+                    android:text="0"
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="per Ha"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
+                    android:alpha="0.7"
+                    android:maxLines="1" />
 
             </LinearLayout>
 
@@ -138,27 +138,27 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundSecondary"
-            style="@style/Widget.AfriNuts.CardView">
+            app:cardElevation="2dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackground">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="12dp"
+                android:padding="8dp"
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/iconBackgroundGlass"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="2dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_park"
                         app:tint="?attr/colorPrimary" />
@@ -167,23 +167,23 @@
 
                 <TextView
                     android:id="@+id/costPerTreeValue"
-                    style="@style/Text.Stat"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
                     android:text="0"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    android:textColor="?attr/colorPrimary" />
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:maxLines="1" />
 
                 <TextView
-                    style="@style/Text.Caption.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="per Tree"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
+                    android:alpha="0.7"
+                    android:maxLines="1" />
 
             </LinearLayout>
 
@@ -268,7 +268,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -302,7 +303,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -336,7 +338,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:background="?attr/cardBackgroundPrimary">
 
                         <TextView
                             android:layout_width="wrap_content"

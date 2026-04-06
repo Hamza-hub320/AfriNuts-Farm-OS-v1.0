@@ -284,17 +284,11 @@
                     android:id="@+id/recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
                     android:clipToPadding="false"
+                    android:paddingBottom="126dp"
                     android:visibility="visible" />
 
             </LinearLayout>
-
-        <!-- Bottom Spacer for Nav Bar -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:visibility="invisible"/>
 
     </LinearLayout>
 

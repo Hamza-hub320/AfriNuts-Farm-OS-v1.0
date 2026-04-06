@@ -52,7 +52,9 @@
                 android:id="@+id/appNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AfriNuts Farm OS"
+                android:drawableTint="?attr/colorOnSurface"
+                android:text=" AfriNuts Farm OS"
+                android:drawableStart="@drawable/ic_cloud_lock"
                 style="@style/Text.H2"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="4dp" />
@@ -75,15 +77,18 @@
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
-                android:background="?attr/cardBackgroundSecondary"
-                android:clipChildren="false">
+                android:background="?attr/cardBackgroundPrimary"
+                app:cardBackgroundColor="@android:color/transparent"
+                android:clipChildren="false"
+                android:outlineProvider="background"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="24dp"
-                    android:background="?attr/cardBackgroundSecondary"
+                    android:background="?attr/cardBackgroundPrimary"
                     android:outlineProvider="background"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
@@ -169,9 +174,9 @@
                         style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                         android:layout_marginBottom="8dp"
                         app:icon="@drawable/ic_login"
+                        android:textStyle="bold"
                         app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:iconTint="?attr/colorPrimary" />
+                        app:iconPadding="12dp" />
 
                     <!-- Forgot Credentials -->
                     <TextView
@@ -181,6 +186,7 @@
                         style="@style/Text.Caption.Small"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.6"
+                        android:textStyle="bold"
                         android:layout_gravity="center_horizontal"
                         android:padding="8dp" />
 

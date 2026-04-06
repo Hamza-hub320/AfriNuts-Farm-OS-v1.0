@@ -6,47 +6,48 @@
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#20000000"
-                android:centerColor="#15000000"
-                android:endColor="#05000000"
+                android:startColor="#30000000"
+                android:centerColor="#20000000"
+                android:endColor="#08000000"
                 android:angle="90"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Base Dark Glass -->
+    <!-- Base Solid Dark Glass -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
-            <solid android:color="#CC1C1C1E" />
+            <solid android:color="#F01C1C1E" />
         </shape>
     </item>
 
-    <!-- Warm accent tint overlay (very subtle) -->
+    <!-- Accent Orange Tint Overlay -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#15EA580C"
-                android:endColor="#08EA580C"
+                android:startColor="#18F05C1A"
+                android:endColor="#08F05C1A"
                 android:angle="135"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Subtle gradient depth -->
+    <!-- Minimal Glass Reflection -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#00FFFFFF"
-                android:endColor="#08FFFFFF"
+                android:startColor="#08FFFFFF"
+                android:centerColor="#03FFFFFF"
+                android:endColor="#00FFFFFF"
                 android:angle="135"
                 android:type="linear" />
         </shape>
     </item>
 
-    <!-- Soft inner glow -->
+    <!-- Soft Inner Glow -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
@@ -59,35 +60,35 @@
         </shape>
     </item>
 
-    <!-- Top highlight edge -->
+    <!-- Top Highlight Edge -->
     <item android:top="1dp" android:left="1.5dp" android:right="1.5dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
-                android:startColor="#20FFFFFF"
+                android:startColor="#10FFFFFF"
                 android:endColor="#00FFFFFF"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Bottom shadow -->
+    <!-- Bottom Shadow -->
     <item android:bottom="2dp" android:left="1.5dp" android:right="1.5dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <gradient
                 android:startColor="#00FFFFFF"
-                android:endColor="#15000000"
+                android:endColor="#40000000"
                 android:angle="90" />
         </shape>
     </item>
 
-    <!-- Subtle border with accent tint -->
+    <!-- Border with Accent Orange Tint -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
             <stroke
                 android:width="0.5dp"
-                android:color="#30EA580C" />
+                android:color="#25F05C1A" />
         </shape>
     </item>
 

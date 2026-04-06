@@ -32,10 +32,10 @@
         <!-- Custom theme flag -->
         <item name="isLightTheme">false</item>
             <!-- These same names now resolve to drawable-night/ folder (dark version) -->
-            <item name="buttonLiquidGlass">@drawable/bg_button_liquid_glass</item>
-            <item name="buttonLiquidGlassPrimary">@drawable/bg_button_liquid_glass_primary</item>
-            <item name="buttonLiquidGlassAccent">@drawable/bg_button_liquid_glass_accent</item>
-            <item name="buttonLiquidGlassDanger">@drawable/bg_button_liquid_glass_danger</item>
+        <item name="buttonLiquidGlass">@drawable/bg_button_liquid_glass</item>
+        <item name="buttonLiquidGlassPrimary">@drawable/bg_button_liquid_glass_primary_dark</item>
+        <item name="buttonLiquidGlassAccent">@drawable/bg_button_liquid_glass_accent_dark</item>
+        <item name="buttonLiquidGlassDanger">@drawable/bg_button_liquid_glass_danger_dark</item>
 
         <!-- ======================================== -->
         <!-- CARD BACKGROUND ATTRIBUTES (DARK MODE) -->
@@ -99,18 +99,6 @@
         <item name="android:paddingRight">16dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
-
-        <!-- Liquid Glass Button Attributes - Dark Mode -->
-        <item name="buttonLiquidGlass">@drawable/bg_button_liquid_glass_dark</item>
-        <item name="buttonLiquidGlassPrimary">@drawable/bg_button_liquid_glass_primary_dark</item>
-        <item name="buttonLiquidGlassAccent">@drawable/bg_button_liquid_glass_accent_dark</item>
-        <item name="buttonLiquidGlassDanger">@drawable/bg_button_liquid_glass_danger_dark</item>
-
-        <!-- Card Backgrounds - Dark Mode -->
-        <item name="cardBackgroundPrimary">@drawable/bg_card_primary_dark</item>
-        <item name="cardBackgroundAccent">@drawable/bg_card_accent_dark</item>
-        <item name="cardBackgroundSecondary">@drawable/bg_card_secondary_dark</item>
-        <item name="iconBackgroundGlass">@drawable/bg_icon_glass_dark</item>
     </style>
 
     <!-- Outlined Button for dark mode -->
@@ -125,6 +113,45 @@
         <item name="android:paddingRight">16dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Liquid Glass Button Styles for Dark Mode -->
+    <style name="Widget.AfriNuts.Button.LiquidGlass" parent="Widget.MaterialComponents.Button">
+
+        <!-- CRITICAL: disable MaterialButton tint so drawable shows -->
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+
+        <!-- Apply Liquid Glass background -->
+        <item name="android:background">?attr/buttonLiquidGlass</item>
+
+        <item name="android:textAppearance">@style/Text.Button</item>
+        <item name="rippleColor">?attr/colorPrimary</item>
+        <item name="cornerRadius">32dp</item>
+
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+
+        <item name="android:minHeight">0dp</item>
+        <item name="android:elevation">0dp</item>
+
+    </style>
+
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Primary" parent="Widget.AfriNuts.Button.LiquidGlass">
+
+        <item name="android:background">?attr/buttonLiquidGlassPrimary</item>
+    </style>
+
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Accent" parent="Widget.AfriNuts.Button.LiquidGlass">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:background">?attr/buttonLiquidGlassAccent</item>
+    </style>
+
+    <style name="Widget.AfriNuts.Button.LiquidGlass.Danger" parent="Widget.AfriNuts.Button.LiquidGlass">
+        <item name="android:textColor">@color/error</item>
+        <item name="android:background">?attr/buttonLiquidGlassDanger</item>
     </style>
 
     <!-- Chip for dark mode -->

@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    app:cardCornerRadius="24dp"
-    android:background="?attr/cardBackgroundPrimary">
+    app:cardCornerRadius="24dp">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,8 +26,7 @@
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                android:background="?attr/cardBackgroundPrimary">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -357,6 +355,11 @@
                     android:layout_marginTop="12dp" />
 
             </LinearLayout>
+
+            <!-- Spacer for bottom navigation -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
 
         </LinearLayout>
 

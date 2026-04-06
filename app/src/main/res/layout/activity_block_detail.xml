@@ -67,7 +67,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary">
 
@@ -87,12 +88,12 @@
 
                         <TextView
                             android:id="@+id/blockNameText"
-                            style="@style/Text.H2"
+                            style="@style/Text.H3"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Block A1"
-                            android:textColor="?attr/colorPrimary" />
+                            android:textColor="?attr/colorPrimary"/>
 
                         <TextView
                             android:id="@+id/statusBadge"
@@ -121,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundSecondary">
 
@@ -262,7 +263,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundAccent"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -334,7 +335,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary">
 
@@ -342,7 +343,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -598,57 +600,42 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart"
-                    app:iconTint="?attr/colorSecondary" />
+                    app:iconGravity="textStart" />
 
                 <!-- Save Button - Primary -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
-                    app:iconTint="?attr/colorPrimary"
                     android:visibility="gone" />
 
                 <!-- Delete Button - Danger (Fixed: Use MaterialButton) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
-                    app:iconTint="@color/error" />
+                    app:iconTint="?attr/colorAccent" />
 
             </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
-
-    <!-- Floating Action Button for quick edit -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="32dp"
-        android:src="@drawable/ic_edit"
-        android:contentDescription="Edit block"
-        app:backgroundTint="?attr/colorSecondary"
-        app:tint="@android:color/white" />
 
 </LinearLayout>

@@ -466,34 +466,32 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart"
-                    app:iconTint="?attr/colorSecondary" />
+                    app:iconGravity="textStart" />
 
                 <!-- Save Button - Primary -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
-                    app:iconTint="?attr/colorPrimary"
                     android:visibility="gone" />
 
-                <!-- Delete Button - Danger -->
-                <Button
+                <!-- Delete Button - Danger (Fixed: Use MaterialButton) -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="Delete"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
