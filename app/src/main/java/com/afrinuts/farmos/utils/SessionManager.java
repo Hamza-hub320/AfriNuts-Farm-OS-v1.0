@@ -79,6 +79,8 @@ public class SessionManager {
         return getUserRole() == UserEntity.UserRole.MANAGER;
     }
 
+    public boolean isWorker() { return getUserRole() == UserEntity.UserRole.WORKER;}
+
     public boolean isInvestor() {
         return getUserRole() == UserEntity.UserRole.INVESTOR;
     }

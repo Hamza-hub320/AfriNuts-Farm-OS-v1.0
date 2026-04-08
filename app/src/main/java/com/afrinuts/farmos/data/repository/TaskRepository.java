@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
+import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
@@ -124,28 +125,42 @@ public class TaskRepository extends BaseRepository {
     public void deleteTask(TaskEntity task, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
-                database.taskDao().deleteTask(task);
-                Log.d(TAG, "Task deleted locally: " + task.getId());
+                Log.d(TAG, "🗑️ Starting task deletion for task ID: " + task.getId());
 
-                // Queue for sync (only if NOT a remote update)
-                if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("tasks", task.getId(), SyncEntity.SyncAction.DELETE);
-                    Log.d(TAG, "Queued task deletion for sync (local change)");
-                } else {
-                    Log.d(TAG, "Skipping queue - this is a remote update");
+                // Step 1: Get all assignments for this task BEFORE deleting
+                List<TaskAssignmentHistoryEntity> assignments =
+                        database.taskAssignmentDao().getAssignmentsForTask(task.getId());
+                Log.d(TAG, "Found " + assignments.size() + " assignments for this task");
+
+                // Step 2: Queue assignment deletions FIRST
+                for (TaskAssignmentHistoryEntity assignment : assignments) {
+                    if (!firestoreSyncManager.isRemoteUpdate()) {
+                        syncManager.queueForSync("assignments", assignment.getId(), SyncEntity.SyncAction.DELETE);
+                        Log.d(TAG, "📤 Queued assignment deletion for sync: " + assignment.getId());
+                    }
                 }
 
-                // Try to delete from Firestore
-                firestoreHelper.deleteTask(task.getId())
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Task deleted from Firestore: " + task.getId());
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore delete failed", e);
-                            // Queue already exists, just return success
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        });
+                // Step 3: Delete assignments from local DB
+                for (TaskAssignmentHistoryEntity assignment : assignments) {
+                    database.taskAssignmentDao().delete(assignment);
+                    Log.d(TAG, "✅ Deleted assignment locally: " + assignment.getId());
+                }
+
+                // Step 4: Delete the task from local DB
+                database.taskDao().deleteTask(task);
+                Log.d(TAG, "✅ Task deleted locally: " + task.getId());
+
+                // Step 5: Queue task deletion for sync
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("tasks", task.getId(), SyncEntity.SyncAction.DELETE);
+                    Log.d(TAG, "📤 Queued task deletion for sync: " + task.getId());
+                }
+
+                // Step 6: Force sync now
+                syncManager.forceSyncNow();
+                Log.d(TAG, "🔄 Triggered force sync");
+
+                mainHandler.post(() -> callback.onSuccess(true));
 
             } catch (Exception e) {
                 Log.e(TAG, "Error deleting task", e);

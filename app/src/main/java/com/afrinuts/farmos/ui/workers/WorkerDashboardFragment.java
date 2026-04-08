@@ -1,7 +1,10 @@
 package com.afrinuts.farmos.ui.workers;
 
-import android.os.Bundle;
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,10 +26,13 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +49,7 @@ public class WorkerDashboardFragment extends Fragment {
     private TaskAssignmentRepository assignmentRepository;
     private TaskRepository taskRepository;
     private long farmId = 1;
+    private FarmEntity currentFarm;  // ADD THIS FIELD
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -75,7 +82,6 @@ public class WorkerDashboardFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        // Note: Fragment doesn't have a toolbar - the parent Activity handles the toolbar
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         totalWorkersValue = view.findViewById(R.id.totalWorkersValue);
         totalTasksValue = view.findViewById(R.id.totalTasksValue);
@@ -89,7 +95,7 @@ public class WorkerDashboardFragment extends Fragment {
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                refreshData();  // Now this works because refreshData() is public
+                refreshData();
             });
 
             swipeRefreshLayout.setColorSchemeColors(
@@ -105,13 +111,14 @@ public class WorkerDashboardFragment extends Fragment {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         }
-        loadWorkerData();
+        forceRefreshWorkerData();
     }
 
     private void loadFarmData() {
         executor.execute(() -> {
             FarmEntity farm = database.farmDao().getFirstFarm();
             if (farm != null) {
+                currentFarm = farm;  // STORE the farm
                 farmId = farm.getId();
             }
 
@@ -310,6 +317,52 @@ public class WorkerDashboardFragment extends Fragment {
         }
     }
 
+    private void forceRefreshWorkerData() {
+        if (currentFarm == null) {
+            Log.d(TAG, "currentFarm is null, loading from local DB only");
+            loadWorkerData();
+            return;
+        }
+
+        // Get all assignments from Firestore and update local DB
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String farmIdStr = String.valueOf(currentFarm.getId());
+
+        db.collection("farms")
+                .document(farmIdStr)
+                .collection("task_assignments")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int updatedCount = 0;
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        TaskAssignmentHistoryEntity assignment =
+                                EntityMapper.fromFirestoreAssignment(doc);
+                        if (assignment != null) {
+                            TaskAssignmentHistoryEntity existing =
+                                    database.taskAssignmentDao().getAssignmentById(assignment.getId());
+                            if (existing == null) {
+                                database.taskAssignmentDao().insert(assignment);
+                                updatedCount++;
+                            } else {
+                                // Update if newer
+                                if (assignment.getAssignedAt() > existing.getAssignedAt()) {
+                                    database.taskAssignmentDao().update(assignment);
+                                    updatedCount++;
+                                }
+                            }
+                        }
+                    }
+                    Log.d(TAG, "Force refresh: Updated " + updatedCount + " assignments");
+
+                    // Reload worker data after refresh
+                    loadWorkerData();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to force refresh assignments", e);
+                    loadWorkerData(); // Still try to load local data
+                });
+    }
+
     private void showLoading(boolean show) {
         if (progressBar != null) {
             progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -331,6 +384,16 @@ public class WorkerDashboardFragment extends Fragment {
         }
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (currentFarm != null) {
+            forceRefreshWorkerData();
+        } else {
+            loadWorkerData();
         }
     }
 

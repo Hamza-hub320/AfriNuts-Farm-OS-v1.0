@@ -1,8 +1,11 @@
 package com.afrinuts.farmos.ui.photos;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -133,8 +136,8 @@ public class PhotoDetailActivity extends BaseActivity {
     private void displayPhotoData() {
         if (photo == null) return;
 
-        // Load full image with Glide
-        File imageFile = new File(photo.getFilePath());
+        // FIXED: Use the filePath from Firestore (which now contains the cloud URL)
+        String imagePath = photo.getFilePath();
 
         RequestOptions requestOptions = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -142,14 +145,30 @@ public class PhotoDetailActivity extends BaseActivity {
                 .error(R.drawable.ic_photo_error)
                 .centerCrop();
 
-        if (imageFile.exists()) {
+        // Check if it's a cloud URL (starts with http) or local file
+        if (imagePath != null && (imagePath.startsWith("http://") || imagePath.startsWith("https://"))) {
+            // Load from cloud URL
             Glide.with(this)
-                    .load(imageFile)
+                    .load(imagePath)
                     .apply(requestOptions)
                     .into(ivFullPhoto);
+            Log.d(TAG, "Loading photo from cloud URL: " + imagePath);
+        } else if (imagePath != null) {
+            // Try local file as fallback
+            File imageFile = new File(imagePath);
+            if (imageFile.exists()) {
+                Glide.with(this)
+                        .load(imageFile)
+                        .apply(requestOptions)
+                        .into(ivFullPhoto);
+                Log.d(TAG, "Loading photo from local file: " + imagePath);
+            } else {
+                ivFullPhoto.setImageResource(R.drawable.ic_photo_error);
+                Log.e(TAG, "Photo file not found at: " + imagePath);
+            }
         } else {
             ivFullPhoto.setImageResource(R.drawable.ic_photo_error);
-            Toast.makeText(this, "Image file not found", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "No image path available");
         }
 
         // Set caption
@@ -272,20 +291,13 @@ public class PhotoDetailActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_photo_detail, menu);
-        return true;
+        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
-            return true;
-        } else if (item.getItemId() == R.id.action_edit) {
-            showEditCaptionDialog();
-            return true;
-        } else if (item.getItemId() == R.id.action_delete) {
-            confirmDelete();
             return true;
         }
         return super.onOptionsItemSelected(item);

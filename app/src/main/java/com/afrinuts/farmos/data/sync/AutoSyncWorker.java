@@ -1,5 +1,8 @@
 package com.afrinuts.farmos.data.sync;
 
+import static com.afrinuts.farmos.data.remote.FirebaseManager.COLLECTION_FARMS;
+import static com.afrinuts.farmos.data.remote.FirebaseManager.SUBCOLLECTION_TASKS;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -18,11 +21,13 @@ import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class AutoSyncWorker extends Worker {
@@ -182,6 +187,7 @@ public class AutoSyncWorker extends Worker {
                 break;
         }
     }
+
     private void syncUser(SyncEntity syncItem) throws Exception {
         UserEntity user = database.userDao().getUserById(syncItem.getEntityId());
         if (user == null) {
@@ -302,6 +308,20 @@ public class AutoSyncWorker extends Worker {
 
     private void syncTask(SyncEntity syncItem) throws Exception {
         TaskEntity task = database.taskDao().getTaskById(syncItem.getEntityId());
+
+        // For DELETE, the task might already be gone from local DB
+        if (task == null && syncItem.getAction() == SyncEntity.SyncAction.DELETE) {
+            Log.d(TAG, "Task already deleted locally, attempting Firestore deletion for ID: " + syncItem.getEntityId());
+
+            // Get assignments before deletion
+            List<TaskAssignmentHistoryEntity> assignments =
+                    database.taskAssignmentDao().getAssignmentsForTask(syncItem.getEntityId());
+
+            // ✅ Pass 3 arguments: farmId, taskId, assignments
+            firebaseManager.deleteTask(farmId, syncItem.getEntityId(), assignments);
+            return;
+        }
+
         if (task == null) {
             Log.e(TAG, "Task not found in local DB: " + syncItem.getEntityId());
             return;
@@ -313,11 +333,15 @@ public class AutoSyncWorker extends Worker {
             case CREATE:
             case UPDATE:
                 firebaseManager.saveTask(task, farmId);
-                Log.d(TAG, "Task saved to Firestore: " + task.getId());
+                Log.d(TAG, "Task saved to Firestore: " + task.getTitle());
                 break;
             case DELETE:
-                firebaseManager.deleteTask(farmId, task.getId());
-                Log.d(TAG, "Task deleted from Firestore: " + task.getId());
+                // ✅ Also get assignments when task still exists locally
+                List<TaskAssignmentHistoryEntity> assignments =
+                        database.taskAssignmentDao().getAssignmentsForTask(task.getId());
+
+                firebaseManager.deleteTask(farmId, task.getId(), assignments);
+                Log.d(TAG, "Task deleted from Firestore: " + task.getTitle());
                 break;
         }
     }

@@ -68,4 +68,7 @@ public interface TaskAssignmentDao {
 
     @Query("SELECT * FROM task_assignments WHERE taskId = :taskId ORDER BY assignedAt DESC")
     LiveData<List<TaskAssignmentHistoryEntity>> getAssignmentsForTaskLiveData(long taskId);
+
+    @Query("SELECT * FROM task_assignments WHERE taskId = :taskId AND unassignedAt IS NULL ORDER BY assignedAt DESC LIMIT 1")
+    TaskAssignmentHistoryEntity getCurrentAssignment(long taskId);
     }

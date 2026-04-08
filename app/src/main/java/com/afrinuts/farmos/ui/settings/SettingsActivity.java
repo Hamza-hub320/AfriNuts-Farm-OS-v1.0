@@ -56,8 +56,8 @@ public class SettingsActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Only owners and managers can access settings
-        return !sessionManager.isInvestor();
+        // Everyone can view settings charts
+        return true;
     }
 
     @Override

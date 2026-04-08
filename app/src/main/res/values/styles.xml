@@ -174,7 +174,7 @@
 
     <!-- Stats / Numbers (KPI values) -->
     <style name="Text.Stat" parent="Text">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:lineSpacingExtra">2sp</item>
@@ -229,12 +229,12 @@
         <item name="rippleColor">?attr/colorPrimary</item>
         <item name="cornerRadius">32dp</item>
 
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
 
-        <item name="android:minHeight">0dp</item>
+        <item name="android:minHeight">40dp</item>
         <item name="android:elevation">0dp</item>
 
     </style>
@@ -271,10 +271,11 @@
         <item name="android:textAppearance">@style/Text.Button</item>
         <item name="rippleColor">@color/accent</item>
         <item name="cornerRadius">8dp</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:minHeight">40dp</item>
     </style>
 
     <!-- Outlined Button Style -->
@@ -331,7 +332,7 @@
         <item name="chipStrokeColor">@color/primary</item>
         <item name="chipStrokeWidth">0dp</item>
         <item name="rippleColor">@color/accent</item>
-        <item name="chipCornerRadius">16dp</item>
+        <item name="chipCornerRadius">11dp</item>
     </style>
 
     <!-- EditText Style -->
@@ -354,11 +355,11 @@
 
     <!-- Status Badge Style -->
     <style name="Widget.AfriNuts.StatusBadge">
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">3dp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@drawable/status_background</item>

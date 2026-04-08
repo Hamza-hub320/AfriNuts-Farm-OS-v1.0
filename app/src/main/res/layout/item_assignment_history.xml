@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="1dp"
-    android:background="@drawable/bg_card_secondary"
+    android:background="?attr/cardBackgroundSecondary"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="10dp"
+        android:background="?attr/cardBackgroundSecondary">
 
         <!-- Worker and Duration Row -->
         <LinearLayout
@@ -26,7 +27,7 @@
             <FrameLayout
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:background="@drawable/bg_icon_glass"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="10dp">
 
                 <ImageView
@@ -47,14 +48,13 @@
                 android:text="John Doe"
                 style="@style/Text.H6"
                 android:textSize="14sp"
-                android:textColor="@color/primary" />
+                android:textColor="?attr/colorPrimary" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_icon_glass"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
                 app:cornerRadius="12dp">
@@ -63,7 +63,8 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_timer"
-                    app:tint="@color/accent"
+                    app:tint="?attr/colorSecondary"
+                    android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="2dp"
                     android:contentDescription="Duration" />
 
@@ -90,7 +91,7 @@
             <FrameLayout
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:background="@drawable/bg_icon_glass"
+                android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="10dp">
 
                 <ImageView
@@ -111,13 +112,13 @@
                 android:text="Mar 10 → Mar 12"
                 style="@style/Text.Caption"
                 android:textSize="11sp"
-                android:textColor="@color/navy" />
+                android:textColor="?attr/colorOnSurface" />
 
             <ImageView
                 android:layout_width="14dp"
                 android:layout_height="14dp"
                 android:src="@drawable/ic_arrow_forward"
-                app:tint="@color/accent"
+                app:tint="?attr/colorSecondary"
                 android:alpha="0.6"
                 android:visibility="visible" />
 

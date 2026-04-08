@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:layout_marginBottom="4dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="4dp"
     android:background="?attr/cardBackgroundPrimary"
     android:foreground="?android:attr/selectableItemBackground"
@@ -21,7 +21,7 @@
         android:padding="12dp"
         android:clickable="true"
         android:focusable="true"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="?attr/cardBackgroundAccent">
 
         <!-- Row Header -->
         <LinearLayout
@@ -72,13 +72,13 @@
 
             <!-- Planted Count -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginEnd="6dp"
-                android:background="?attr/cardBackgroundAccent"
+                android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="10dp">
@@ -114,7 +114,7 @@
 
             <!-- Survival Rate -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="horizontal"
@@ -156,13 +156,13 @@
 
             <!-- Trees Count -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginStart="6dp"
-                android:background="?attr/cardBackgroundPrimary"
+                android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="10dp">
@@ -195,6 +195,7 @@
                     android:lineSpacingExtra="0dp" />
 
             </LinearLayout>
+
 
         </LinearLayout>
 

@@ -11,8 +11,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
+import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
 import com.afrinuts.farmos.ui.reports.ReportsActivity;
-import com.afrinuts.farmos.ui.workers.WorkerDashboardFragment;
+import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -24,11 +25,6 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     private FloatingActionButton fabAction;
     private AnalyticsPagerAdapter pagerAdapter;
 
-    // Fragments
-    private AnalyticsDashboardFragment analyticsFragment;
-    private WorkerDashboardFragment workerFragment;
-    private ReportsFragment reportsFragment;
-
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_analytics_hub;
@@ -36,7 +32,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
     @Override
     protected int getCurrentNavItem() {
-        return 3; // Analytics tab is position 3
+        return 3;
     }
 
     @Override
@@ -63,8 +59,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                     tab.setIcon(R.drawable.ic_trending_up);
                     break;
                 case 1:
-                    tab.setText("Workers");
-                    tab.setIcon(R.drawable.ic_people);
+                    tab.setText("Charts");
+                    tab.setIcon(R.drawable.ic_insert_chart);
                     break;
                 case 2:
                     tab.setText("Reports");
@@ -96,17 +92,18 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         return true;
     }
 
+
     // ViewPager Adapter
     private static class AnalyticsPagerAdapter extends FragmentStateAdapter {
 
         private final AnalyticsDashboardFragment analyticsFragment;
-        private final WorkerDashboardFragment workerFragment;
+        private final ExpenseChartsFragment chartsFragment;
         private final ReportsFragment reportsFragment;
 
         public AnalyticsPagerAdapter(AnalyticsHubActivity activity) {
             super(activity);
             analyticsFragment = new AnalyticsDashboardFragment();
-            workerFragment = new WorkerDashboardFragment();
+            chartsFragment = new ExpenseChartsFragment();
             reportsFragment = new ReportsFragment();
         }
 
@@ -117,7 +114,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 case 0:
                     return analyticsFragment;
                 case 1:
-                    return workerFragment;
+                    return chartsFragment;
                 case 2:
                     return reportsFragment;
                 default:
@@ -135,7 +132,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 case 0:
                     return analyticsFragment;
                 case 1:
-                    return workerFragment;
+                    return chartsFragment;
                 case 2:
                     return reportsFragment;
                 default:

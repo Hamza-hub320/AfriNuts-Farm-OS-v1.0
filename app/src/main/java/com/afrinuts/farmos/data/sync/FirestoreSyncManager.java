@@ -2,6 +2,7 @@ package com.afrinuts.farmos.data.sync;
 
 import static com.afrinuts.farmos.data.remote.FirebaseManager.COLLECTION_FARMS;
 import static com.afrinuts.farmos.data.remote.FirebaseManager.SUBCOLLECTION_TASKS;
+import static com.afrinuts.farmos.data.remote.FirebaseManager.SUBCOLLECTION_TASK_ASSIGNMENTS;
 
 import android.content.Context;
 import android.util.Log;
@@ -541,78 +542,68 @@ public class FirestoreSyncManager {
     // ========================================
 
     private void listenToAssignments() {
-        // Listen to tasks collection first
+        // Listen directly to the task_assignments subcollection
         assignmentsListener = db.collection(COLLECTION_FARMS)
                 .document(farmId)
-                .collection(SUBCOLLECTION_TASKS)
-                .addSnapshotListener((taskSnapshots, error) -> {
+                .collection("task_assignments")
+                .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Tasks listener failed for assignments", error);
+                        Log.e(TAG, "Assignments listener failed", error);
                         return;
                     }
 
-                    if (taskSnapshots == null) return;
+                    if (snapshots == null) return;
 
                     executor.execute(() -> {
-                        for (DocumentChange taskChange : taskSnapshots.getDocumentChanges()) {
-                            DocumentSnapshot taskDoc = taskChange.getDocument();
-                            long taskId;
-                            try {
-                                taskId = Long.parseLong(taskDoc.getId());
-                            } catch (NumberFormatException e) {
-                                Log.e(TAG, "Invalid task ID: " + taskDoc.getId());
-                                continue;
-                            }
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            TaskAssignmentHistoryEntity remoteAssignment =
+                                    EntityMapper.fromFirestoreAssignment(dc.getDocument());
+                            if (remoteAssignment == null) continue;
 
-                            // Listen to assignments subcollection for this task
-                            taskDoc.getReference()
-                                    .collection("assignments")
-                                    .addSnapshotListener((assignmentSnapshots, err) -> {
-                                        if (err != null) {
-                                            Log.e(TAG, "Assignment listener failed for task: " + taskId, err);
-                                            return;
-                                        }
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // ✅ CRITICAL: Verify the task exists before inserting assignment
+                                    TaskEntity task = database.taskDao().getTaskById(remoteAssignment.getTaskId());
+                                    if (task == null) {
+                                        Log.w(TAG, "⚠️ Skipping assignment for task " + remoteAssignment.getTaskId() +
+                                                " - task not found in local DB (will sync when task arrives)");
+                                        continue;
+                                    }
 
-                                        if (assignmentSnapshots == null) return;
+                                    TaskAssignmentHistoryEntity localAssignment =
+                                            database.taskAssignmentDao().getAssignmentById(remoteAssignment.getId());
 
-                                        for (DocumentChange assignmentChange : assignmentSnapshots.getDocumentChanges()) {
-                                            DocumentSnapshot doc = assignmentChange.getDocument();
-                                            TaskAssignmentHistoryEntity assignment =
-                                                    EntityMapper.fromFirestoreAssignment(doc);
+                                    isApplyingRemoteUpdate = true;
 
-                                            if (assignment == null) continue;
-
-                                            isApplyingRemoteUpdate = true;
-                                            try {
-                                                switch (assignmentChange.getType()) {
-                                                    case ADDED:
-                                                    case MODIFIED:
-                                                        TaskAssignmentHistoryEntity local =
-                                                                database.taskAssignmentDao().getAssignmentById(assignment.getId());
-
-                                                        if (local == null) {
-                                                            database.taskAssignmentDao().insert(assignment);
-                                                            Log.d(TAG, "➕ New assignment synced: task=" + taskId);
-                                                        } else if (assignment.getAssignedAt() > local.getAssignedAt()) {
-                                                            database.taskAssignmentDao().update(assignment);
-                                                            Log.d(TAG, "📝 Updated assignment synced: task=" + taskId);
-                                                        } else {
-                                                            Log.d(TAG, "⏭️ Skipped older assignment: task=" + taskId);
-                                                        }
-                                                        break;
-
-                                                    case REMOVED:
-                                                        database.taskAssignmentDao().delete(assignment);
-                                                        Log.d(TAG, "❌ Assignment deleted: task=" + taskId);
-                                                        break;
-                                                }
-                                            } finally {
-                                                isApplyingRemoteUpdate = false;
+                                    try {
+                                        if (localAssignment == null) {
+                                            database.taskAssignmentDao().insert(remoteAssignment);
+                                            Log.d(TAG, "➕ New assignment synced: " + remoteAssignment.getId() +
+                                                    " for task: " + remoteAssignment.getTaskId());
+                                        } else {
+                                            if (remoteAssignment.getAssignedAt() > localAssignment.getAssignedAt()) {
+                                                database.taskAssignmentDao().update(remoteAssignment);
+                                                Log.d(TAG, "📝 Updated assignment synced: " + remoteAssignment.getId());
+                                            } else {
+                                                Log.d(TAG, "⏭️ Skipped older assignment: " + remoteAssignment.getId());
                                             }
                                         }
-                                    });
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error processing assignment", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
+                                    }
+                                    break;
+
+                                case REMOVED:
+                                    database.taskAssignmentDao().delete(remoteAssignment);
+                                    Log.d(TAG, "❌ Assignment deleted: " + remoteAssignment.getId());
+                                    break;
+                            }
                         }
                     });
                 });
+        Log.d(TAG, "Assignments listener registered");
     }
 }

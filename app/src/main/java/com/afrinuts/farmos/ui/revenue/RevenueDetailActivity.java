@@ -25,6 +25,7 @@ import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -149,11 +150,17 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setupRoleBasedUI() {
+        // Edit button: Owners and Managers can edit
         if (sessionManager.canEditData()) {
             if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
-            if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
         } else {
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
+        }
+
+        // Delete button: ONLY OWNERS can delete
+        if (sessionManager.isOwner()) {
+            if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
+        } else {
             if (btnDelete != null) btnDelete.setVisibility(View.GONE);
         }
     }
@@ -304,6 +311,13 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void confirmDelete() {
+
+        if (!sessionManager.isOwner()) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Only owners can delete revenue records", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Revenue")
                 .setMessage("Are you sure you want to delete this revenue record?")

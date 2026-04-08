@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.utils.SessionManager;
 
@@ -20,15 +21,32 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
+        // Check if user is logged in
+        if (!sessionManager.isLoggedIn()) {
+            redirectToLogin();
+            return;
+        }
+
         // Check role-specific access
         if (!checkRoleAccess()) {
-            Toast.makeText(this, "You don't have permission to access this section",
-                    Toast.LENGTH_LONG).show();
-            finish();
+            String message = getAccessDeniedMessage();
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            navigateToMain();
         }
     }
 
     protected abstract boolean checkRoleAccess();
+
+    protected String getAccessDeniedMessage() {
+        return "You don't have permission to access this section";
+    }
+
+    protected void navigateToMain() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
+    }
 
     private void redirectToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);

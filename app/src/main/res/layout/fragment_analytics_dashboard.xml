@@ -278,7 +278,7 @@
                             style="@style/Text.Caption"
                             android:textSize="11sp"
                             android:padding="8dp"
-                            android:maxLines="1"
+                            android:maxLines="2"
                             android:ellipsize="end"
                             android:textColor="?attr/colorOnSurface" />
 

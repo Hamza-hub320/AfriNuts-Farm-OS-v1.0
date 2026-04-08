@@ -164,8 +164,37 @@ public class EntityMapper {
     public static BlockEntity mapToBlock(DocumentSnapshot doc) {
         try {
             long id = Long.parseLong(doc.getId());
-            long farmId = getLongSafe(doc, "farmId");
+
+            // CRITICAL FIX: farmId may not be in the document
+            // Try to get from document first, but don't fail if missing
+            long farmId = 1L; // default farm ID
+
+            // Try to get farmId as Long
+            Long farmIdLong = getNullableLong(doc, "farmId");
+            if (farmIdLong != null) {
+                farmId = farmIdLong;
+            } else {
+                // Try as String
+                String farmIdStr = getStringSafe(doc, "farmId");
+                if (!farmIdStr.isEmpty()) {
+                    try {
+                        farmId = Long.parseLong(farmIdStr);
+                    } catch (NumberFormatException e) {
+                        Log.w(TAG, "Invalid farmId format, using default: " + farmIdStr);
+                    }
+                } else {
+                    // farmId not in document - this is expected for subcollection documents
+                    // The farmId is implied by the collection path
+                    Log.d(TAG, "No farmId in document, will use repository context");
+                }
+            }
+
             String blockName = getStringSafe(doc, "blockName");
+            if (blockName.isEmpty()) {
+                Log.e(TAG, "Missing blockName for block: " + id);
+                return null;
+            }
+
             double hectareSize = getDoubleSafe(doc, "hectareSize");
             String notes = doc.getString("notes");
 
@@ -173,19 +202,23 @@ public class EntityMapper {
             block.setId(id);
 
             try {
-                block.setStatus(BlockEntity.BlockStatus.valueOf(getStringSafe(doc, "status")));
+                String status = getStringSafe(doc, "status");
+                if (!status.isEmpty()) {
+                    block.setStatus(BlockEntity.BlockStatus.valueOf(status));
+                }
             } catch (Exception e) {
-                Log.e(TAG, "Invalid status");
+                Log.e(TAG, "Invalid status for block: " + id, e);
             }
 
-            block.setClearedDate(getLongSafe(doc, "clearedDate"));
-            block.setPlowedDate(getLongSafe(doc, "plowedDate"));
-            block.setPlantedDate(getLongSafe(doc, "plantedDate"));
+            block.setClearedDate(getNullableLong(doc, "clearedDate"));
+            block.setPlowedDate(getNullableLong(doc, "plowedDate"));
+            block.setPlantedDate(getNullableLong(doc, "plantedDate"));
             block.setSurvivalRate(getDoubleSafe(doc, "survivalRate"));
-            Long replacementCountValue = getLongSafe(doc, "replacementCount");
+            Long replacementCountValue = getNullableLong(doc, "replacementCount");
             block.setReplacementCount(replacementCountValue != null ? replacementCountValue.intValue() : 0);
             block.setCreatedAt(getLongSafe(doc, "createdAt"));
             block.setUpdatedAt(getLongSafe(doc, "updatedAt"));
+
             return block;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping block document", e);

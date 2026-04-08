@@ -60,7 +60,13 @@
                     android:text="0 XAF"
                     style="@style/Text.Stat"
                     android:textColor="?attr/colorSecondary"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="14sp"
+                    android:autoSizeMaxTextSize="28sp"
+                    android:autoSizeStepGranularity="2sp" />
 
             </LinearLayout>
 

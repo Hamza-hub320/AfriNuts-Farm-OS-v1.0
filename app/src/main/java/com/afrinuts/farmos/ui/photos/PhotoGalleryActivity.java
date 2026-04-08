@@ -1,7 +1,9 @@
 package com.afrinuts.farmos.ui.photos;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -50,6 +54,7 @@ public class PhotoGalleryActivity extends BaseActivity {
     private static final String TAG = "PhotoGallery";
     private static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final int REQUEST_IMAGE_PICK = 101;
+    private static final int REQUEST_CAMERA_PERMISSION = 200;
 
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
@@ -156,6 +161,16 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void dispatchTakePictureIntent() {
+        // Check camera permission first (REQUIRED FOR REAL DEVICES)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
@@ -173,9 +188,26 @@ public class PhotoGalleryActivity extends BaseActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } else {
+                Toast.makeText(this, "Failed to create image file", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, now take photo
+                dispatchTakePictureIntent();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos",
+                        Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -189,25 +221,63 @@ public class PhotoGalleryActivity extends BaseActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        // Ensure directory exists
+        if (storageDir != null && !storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+
         File image = File.createTempFile(
                 imageFileName,
                 ".jpg",
                 storageDir
         );
         currentPhotoPath = image.getAbsolutePath();
+        Log.d(TAG, "Created image file: " + currentPhotoPath);
         return image;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                // Camera photo taken
-                savePhotoToDatabase(currentPhotoPath);
+                if (currentPhotoPath != null) {
+                    // Check if the file exists and has content
+                    File photoFile = new File(currentPhotoPath);
+                    if (photoFile.exists() && photoFile.length() > 0) {
+                        Log.d(TAG, "Camera photo saved at: " + currentPhotoPath);
+                        savePhotoToDatabase(currentPhotoPath);
+                    } else {
+                        // Handle case where camera returned a thumbnail instead of full image
+                        if (data != null && data.getExtras() != null) {
+                            // Get thumbnail from intent and save it
+                            android.graphics.Bitmap thumbnail = (android.graphics.Bitmap) data.getExtras().get("data");
+                            if (thumbnail != null) {
+                                saveBitmapToFile(thumbnail);
+                            } else {
+                                Toast.makeText(this, "Failed to capture photo", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, "Photo file not found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    // Handle case where no file path was set
+                    if (data != null && data.getExtras() != null) {
+                        android.graphics.Bitmap thumbnail = (android.graphics.Bitmap) data.getExtras().get("data");
+                        if (thumbnail != null) {
+                            saveBitmapToFile(thumbnail);
+                        } else {
+                            Toast.makeText(this, "Failed to capture photo", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Failed to capture photo", Toast.LENGTH_SHORT).show();
+                    }
+                }
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
-                // Gallery image selected
                 Uri selectedImageUri = data.getData();
                 if (selectedImageUri != null) {
                     saveGalleryImageToFile(selectedImageUri);
@@ -215,6 +285,40 @@ public class PhotoGalleryActivity extends BaseActivity {
                     Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show();
                 }
             }
+        } else {
+            Log.w(TAG, "Activity result not OK: " + resultCode);
+            Toast.makeText(this, "Photo capture cancelled", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Save a bitmap thumbnail to a file (fallback for camera intent without output)
+     */
+    private void saveBitmapToFile(android.graphics.Bitmap bitmap) {
+        try {
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (storageDir == null) {
+                throw new IOException("Storage directory not available");
+            }
+
+            if (!storageDir.exists()) {
+                storageDir.mkdirs();
+            }
+
+            String fileName = "CAMERA_" + System.currentTimeMillis() + ".jpg";
+            File destFile = new File(storageDir, fileName);
+
+            FileOutputStream outputStream = new FileOutputStream(destFile);
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, outputStream);
+            outputStream.flush();
+            outputStream.close();
+
+            Log.d(TAG, "Bitmap saved to: " + destFile.getAbsolutePath());
+            savePhotoToDatabase(destFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving bitmap", e);
+            Toast.makeText(this, "Error saving photo: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -273,7 +377,6 @@ public class PhotoGalleryActivity extends BaseActivity {
         }
     }
 
-
     private void savePhotoToDatabase(String imagePath) {
         showCaptionDialog(imagePath);
     }
@@ -304,7 +407,6 @@ public class PhotoGalleryActivity extends BaseActivity {
 
                 File photoFile = new File(imagePath);
 
-                // FIXED: Pass all 3 required arguments
                 photoRepository.insertPhoto(photo, photoFile, new PhotoRepository.PhotoUploadCallback() {
                     @Override
                     public void onSuccess(long id, String downloadUrl) {
@@ -391,17 +493,13 @@ public class PhotoGalleryActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_photo_gallery, menu);
-        return true;
+        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
-            return true;
-        } else if (item.getItemId() == R.id.action_delete_all) {
-            Toast.makeText(this, "Delete all coming soon", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);

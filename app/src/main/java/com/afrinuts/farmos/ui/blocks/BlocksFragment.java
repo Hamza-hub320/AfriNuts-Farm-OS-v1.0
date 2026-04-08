@@ -78,6 +78,8 @@ public class BlocksFragment extends Fragment {
                 long farmId = currentFarm.getId();
                 blockRepository = new BlockRepository(requireContext(), farmId);
 
+                blockRepository = new BlockRepository(requireContext(), farmId);
+
                 requireActivity().runOnUiThread(() -> {
                     blockRepository.getAllBlocks().observe(getViewLifecycleOwner(), new Observer<List<BlockEntity>>() {
                         @Override
@@ -196,17 +198,16 @@ public class BlocksFragment extends Fragment {
      * Returns "FULL" if all 35 blocks are already created
      */
     private String getNextAvailableBlockName() {
-        if (allBlocksList == null || allBlocksList.isEmpty()) {
-            return "A1";
+        if (blockRepository == null) return "A1";
+
+        List<BlockEntity> allBlocks = blockRepository.getBlocksSync();
+        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
+        for (BlockEntity block : allBlocks) {
+            existingNames.add(block.getBlockName());
         }
 
         char[] rows = {'A', 'B', 'C', 'D', 'E'};
         int columns = 7;
-
-        HashSet<String> existingNames = new HashSet<>();
-        for (BlockEntity block : allBlocksList) {
-            existingNames.add(block.getBlockName());
-        }
 
         for (char row : rows) {
             for (int col = 1; col <= columns; col++) {
@@ -223,29 +224,22 @@ public class BlocksFragment extends Fragment {
      * Show the Add Block dialog with the next available block name pre-filled
      */
     public void showAddBlockDialog() {
-        if (currentFarm == null) {
-            Snackbar.make(recyclerView, "Farm not configured", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Get next available block name (runs on background thread)
-        executor.execute(() -> {
+        if (currentFarm != null && getView() != null) {
             String nextBlock = getNextAvailableBlockName();
 
-            requireActivity().runOnUiThread(() -> {
-                if (nextBlock.equals("FULL")) {
-                    Snackbar.make(recyclerView,
-                            "All 35 blocks (A1-E7) have been created. Cannot add more.",
-                            Snackbar.LENGTH_LONG).show();
-                    return;
-                }
+            if (nextBlock.equals("FULL")) {
+                // FIX: Use getView() instead of passing a null view
+                Snackbar.make(getView(),
+                        "All 35 blocks (A1-E7) have been created. Cannot add more.",
+                        Snackbar.LENGTH_LONG).show();
+                return;
+            }
 
-                BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
-                dialog.setNextBlockName(nextBlock);
-                dialog.setOnBlockAddedListener(() -> loadFarmData());
-                dialog.show(getParentFragmentManager(), "BlockDialog");
-            });
-        });
+            BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
+            dialog.setNextBlockName(nextBlock);
+            dialog.setOnBlockAddedListener(() -> loadFarmData());
+            dialog.show(getParentFragmentManager(), "BlockDialog");
+        }
     }
 
     private void showLoading(boolean show) {

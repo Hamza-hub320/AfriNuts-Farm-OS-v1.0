@@ -52,6 +52,8 @@ public class ExpenseDetailActivity extends BaseActivity {
     private List<BlockEntity> allBlocks;
     private AppDatabase database;
     private ExpenseRepository expenseRepository;
+
+    private PhotoRepository photoRepository;
     private long farmId = 1;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -232,18 +234,17 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void loadPhotoCount() {
-        if (expenseId == -1) return;
+        if (expenseId == -1 || photoRepository == null) return;
 
-        // Use PhotoRepository to get photo count
-        PhotoRepository photoRepository = new PhotoRepository(this, farmId);
-        photoRepository.getPhotoCountForBlockAsync(expenseId)
+        // Use the correct method for expenses
+        photoRepository.getPhotoCountForExpenseAsync(expenseId)
                 .thenAccept(count -> {
                     runOnUiThread(() -> {
                         tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
                     });
                 })
                 .exceptionally(throwable -> {
-                    Log.e(TAG, "Error loading photo count", throwable);
+                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
                     runOnUiThread(() -> tvPhotoCount.setText("0 photos"));
                     return null;
                 });
@@ -279,6 +280,7 @@ public class ExpenseDetailActivity extends BaseActivity {
                 currentFarm = finalFarm;
                 allBlocks = finalBlocks;
                 displayExpenseData();
+                loadPhotoCount();
             });
         });
     }
@@ -535,6 +537,9 @@ public class ExpenseDetailActivity extends BaseActivity {
         super.onDestroy();
         if (expenseRepository != null) {
             expenseRepository.shutdown();
+        }
+        if (photoRepository != null) {
+            photoRepository.shutdown();
         }
         executor.shutdown();
     }

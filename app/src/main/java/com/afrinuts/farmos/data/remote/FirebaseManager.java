@@ -503,12 +503,12 @@ public class FirebaseManager {
         try {
             Tasks.await(db.collection(COLLECTION_FARMS)
                     .document(farmId)
-                    .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
+                    .collection("task_assignments")
                     .document(String.valueOf(assignmentId))
                     .delete());
-            Log.d(TAG, "Assignment deleted from Firestore: " + assignmentId);
+            Log.d(TAG, "✅ Assignment deleted: " + assignmentId);
         } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "Error deleting assignment", e);
+            Log.e(TAG, "❌ Error deleting assignment", e);
             throw new Exception("Failed to delete assignment from Firestore", e);
         }
     }
@@ -585,14 +585,34 @@ public class FirebaseManager {
         }
     }
 
-    public void deleteTask(String farmId, long taskId) throws Exception {
+    public void deleteTask(String farmId, long taskId, List<TaskAssignmentHistoryEntity> assignments) throws Exception {
         try {
-            Tasks.await(db.collection(COLLECTION_FARMS)
-                    .document(farmId)
-                    .collection(SUBCOLLECTION_TASKS)
-                    .document(String.valueOf(taskId))
-                    .delete());
-            Log.d(TAG, "Task deleted: " + taskId);
+            // Step 1: Fetch ALL assignments linked to this task from Firestore
+            QuerySnapshot snapshot = Tasks.await(
+                    db.collection(COLLECTION_FARMS)
+                            .document(farmId)
+                            .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
+                            .whereEqualTo("taskId", taskId)
+                            .get()
+            );
+
+            // Step 2: Delete each assignment found
+            for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                Tasks.await(doc.getReference().delete());
+                Log.d(TAG, "✅ Assignment deleted: " + doc.getId());
+            }
+
+            // Step 3: Delete the task document
+            Tasks.await(
+                    db.collection(COLLECTION_FARMS)
+                            .document(farmId)
+                            .collection(SUBCOLLECTION_TASKS)
+                            .document(String.valueOf(taskId))
+                            .delete()
+            );
+
+            Log.d(TAG, "✅ Task deleted: " + taskId);
+
         } catch (ExecutionException | InterruptedException e) {
             Log.e(TAG, "Error deleting task: " + taskId, e);
             throw new Exception("Failed to delete task from Firestore", e);
@@ -611,12 +631,10 @@ public class FirebaseManager {
         assignmentMap.put("updatedAt", System.currentTimeMillis());
 
         try {
-            // Save under farms/{farmId}/tasks/{taskId}/assignments/{assignmentId}
+            // ✅ Simpler path: farms/{farmId}/task_assignments/{assignmentId}
             Tasks.await(db.collection(COLLECTION_FARMS)
                     .document(farmId)
-                    .collection(SUBCOLLECTION_TASKS)
-                    .document(String.valueOf(assignment.getTaskId()))
-                    .collection("assignments")
+                    .collection("task_assignments")  // Root-level collection under farm
                     .document(String.valueOf(assignment.getId()))
                     .set(assignmentMap));
             Log.d(TAG, "✅ Assignment saved to Firestore: " + assignment.getId());

@@ -163,10 +163,10 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
             int planted = group.getPlantedCount();
             int total = group.getTotalBlocks();
-            plantedCountText.setText(String.format("Planted: %d/%d", planted, total));
+            plantedCountText.setText(String.format("%d/%d", planted, total));
 
             double avgSurvival = group.getAverageSurvivalRate();
-            survivalRateText.setText(String.format("Avg: %.0f%%", avgSurvival));
+            survivalRateText.setText(String.format("%.0f%%", avgSurvival));
 
             int alive = group.getTotalAliveTrees();
             int expected = group.getTotalExpectedTrees();

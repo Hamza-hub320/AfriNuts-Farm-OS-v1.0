@@ -63,7 +63,13 @@ public class TasksListActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
+        // Investors cannot access tasks
         return !sessionManager.isInvestor();
+    }
+
+    @Override
+    protected String getAccessDeniedMessage() {
+        return "Investors can only view Analytics and Profit Dashboard";
     }
 
     @Override

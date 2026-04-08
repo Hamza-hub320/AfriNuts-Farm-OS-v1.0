@@ -138,6 +138,26 @@ public class TaskAssignmentRepository extends BaseRepository {
         });
     }
 
+    public void updateAssignment(TaskAssignmentHistoryEntity assignment, RepositoryCallback<Boolean> callback) {
+        executor.execute(() -> {
+            try {
+                database.taskAssignmentDao().update(assignment);
+                Log.d(TAG, "Assignment updated locally: " + assignment.getId());
+
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("assignments", assignment.getId(), SyncEntity.SyncAction.UPDATE);
+                    syncManager.triggerAutoSync();
+                }
+
+                mainHandler.post(() -> callback.onSuccess(true));
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error updating assignment", e);
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
     // ========================================
     // DELETE
     // ========================================

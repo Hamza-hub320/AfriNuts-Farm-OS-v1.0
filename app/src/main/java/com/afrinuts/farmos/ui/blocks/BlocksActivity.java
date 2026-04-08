@@ -50,7 +50,13 @@ public class BlocksActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
+        // Investors cannot access blocks
         return !sessionManager.isInvestor();
+    }
+
+    @Override
+    protected String getAccessDeniedMessage() {
+        return "Investors can only view Analytics and Profit Dashboard";
     }
 
     @Override

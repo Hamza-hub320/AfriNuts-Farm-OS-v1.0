@@ -24,6 +24,7 @@ import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.PhotoRepository;
+import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
@@ -48,13 +49,18 @@ public class TaskDetailActivity extends BaseActivity {
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
     private TaskRepository taskRepository;
+    private TaskAssignmentRepository assignmentRepository;
+    private PhotoRepository photoRepository;
     private AppDatabase database;
     private long farmId = -1;
+    private boolean isDataLoaded = false;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    // UI Elements
+    // UI Elements - Photo Gallery
     private LinearLayout btnPhotoGallery;
     private TextView tvPhotoCount;
+
+    // Existing UI Elements
     private ImageView tvTaskIcon;
     private TextView tvTaskTitle;
     private TextView tvTaskType;
@@ -102,14 +108,13 @@ public class TaskDetailActivity extends BaseActivity {
             return;
         }
 
-        // Initialize database
+        // Initialize database and views first
         database = AppDatabase.getInstance(this);
-
         initViews();
         setupToolbar();
 
-        // Load everything sequentially
-        loadFarmAndTask();
+        // Load data in background
+        loadData();
     }
 
     private void initViews() {
@@ -119,6 +124,10 @@ public class TaskDetailActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Task Details");
         }
+
+        // Photo Gallery
+        btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
+        tvPhotoCount = findViewById(R.id.tvPhotoCount);
 
         // Header
         tvTaskIcon = findViewById(R.id.tvTaskIcon);
@@ -158,20 +167,13 @@ public class TaskDetailActivity extends BaseActivity {
         btnAssignWorker.setOnClickListener(v -> showAssignWorkerDialog());
         btnEdit.setOnClickListener(v -> enableEditMode());
         btnDelete.setOnClickListener(v -> confirmDelete());
-    }
 
-    private void setupRoleBasedUI() {
-        if (sessionManager.isInvestor()) {
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-            fabStatus.setVisibility(View.GONE);
-            btnUpdateStatus.setVisibility(View.GONE);
-            btnAssignWorker.setVisibility(View.GONE);
-        }
-
-        if (sessionManager.isManager()) {
-            btnDelete.setVisibility(View.GONE);
-        }
+        // Photo gallery click listener
+        btnPhotoGallery.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PhotoGalleryActivity.class);
+            intent.putExtra("task_id", taskId);
+            startActivity(intent);
+        });
     }
 
     private void setupToolbar() {
@@ -185,24 +187,9 @@ public class TaskDetailActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-        super.onBackPressed();
-    }
-
-    private void loadFarmAndTask() {
+    private void loadData() {
         executor.execute(() -> {
-            // Step 1: Load farm
+            // Load farm
             FarmEntity farm = database.farmDao().getFirstFarm();
             if (farm == null) {
                 runOnUiThread(() -> {
@@ -215,15 +202,20 @@ public class TaskDetailActivity extends BaseActivity {
             farmId = farm.getId();
             currentFarm = farm;
 
-            // Step 2: Load blocks for name mapping
+            // Load blocks for name mapping
             allBlocks = database.blockDao().getBlocksByFarmId(farmId);
 
-            // Step 3: Initialize repository with correct farmId
+            // Initialize repositories AFTER we have farmId
             taskRepository = new TaskRepository(TaskDetailActivity.this, farmId);
+            assignmentRepository = new TaskAssignmentRepository(TaskDetailActivity.this, farmId);
+            photoRepository = new PhotoRepository(TaskDetailActivity.this, farmId);
 
-            // Step 4: Now load the task using LiveData
+            // Now load the task data on main thread
             runOnUiThread(() -> {
-                loadTaskData();
+                if (!isDataLoaded) {
+                    loadTaskData();
+                    isDataLoaded = true;
+                }
             });
         });
     }
@@ -244,7 +236,9 @@ public class TaskDetailActivity extends BaseActivity {
                     task = loadedTask;
                     displayTaskData();
                     loadAssignmentHistory();
+                    loadPhotoCount();
                     setFieldsEditable(false);
+                    setupRoleBasedUI();
 
                     if (sessionManager.isInvestor()) {
                         btnEdit.setVisibility(View.GONE);
@@ -255,6 +249,218 @@ public class TaskDetailActivity extends BaseActivity {
                     Toast.makeText(TaskDetailActivity.this, "Task not found", Toast.LENGTH_SHORT).show();
                     finish();
                 }
+            }
+        });
+    }
+
+    private void setupRoleBasedUI() {
+        if (sessionManager.isInvestor()) {
+            btnEdit.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            fabStatus.setVisibility(View.GONE);
+            btnUpdateStatus.setVisibility(View.GONE);
+            btnAssignWorker.setVisibility(View.GONE);
+        }
+
+        if (sessionManager.isManager()) {
+            btnDelete.setVisibility(View.GONE);
+        }
+    }
+
+    // ... rest of your methods (displayTaskData, getTaskIcon, updateStatusDisplay, etc.) remain the same ...
+
+    private void loadPhotoCount() {
+        if (photoRepository == null) return;
+
+        photoRepository.getPhotoCountForTaskAsync(taskId)
+                .thenAccept(count -> {
+                    runOnUiThread(() -> {
+                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
+                    runOnUiThread(() -> {
+                        tvPhotoCount.setText("0 photos");
+                    });
+                    return null;
+                });
+    }
+
+    private void loadAssignmentHistory() {
+        executor.execute(() -> {
+            List<TaskAssignmentHistoryEntity> assignments =
+                    database.taskDao().getAssignmentsForTask(taskId);
+
+            runOnUiThread(() -> {
+                assignmentHistoryContainer.removeAllViews();
+
+                if (assignments == null || assignments.isEmpty()) {
+                    tvNoAssignments.setVisibility(View.VISIBLE);
+                    layoutCurrentAssignment.setVisibility(View.GONE);
+                    return;
+                }
+
+                tvNoAssignments.setVisibility(View.GONE);
+
+                TaskAssignmentHistoryEntity current = assignments.get(0);
+                if (current != null && current.isActive()) {
+                    layoutCurrentAssignment.setVisibility(View.VISIBLE);
+                    tvCurrentWorker.setText(current.getAssignedTo());
+                    tvAssignedSince.setText("Assigned: " +
+                            dateTimeFormat.format(new Date(current.getAssignedAt())));
+                } else {
+                    layoutCurrentAssignment.setVisibility(View.GONE);
+                }
+
+                for (int i = (current != null && current.isActive()) ? 1 : 0; i < assignments.size(); i++) {
+                    TaskAssignmentHistoryEntity assignment = assignments.get(i);
+                    addAssignmentToHistory(assignment);
+                }
+            });
+        });
+    }
+
+    private void addAssignmentToHistory(TaskAssignmentHistoryEntity assignment) {
+        View historyView = getLayoutInflater().inflate(
+                R.layout.item_assignment_history, assignmentHistoryContainer, false);
+
+        TextView tvHistoryWorker = historyView.findViewById(R.id.tvHistoryWorker);
+        TextView tvHistoryDates = historyView.findViewById(R.id.tvHistoryDates);
+        TextView tvHistoryDuration = historyView.findViewById(R.id.tvHistoryDuration);
+
+        tvHistoryWorker.setText(assignment.getAssignedTo());
+
+        String startDate = dateFormat.format(new Date(assignment.getAssignedAt()));
+        if (assignment.getUnassignedAt() != null) {
+            String endDate = dateFormat.format(new Date(assignment.getUnassignedAt()));
+            tvHistoryDates.setText(startDate + " → " + endDate);
+            tvHistoryDuration.setText(assignment.getDuration());
+        } else {
+            tvHistoryDates.setText(startDate + " → Present");
+            tvHistoryDuration.setText("Active");
+        }
+
+        assignmentHistoryContainer.addView(historyView);
+    }
+
+    private void showStatusUpdateDialog() {
+        if (task == null) return;
+
+        TaskStatusUpdateDialog dialog = TaskStatusUpdateDialog.newInstance(
+                taskId, task.getTitle(), task.getStatus());
+        dialog.setOnStatusUpdatedListener(newStatus -> {
+            task.setStatus(newStatus);
+
+            if (newStatus == TaskEntity.TaskStatus.COMPLETED) {
+                task.setCompletedDate(System.currentTimeMillis());
+                completeCurrentAssignment();
+            }
+
+            taskRepository.updateTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    runOnUiThread(() -> {
+                        updateStatusDisplay();
+                        displayTaskData();
+                        Toast.makeText(TaskDetailActivity.this,
+                                "Status updated to " + newStatus.getDisplayName(),
+                                Toast.LENGTH_SHORT).show();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() ->
+                            Toast.makeText(TaskDetailActivity.this,
+                                    "Error updating status: " + error,
+                                    Toast.LENGTH_SHORT).show()
+                    );
+                }
+            });
+        });
+        dialog.show(getSupportFragmentManager(), "TaskStatusUpdateDialog");
+    }
+
+    private void completeCurrentAssignment() {
+        if (assignmentRepository == null) {
+            Log.e(TAG, "AssignmentRepository is null, cannot complete assignment");
+            return;
+        }
+
+        executor.execute(() -> {
+            TaskAssignmentHistoryEntity currentAssignment =
+                    database.taskAssignmentDao().getCurrentAssignment(taskId);
+
+            if (currentAssignment != null && currentAssignment.isActive()) {
+                currentAssignment.completeAssignment();
+                database.taskAssignmentDao().update(currentAssignment);
+
+                Log.d(TAG, "Completed assignment for task " + taskId +
+                        " assigned to " + currentAssignment.getAssignedTo());
+
+                assignmentRepository.updateAssignment(currentAssignment,
+                        new BaseRepository.RepositoryCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                Log.d(TAG, "Assignment sync completed for task: " + taskId);
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                Log.e(TAG, "Error syncing assignment completion: " + error);
+                            }
+                        });
+            } else {
+                Log.d(TAG, "No active assignment found for task: " + taskId);
+            }
+        });
+    }
+
+    private void showAssignWorkerDialog() {
+        if (task == null) return;
+
+        AssignWorkerDialog dialog = AssignWorkerDialog.newInstance(taskId);
+        dialog.setOnWorkerAssignedListener(() -> {
+            loadAssignmentHistory();
+        });
+        dialog.show(getSupportFragmentManager(), "AssignWorkerDialog");
+    }
+
+    private void enableEditMode() {
+        Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
+    }
+
+    private void confirmDelete() {
+        if (task == null) return;
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Delete Task")
+                .setMessage("Are you sure you want to delete \"" + task.getTitle() + "\"? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteTask())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteTask() {
+        Toast.makeText(this, "Deleting task...", Toast.LENGTH_SHORT).show();
+
+        taskRepository.deleteTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(TaskDetailActivity.this, "Task deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() ->
+                        Toast.makeText(TaskDetailActivity.this,
+                                "Error deleting task: " + error,
+                                Toast.LENGTH_LONG).show()
+                );
             }
         });
     }
@@ -359,149 +565,6 @@ public class TaskDetailActivity extends BaseActivity {
         tvCurrentStatus.setTextColor(statusColor);
     }
 
-    private void loadAssignmentHistory() {
-        executor.execute(() -> {
-            List<TaskAssignmentHistoryEntity> assignments =
-                    database.taskDao().getAssignmentsForTask(taskId);
-
-            runOnUiThread(() -> {
-                assignmentHistoryContainer.removeAllViews();
-
-                if (assignments == null || assignments.isEmpty()) {
-                    tvNoAssignments.setVisibility(View.VISIBLE);
-                    layoutCurrentAssignment.setVisibility(View.GONE);
-                    return;
-                }
-
-                tvNoAssignments.setVisibility(View.GONE);
-
-                TaskAssignmentHistoryEntity current = assignments.get(0);
-                if (current != null && current.isActive()) {
-                    layoutCurrentAssignment.setVisibility(View.VISIBLE);
-                    tvCurrentWorker.setText(current.getAssignedTo());
-                    tvAssignedSince.setText("Assigned: " +
-                            dateTimeFormat.format(new Date(current.getAssignedAt())));
-                } else {
-                    layoutCurrentAssignment.setVisibility(View.GONE);
-                }
-
-                for (int i = (current != null && current.isActive()) ? 1 : 0; i < assignments.size(); i++) {
-                    TaskAssignmentHistoryEntity assignment = assignments.get(i);
-                    addAssignmentToHistory(assignment);
-                }
-            });
-        });
-    }
-
-    private void addAssignmentToHistory(TaskAssignmentHistoryEntity assignment) {
-        View historyView = getLayoutInflater().inflate(
-                R.layout.item_assignment_history, assignmentHistoryContainer, false);
-
-        TextView tvHistoryWorker = historyView.findViewById(R.id.tvHistoryWorker);
-        TextView tvHistoryDates = historyView.findViewById(R.id.tvHistoryDates);
-        TextView tvHistoryDuration = historyView.findViewById(R.id.tvHistoryDuration);
-
-        tvHistoryWorker.setText(assignment.getAssignedTo());
-
-        String startDate = dateFormat.format(new Date(assignment.getAssignedAt()));
-        if (assignment.getUnassignedAt() != null) {
-            String endDate = dateFormat.format(new Date(assignment.getUnassignedAt()));
-            tvHistoryDates.setText(startDate + " → " + endDate);
-            tvHistoryDuration.setText(assignment.getDuration());
-        } else {
-            tvHistoryDates.setText(startDate + " → Present");
-            tvHistoryDuration.setText("Active");
-        }
-
-        assignmentHistoryContainer.addView(historyView);
-    }
-
-    private void showStatusUpdateDialog() {
-        if (task == null) return;
-
-        TaskStatusUpdateDialog dialog = TaskStatusUpdateDialog.newInstance(
-                taskId, task.getTitle(), task.getStatus());
-        dialog.setOnStatusUpdatedListener(newStatus -> {
-            task.setStatus(newStatus);
-
-            if (newStatus == TaskEntity.TaskStatus.COMPLETED) {
-                task.setCompletedDate(System.currentTimeMillis());
-            }
-
-            // Use CompletableFuture pattern for update
-            taskRepository.updateTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
-                @Override
-                public void onSuccess(Boolean result) {
-                    runOnUiThread(() -> {
-                        updateStatusDisplay();
-                        displayTaskData();
-                        Toast.makeText(TaskDetailActivity.this,
-                                "Status updated to " + newStatus.getDisplayName(),
-                                Toast.LENGTH_SHORT).show();
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    runOnUiThread(() ->
-                            Toast.makeText(TaskDetailActivity.this,
-                                    "Error updating status: " + error,
-                                    Toast.LENGTH_SHORT).show()
-                    );
-                }
-            });
-        });
-        dialog.show(getSupportFragmentManager(), "TaskStatusUpdateDialog");
-    }
-
-    private void showAssignWorkerDialog() {
-        if (task == null) return;
-
-        AssignWorkerDialog dialog = AssignWorkerDialog.newInstance(taskId);
-        dialog.setOnWorkerAssignedListener(() -> {
-            loadAssignmentHistory();
-        });
-        dialog.show(getSupportFragmentManager(), "AssignWorkerDialog");
-    }
-
-    private void enableEditMode() {
-        Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
-    }
-
-    private void confirmDelete() {
-        if (task == null) return;
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Task")
-                .setMessage("Are you sure you want to delete \"" + task.getTitle() + "\"? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteTask())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteTask() {
-        Toast.makeText(this, "Deleting task...", Toast.LENGTH_SHORT).show();
-
-        taskRepository.deleteTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    Toast.makeText(TaskDetailActivity.this, "Task deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(TaskDetailActivity.this,
-                                "Error deleting task: " + error,
-                                Toast.LENGTH_LONG).show()
-                );
-            }
-        });
-    }
-
     private String getBlockName(Long blockId) {
         if (blockId == null || allBlocks == null) return null;
         for (BlockEntity block : allBlocks) {
@@ -517,10 +580,31 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (taskRepository != null) {
             taskRepository.shutdown();
+        }
+        if (photoRepository != null) {
+            photoRepository.shutdown();
+        }
+        if (assignmentRepository != null) {
+            assignmentRepository.shutdown();
         }
         executor.shutdown();
     }

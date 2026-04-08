@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.analytics;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,7 @@ import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -165,13 +168,11 @@ public class AnalyticsDashboardFragment extends Fragment {
     }
 
     private void showTabContent(int position) {
-        // Hide all content first
         contentYield.setVisibility(View.GONE);
         contentTrends.setVisibility(View.GONE);
         contentBlocks.setVisibility(View.GONE);
         contentForecast.setVisibility(View.GONE);
 
-        // Show selected content
         switch (position) {
             case 0:
                 contentYield.setVisibility(View.VISIBLE);
@@ -221,7 +222,6 @@ public class AnalyticsDashboardFragment extends Fragment {
                         updateTrends();
                         updateBlockPerformance();
                         updateForecast();
-                        // Show Yield tab by default
                         showTabContent(0);
                     }
                 });
@@ -234,6 +234,32 @@ public class AnalyticsDashboardFragment extends Fragment {
         });
     }
 
+    // ========================================
+    // THEME-AWARE COLOR HELPERS
+    // ========================================
+
+    private int getThemeTextColor() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+            return ContextCompat.getColor(requireContext(), R.color.text_primary);
+        } else {
+            return ContextCompat.getColor(requireContext(), R.color.text_dark);
+        }
+    }
+
+    private int getThemeAxisColor() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+            return ContextCompat.getColor(requireContext(), R.color.text_secondary);
+        } else {
+            return ContextCompat.getColor(requireContext(), R.color.navy);
+        }
+    }
+
+    // ========================================
+    // YIELD PREDICTIONS
+    // ========================================
+
     private void updateYieldPredictions() {
         if (allRevenues.isEmpty()) {
             tvPredictedYield.setText("No data");
@@ -241,11 +267,9 @@ public class AnalyticsDashboardFragment extends Fragment {
             return;
         }
 
-        // Current year
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         tvCurrentYear.setText(String.valueOf(currentYear));
 
-        // Calculate predicted yield based on historical data
         double totalYield = 0;
         int yearCount = 0;
         Map<Integer, Double> yearlyYield = new HashMap<>();
@@ -254,19 +278,15 @@ public class AnalyticsDashboardFragment extends Fragment {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(revenue.getHarvestDate());
             int year = cal.get(Calendar.YEAR);
-
             yearlyYield.put(year, yearlyYield.getOrDefault(year, 0.0) + revenue.getQuantityKg());
         }
 
-        // Calculate average yield per year
         for (double yield : yearlyYield.values()) {
             totalYield += yield;
             yearCount++;
         }
 
         double avgYield = yearCount > 0 ? totalYield / yearCount : 0;
-
-        // Simple prediction: assume 10% growth if trees are maturing
         double predictedYield = avgYield * 1.1;
         double confidence = 75.0;
 
@@ -289,16 +309,24 @@ public class AnalyticsDashboardFragment extends Fragment {
             }
 
             BarDataSet dataSet = new BarDataSet(entries, "Yearly Yield (kg)");
-            dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+            // Use theme-aware colors
+            dataSet.setColors(new int[]{
+                    ContextCompat.getColor(requireContext(), R.color.primary),
+                    ContextCompat.getColor(requireContext(), R.color.accent),
+                    ContextCompat.getColor(requireContext(), R.color.secondary)
+            });
+            dataSet.setValueTextColor(getThemeTextColor());
+            dataSet.setValueTextSize(10f);
 
             BarData data = new BarData(dataSet);
-            data.setValueTextSize(10f);
-
             barChartYearlyYield.setData(data);
             barChartYearlyYield.getDescription().setEnabled(false);
             barChartYearlyYield.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
             barChartYearlyYield.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
             barChartYearlyYield.getXAxis().setGranularity(1f);
+            barChartYearlyYield.getXAxis().setTextColor(getThemeAxisColor());
+            barChartYearlyYield.getAxisLeft().setTextColor(getThemeAxisColor());
+            barChartYearlyYield.getLegend().setTextColor(getThemeTextColor());
             barChartYearlyYield.animateY(1000);
             barChartYearlyYield.invalidate();
         }
@@ -311,22 +339,33 @@ public class AnalyticsDashboardFragment extends Fragment {
         pieEntries.add(new PieEntry(10f, "Other"));
 
         PieDataSet pieDataSet = new PieDataSet(pieEntries, "Yield Factors");
-        pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        pieDataSet.setColors(new int[]{
+                ContextCompat.getColor(requireContext(), R.color.primary),
+                ContextCompat.getColor(requireContext(), R.color.accent),
+                ContextCompat.getColor(requireContext(), R.color.secondary),
+                ContextCompat.getColor(requireContext(), R.color.olive)
+        });
+        pieDataSet.setValueTextColor(getThemeTextColor());
+        pieDataSet.setValueTextSize(12f);
+        pieDataSet.setDrawValues(false);
 
         PieData pieData = new PieData(pieDataSet);
-        pieData.setValueTextSize(12f);
-
         pieChartYieldFactors.setData(pieData);
+        pieChartYieldFactors.setDrawEntryLabels(false);
         pieChartYieldFactors.getDescription().setEnabled(false);
         pieChartYieldFactors.setUsePercentValues(true);
         pieChartYieldFactors.setDrawHoleEnabled(true);
-        pieChartYieldFactors.setHoleColor(android.R.color.transparent);
+        pieChartYieldFactors.setHoleColor(Color.TRANSPARENT);
+        pieChartYieldFactors.getLegend().setTextColor(getThemeTextColor());
         pieChartYieldFactors.animateY(1000);
         pieChartYieldFactors.invalidate();
     }
 
+    // ========================================
+    // TRENDS
+    // ========================================
+
     private void updateTrends() {
-        // Revenue trend
         Map<String, Float> monthlyRevenue = new HashMap<>();
         Map<String, Float> monthlyExpenses = new HashMap<>();
 
@@ -354,11 +393,15 @@ public class AnalyticsDashboardFragment extends Fragment {
             }
 
             LineDataSet revenueDataSet = new LineDataSet(revenueEntries, "Revenue (k XAF)");
-            revenueDataSet.setColor(requireContext().getColor(R.color.primary));
-            revenueDataSet.setCircleColor(requireContext().getColor(R.color.primary));
+            revenueDataSet.setColor(ContextCompat.getColor(requireContext(), R.color.primary));
+            revenueDataSet.setCircleColor(ContextCompat.getColor(requireContext(), R.color.primary));
             revenueDataSet.setLineWidth(2f);
             revenueDataSet.setCircleRadius(4f);
             revenueDataSet.setValueTextSize(10f);
+            revenueDataSet.setValueTextColor(getThemeTextColor());
+            revenueDataSet.setDrawFilled(true);
+            revenueDataSet.setFillColor(ContextCompat.getColor(requireContext(), R.color.primary));
+            revenueDataSet.setFillAlpha(50);
 
             LineData revenueData = new LineData(revenueDataSet);
             lineChartRevenue.setData(revenueData);
@@ -366,6 +409,9 @@ public class AnalyticsDashboardFragment extends Fragment {
             lineChartRevenue.getXAxis().setValueFormatter(new IndexAxisValueFormatter(revenueLabels));
             lineChartRevenue.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
             lineChartRevenue.getXAxis().setGranularity(1f);
+            lineChartRevenue.getXAxis().setTextColor(getThemeAxisColor());
+            lineChartRevenue.getAxisLeft().setTextColor(getThemeAxisColor());
+            lineChartRevenue.getLegend().setTextColor(getThemeTextColor());
             lineChartRevenue.getAxisLeft().setValueFormatter(new ValueFormatter() {
                 @Override
                 public String getFormattedValue(float value) {
@@ -386,10 +432,14 @@ public class AnalyticsDashboardFragment extends Fragment {
             }
         }
 
-        // Expense trend
+        // Expense trend (placeholder)
         tvExpenseTrend.setText("+5.2%");
         tvExpenseTrend.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
     }
+
+    // ========================================
+    // BLOCK PERFORMANCE
+    // ========================================
 
     private void updateBlockPerformance() {
         if (allBlocks.isEmpty()) return;
@@ -399,7 +449,6 @@ public class AnalyticsDashboardFragment extends Fragment {
         for (BlockEntity block : allBlocks) {
             BlockPerformance perf = new BlockPerformance(block);
 
-            // Calculate block revenue
             double blockRevenue = 0;
             for (RevenueEntity revenue : allRevenues) {
                 if (revenue.getBlockId() != null && revenue.getBlockId() == block.getId()) {
@@ -408,7 +457,6 @@ public class AnalyticsDashboardFragment extends Fragment {
             }
             perf.setRevenueGenerated(blockRevenue);
 
-            // Calculate block expenses
             double blockExpenses = 0;
             for (ExpenseEntity expense : allExpenses) {
                 if (expense.getBlockId() != null && expense.getBlockId() == block.getId()) {
@@ -422,10 +470,8 @@ public class AnalyticsDashboardFragment extends Fragment {
             performances.add(perf);
         }
 
-        // Sort by profit
         performances.sort((p1, p2) -> Double.compare(p2.getProfit(), p1.getProfit()));
 
-        // Set rankings
         for (int rank = 0; rank < performances.size(); rank++) {
             performances.get(rank).setRanking(rank + 1);
         }
@@ -433,6 +479,10 @@ public class AnalyticsDashboardFragment extends Fragment {
         blockAdapter = new BlockPerformanceAdapter(performances);
         recyclerBlockPerformance.setAdapter(blockAdapter);
     }
+
+    // ========================================
+    // FORECAST
+    // ========================================
 
     private void updateForecast() {
         updateForecastCard(cardForecast1, "2026", "45,000 kg", "27,000,000 XAF", "+15%");
@@ -443,7 +493,6 @@ public class AnalyticsDashboardFragment extends Fragment {
     private void updateForecastCard(CardView card, String year, String yield, String revenue, String growth) {
         if (card == null) return;
 
-        // Find TextViews by ID - different IDs for each card
         TextView tvYear = card.findViewById(getYearTextViewId(card));
         TextView tvYield = card.findViewById(getYieldTextViewId(card));
         TextView tvRevenue = card.findViewById(getRevenueTextViewId(card));
@@ -485,6 +534,10 @@ public class AnalyticsDashboardFragment extends Fragment {
         if (card.getId() == R.id.cardForecast3) return R.id.tvForecastGrowth3;
         return R.id.tvForecastGrowth1;
     }
+
+    // ========================================
+    // UI HELPERS
+    // ========================================
 
     private void showLoading(boolean show) {
         requireActivity().runOnUiThread(() -> {

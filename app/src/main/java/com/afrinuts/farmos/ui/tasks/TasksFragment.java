@@ -280,7 +280,7 @@ public class TasksFragment extends Fragment {
     }
 
     public void showAddTaskDialog() {
-        if (currentFarm != null) {
+        if (currentFarm != null && getView() != null) {
             AddTaskDialog dialog = AddTaskDialog.newInstance(currentFarm.getId());
             dialog.setOnTaskAddedListener(() -> {
                 loadFarmData();

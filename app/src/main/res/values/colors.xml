@@ -15,23 +15,10 @@
     <!-- Background Colors - NEW -->
     <color name="background">#F5F5F5</color>
 
-    <!-- Gradient Colors (Derived from Brand Colors) -->
-    <!-- 5% primary -->
-    <!-- 5% secondary -->
-
-    <!-- Accent soft gradient -->
-    <!-- 5% accent -->
-    <!-- 5% dark orange -->
-
-    <!-- Mixed premium gradient -->
-    <!-- 8% primary -->
-    <!-- 8% accent -->
-
     <!-- Light background gradients -->
     <color name="gradient_bg_soft_start">#F5F5F5</color>
     <color name="gradient_bg_soft_end">#E8F0D6</color>
 
-    <!-- Card neutral gradient -->
 
     <!-- Text Colors -->
     <color name="text_dark">#5A4D47</color>
@@ -40,7 +27,6 @@
     <color name="navy">#253746</color>
     <color name="olive">#698714</color>
 
-    <!-- Semantic aliases -->
 
     <!-- Status Colors -->
     <color name="error">#EF4444</color>

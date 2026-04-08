@@ -12,7 +12,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.expenses.ExpensesFragment;
-import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
 import com.afrinuts.farmos.ui.revenue.RevenueFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -59,9 +58,6 @@ public class FinanceHubActivity extends BaseHubActivity {
             } else if (position == 1) {
                 tab.setText("Revenue");
                 tab.setIcon(R.drawable.ic_attach_money);
-            } else {
-                tab.setText("Charts");
-                tab.setIcon(R.drawable.ic_insert_chart);
             }
         }).attach();
 
@@ -97,9 +93,6 @@ public class FinanceHubActivity extends BaseHubActivity {
                     Toast.makeText(this, "Error opening revenue dialog", Toast.LENGTH_SHORT).show();
                 }
             });
-        } else {
-            // Charts tab → hide FAB
-            fabAdd.setVisibility(View.GONE);
         }
     }
 
@@ -117,7 +110,13 @@ public class FinanceHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return !sessionManager.isInvestor();
+        // Only Owners and Managers can access expenses
+        return sessionManager.isOwner() || sessionManager.isManager();
+    }
+
+    @Override
+    protected String getAccessDeniedMessage() {
+        return "Expenses are only accessible to Owners and Managers";
     }
 
     // ViewPager Adapter
@@ -125,13 +124,11 @@ public class FinanceHubActivity extends BaseHubActivity {
 
         private final ExpensesFragment expensesFragment;
         private final RevenueFragment revenueFragment;
-        private final ExpenseChartsFragment chartsFragment;
 
         public FinancePagerAdapter(FinanceHubActivity activity) {
             super(activity);
             expensesFragment = new ExpensesFragment();
             revenueFragment = new RevenueFragment();
-            chartsFragment = new ExpenseChartsFragment();
         }
 
         @NonNull
@@ -139,25 +136,21 @@ public class FinanceHubActivity extends BaseHubActivity {
         public Fragment createFragment(int position) {
             if (position == 0) {
                 return expensesFragment;
-            } else if (position == 1) {
-                return revenueFragment;
             } else {
-                return chartsFragment;
+                return revenueFragment;
             }
         }
 
         @Override
         public int getItemCount() {
-            return 3;
+            return 2;
         }
 
         public Fragment getFragment(int position) {
             if (position == 0) {
                 return expensesFragment;
-            } else if (position == 1) {
-                return revenueFragment;
             } else {
-                return chartsFragment;
+                return revenueFragment;
             }
         }
     }

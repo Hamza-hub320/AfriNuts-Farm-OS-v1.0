@@ -18,10 +18,12 @@ import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
+import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
+import com.afrinuts.farmos.data.sync.SyncManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -39,7 +41,7 @@ public class AssignWorkerDialog extends DialogFragment {
     private List<String> existingWorkers;
     private long farmId;
     private TaskEntity task;
-
+    private SyncManager syncManager;
     private MaterialAutoCompleteTextView etWorkerName;
     private TextInputEditText etNewWorker;
 
@@ -92,13 +94,13 @@ public class AssignWorkerDialog extends DialogFragment {
                 existingWorkers.add(wc.assignedTo);
             }
 
+            syncManager = SyncManager.getInstance(requireContext());
+
             Log.d("AssignWorkerDialog", "Loaded " + existingWorkers.size() + " existing workers");
 
             // Now that everything is loaded, show the dialog on UI thread
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Dialog will be created when onCreateDialog is called
-                    // But we need to ensure everything is ready
                 });
             }
         }).start();
@@ -188,6 +190,9 @@ public class AssignWorkerDialog extends DialogFragment {
                     currentAssignment.completeAssignment();
                     database.taskDao().updateAssignment(currentAssignment);
                     Log.d("AssignWorkerDialog", "Completed existing assignment: " + currentAssignment.getId());
+
+                    // Queue the update for sync
+                    syncManager.queueForSync("assignments", currentAssignment.getId(), SyncEntity.SyncAction.UPDATE);
                 }
 
                 // Create new assignment
@@ -206,6 +211,11 @@ public class AssignWorkerDialog extends DialogFragment {
                     @Override
                     public void onSuccess(long id) {
                         Log.d("AssignWorkerDialog", "Assignment inserted successfully with ID: " + id);
+
+                        // ✅ FORCE SYNC IMMEDIATELY AFTER SUCCESS
+                        syncManager.forceSyncNow();
+                        Log.d("AssignWorkerDialog", "Force sync triggered");
+
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 Toast.makeText(getContext(), "Worker assigned successfully", Toast.LENGTH_SHORT).show();

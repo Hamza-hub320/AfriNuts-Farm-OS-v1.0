@@ -16,6 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class PhotoRepository extends BaseRepository {
     private static final String TAG = "PhotoRepository";
@@ -161,6 +162,21 @@ public class PhotoRepository extends BaseRepository {
                 mainHandler.post(() -> callback.onError(e.getMessage()));
             }
         });
+    }
+
+    /**
+     * Get photo count for a task using CompletableFuture (for TaskDetailActivity)
+     */
+    public CompletableFuture<Integer> getPhotoCountForTaskAsync(long taskId) {
+        return CompletableFuture.supplyAsync(() -> {
+            return database.photoDao().getPhotoCountForTask(taskId);
+        }, executor);
+    }
+
+    public CompletableFuture<Integer> getPhotoCountForExpenseAsync(long expenseId) {
+        return CompletableFuture.supplyAsync(() -> {
+            return database.photoDao().getPhotoCountForExpense(expenseId);
+        }, executor);
     }
 
     // ========================================

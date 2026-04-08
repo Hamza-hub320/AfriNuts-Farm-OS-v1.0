@@ -25,6 +25,7 @@ import com.afrinuts.farmos.data.repository.TaskRepository;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -123,6 +124,12 @@ public class MainActivity extends AppCompatActivity {
     // Welcome Header
     private TextView welcomeUserName;
     private TextView locationText;
+
+    private Handler greetingHandler;
+    private Runnable greetingUpdater;
+
+    // UI Elements
+    private TextView greetingText;
 
     // Stats Cards
     private TextView totalHectaresText;
@@ -249,6 +256,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup Financial Snapshot Click Listener
         setupFinancialSnapshotClick();
+
+        startGreetingUpdater();
     }
 
     @Override
@@ -326,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
         // Welcome Header
         welcomeUserName = findViewById(R.id.welcomeUserName);
         locationText = findViewById(R.id.locationText);
+        greetingText = findViewById(R.id.greetingText);
 
         // Stats Cards
         totalHectaresText = findViewById(R.id.totalHectaresText);
@@ -604,6 +614,12 @@ public class MainActivity extends AppCompatActivity {
                         welcomeUserName.setText(firstName);
                     }
 
+                    // ✅ ADD THIS: Initialize greeting
+                    TextView greetingText = findViewById(R.id.greetingText);
+                    if (greetingText != null) {
+                        greetingText.setText(getTimeBasedGreeting());
+                    }
+
                     // Only initialize sync if user is active
                     if (currentUser.isActive()) {
                         initializeSyncListener();
@@ -615,6 +631,45 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
+    }
+
+    private String getTimeBasedGreeting() {
+        Calendar calendar = Calendar.getInstance();
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (hourOfDay >= 5 && hourOfDay < 12) {
+            return "Good morning";
+        } else if (hourOfDay >= 12 && hourOfDay < 17) {
+            return "Good afternoon";
+        } else if (hourOfDay >= 17 && hourOfDay < 21) {
+            return "Good evening";
+        } else {
+            return "Good night";
+        }
+    }
+
+    private void startGreetingUpdater() {
+        greetingHandler = new Handler(Looper.getMainLooper());
+        greetingUpdater = new Runnable() {
+            @Override
+            public void run() {
+                TextView greetingText = findViewById(R.id.greetingText);
+                if (greetingText != null) {
+                    greetingText.setText(getTimeBasedGreeting());
+                }
+                // Update every minute (60000 ms) or you can use 3600000 for hourly
+                greetingHandler.postDelayed(this, 60000);
+            }
+        };
+        greetingHandler.post(greetingUpdater);
+    }
+
+    private void stopGreetingUpdater() {
+        if (greetingHandler != null && greetingUpdater != null) {
+            greetingHandler.removeCallbacks(greetingUpdater);
+            greetingHandler = null;
+            greetingUpdater = null;
+        }
     }
 
     private void fetchUserFromFirestore(String userUid) {

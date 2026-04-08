@@ -254,10 +254,12 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="In Progress"
+                                android:text="In Prog."
                                 style="@style/Text.Caption.Small"
                                 android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
+                                android:alpha="0.7"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
 
                         </LinearLayout>
 
@@ -285,10 +287,12 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Completed"
+                                android:text="Done"
                                 style="@style/Text.Caption.Small"
                                 android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
+                                android:alpha="0.7"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
 
                         </LinearLayout>
 
@@ -490,6 +494,76 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Photo Gallery Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundAccent"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:id="@+id/btnPhotoGallery"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/iconBackgroundGlass"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_photo"
+                            app:tint="?attr/colorSecondary" />
+
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Photos"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorSecondary" />
+
+                        <TextView
+                            android:id="@+id/tvPhotoCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 photos"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_forward"
+                        app:tint="?attr/colorSecondary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
             <!-- Assignment Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -607,7 +681,7 @@
                         android:id="@+id/assignmentHistoryContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical" />
+                        android:orientation="vertical"/>
 
                     <TextView
                         android:id="@+id/tvNoAssignments"

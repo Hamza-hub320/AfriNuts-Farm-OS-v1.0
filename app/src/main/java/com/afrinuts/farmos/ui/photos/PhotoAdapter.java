@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.photos;
 
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,24 +81,44 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         }
 
         void bind(PhotoEntity photo, OnPhotoClickListener listener) {
-            // Load image using Glide
-            File imageFile = new File(photo.getFilePath());
-            if (imageFile.exists()) {
+            String imagePath = photo.getFilePath();
+
+            // Check if it's a cloud URL or local file
+            if (imagePath != null && (imagePath.startsWith("http://") || imagePath.startsWith("https://"))) {
+                // Load from cloud URL (Firebase Storage)
                 Glide.with(itemView.getContext())
-                        .load(imageFile)
+                        .load(imagePath)
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .placeholder(R.drawable.ic_photo_placeholder)
                         .error(R.drawable.ic_photo_error)
                         .into(ivPhoto);
+                Log.d("PhotoAdapter", "Loading photo from cloud URL: " + imagePath);
+            } else if (imagePath != null) {
+                // Try local file (fallback for older photos)
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    Glide.with(itemView.getContext())
+                            .load(imageFile)
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.ic_photo_placeholder)
+                            .error(R.drawable.ic_photo_error)
+                            .into(ivPhoto);
+                    Log.d("PhotoAdapter", "Loading photo from local file: " + imagePath);
+                } else {
+                    ivPhoto.setImageResource(R.drawable.ic_photo_error);
+                    Log.e("PhotoAdapter", "Photo file not found: " + imagePath);
+                }
             } else {
                 ivPhoto.setImageResource(R.drawable.ic_photo_error);
+                Log.e("PhotoAdapter", "No image path available");
             }
 
             // Set type icon using the entity's method
             ivTypeIcon.setImageResource(photo.getIconResId());
 
-            // ✅ Simple - just use the color resource directly
+            // Set type icon color
             ivTypeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
 
             // Set caption (or placeholder)

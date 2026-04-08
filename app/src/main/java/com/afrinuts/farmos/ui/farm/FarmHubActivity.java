@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.farm;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,9 +13,13 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.blocks.BlocksFragment;
 import com.afrinuts.farmos.ui.tasks.TasksFragment;
+import com.afrinuts.farmos.ui.workers.WorkerDashboardFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FarmHubActivity extends BaseHubActivity {
 
@@ -23,6 +28,10 @@ public class FarmHubActivity extends BaseHubActivity {
     private FloatingActionButton fabAdd;
     private FarmPagerAdapter pagerAdapter;
 
+    // Track which tabs are visible based on role
+    private List<TabItem> visibleTabs = new ArrayList<>();
+    private int currentPosition = 0;
+
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_farm_hub;
@@ -30,119 +39,201 @@ public class FarmHubActivity extends BaseHubActivity {
 
     @Override
     protected int getCurrentNavItem() {
-        return 1; // Farm tab is position 1
+        return 1;
     }
 
     @Override
     protected void onHubCreate(Bundle savedInstanceState) {
+        determineVisibleTabs();
         initViews();
         setupViewPager();
         setupFab();
+    }
+
+    /**
+     * Determine which tabs to show based on user role
+     */
+    private void determineVisibleTabs() {
+        visibleTabs.clear();
+
+        // Owners and Managers see all tabs
+        if (sessionManager.isOwner() || sessionManager.isManager()) {
+            visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS));
+            visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
+            visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS));
+        }
+        // Workers only see Tasks tab
+        else if (sessionManager.isWorker()) {
+            visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
+        }
+        // Investors don't see anything (redirected by BaseActivity)
     }
 
     private void initViews() {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+
+        // Initially hide FAB until we know which tab is active
+        fabAdd.hide();
     }
 
     private void setupViewPager() {
-        pagerAdapter = new FarmPagerAdapter(this);
+        pagerAdapter = new FarmPagerAdapter(this, visibleTabs);
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("Blocks");
-                tab.setIcon(R.drawable.ic_view_list);
-            } else {
-                tab.setText("Tasks");
-                tab.setIcon(R.drawable.ic_task);
-            }
+            TabItem tabItem = visibleTabs.get(position);
+            tab.setText(tabItem.title);
+            tab.setIcon(tabItem.iconRes);
         }).attach();
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                currentPosition = position;
                 updateFabForTab(position);
             }
         });
     }
 
     private void updateFabForTab(int position) {
-        if (position == 0) {
-            // Blocks tab
+        if (position >= visibleTabs.size()) {
+            fabAdd.hide();
+            return;
+        }
+
+        TabItem tabItem = visibleTabs.get(position);
+
+        // Clear any existing click listeners
+        fabAdd.setOnClickListener(null);
+
+        // Set FAB based on tab type
+        if (tabItem.type == TabType.BLOCKS && (sessionManager.isOwner() || sessionManager.isManager())) {
             fabAdd.setImageResource(R.drawable.ic_park);
             fabAdd.setOnClickListener(v -> {
-                BlocksFragment fragment = (BlocksFragment) pagerAdapter.getFragment(position);
-                if (fragment != null) {
-                    fragment.showAddBlockDialog();
+                // Get the fragment from adapter
+                Fragment fragment = pagerAdapter.getFragment(position);
+                if (fragment instanceof BlocksFragment) {
+                    ((BlocksFragment) fragment).showAddBlockDialog();
                 } else {
-                    Toast.makeText(this, "Error opening block dialog", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error: Fragment not ready", Toast.LENGTH_SHORT).show();
                 }
             });
-        } else {
-            // Tasks tab
+            fabAdd.show();
+        }
+        else if (tabItem.type == TabType.TASKS) {
             fabAdd.setImageResource(R.drawable.ic_check_circle);
             fabAdd.setOnClickListener(v -> {
-                TasksFragment fragment = (TasksFragment) pagerAdapter.getFragment(position);
-                if (fragment != null) {
-                    fragment.showAddTaskDialog();
+                Fragment fragment = pagerAdapter.getFragment(position);
+                if (fragment instanceof TasksFragment) {
+                    ((TasksFragment) fragment).showAddTaskDialog();
                 } else {
-                    Toast.makeText(this, "Error opening task dialog", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error: Fragment not ready", Toast.LENGTH_SHORT).show();
                 }
             });
+            fabAdd.show();
+        }
+        else {
+            fabAdd.hide();
         }
     }
 
     private void setupFab() {
-        // Initial state (Blocks tab)
-        fabAdd.setImageResource(R.drawable.ic_add);
-        fabAdd.setOnClickListener(v -> {
-            BlocksFragment fragment = (BlocksFragment) pagerAdapter.getFragment(0);
-            if (fragment != null) {
-                fragment.showAddBlockDialog();
-            }
+        if (visibleTabs.isEmpty()) {
+            fabAdd.hide();
+            return;
+        }
+
+        // Set initial state based on first tab
+        // Delay to ensure fragment is ready
+        viewPager.post(() -> {
+            currentPosition = viewPager.getCurrentItem();
+            updateFabForTab(currentPosition);
         });
     }
 
     @Override
     protected boolean checkRoleAccess() {
-        return !sessionManager.isInvestor();
+        // Owners, Managers, and Workers can access Farm Hub
+        // Investors are blocked
+        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isWorker();
+    }
+
+    @Override
+    protected String getAccessDeniedMessage() {
+        return "Farm operations are only accessible to Owners, Managers, and Workers";
+    }
+
+    // Tab types
+    private enum TabType {
+        BLOCKS, TASKS, WORKERS
+    }
+
+    // Tab item class
+    private static class TabItem {
+        String title;
+        int iconRes;
+        TabType type;
+
+        TabItem(String title, int iconRes, TabType type) {
+            this.title = title;
+            this.iconRes = iconRes;
+            this.type = type;
+        }
     }
 
     // ViewPager Adapter
     private static class FarmPagerAdapter extends FragmentStateAdapter {
 
+        private final List<TabItem> tabs;
         private final BlocksFragment blocksFragment;
         private final TasksFragment tasksFragment;
+        private final WorkerDashboardFragment workerFragment;
 
-        public FarmPagerAdapter(FarmHubActivity activity) {
+        public FarmPagerAdapter(FarmHubActivity activity, List<TabItem> tabs) {
             super(activity);
-            blocksFragment = new BlocksFragment();
-            tasksFragment = new TasksFragment();
+            this.tabs = tabs;
+
+            // Create fragments
+            this.blocksFragment = new BlocksFragment();
+            this.tasksFragment = new TasksFragment();
+            this.workerFragment = new WorkerDashboardFragment();
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
-                return blocksFragment;
-            } else {
-                return tasksFragment;
+            TabItem tab = tabs.get(position);
+            switch (tab.type) {
+                case BLOCKS:
+                    return blocksFragment;
+                case TASKS:
+                    return tasksFragment;
+                case WORKERS:
+                    return workerFragment;
+                default:
+                    return tasksFragment;
             }
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return tabs.size();
         }
 
         public Fragment getFragment(int position) {
-            if (position == 0) {
-                return blocksFragment;
-            } else {
-                return tasksFragment;
+            TabItem tab = tabs.get(position);
+            switch (tab.type) {
+                case BLOCKS:
+                    return blocksFragment;
+                case TASKS:
+                    return tasksFragment;
+                case WORKERS:
+                    return workerFragment;
+                default:
+                    return tasksFragment;
             }
         }
     }
