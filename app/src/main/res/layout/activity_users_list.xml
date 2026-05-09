@@ -405,7 +405,7 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_farming"
+                        android:src="@drawable/ic_tractor"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
 

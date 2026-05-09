@@ -329,7 +329,6 @@ public class MainActivity extends AppCompatActivity {
         btnToolbarLogout = findViewById(R.id.btnToolbarLogout);
         btnProfile = findViewById(R.id.btnProfile);
         toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
-        toolbarUserName = findViewById(R.id.toolbarUserName);
         syncStatusDot = findViewById(R.id.syncStatusDot);
 
         // Welcome Header
@@ -1028,37 +1027,72 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.SECOND, 0);
         long startOfMonth = calendar.getTimeInMillis();
 
+        // Also get start of year for comparison
+        Calendar yearCalendar = Calendar.getInstance();
+        yearCalendar.set(Calendar.DAY_OF_YEAR, 1);
+        yearCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        yearCalendar.set(Calendar.MINUTE, 0);
+        yearCalendar.set(Calendar.SECOND, 0);
+        long startOfYear = yearCalendar.getTimeInMillis();
+
         new Thread(() -> {
             double monthlyRevenue = 0;
             double monthlyExpenses = 0;
+            double yearlyRevenue = 0;
+            double yearlyExpenses = 0;
+            double allTimeRevenue = 0;
+            double allTimeExpenses = 0;
 
+            // Calculate revenues
             List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
             for (RevenueEntity revenue : revenues) {
-                if (revenue.getHarvestDate() >= startOfMonth) {
+                long harvestDate = revenue.getHarvestDate();
+                allTimeRevenue += revenue.getTotalAmount();
+
+                if (harvestDate >= startOfYear) {
+                    yearlyRevenue += revenue.getTotalAmount();
+                }
+                if (harvestDate >= startOfMonth) {
                     monthlyRevenue += revenue.getTotalAmount();
                 }
             }
 
+            // Calculate expenses
             List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(currentFarm.getId());
             for (ExpenseEntity expense : expenses) {
-                if (expense.getDate() >= startOfMonth) {
+                long expenseDate = expense.getDate();
+                allTimeExpenses += expense.getAmount();
+
+                if (expenseDate >= startOfYear) {
+                    yearlyExpenses += expense.getAmount();
+                }
+                if (expenseDate >= startOfMonth) {
                     monthlyExpenses += expense.getAmount();
                 }
             }
 
-            double netProfit = monthlyRevenue - monthlyExpenses;
+            // Calculate trends (compare this month to previous month)
+            double monthlyProfit = monthlyRevenue - monthlyExpenses;
+            double yearlyProfit = yearlyRevenue - yearlyExpenses;
+            double allTimeProfit = allTimeRevenue - allTimeExpenses;
+
             double revenueTrendPercent = calculateRevenueTrend();
             double expenseTrendPercent = calculateExpenseTrend();
 
+            // Make them effectively final by creating local copies
             final double finalMonthlyRevenue = monthlyRevenue;
             final double finalMonthlyExpenses = monthlyExpenses;
-            final double finalNetProfit = netProfit;
+            final double finalYearlyRevenue = yearlyRevenue;
+            final double finalYearlyExpenses = yearlyExpenses;
+            final double finalYearlyProfit = yearlyProfit;
+            final double finalNetProfit = allTimeProfit;
 
             runOnUiThread(() -> {
-                monthlyRevenueText.setText(formatCurrency(finalMonthlyRevenue));
-                monthlyExpensesText.setText(formatCurrency(finalMonthlyExpenses));
-                netProfitText.setText(formatCurrency(finalNetProfit));
-                netProfitText.setTextColor(finalNetProfit >= 0 ?
+                // Update the financial snapshot with YEARLY data (not monthly)
+                monthlyRevenueText.setText(formatCurrency(finalYearlyRevenue));
+                monthlyExpensesText.setText(formatCurrency(finalYearlyExpenses));
+                netProfitText.setText(formatCurrency(finalYearlyProfit));
+                netProfitText.setTextColor(finalYearlyProfit >= 0 ?
                         getColor(R.color.primary) : getColor(android.R.color.holo_red_dark));
 
                 revenueTrend.setText(formatTrend(revenueTrendPercent));
@@ -1071,32 +1105,41 @@ public class MainActivity extends AppCompatActivity {
             });
         }).start();
     }
-
     private double calculateRevenueTrend() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        // Start of current year
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
-        long startOfMonth = calendar.getTimeInMillis();
+        long thisYearStart = calendar.getTimeInMillis();
 
-        calendar.add(Calendar.MONTH, -1);
-        long startOfLastMonth = calendar.getTimeInMillis();
+        // Start of last year
+        calendar.add(Calendar.YEAR, -1);
+        long lastYearStart = calendar.getTimeInMillis();
 
-        double currentMonthRevenue = 0;
-        double lastMonthRevenue = 0;
+        double lastYearRevenue = 0;
+        double thisYearRevenue = 0;
 
-        List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
+        List<RevenueEntity> revenues =
+                database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
+
         for (RevenueEntity revenue : revenues) {
-            if (revenue.getHarvestDate() >= startOfMonth) {
-                currentMonthRevenue += revenue.getTotalAmount();
-            } else if (revenue.getHarvestDate() >= startOfLastMonth) {
-                lastMonthRevenue += revenue.getTotalAmount();
+            long harvestDate = revenue.getHarvestDate();
+
+            if (harvestDate >= lastYearStart && harvestDate < thisYearStart) {
+                lastYearRevenue += revenue.getTotalAmount();
+            } else if (harvestDate >= thisYearStart) {
+                thisYearRevenue += revenue.getTotalAmount();
             }
         }
 
-        if (lastMonthRevenue == 0) return 0;
-        return ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+        if (lastYearRevenue > 0) {
+            return ((thisYearRevenue - lastYearRevenue) / lastYearRevenue) * 100;
+        } else {
+            return thisYearRevenue > 0 ? 100 : 0;
+        }
     }
 
     private double calculateExpenseTrend() {
@@ -1416,20 +1459,49 @@ public class MainActivity extends AppCompatActivity {
                 .whereEqualTo("farmId", farmId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    // Collect all users first (still on main thread, but just parsing)
+                    List<UserEntity> firestoreUsers = new ArrayList<>();
+
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         UserEntity user = documentToUser(doc);
                         if (user != null) {
-                            UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
-                            if (existing == null) {
-                                database.userDao().insert(user);
-                            } else {
-                                user.setLocalId(existing.getLocalId());
-                                database.userDao().update(user);
-                            }
+                            firestoreUsers.add(user);
                         }
                     }
+
+                    Log.d(TAG, "Found " + firestoreUsers.size() + " users in Firestore");
+
+                    // Move database operations to background thread
+                    databaseExecutor.execute(() -> {
+                        for (UserEntity user : firestoreUsers) {
+                            try {
+                                // Check if user exists by email
+                                UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
+
+                                if (existing == null) {
+                                    // Insert new user
+                                    long id = database.userDao().insert(user);
+                                    user.setLocalId(id);
+                                    Log.d(TAG, "✅ Inserted new user: " + user.getEmail());
+                                } else {
+                                    // Update existing user, preserving localId
+                                    user.setLocalId(existing.getLocalId());
+                                    database.userDao().update(user);
+                                    Log.d(TAG, "✅ Updated existing user: " + user.getEmail());
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error processing user: " + user.getEmail(), e);
+                            }
+                        }
+
+                        // After all users are processed, run on UI thread if needed
+                        runOnUiThread(() -> {
+                            // Optional: Refresh UI or show completion message
+                            Log.d(TAG, "✅ User sync completed from Firestore");
+                        });
+                    });
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to load users from Firestore", e));
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to load users from Firestore", e));
     }
 
     // ========================================

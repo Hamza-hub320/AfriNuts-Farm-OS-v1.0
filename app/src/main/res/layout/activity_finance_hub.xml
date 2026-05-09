@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="126dp"
         android:src="@drawable/ic_add_business"
         android:contentDescription="Add"
         app:backgroundTint="@color/accent"
@@ -69,15 +69,16 @@
         android:layout_gravity="bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="32dp"
-        app:cardElevation="8dp"
+        app:cardElevation="18dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
 
-        <LinearLayout
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -160,7 +161,7 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_farming"
+                        android:src="@drawable/ic_tractor"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
 

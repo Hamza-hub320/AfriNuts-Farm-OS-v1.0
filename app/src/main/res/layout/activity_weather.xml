@@ -18,13 +18,13 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Location Card - Glass Morphism -->
+           <!-- Location Card - Glass Morphism -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_selector_accent"
                 style="@style/Widget.AfriNuts.CardView"
                 android:clipChildren="false"
@@ -35,19 +35,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
+                    android:padding="12dp"
                     android:gravity="center"
                     android:background="?attr/cardBackgroundPrimary">
 
                     <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:background="?attr/iconBackgroundGlass"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="4dp">
 
                         <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_location"
                             app:tint="?attr/colorSecondary" />
@@ -70,7 +70,7 @@
                         style="@style/Text.Caption.Small"
                         android:text="Updated: "
                         android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
                         android:visibility="gone" />
 
                 </LinearLayout>
@@ -478,10 +478,10 @@
         android:layout_gravity="bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="32dp"
-        app:cardElevation="8dp"
+        app:cardElevation="18dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
@@ -569,7 +569,7 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_farming"
+                        android:src="@drawable/ic_tractor"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
 

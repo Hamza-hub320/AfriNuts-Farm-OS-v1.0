@@ -46,7 +46,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 PhotoEntity.class,
                 SyncEntity.class
         },
-        version = 13,
+        version = 14,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -84,8 +84,25 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "afrinuts_farm_os.db"
                             )
-                            .fallbackToDestructiveMigration() // This will recreate the DB
-                            .allowMainThreadQueries() // For development only
+                            // REMOVE THIS LINE - it's destructive!
+                            // .fallbackToDestructiveMigration()
+
+                            // ✅ Add all your migrations instead
+                            .addMigrations(
+                                    new Migration1To2(),
+                                    new Migration2To3(),
+                                    new Migration3To4(),
+                                    new Migration4To5(),
+                                    new Migration5To6(),
+                                    new Migration6To7(),
+                                    new Migration7To8(),
+                                    new Migration8To9(),
+                                    new Migration9To10(),
+                                    new Migration10To11(),
+                                    new Migration11To12(),
+                                    new Migration12To13(),
+                                    new Migration13To14()
+                            )
                             .build();
                 }
             }

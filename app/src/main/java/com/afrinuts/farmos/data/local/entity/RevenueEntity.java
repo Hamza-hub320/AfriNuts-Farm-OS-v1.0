@@ -42,6 +42,11 @@ public class RevenueEntity {
     private long createdAt;
     private long updatedAt;
 
+    private String harvestCycleId;
+    private int harvestYear = 0;      // Default value
+    private int harvestSeason = 1;    // Default value (first harvest)
+
+
     public enum QualityGrade {
         PREMIUM("Premium", "Premium Grade", R.drawable.ic_star),
         STANDARD("Standard", "Standard Grade", R.drawable.ic_check_circle),
@@ -145,6 +150,15 @@ public class RevenueEntity {
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
+    public String getHarvestCycleId() { return harvestCycleId; }
+    public void setHarvestCycleId(String harvestCycleId) { this.harvestCycleId = harvestCycleId; }
+
+    public int getHarvestYear() { return harvestYear; }
+    public void setHarvestYear(int harvestYear) { this.harvestYear = harvestYear; }
+
+    public int getHarvestSeason() { return harvestSeason; }
+    public void setHarvestSeason(int harvestSeason) { this.harvestSeason = harvestSeason; }
+
     // Helper methods
     public boolean isFarmWide() {
         return blockId == null;
@@ -160,5 +174,9 @@ public class RevenueEntity {
 
     public String getFormattedPrice() {
         return String.format("%,.0f XAF/kg", pricePerKg);
+    }
+
+    public static String generateHarvestCycleId(long blockId, int year) {
+        return "BLOCK_" + blockId + "_YEAR_" + year;
     }
 }

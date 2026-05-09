@@ -293,6 +293,9 @@ public class EntityMapper {
         map.put("notes", revenue.getNotes());
         map.put("createdAt", revenue.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
+        map.put("harvestCycleId", revenue.getHarvestCycleId());
+        map.put("harvestYear", revenue.getHarvestYear());
+        map.put("harvestSeason", revenue.getHarvestSeason());
         return map;
     }
 
@@ -308,6 +311,37 @@ public class EntityMapper {
             String qualityStr = getStringSafe(doc, "quality");
             String notes = getStringSafe(doc, "notes");
             long createdAt = getLongSafe(doc, "createdAt");
+            String harvestCycleId = doc.getString("harvestCycleId");
+
+            // Handle harvestYear - could be stored as Long or Integer in Firestore
+            Object harvestYearObj = doc.get("harvestYear");
+            int harvestYear = 0;
+            if (harvestYearObj instanceof Long) {
+                harvestYear = ((Long) harvestYearObj).intValue();
+            } else if (harvestYearObj instanceof Integer) {
+                harvestYear = (Integer) harvestYearObj;
+            } else if (harvestYearObj instanceof String) {
+                try {
+                    harvestYear = Integer.parseInt((String) harvestYearObj);
+                } catch (NumberFormatException e) {
+                    harvestYear = 0;
+                }
+            }
+
+            // Handle harvestSeason similarly
+            Object harvestSeasonObj = doc.get("harvestSeason");
+            int harvestSeason = 1;
+            if (harvestSeasonObj instanceof Long) {
+                harvestSeason = ((Long) harvestSeasonObj).intValue();
+            } else if (harvestSeasonObj instanceof Integer) {
+                harvestSeason = (Integer) harvestSeasonObj;
+            } else if (harvestSeasonObj instanceof String) {
+                try {
+                    harvestSeason = Integer.parseInt((String) harvestSeasonObj);
+                } catch (NumberFormatException e) {
+                    harvestSeason = 1;
+                }
+            }
 
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
@@ -321,6 +355,9 @@ public class EntityMapper {
             );
             revenue.setId(id);
             revenue.setCreatedAt(createdAt);
+            revenue.setHarvestCycleId(harvestCycleId);
+            revenue.setHarvestYear(harvestYear);
+            revenue.setHarvestSeason(harvestSeason);
             return revenue;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping revenue document", e);

@@ -177,6 +177,9 @@ public class FirestoreHelper {
         data.put("notes", revenue.getNotes());
         data.put("createdAt", revenue.getCreatedAt());
         data.put("updatedAt", System.currentTimeMillis());
+        data.put("harvestCycleId", revenue.getHarvestCycleId());
+        data.put("harvestYear", revenue.getHarvestYear());
+        data.put("harvestSeason", revenue.getHarvestSeason());
 
         return db.collection(COLLECTION_FARMS)
                 .document(String.valueOf(farmId))
@@ -197,6 +200,9 @@ public class FirestoreHelper {
         updates.put("buyer", revenue.getBuyer());
         updates.put("notes", revenue.getNotes());
         updates.put("updatedAt", System.currentTimeMillis());
+        updates.put("harvestCycleId", revenue.getHarvestCycleId());
+        updates.put("harvestYear", revenue.getHarvestYear());
+        updates.put("harvestSeason", revenue.getHarvestSeason());
 
         return db.collection(COLLECTION_FARMS)
                 .document(String.valueOf(farmId))

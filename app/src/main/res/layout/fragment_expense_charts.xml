@@ -261,7 +261,6 @@
                     android:layout_marginBottom="16dp"
                     app:cardCornerRadius="24dp"
                     app:cardElevation="4dp"
-                    android:background="?attr/cardBackgroundPrimary"
                     style="@style/Widget.AfriNuts.CardView">
 
                     <LinearLayout
@@ -282,7 +281,8 @@
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp"
+                            android:layout_height="320dp"
+                            android:minHeight="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
@@ -317,7 +317,7 @@
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/barChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
@@ -352,7 +352,7 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChart"
                             android:layout_width="match_parent"
-                            android:layout_height="220dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>

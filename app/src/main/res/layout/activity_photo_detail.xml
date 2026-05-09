@@ -185,7 +185,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditCaption"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="46dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit Caption"
@@ -197,7 +197,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="46dp"
                     android:layout_weight="1"
                     android:text="Share"
                     style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
@@ -210,7 +210,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="46dp"
                 android:text="Delete Photo"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                 app:icon="@drawable/ic_delete"

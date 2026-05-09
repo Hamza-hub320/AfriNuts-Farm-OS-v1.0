@@ -227,8 +227,7 @@
                 android:text="Assign"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_check_circle"
-                app:iconGravity="textStart"
-                app:iconTint="?attr/colorPrimary" />
+                app:iconGravity="textStart" />
 
         </LinearLayout>
 

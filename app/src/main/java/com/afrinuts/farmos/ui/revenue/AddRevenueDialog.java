@@ -1,10 +1,13 @@
 package com.afrinuts.farmos.ui.revenue;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +48,7 @@ public class AddRevenueDialog extends DialogFragment {
     private static final String ARG_FARM_ID = "farm_id";
     private static final String ARG_EDIT_MODE = "edit_mode";
     private static final String ARG_REVENUE_ID = "revenue_id";
+    private static final int MAX_HARVESTS_PER_YEAR = 2;
 
     private long farmId;
     private String farmIdString;
@@ -353,34 +357,71 @@ public class AddRevenueDialog extends DialogFragment {
                 return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
             });
 
-            // Get all blocks that have already been harvested
+            // Get the selected year from the harvest date picker
+            int selectedYear = selectedDate.get(Calendar.YEAR);
+
+            // Get all revenues for this farm
             List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
-            java.util.HashSet<Long> blocksWithRevenue = new java.util.HashSet<>();
+
+            // Track blocks that have already been harvested THIS YEAR
+            java.util.HashSet<Long> blocksHarvestedThisYear = new java.util.HashSet<>();
+            // Track how many harvests each block has had this year (for multiple harvests per year)
+            java.util.HashMap<Long, Integer> blockHarvestCountThisYear = new java.util.HashMap<>();
+
             for (RevenueEntity revenue : existingRevenues) {
-                if (revenue.getBlockId() != null) {
-                    blocksWithRevenue.add(revenue.getBlockId());
+                if (revenue.getBlockId() != null && revenue.getHarvestYear() == selectedYear) {
+                    blocksHarvestedThisYear.add(revenue.getBlockId());
+
+                    // Count harvests per block this year
+                    int count = blockHarvestCountThisYear.getOrDefault(revenue.getBlockId(), 0);
+                    blockHarvestCountThisYear.put(revenue.getBlockId(), count + 1);
                 }
             }
 
-            // FILTER: Only show blocks that have NOT been harvested yet
+            // Maximum harvests per block per year (you can adjust this value)
+            int MAX_HARVESTS_PER_YEAR = 2;  // Allow up to 2 harvests per block per year
+
+            // Filter blocks that are available for harvest THIS YEAR
             List<String> availableBlockNames = new ArrayList<>();
-            BlockEntity nextSuggestedBlock = null;
-            for (BlockEntity block : sortedBlocks) {
-                if (!blocksWithRevenue.contains(block.getId())) {
-                    availableBlockNames.add(block.getBlockName() + " - " + block.getStatus().getDisplayName());
+            List<BlockEntity> availableBlocks = new ArrayList<>();
 
-                    // First unharvested block becomes the suggested one
-                    if (nextSuggestedBlock == null) {
-                        nextSuggestedBlock = block;
+            for (BlockEntity block : sortedBlocks) {
+                // Only consider PLANTED blocks (mature enough to harvest)
+                if (!block.isPlanted()) {
+                    continue;
+                }
+
+                int harvestsThisYear = blockHarvestCountThisYear.getOrDefault(block.getId(), 0);
+
+                // Block is available if it hasn't reached max harvests per year
+                if (harvestsThisYear < MAX_HARVESTS_PER_YEAR) {
+                    String statusInfo = "";
+                    if (harvestsThisYear > 0) {
+                        statusInfo = " (Harvest #" + (harvestsThisYear + 1) + " this year)";
                     }
+                    availableBlockNames.add(block.getBlockName() + " - " + block.getStatus().getDisplayName() + statusInfo);
+                    availableBlocks.add(block);
                 }
             }
+
+            final List<BlockEntity> finalAvailableBlocks = availableBlocks;
 
             requireActivity().runOnUiThread(() -> {
                 if (availableBlockNames.isEmpty()) {
-                    // No blocks available for harvest
                     etBlock.setEnabled(false);
-                    etBlock.setText("No blocks available - all have been harvested", false);
+
+                    // Show helpful message based on why no blocks are available
+                    boolean hasAnyPlanted = sortedBlocks.stream().anyMatch(BlockEntity::isPlanted);
+                    if (hasAnyPlanted) {
+                        etBlock.setText("All blocks have reached maximum harvests for " + selectedYear, false);
+                        Toast.makeText(getContext(),
+                                "All blocks have been harvested " + MAX_HARVESTS_PER_YEAR + " times in " + selectedYear +
+                                        ". Come back next year!", Toast.LENGTH_LONG).show();
+                    } else {
+                        etBlock.setText("No blocks are ready for harvest yet", false);
+                        Toast.makeText(getContext(),
+                                "No blocks are currently PLANTED and ready for harvest.", Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(
                             requireContext(),
@@ -388,34 +429,22 @@ public class AddRevenueDialog extends DialogFragment {
                             availableBlockNames
                     );
                     etBlock.setAdapter(adapter);
+                    etBlock.setEnabled(true);
 
-                    BlockEntity tempNextSuggestedBlock = null;
-
-                    for (BlockEntity block : sortedBlocks) {
-                        if (!blocksWithRevenue.contains(block.getId())) {
-                            if (tempNextSuggestedBlock == null) {
-                                tempNextSuggestedBlock = block;
-                            }
+                    // Auto-select the next available block
+                    if (!isEditMode && !finalAvailableBlocks.isEmpty()) {
+                        BlockEntity suggestedBlock = finalAvailableBlocks.get(0);
+                        int harvestsSoFar = blockHarvestCountThisYear.getOrDefault(suggestedBlock.getId(), 0);
+                        String suggestedText = suggestedBlock.getBlockName() + " - " + suggestedBlock.getStatus().getDisplayName();
+                        if (harvestsSoFar > 0) {
+                            suggestedText += " (Harvest #" + (harvestsSoFar + 1) + ")";
                         }
-                    }
-
-                    final BlockEntity finalNextSuggestedBlock = tempNextSuggestedBlock;
-
-                    // Auto-select the suggested block and show toast
-                    if (!isEditMode && finalNextSuggestedBlock != null) {
-                        String suggestedText = finalNextSuggestedBlock.getBlockName() + " - " + finalNextSuggestedBlock.getStatus().getDisplayName();
                         etBlock.setText(suggestedText, false);
 
-                        Toast.makeText(getContext(),
-                                "Suggested next block: " + finalNextSuggestedBlock.getBlockName(),
-                                Toast.LENGTH_SHORT).show();
-                    } else if (isEditMode && existingRevenue != null && existingRevenue.getBlockId() != null) {
-                        // For edit mode, show the current block
-                        for (BlockEntity block : allBlocks) {
-                            if (block.getId() == existingRevenue.getBlockId()) {
-                                etBlock.setText(block.getBlockName() + " - " + block.getStatus().getDisplayName(), false);
-                                break;
-                            }
+                        if (harvestsSoFar > 0) {
+                            Toast.makeText(getContext(),
+                                    "Suggested: " + suggestedBlock.getBlockName() + " - this will be harvest #" + (harvestsSoFar + 1) + " for " + selectedYear,
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -499,7 +528,13 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
+        String buyer = etBuyer.getText().toString().trim();
+        String notes = etNotes.getText().toString().trim();
+        long harvestDate = selectedDate.getTimeInMillis();
+        int selectedYear = selectedDate.get(Calendar.YEAR);
+
         Long blockId = null;
+
         if (isPerBlock) {
             String blockStr = etBlock.getText().toString().trim();
             if (TextUtils.isEmpty(blockStr)) {
@@ -507,7 +542,6 @@ public class AddRevenueDialog extends DialogFragment {
                 return;
             }
 
-            // Extract block name from dropdown text
             String blockName = blockStr.split(" - ")[0];
             for (BlockEntity block : allBlocks) {
                 if (block.getBlockName().equals(blockName)) {
@@ -516,87 +550,142 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             }
 
-            // Check if user is skipping order
-            BlockEntity nextExpectedBlock = null;
-            for (BlockEntity block : allBlocks) {
-                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByBlockId(block.getId());
-                if (revenues.isEmpty()) {
-                    nextExpectedBlock = block;
-                    break;
-                }
-            }
-
-            if (nextExpectedBlock != null && (blockId == null || nextExpectedBlock.getId() != blockId)) {
-                Toast.makeText(getContext(),
-                        "Warning: You are skipping the suggested harvest order. Next suggested block is "
-                                + nextExpectedBlock.getBlockName(),
-                        Toast.LENGTH_LONG).show();
-            }
-
             if (blockId == null) {
                 Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Check if block has already been harvested
-            List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByBlockId(blockId);
+            // ✅ MOVED TO BACKGROUND THREAD - Check block harvest history
             final Long finalBlockId = blockId;
-            if (!existingRevenues.isEmpty()) {
-                Toast.makeText(getContext(),
-                        "Block " + blockName + " has already been harvested! Each block can only be harvested once per season.",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-        }
+            final String finalBlockName = blockName;
+            btnSave.setEnabled(false);
+            btnSave.setText("Saving...");
 
-        if (selectedQuality == null) {
-            Toast.makeText(getContext(), "Please select a quality grade", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        String buyer = etBuyer.getText().toString().trim();
-        String notes = etNotes.getText().toString().trim();
-        long harvestDate = selectedDate.getTimeInMillis();
+            executor.execute(() -> {
+                try {
+                    // Get harvests for this block in the selected year ONLY
+                    List<RevenueEntity> blockHarvestsThisYear = database.revenueDao()
+                            .getRevenuesByBlockIdAndYear(finalBlockId, selectedYear);
+                    int harvestCountThisYear = blockHarvestsThisYear.size();
 
-        btnSave.setEnabled(false);
-        btnSave.setText("Saving...");
+                    // Check if max harvests reached for this year
+                    if (harvestCountThisYear >= MAX_HARVESTS_PER_YEAR) {
+                        requireActivity().runOnUiThread(() -> {
+                            btnSave.setEnabled(true);
+                            btnSave.setText("Add Revenue");
+                            Toast.makeText(getContext(),
+                                    "Block " + finalBlockName + " has already been harvested " + harvestCountThisYear +
+                                            " times in " + selectedYear + ". Maximum is " + MAX_HARVESTS_PER_YEAR + " per year.",
+                                    Toast.LENGTH_LONG).show();
+                        });
+                        return;
+                    }
 
-        RevenueEntity revenue = new RevenueEntity(
-                farmId,
-                blockId,
-                harvestDate,
-                quantity,
-                price,
-                buyer.isEmpty() ? null : buyer,
-                selectedQuality,
-                notes.isEmpty() ? null : notes
-        );
+                    // Season number is based on THIS YEAR's harvests
+                    int seasonNumber = harvestCountThisYear + 1;
+                    String cycleId = RevenueEntity.generateHarvestCycleId(finalBlockId, selectedYear);
 
-        revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
-            @Override
-            public void onSuccess(long id) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
-                        if (listener != null) {
-                            listener.onRevenueAdded();
+                    // Create revenue with harvest cycle tracking
+                    RevenueEntity revenue = new RevenueEntity(
+                            farmId,
+                            finalBlockId,
+                            harvestDate,
+                            quantity,
+                            price,
+                            buyer.isEmpty() ? null : buyer,
+                            selectedQuality,
+                            notes.isEmpty() ? null : notes
+                    );
+
+                    revenue.setHarvestYear(selectedYear);
+                    revenue.setHarvestSeason(seasonNumber);
+                    revenue.setHarvestCycleId(cycleId);
+
+                    // Save to database
+                    revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
+                        @Override
+                        public void onSuccess(long id) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
+                                    if (listener != null) {
+                                        listener.onRevenueAdded();
+                                    }
+                                    dismiss();
+                                });
+                            }
                         }
-                        dismiss();
-                    });
-                }
-            }
 
-            @Override
-            public void onError(String error) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
+                        @Override
+                        public void onError(String error) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    btnSave.setEnabled(true);
+                                    btnSave.setText("Add Revenue");
+                                    Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                                });
+                            }
+                        }
+                    });
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Error checking block harvest history", e);
+                    requireActivity().runOnUiThread(() -> {
                         btnSave.setEnabled(true);
                         btnSave.setText("Add Revenue");
-                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
                 }
-            }
-        });
+            });
+
+        } else {
+            // Processing Center revenue (no block assignment)
+            btnSave.setEnabled(false);
+            btnSave.setText("Saving...");
+
+            RevenueEntity revenue = new RevenueEntity(
+                    farmId,
+                    null, // No block for processing center
+                    harvestDate,
+                    quantity,
+                    price,
+                    buyer.isEmpty() ? null : buyer,
+                    selectedQuality,
+                    notes.isEmpty() ? null : notes
+            );
+
+            // Processing center revenues don't need harvest cycle tracking
+            revenue.setHarvestYear(selectedYear);
+            revenue.setHarvestSeason(0); // 0 indicates processing center
+            revenue.setHarvestCycleId("PROCESSING_CENTER_YEAR_" + selectedYear);
+
+            revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
+                @Override
+                public void onSuccess(long id) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
+                            if (listener != null) {
+                                listener.onRevenueAdded();
+                            }
+                            dismiss();
+                        });
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            btnSave.setEnabled(true);
+                            btnSave.setText("Add Revenue");
+                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }
+            });
+        }
     }
 
     private void proceedWithInsert(double quantity, double price, Long blockId,

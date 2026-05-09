@@ -1,5 +1,7 @@
 package com.afrinuts.farmos.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -12,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -36,8 +41,13 @@ public abstract class BaseHubActivity extends BaseActivity {
     private TextView navAnalyticsText;
     private CardView bottomNavCard;
 
-    // Current selected tab (to be set by child activities)
-    protected int currentNavItem = -1; // 0=Home, 1=Farm, 2=Finance, 3=Analytics
+    // Scroll tracking
+    private int lastScrollY = 0;
+    private boolean isNavbarVisible = true;
+    private static final int HIDE_THRESHOLD = 20; // Minimum scroll distance to trigger hide
+
+    // Current selected tab
+    protected int currentNavItem = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +61,100 @@ public abstract class BaseHubActivity extends BaseActivity {
     protected abstract int getLayoutResourceId();
     protected abstract void onHubCreate(Bundle savedInstanceState);
     protected abstract int getCurrentNavItem();
+
+    /**
+     * Call this method to attach scroll listener to a RecyclerView
+     */
+    protected void attachScrollListenerToRecyclerView(RecyclerView recyclerView) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                handleScroll(dy);
+            }
+        });
+    }
+
+    /**
+     * Call this method to attach scroll listener to a ViewPager2
+     */
+    protected void attachScrollListenerToViewPager(ViewPager2 viewPager) {
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+            }
+        });
+
+        // Also listen for nested scrolling
+        viewPager.getChildAt(0).setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                int dy = scrollY - oldScrollY;
+                handleScroll(dy);
+            }
+        });
+    }
+
+    /**
+     * Handle scroll direction to show/hide navbar
+     */
+    private void handleScroll(int dy) {
+        if (dy > HIDE_THRESHOLD && isNavbarVisible) {
+            // Scrolling down - hide navbar
+            hideNavbar();
+        } else if (dy < -HIDE_THRESHOLD && !isNavbarVisible) {
+            // Scrolling up - show navbar
+            showNavbar();
+        }
+    }
+
+    /**
+     * Hide the bottom navigation bar with animation
+     */
+    private void hideNavbar() {
+        if (!isNavbarVisible || bottomNavCard == null) return;
+
+        isNavbarVisible = false;
+        bottomNavCard.animate()
+                .translationY(bottomNavCard.getHeight() + 50)
+                .setDuration(250)
+                .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        bottomNavCard.setVisibility(View.INVISIBLE);
+                    }
+                })
+                .start();
+    }
+
+    /**
+     * Show the bottom navigation bar with animation
+     */
+    private void showNavbar() {
+        if (isNavbarVisible || bottomNavCard == null) return;
+
+        bottomNavCard.setVisibility(View.VISIBLE);
+        bottomNavCard.animate()
+                .translationY(0)
+                .setDuration(250)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+
+        isNavbarVisible = true;
+    }
+
+    /**
+     * Reset navbar visibility (call this when refreshing content)
+     */
+    protected void resetNavbarVisibility() {
+        if (!isNavbarVisible && bottomNavCard != null) {
+            bottomNavCard.setVisibility(View.VISIBLE);
+            bottomNavCard.setTranslationY(0);
+            isNavbarVisible = true;
+        }
+    }
 
     private void initBottomNavigation() {
         bottomNavCard = findViewById(R.id.bottomNavCard);
@@ -66,6 +170,12 @@ public abstract class BaseHubActivity extends BaseActivity {
         navFarmText = findViewById(R.id.navFarmText);
         navFinanceText = findViewById(R.id.navFinanceText);
         navAnalyticsText = findViewById(R.id.navAnalyticsText);
+
+        // Initially visible
+        bottomNavCard.setVisibility(View.VISIBLE);
+        bottomNavCard.setTranslationY(0);
+        isNavbarVisible = true;
+        lastScrollY = 0;
     }
 
     private void setupBottomNavigation() {
@@ -123,6 +233,7 @@ public abstract class BaseHubActivity extends BaseActivity {
                 break;
         }
     }
+
     private int getThemeColor(int attr) {
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(attr, typedValue, true);

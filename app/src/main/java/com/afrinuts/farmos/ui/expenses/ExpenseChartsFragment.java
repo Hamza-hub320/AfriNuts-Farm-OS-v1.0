@@ -309,39 +309,47 @@ public class ExpenseChartsFragment extends Fragment {
 
         ArrayList<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<ExpenseEntity.ExpenseCategory, Double> entry : categoryTotals.entrySet()) {
-            entries.add(new PieEntry(entry.getValue().floatValue(),
-                    entry.getKey().getDisplayName()));
+            // Truncate long category names if needed
+            String displayName = entry.getKey().getDisplayName();
+            if (displayName.length() > 15) {
+                displayName = displayName.substring(0, 12) + "...";
+            }
+            entries.add(new PieEntry(entry.getValue().floatValue(), displayName));
         }
 
-        PieDataSet dataSet = new PieDataSet(entries, "Expenses by Category");
+        PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
         dataSet.setValueTextSize(12f);
         dataSet.setValueTextColor(Color.WHITE);
-        dataSet.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                return String.format(Locale.getDefault(), "%.0f XAF", value);
-            }
-        });
-        dataSet.setDrawValues(false); // remove values from slices
+        dataSet.setDrawValues(false);
+        dataSet.setSliceSpace(2f);
+        dataSet.setSelectionShift(5f);
 
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
 
-        // Configure pie chart style
+        // Configure pie chart
         pieChart.setUsePercentValues(false);
         pieChart.getDescription().setEnabled(false);
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleColor(Color.TRANSPARENT);
         pieChart.setTransparentCircleRadius(35f);
-        pieChart.setDrawEntryLabels(false); // remove text labels on slices
+        pieChart.setDrawEntryLabels(false);
 
-        // Set legend text color based on theme
+        // Add extra space for legend
+        pieChart.setExtraBottomOffset(30f);
+
+        // Legend configuration
         Legend legend = pieChart.getLegend();
         legend.setTextColor(getThemeTextColor());
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setWordWrapEnabled(true);
+        legend.setFormSize(10f);
+        legend.setTextSize(10f);
+        legend.setXEntrySpace(8f);
+        legend.setYEntrySpace(4f);
 
         pieChart.animateY(1000);
         pieChart.invalidate();

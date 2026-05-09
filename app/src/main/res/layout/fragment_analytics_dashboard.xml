@@ -315,7 +315,7 @@
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/barChartYearlyYield"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
@@ -351,7 +351,7 @@
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChartYieldFactors"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
@@ -415,7 +415,7 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartRevenue"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>
@@ -469,7 +469,7 @@
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/lineChartExpenses"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="320dp"
                             android:background="?attr/cardBackgroundSecondary"/>
 
                     </LinearLayout>

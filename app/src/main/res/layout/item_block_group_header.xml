@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:layout_marginBottom="4dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardCornerRadius="20dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="4dp"
     android:background="?attr/cardBackgroundPrimary"
     android:foreground="?android:attr/selectableItemBackground"
@@ -81,7 +81,7 @@
                 android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
-                app:cornerRadius="10dp">
+                app:cornerRadius="24dp">
 
                 <FrameLayout
                     android:layout_width="20dp"
@@ -123,7 +123,7 @@
                 android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
-                app:cornerRadius="10dp">
+                app:cornerRadius="24dp">
 
                 <FrameLayout
                     android:layout_width="20dp"
@@ -165,7 +165,7 @@
                 android:background="?attr/cardBackgroundSecondary"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
-                app:cornerRadius="10dp">
+                app:cornerRadius="24dp">
 
                 <FrameLayout
                     android:layout_width="20dp"

@@ -333,11 +333,9 @@ public class WorkerDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Navigate back to WorkerDashboardFragment by popping the back stack.
-        // Assumes this activity was started from a fragment and the parent activity
-        // hosts WorkerDashboardFragment.
+        // Navigate back to WorkerDashboardFragment
         finish();
-        // No need to call super.onBackPressed() as finish() is sufficient.
+        super.onBackPressed();  // Add this line
     }
 
     private void showEmptyState() {

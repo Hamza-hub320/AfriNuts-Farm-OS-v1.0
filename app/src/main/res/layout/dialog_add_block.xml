@@ -127,7 +127,7 @@
                         android:id="@+id/etHectareSize"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_rounded_description"
+
                         android:hint="Hectare Size (usually 1.0)"
                         android:inputType="numberDecimal"
                         android:text="1.0" />
@@ -460,7 +460,7 @@
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
-                android:layout_height="56dp"
+                android:layout_height="46dp"
                 android:text="Cancel"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
                 android:layout_marginEnd="12dp"
@@ -472,13 +472,13 @@
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
-                android:layout_height="56dp"
+                android:layout_height="46dp"
                 android:text="Save"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
-                android:minWidth="120dp"
+                android:minWidth="100dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />
 

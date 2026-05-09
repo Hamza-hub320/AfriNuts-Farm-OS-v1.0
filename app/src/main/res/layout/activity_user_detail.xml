@@ -499,7 +499,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEdit"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:text="Edit"
@@ -511,7 +511,7 @@
             <Button
                 android:id="@+id/btnDeactivate"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="46dp"
                 android:layout_weight="1"
                 android:text="Deactivate"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
@@ -525,7 +525,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="46dp"
                 android:text="Delete User"
                 style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                 app:icon="@drawable/ic_delete"

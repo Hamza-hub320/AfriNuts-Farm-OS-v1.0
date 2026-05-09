@@ -551,7 +551,8 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_home"
-                        app:tint="?attr/colorSurface" />
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor"  />
 
                     <!-- Active indicator dot -->
                     <View
@@ -571,7 +572,8 @@
                     android:layout_height="wrap_content"
                     android:text="Home"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
@@ -599,8 +601,9 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_farming"
-                        app:tint="?attr/colorSurface" />
+                        android:src="@drawable/ic_tractor"
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -619,8 +622,9 @@
                     android:layout_height="wrap_content"
                     android:text="Farm"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
+                    android:textStyle="bold"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
@@ -647,8 +651,9 @@
                         android:id="@+id/navFinanceIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="?attr/colorSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -667,7 +672,8 @@
                     android:layout_height="wrap_content"
                     android:text="Finance"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textColor="?attr/navbarTextColor"
+                    android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
@@ -695,8 +701,9 @@
                         android:id="@+id/navAnalyticsIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_finance_analytics"
-                        app:tint="?attr/colorSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -715,7 +722,8 @@
                     android:layout_height="wrap_content"
                     android:text="Analytics"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />

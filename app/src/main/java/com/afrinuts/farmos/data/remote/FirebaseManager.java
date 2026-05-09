@@ -278,6 +278,9 @@ public class FirebaseManager {
         revenueMap.put("notes", revenue.getNotes());
         revenueMap.put("createdAt", revenue.getCreatedAt());
         revenueMap.put("updatedAt", System.currentTimeMillis());
+        revenueMap.put("harvestCycleId", revenue.getHarvestCycleId());
+        revenueMap.put("harvestYear", revenue.getHarvestYear());
+        revenueMap.put("harvestSeason", revenue.getHarvestSeason());
 
         try {
             Tasks.await(db.collection(COLLECTION_FARMS)

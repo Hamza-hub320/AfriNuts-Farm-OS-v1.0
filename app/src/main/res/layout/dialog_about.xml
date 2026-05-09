@@ -264,12 +264,6 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_forward"
-                    app:tint="?attr/colorSecondary" />
-
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

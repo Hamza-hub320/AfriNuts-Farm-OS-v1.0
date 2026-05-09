@@ -103,20 +103,6 @@
                 android:orientation="horizontal"
                 android:layout_marginEnd="2dp">
 
-                <!-- Welcome User -->
-                <TextView
-                    android:id="@+id/toolbarUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Hi, Hamza"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif"
-                    android:visibility="gone" />
-
                 <!-- Profile/Avatar Button -->
                 <ImageButton
                     android:id="@+id/btnProfile"
