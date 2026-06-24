@@ -197,27 +197,39 @@ public class BlocksFragment extends Fragment {
      * Get the next available block name in the 5x7 grid (A1-E7)
      * Returns "FULL" if all 35 blocks are already created
      */
-    private String getNextAvailableBlockName() {
-        if (blockRepository == null) return "A1";
-
-        List<BlockEntity> allBlocks = blockRepository.getBlocksSync();
-        java.util.HashSet<String> existingNames = new java.util.HashSet<>();
-        for (BlockEntity block : allBlocks) {
-            existingNames.add(block.getBlockName());
+    private void getNextAvailableBlockName(BlockNameCallback callback) {
+        if (blockRepository == null) {
+            callback.onResult("A1");
+            return;
         }
 
-        char[] rows = {'A', 'B', 'C', 'D', 'E'};
-        int columns = 7;
+        // Run database query on background thread
+        executor.execute(() -> {
+            List<BlockEntity> allBlocks = blockRepository.getBlocksSync();
+            java.util.HashSet<String> existingNames = new java.util.HashSet<>();
+            for (BlockEntity block : allBlocks) {
+                existingNames.add(block.getBlockName());
+            }
 
-        for (char row : rows) {
-            for (int col = 1; col <= columns; col++) {
-                String blockName = row + String.valueOf(col);
-                if (!existingNames.contains(blockName)) {
-                    return blockName;
+            char[] rows = {'A', 'B', 'C', 'D', 'E'};
+            int columns = 7;
+
+            for (char row : rows) {
+                for (int col = 1; col <= columns; col++) {
+                    String blockName = row + String.valueOf(col);
+                    if (!existingNames.contains(blockName)) {
+                        callback.onResult(blockName);
+                        return;
+                    }
                 }
             }
-        }
-        return "FULL";
+            callback.onResult("FULL");
+        });
+    }
+
+    // Callback interface for async result
+    public interface BlockNameCallback {
+        void onResult(String blockName);
     }
 
     /**
@@ -225,20 +237,21 @@ public class BlocksFragment extends Fragment {
      */
     public void showAddBlockDialog() {
         if (currentFarm != null && getView() != null) {
-            String nextBlock = getNextAvailableBlockName();
+            getNextAvailableBlockName(blockName -> {
+                requireActivity().runOnUiThread(() -> {
+                    if (blockName.equals("FULL")) {
+                        Snackbar.make(getView(),
+                                "All 35 blocks (A1-E7) have been created. Cannot add more.",
+                                Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
 
-            if (nextBlock.equals("FULL")) {
-                // FIX: Use getView() instead of passing a null view
-                Snackbar.make(getView(),
-                        "All 35 blocks (A1-E7) have been created. Cannot add more.",
-                        Snackbar.LENGTH_LONG).show();
-                return;
-            }
-
-            BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
-            dialog.setNextBlockName(nextBlock);
-            dialog.setOnBlockAddedListener(() -> loadFarmData());
-            dialog.show(getParentFragmentManager(), "BlockDialog");
+                    BlockDialog dialog = BlockDialog.newInstance(currentFarm.getId());
+                    dialog.setNextBlockName(blockName);
+                    dialog.setOnBlockAddedListener(() -> loadFarmData());
+                    dialog.show(getParentFragmentManager(), "BlockDialog");
+                });
+            });
         }
     }
 

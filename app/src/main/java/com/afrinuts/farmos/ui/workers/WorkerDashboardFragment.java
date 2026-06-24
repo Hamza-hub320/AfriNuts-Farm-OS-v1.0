@@ -333,33 +333,41 @@ public class WorkerDashboardFragment extends Fragment {
                 .collection("task_assignments")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    int updatedCount = 0;
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        TaskAssignmentHistoryEntity assignment =
-                                EntityMapper.fromFirestoreAssignment(doc);
-                        if (assignment != null) {
-                            TaskAssignmentHistoryEntity existing =
-                                    database.taskAssignmentDao().getAssignmentById(assignment.getId());
-                            if (existing == null) {
-                                database.taskAssignmentDao().insert(assignment);
-                                updatedCount++;
-                            } else {
-                                // Update if newer
-                                if (assignment.getAssignedAt() > existing.getAssignedAt()) {
-                                    database.taskAssignmentDao().update(assignment);
+                    // ✅ Run database operations on background thread
+                    executor.execute(() -> {
+                        int updatedCount = 0;
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            TaskAssignmentHistoryEntity assignment =
+                                    EntityMapper.fromFirestoreAssignment(doc);
+                            if (assignment != null) {
+                                // ✅ Now safe - on background thread
+                                TaskAssignmentHistoryEntity existing =
+                                        database.taskAssignmentDao().getAssignmentById(assignment.getId());
+                                if (existing == null) {
+                                    database.taskAssignmentDao().insert(assignment);
                                     updatedCount++;
+                                } else {
+                                    // Update if newer
+                                    if (assignment.getAssignedAt() > existing.getAssignedAt()) {
+                                        database.taskAssignmentDao().update(assignment);
+                                        updatedCount++;
+                                    }
                                 }
                             }
                         }
-                    }
-                    Log.d(TAG, "Force refresh: Updated " + updatedCount + " assignments");
+                        Log.d(TAG, "Force refresh: Updated " + updatedCount + " assignments");
 
-                    // Reload worker data after refresh
-                    loadWorkerData();
+                        // ✅ Back to UI thread to reload data
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> loadWorkerData());
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to force refresh assignments", e);
-                    loadWorkerData(); // Still try to load local data
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> loadWorkerData());
+                    }
                 });
     }
 

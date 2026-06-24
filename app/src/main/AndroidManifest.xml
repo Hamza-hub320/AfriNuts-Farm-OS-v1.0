@@ -172,6 +172,10 @@
             android:name=".ui.settings.SettingsActivity"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.quality.QualityBatchDetailActivity"
+            android:parentActivityName=".MainActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

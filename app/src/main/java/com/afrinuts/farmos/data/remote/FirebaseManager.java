@@ -10,6 +10,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -56,6 +57,7 @@ public class FirebaseManager {
     public static final String SUBCOLLECTION_TASKS = "tasks";
     private static final String SUBCOLLECTION_PHOTOS = "photos";
     public static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
+    private static final String SUBCOLLECTION_QUALITY_BATCHES = "quality_batches";
 
     private FirebaseManager() {
         auth = FirebaseAuth.getInstance();
@@ -542,6 +544,49 @@ public class FirebaseManager {
                 .addOnFailureListener(e -> {
                     callback.onError(e.getMessage());
                 });
+    }
+
+    // ========================================
+        // QUALITY BATCH OPERATIONS
+    // ========================================
+
+    public void saveQualityBatch(QualityBatchEntity batch, String farmId) throws Exception {
+        Map<String, Object> batchMap = EntityMapper.qualityBatchToMap(batch);
+
+        String docId = farmId + "_" + batch.getId();
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_QUALITY_BATCHES)
+                    .document(String.valueOf(batch.getId()))
+                    .set(batchMap));
+            Log.d(TAG, "Quality batch saved: " + batch.getBatchNumber());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving quality batch", e);
+            throw new Exception("Failed to save quality batch to Firestore", e);
+        }
+    }
+
+    public Task<QuerySnapshot> getQualityBatchesForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_QUALITY_BATCHES)
+                .get();
+    }
+
+    public void deleteQualityBatch(String farmId, long batchId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_QUALITY_BATCHES)
+                    .document(String.valueOf(batchId))
+                    .delete());
+            Log.d(TAG, "Quality batch deleted: " + batchId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting quality batch", e);
+            throw new Exception("Failed to delete quality batch from Firestore", e);
+        }
     }
 
     // ========================================

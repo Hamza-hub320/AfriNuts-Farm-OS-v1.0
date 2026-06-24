@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
@@ -506,6 +507,79 @@ public class EntityMapper {
             return photo;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping photo document", e);
+            return null;
+        }
+    }
+
+    // ========================================
+// QUALITY BATCH MAPPING
+// ========================================
+
+    public static QualityBatchEntity fromFirestoreQualityBatch(DocumentSnapshot doc) {
+        return mapToQualityBatch(doc);
+    }
+
+    public static Map<String, Object> qualityBatchToMap(QualityBatchEntity batch) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", batch.getId());
+        map.put("farmId", batch.getFarmId());
+        map.put("blockId", batch.getBlockId());
+        map.put("harvestCycleId", batch.getHarvestCycleId());
+        map.put("batchNumber", batch.getBatchNumber());
+        map.put("processingDate", batch.getProcessingDate());
+        map.put("moistureContent", batch.getMoistureContent());
+        map.put("nutCountPerKg", batch.getNutCountPerKg());
+        map.put("defectiveRate", batch.getDefectiveRate());
+        map.put("kernelRatio", batch.getKernelRatio());
+        map.put("weightKg", batch.getWeightKg());
+        map.put("qualityGrade", batch.getQualityGrade().name());
+        map.put("testResults", batch.getTestResults());
+        map.put("qualityScore", batch.getQualityScore());
+        map.put("notes", batch.getNotes());
+        map.put("createdAt", batch.getCreatedAt());
+        map.put("updatedAt", batch.getUpdatedAt());
+        map.put("isSynced", batch.isSynced());
+        return map;
+    }
+
+    public static QualityBatchEntity mapToQualityBatch(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = getFarmId(doc);
+            Long blockId = getNullableLong(doc, "blockId");
+            Long harvestCycleId = getNullableLong(doc, "harvestCycleId");
+            String batchNumber = getStringSafe(doc, "batchNumber");
+            long processingDate = getLongSafe(doc, "processingDate");
+            double moistureContent = getDoubleSafe(doc, "moistureContent");
+            Long nutCountLong = getLongSafe(doc, "nutCountPerKg");
+            int nutCountPerKg = nutCountLong != null ? nutCountLong.intValue() : 0;
+            double defectiveRate = getDoubleSafe(doc, "defectiveRate");
+            double kernelRatio = getDoubleSafe(doc, "kernelRatio");
+            double weightKg = getDoubleSafe(doc, "weightKg");
+            String gradeStr = getStringSafe(doc, "qualityGrade");
+            String testResults = doc.getString("testResults");
+            double qualityScore = getDoubleSafe(doc, "qualityScore");
+            String notes = doc.getString("notes");
+            long createdAt = getLongSafe(doc, "createdAt");
+            long updatedAt = getLongSafe(doc, "updatedAt");
+            boolean isSynced = getBooleanSafe(doc, "isSynced");
+
+            QualityBatchEntity batch = new QualityBatchEntity(
+                    farmId, blockId, harvestCycleId, batchNumber, processingDate,
+                    moistureContent, nutCountPerKg, defectiveRate, kernelRatio,
+                    weightKg, QualityBatchEntity.QualityGrade.valueOf(gradeStr),
+                    notes
+            );
+            batch.setId(id);
+            batch.setTestResults(testResults);
+            batch.setQualityScore(qualityScore);
+            batch.setCreatedAt(createdAt);
+            batch.setUpdatedAt(updatedAt);
+            batch.setSynced(isSynced);
+
+            return batch;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping quality batch", e);
             return null;
         }
     }

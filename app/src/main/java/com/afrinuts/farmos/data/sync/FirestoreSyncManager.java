@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -47,6 +48,7 @@ public class FirestoreSyncManager {
     private ListenerRegistration photosListener;
     private ListenerRegistration usersListener;
     private ListenerRegistration assignmentsListener;
+    private ListenerRegistration qualityBatchesListener;
 
 
     private FirestoreSyncManager(Context context) {
@@ -75,6 +77,7 @@ public class FirestoreSyncManager {
         listenToPhotos();
         listenToUsers();
         listenToAssignments();
+        listenToQualityBatches();
     }
 
     /**
@@ -88,6 +91,7 @@ public class FirestoreSyncManager {
         if (photosListener != null) photosListener.remove();
         if (usersListener != null) usersListener.remove();
         if (assignmentsListener != null) assignmentsListener.remove();
+        if (qualityBatchesListener != null) qualityBatchesListener.remove();
 
         Log.d(TAG, "All Firestore listeners stopped");
     }
@@ -535,6 +539,63 @@ public class FirestoreSyncManager {
                         }
                     });
                 });
+    }
+
+    // ========================================
+    // QUALITY BATCHES LISTENER
+    // ========================================
+
+    private void listenToQualityBatches() {
+        qualityBatchesListener = db.collection("farms")
+                .document(farmId)
+                .collection("quality_batches")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Quality batches listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            QualityBatchEntity remoteBatch =
+                                    EntityMapper.fromFirestoreQualityBatch(dc.getDocument());
+                            if (remoteBatch == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    QualityBatchEntity localBatch =
+                                            database.qualityBatchDao().getBatchById(remoteBatch.getId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localBatch == null) {
+                                        database.qualityBatchDao().insert(remoteBatch);
+                                        Log.d(TAG, "➕ New quality batch: " + remoteBatch.getBatchNumber());
+                                    } else {
+                                        if (remoteBatch.getUpdatedAt() > localBatch.getUpdatedAt()) {
+                                            database.qualityBatchDao().update(remoteBatch);
+                                            Log.d(TAG, "📥 Updated quality batch: " + remoteBatch.getBatchNumber());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped quality batch (local newer): " +
+                                                    remoteBatch.getBatchNumber());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.qualityBatchDao().delete(remoteBatch);
+                                    Log.d(TAG, "❌ Quality batch deleted: " + remoteBatch.getBatchNumber());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Quality batches listener registered");
     }
 
     // ========================================

@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Summary Cards Row - 4 cards across -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:weightSum="4">
+
+        <!-- Avg Moisture Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="1dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_water_drop"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="Moisture" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/avgMoistureValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Moisture"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Avg Defective Rate Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="1dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_cancel"
+                        app:tint="?attr/colorSecondary"
+                        android:contentDescription="Defective rate" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/avgDefectiveValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Defective"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Avg Kernel Ratio Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="1dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_grain"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="Kernel ratio" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/avgKernelValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kernel"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Avg Nut Count Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="1dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_inventory"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="Nut count" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/avgNutCountValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    style="@style/Text.Stat"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nut Count"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    <!-- Row 2: Quality Score -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="8dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="1dp"
+            style="@style/Widget.AfriNuts.CardView"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <FrameLayout
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="?attr/iconBackgroundGlass">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_star"
+                        app:tint="?attr/colorPrimary"
+                        android:contentDescription="Quality score" />
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:id="@+id/avgQualityScoreValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        style="@style/Text.Stat"
+                        android:textSize="18sp"
+                        android:textColor="?attr/colorPrimary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Avg Quality Score"
+                        style="@style/Text.Caption.Small"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    <!-- Filter Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:paddingVertical="2dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filterChipGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.AfriNuts.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="All Batches"
+                android:textSize="13sp"
+                app:chipIcon="@drawable/ic_view_list"
+                app:chipIconTint="?attr/colorPrimary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPremium"
+                style="@style/Widget.AfriNuts.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ Premium"
+                android:textSize="13sp"
+                app:chipIcon="@drawable/ic_star"
+                app:chipIconTint="?attr/colorPrimary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStandard"
+                style="@style/Widget.AfriNuts.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓ Standard"
+                android:textSize="13sp"
+                app:chipIcon="@drawable/ic_check_circle"
+                app:chipIconTint="?attr/colorSecondary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipProcessing"
+                style="@style/Widget.AfriNuts.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚙️ Processing"
+                android:textSize="13sp"
+                app:chipIcon="@drawable/ic_construction"
+                app:chipIconTint="?attr/colorOnSurface" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        style="@style/Widget.AfriNuts.ProgressBar"
+        android:indeterminateTint="?attr/colorPrimary"
+        android:visibility="gone" />
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/emptyView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="48dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?attr/iconBackgroundGlass"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_inventory"
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.5"
+                android:contentDescription="No batches" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No quality batches"
+            style="@style/Text.H4"
+            android:textSize="18sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add your first batch"
+            style="@style/Text.Caption"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="6dp"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        android:background="@color/background" />
+
+</LinearLayout>

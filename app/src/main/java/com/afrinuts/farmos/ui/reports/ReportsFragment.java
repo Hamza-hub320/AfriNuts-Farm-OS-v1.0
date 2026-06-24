@@ -1,4 +1,4 @@
-package com.afrinuts.farmos.ui.analytics;
+package com.afrinuts.farmos.ui.reports;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,7 +23,6 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
-import com.afrinuts.farmos.ui.reports.ReportData;
 import com.afrinuts.farmos.utils.PdfReportGenerator;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;

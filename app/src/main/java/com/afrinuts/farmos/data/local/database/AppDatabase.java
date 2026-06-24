@@ -13,6 +13,7 @@ import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
+import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
 import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
@@ -23,6 +24,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
@@ -44,9 +46,10 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 WeatherCacheEntity.class,
                 UserEntity.class,
                 PhotoEntity.class,
-                SyncEntity.class
+                SyncEntity.class,
+                QualityBatchEntity.class
         },
-        version = 14,
+        version = 15,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -72,6 +75,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SyncDao syncDao();
 
     public abstract TaskAssignmentDao taskAssignmentDao();
+    public abstract QualityBatchDao qualityBatchDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -101,7 +105,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration10To11(),
                                     new Migration11To12(),
                                     new Migration12To13(),
-                                    new Migration13To14()
+                                    new Migration13To14(),
+                                    new Migration14To15()
                             )
                             .build();
                 }

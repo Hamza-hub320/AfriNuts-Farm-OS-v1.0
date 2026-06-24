@@ -1,6 +1,5 @@
 package com.afrinuts.farmos.ui.analytics;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -12,8 +11,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
-import com.afrinuts.farmos.ui.reports.ReportsActivity;
-import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
+import com.afrinuts.farmos.ui.quality.QualityMetricsFragment;
+import com.afrinuts.farmos.ui.quality.QualityBatchDialog;
+import com.afrinuts.farmos.ui.reports.ReportsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -24,6 +24,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     private TabLayout tabLayout;
     private FloatingActionButton fabAction;
     private AnalyticsPagerAdapter pagerAdapter;
+    private QualityMetricsFragment qualityMetricsFragment;
 
     @Override
     protected int getLayoutResourceId() {
@@ -42,6 +43,13 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         setupFab();
     }
 
+    // ✅ Implement the abstract method from BaseActivity
+    @Override
+    protected boolean checkRoleAccess() {
+        // All roles can access analytics (investors can view too)
+        return true;
+    }
+
     private void initViews() {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
@@ -55,8 +63,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
                 case 0:
-                    tab.setText("Predictions");
-                    tab.setIcon(R.drawable.ic_trending_up);
+                    tab.setText("Quality");
+                    tab.setIcon(R.drawable.ic_quality);
                     break;
                 case 1:
                     tab.setText("Charts");
@@ -76,33 +84,62 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 updateFabForTab(position);
             }
         });
+
+        // Get reference to QualityMetricsFragment after adapter is ready
+        qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(0);
     }
 
     private void updateFabForTab(int position) {
-        // No FAB for any tab
-        fabAction.hide();
+        if (position == 0) {
+            // Quality tab - show FAB
+            fabAction.show();
+            fabAction.setImageResource(R.drawable.ic_add);
+            fabAction.setOnClickListener(v -> showAddQualityDialog());
+        } else {
+            // Other tabs - hide FAB
+            fabAction.hide();
+        }
     }
 
     private void setupFab() {
+        // Initially hidden, will be shown in updateFabForTab
         fabAction.hide();
     }
 
-    @Override
-    protected boolean checkRoleAccess() {
-        return true;
-    }
+    private void showAddQualityDialog() {
+        if (qualityMetricsFragment == null) {
+            Toast.makeText(this, "Quality fragment not ready", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // Get farm ID from the fragment
+        long farmId = qualityMetricsFragment.getFarmId();
+        if (farmId <= 0) {
+            Toast.makeText(this, "Farm not loaded", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        QualityBatchDialog dialog = QualityBatchDialog.newInstance(farmId);
+        dialog.setOnBatchAddedListener(() -> {
+            // Refresh the quality metrics fragment
+            if (qualityMetricsFragment != null) {
+                qualityMetricsFragment.refreshData();
+            }
+            Toast.makeText(this, "Quality batch added!", Toast.LENGTH_SHORT).show();
+        });
+        dialog.show(getSupportFragmentManager(), "QualityBatchDialog");
+    }
 
     // ViewPager Adapter
     private static class AnalyticsPagerAdapter extends FragmentStateAdapter {
 
-        private final AnalyticsDashboardFragment analyticsFragment;
+        private final QualityMetricsFragment metricsFragment;
         private final ExpenseChartsFragment chartsFragment;
         private final ReportsFragment reportsFragment;
 
         public AnalyticsPagerAdapter(AnalyticsHubActivity activity) {
             super(activity);
-            analyticsFragment = new AnalyticsDashboardFragment();
+            metricsFragment = new QualityMetricsFragment();
             chartsFragment = new ExpenseChartsFragment();
             reportsFragment = new ReportsFragment();
         }
@@ -112,13 +149,13 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    return analyticsFragment;
+                    return metricsFragment;
                 case 1:
                     return chartsFragment;
                 case 2:
                     return reportsFragment;
                 default:
-                    return analyticsFragment;
+                    return metricsFragment;
             }
         }
 
@@ -130,13 +167,13 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         public Fragment getFragment(int position) {
             switch (position) {
                 case 0:
-                    return analyticsFragment;
+                    return metricsFragment;
                 case 1:
                     return chartsFragment;
                 case 2:
                     return reportsFragment;
                 default:
-                    return analyticsFragment;
+                    return metricsFragment;
             }
         }
     }
