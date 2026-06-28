@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="?android:attr/colorBackground">
 
     <!-- Modern Glass Morphism Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -51,15 +51,15 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="16dp"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Category Header Card -->
+            <!-- Category Header Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,6 +82,26 @@
                         android:layout_height="56dp"
                         android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="16dp">
+
+                        <!-- Edge Effect -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_edge_effect"
+                            android:alpha="0.3" />
+
+                        <!-- Glassy Overlay -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_glassy_overlay"
+                            android:alpha="0.4" />
+
+                        <!-- Inner Shadow -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_inner_shadow" />
 
                         <ImageView
                             android:id="@+id/tvCategoryIcon"
@@ -124,7 +144,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Photos Card -->
+            <!-- Photos Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -136,6 +156,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -151,6 +172,26 @@
                         android:layout_height="48dp"
                         android:background="?attr/iconBackgroundGlass"
                         android:layout_marginEnd="16dp">
+
+                        <!-- Edge Effect -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_edge_effect"
+                            android:alpha="0.3" />
+
+                        <!-- Glassy Overlay -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_glassy_overlay"
+                            android:alpha="0.4" />
+
+                        <!-- Inner Shadow -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_inner_shadow" />
 
                         <ImageView
                             android:layout_width="28dp"
@@ -195,11 +236,23 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Details Card - All fields in one beautiful glass card -->
+            <!-- Procurement Info -->
+            <TextView
+                android:id="@+id/tvProcurementInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:padding="12dp"
+                android:background="?attr/cardBackgroundSecondary"
+                style="@style/Text.Body"
+                android:textColor="?attr/colorSecondary"
+                android:visibility="gone" />
+
+            <!-- Details Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 android:background="?attr/cardBackgroundPrimary"
@@ -226,7 +279,9 @@
                             android:layout_height="wrap_content"
                             android:hint="Amount (XAF)"
                             android:inputType="numberDecimal"
-                            android:enabled="false" />
+                            android:enabled="false"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -236,6 +291,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.AfriNuts.EditText"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@drawable/ic_today"
+                        app:endIconTint="?attr/colorSecondary"
                         app:boxBackgroundColor="@android:color/transparent">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -245,8 +303,9 @@
                             android:hint="Date"
                             android:focusable="false"
                             android:clickable="true"
-                            android:drawableEnd="@drawable/ic_today"
-                            android:enabled="false" />
+                            android:enabled="false"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -261,7 +320,8 @@
                         android:hint="Select Block"
                         app:boxBackgroundColor="@android:color/transparent"
                         app:endIconMode="dropdown_menu"
-                        app:endIconDrawable="@drawable/ic_arrow_drop_down">
+                        app:endIconDrawable="@drawable/ic_arrow_drop_down"
+                        app:endIconTint="?attr/colorSecondary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/tvBlockSelector"
@@ -269,7 +329,9 @@
                             android:layout_height="wrap_content"
                             android:text="Farm-Wide"
                             android:focusable="false"
-                            android:clickable="true" />
+                            android:clickable="true"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -290,7 +352,7 @@
                             android:enabled="false"
                             android:background="@drawable/bg_rounded_description"
                             android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurface"/>
+                            android:textColorHint="?attr/colorOnSurface" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -298,53 +360,297 @@
 
             </androidx.cardview.widget.CardView>
 
-        <!-- Action Buttons - Liquid Glass Style -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp">
+            <!-- Edit Mode Fields - Glass Morphism Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutEditFields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary"
+                style="@style/Widget.AfriNuts.CardView">
 
-            <!-- Edit Button - Accent -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEdit"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="Edit"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
-                app:icon="@drawable/ic_edit"
-                app:iconGravity="textStart" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
-            <!-- Save Button - Primary -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="Save"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
-                app:icon="@drawable/ic_save"
-                app:iconGravity="textStart"
-                android:visibility="gone" />
+                    <!-- Section Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
 
-            <!-- Delete Button - Danger -->
-            <Button
-                android:id="@+id/btnDelete"
-                android:layout_width="0dp"
-                android:layout_height="46dp"
-                android:layout_weight="1"
-                android:text="Delete"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconTint="@color/error" />
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
 
-        </LinearLayout>
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_edit"
+                                app:tint="?attr/colorPrimary" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Edit Expense"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Procurement Section (Edit Mode) -->
+                    <LinearLayout
+                        android:id="@+id/layoutProcurementSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_marginBottom="12dp">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="?attr/colorOnSurface"
+                            android:alpha="0.1"
+                            android:layout_marginVertical="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Procurement Details"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorSecondary"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- Supplier Selector -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutSupplierSelector"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.AfriNuts.EditText"
+                            app:endIconMode="dropdown_menu"
+                            app:endIconDrawable="@drawable/ic_arrow_drop_down"
+                            app:endIconTint="?attr/colorSecondary"
+                            app:boxBackgroundColor="?attr/colorSurface"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="?attr/colorSecondary">
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/etSupplier"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Select Supplier"
+                                android:inputType="none"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textColorHint="?attr/colorOnSurface" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Batch Selector -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutBatchSelector"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.AfriNuts.EditText"
+                            app:endIconMode="dropdown_menu"
+                            app:endIconDrawable="@drawable/ic_arrow_drop_down"
+                            app:endIconTint="?attr/colorSecondary"
+                            app:boxBackgroundColor="?attr/colorSurface"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="?attr/colorSecondary">
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/etBatch"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Select Batch"
+                                android:inputType="none"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textColorHint="?attr/colorOnSurface" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                    <!-- Amount Edit -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="?attr/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAmountEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Amount (XAF)"
+                            android:inputType="numberDecimal"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Date Edit -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@drawable/ic_today"
+                        app:endIconTint="?attr/colorSecondary"
+                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="?attr/colorSecondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDateEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Date"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Block Selector Edit -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutBlockSelectorEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone"
+                        style="@style/Widget.AfriNuts.EditText"
+                        android:hint="Select Block"
+                        app:endIconMode="dropdown_menu"
+                        app:endIconDrawable="@drawable/ic_arrow_drop_down"
+                        app:endIconTint="?attr/colorSecondary"
+                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="?attr/colorSecondary">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/tvBlockSelectorEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Farm-Wide"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Description Edit -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="?attr/colorPrimary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDescriptionEdit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Description"
+                            android:inputType="textMultiLine"
+                            android:minLines="3"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons - Liquid Glass Style -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp">
+
+                <!-- Edit Button - Accent -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Edit"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    app:icon="@drawable/ic_edit"
+                    app:iconGravity="textStart" />
+
+                <!-- Save Button - Primary -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSave"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Save"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    app:icon="@drawable/ic_save"
+                    app:iconGravity="textStart"
+                    android:visibility="gone" />
+
+                <!-- Delete Button - Danger -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="Delete"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/error" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

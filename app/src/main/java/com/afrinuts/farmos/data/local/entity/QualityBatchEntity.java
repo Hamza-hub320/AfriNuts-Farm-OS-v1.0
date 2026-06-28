@@ -4,6 +4,11 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.Gson;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 @Entity(tableName = "quality_batches",
         foreignKeys = {
                 @ForeignKey(
@@ -29,6 +34,12 @@ import androidx.room.PrimaryKey;
                         parentColumns = "id",
                         childColumns = "supplierId",
                         onDelete = ForeignKey.SET_NULL
+                ),
+                @ForeignKey(
+                        entity = SupplierEntity.class,
+                        parentColumns = "id",
+                        childColumns = "supplierId",
+                        onDelete = ForeignKey.CASCADE
                 )
         })
 public class QualityBatchEntity {
@@ -42,6 +53,8 @@ public class QualityBatchEntity {
     private Long blockId;           // NULL = not from AfriNuts farm block
     private Long harvestCycleId;     // Reference to RevenueEntity (AfriNuts harvest)
     private Long supplierId;         // Reference to SupplierEntity (external source)
+
+    private transient String supplierName;
 
     // Batch identification
     private String batchNumber;
@@ -60,7 +73,13 @@ public class QualityBatchEntity {
     private String notes;
 
     // Source type indicator
-    private SourceType sourceType;   // OWN_FARM, COOPERATIVE, INDEPENDENT, REGIONAL_SUPPLIER, PROCESSING_CENTER
+    private SourceType sourceType;
+
+    private boolean noChildLabor;
+    private boolean farmOsMonitored;
+    private boolean firebreakProtection;
+    private boolean sustainableHarvesting;
+    private long verifiedAt;
 
     // Audit timestamps
     private long createdAt;
@@ -68,24 +87,21 @@ public class QualityBatchEntity {
     private boolean isSynced;
 
     public enum SourceType {
-        OWN_FARM("Own Farm", "🌱", "AfriNuts-owned farm, organic certified"),
-        COOPERATIVE("Cooperative", "🤝", "Cooperative farmer network"),
-        INDEPENDENT("Independent", "👨‍🌾", "Independent farmer"),
-        REGIONAL_SUPPLIER("Regional Supplier", "📦", "Regional commercial aggregator"),
-        PROCESSING_CENTER("Processing Center", "🏭", "In-house processing facility");
+        OWN_FARM("Own Farm", "AfriNuts-owned farm, organic certified"),
+        COOPERATIVE("Cooperative", "Cooperative farmer network"),
+        INDEPENDENT("Independent", "Independent farmer"),
+        REGIONAL_SUPPLIER("Regional Supplier", "Regional commercial aggregator"),
+        PROCESSING_CENTER("Processing Center", "In-house processing facility");
 
         private final String displayName;
-        private final String icon;
         private final String description;
 
-        SourceType(String displayName, String icon, String description) {
+        SourceType(String displayName, String description) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
 
         public boolean isOrganicStream() {
@@ -98,22 +114,19 @@ public class QualityBatchEntity {
     }
 
     public enum QualityGrade {
-        PREMIUM("Premium", "⭐", "Best quality, low defect rate"),
-        STANDARD("Standard", "✓", "Good quality, acceptable defects"),
-        PROCESSING("Processing", "⚙️", "For processing, higher defects");
+        PREMIUM("Premium", "Best quality, low defect rate"),
+        STANDARD("Standard", "Good quality, acceptable defects"),
+        PROCESSING("Processing", "For processing, higher defects");
 
         private final String displayName;
-        private final String icon;
         private final String description;
 
-        QualityGrade(String displayName, String icon, String description) {
+        QualityGrade(String displayName, String description) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
     }
 
@@ -139,14 +152,18 @@ public class QualityBatchEntity {
         public double getPesticideResidue() { return pesticideResidue; }
         public double getHeavyMetals() { return heavyMetals; }
 
+        public void setAflatoxin(double aflatoxin) { this.aflatoxin = aflatoxin; }
+        public void setPesticideResidue(double pesticideResidue) { this.pesticideResidue = pesticideResidue; }
+        public void setHeavyMetals(double heavyMetals) { this.heavyMetals = heavyMetals; }
+
         public String toJson() {
-            return new com.google.gson.Gson().toJson(this);
+            return new Gson().toJson(this);
         }
 
         public static TestResults fromJson(String json) {
             if (json == null || json.isEmpty()) return new TestResults();
             try {
-                return new com.google.gson.Gson().fromJson(json, TestResults.class);
+                return new Gson().fromJson(json, TestResults.class);
             } catch (Exception e) {
                 return new TestResults();
             }
@@ -232,6 +249,41 @@ public class QualityBatchEntity {
     public void setProcessingDate(long processingDate) { this.processingDate = processingDate; }
 
     public double getMoistureContent() { return moistureContent; }
+
+    public boolean isNoChildLabor() { return noChildLabor; }
+    public void setNoChildLabor(boolean noChildLabor) { this.noChildLabor = noChildLabor; }
+
+    public boolean isFarmOsMonitored() { return farmOsMonitored; }
+    public void setFarmOsMonitored(boolean farmOsMonitored) { this.farmOsMonitored = farmOsMonitored; }
+
+    public boolean isFirebreakProtection() { return firebreakProtection; }
+    public void setFirebreakProtection(boolean firebreakProtection) { this.firebreakProtection = firebreakProtection; }
+
+    public boolean isSustainableHarvesting() { return sustainableHarvesting; }
+    public void setSustainableHarvesting(boolean sustainableHarvesting) { this.sustainableHarvesting = sustainableHarvesting; }
+
+    public long getVerifiedAt() { return verifiedAt; }
+    public void setVerifiedAt(long verifiedAt) { this.verifiedAt = verifiedAt; }
+
+    // Helper method
+    public boolean isVerified() {
+        return verifiedAt > 0;
+    }
+
+    public String getFormattedVerifiedDate() {
+        if (!isVerified()) return "Not verified";
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        return sdf.format(new java.util.Date(verifiedAt));
+    }
+
+    public int getSustainabilityScore() {
+        int score = 0;
+        if (noChildLabor) score += 25;
+        if (farmOsMonitored) score += 25;
+        if (firebreakProtection) score += 25;
+        if (sustainableHarvesting) score += 25;
+        return score;
+    }
     public void setMoistureContent(double moistureContent) {
         this.moistureContent = moistureContent;
         this.qualityScore = calculateQualityScore();
@@ -282,11 +334,14 @@ public class QualityBatchEntity {
     public boolean isSynced() { return isSynced; }
     public void setSynced(boolean synced) { isSynced = synced; }
 
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+
     // Helper methods
     public String getFormattedBatchNumber() { return "#" + batchNumber; }
 
     public String getSourceDisplay() {
-        return sourceType.getIcon() + " " + sourceType.getDisplayName();
+        return sourceType.getDisplayName();
     }
 
     public String getSourceDetail() {

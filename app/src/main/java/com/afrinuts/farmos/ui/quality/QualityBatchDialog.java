@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,14 +17,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
-import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
+import com.afrinuts.farmos.utils.BatchNumberGenerator;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.widget.SwitchCompat;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,8 +46,10 @@ public class QualityBatchDialog extends DialogFragment {
     private boolean isEditMode = false;
     private long batchId = -1;
     private QualityBatchEntity existingBatch;
-    private QualityBatchRepository repository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private QualityBatchRepository qualityBatchRepository;
+    private SupplierRepository supplierRepository;
 
     // UI Elements
     private TextInputEditText etBatchNumber;
@@ -59,6 +64,21 @@ public class QualityBatchDialog extends DialogFragment {
     private TextInputEditText etPesticideResidue;
     private TextInputEditText etHeavyMetals;
     private TextInputEditText etNotes;
+
+    // Selection fields
+    private MaterialAutoCompleteTextView etSupplier;
+    private MaterialAutoCompleteTextView etDeliveryBatch;
+
+    // Auto-populated fields (read-only)
+    private TextInputEditText etBatchNumberDisplay;
+    private TextInputEditText etProcessingDateDisplay;
+    private TextInputEditText etWeightKgDisplay;
+    private MaterialAutoCompleteTextView etQualityGradeDisplay;
+    private MaterialAutoCompleteTextView etSourceTypeDisplay;
+    private MaterialAutoCompleteTextView etBatchTypeDisplay;
+
+    private List<SupplierEntity> supplierList;
+    private List<QualityBatchEntity> deliveryBatches = new ArrayList<>();
 
     private Calendar selectedDate = Calendar.getInstance();
 
@@ -103,11 +123,12 @@ public class QualityBatchDialog extends DialogFragment {
             }
         }
 
-        repository = new QualityBatchRepository(requireContext(), farmId);
+        qualityBatchRepository = new QualityBatchRepository(requireContext(), farmId);
+        supplierRepository = new SupplierRepository(requireContext(), farmId);
 
         if (isEditMode && batchId != -1) {
             executor.execute(() -> {
-                existingBatch = repository.getBatchByIdSync(batchId);
+                existingBatch = qualityBatchRepository.getBatchByIdSync(batchId);
                 if (existingBatch != null) {
                     selectedDate.setTimeInMillis(existingBatch.getProcessingDate());
                 }
@@ -123,6 +144,9 @@ public class QualityBatchDialog extends DialogFragment {
         initViews(view);
         setupDatePicker();
         setupGradeDropdown();
+        setupSourceTypeDropdown();
+        setupBatchTypeDropdown();
+        loadSuppliersForDropdown();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -141,18 +165,28 @@ public class QualityBatchDialog extends DialogFragment {
     }
 
     private void initViews(View view) {
-        etBatchNumber = view.findViewById(R.id.etBatchNumber);
-        etProcessingDate = view.findViewById(R.id.etProcessingDate);
+        // Selection fields
+        etSupplier = view.findViewById(R.id.etSupplier);
+        etDeliveryBatch = view.findViewById(R.id.etDeliveryBatch);
+
+        // Read-only display fields (from delivery)
+        etBatchNumberDisplay = view.findViewById(R.id.etBatchNumberDisplay);
+        etProcessingDateDisplay = view.findViewById(R.id.etProcessingDateDisplay);
+        etWeightKgDisplay = view.findViewById(R.id.etWeightKgDisplay);
+        etQualityGradeDisplay = view.findViewById(R.id.etQualityGradeDisplay);
+        etSourceTypeDisplay = view.findViewById(R.id.etSourceTypeDisplay);
+        etBatchTypeDisplay = view.findViewById(R.id.etBatchTypeDisplay);
+
+        // Editable quality fields
         etMoistureContent = view.findViewById(R.id.etMoistureContent);
         etNutCount = view.findViewById(R.id.etNutCount);
         etDefectiveRate = view.findViewById(R.id.etDefectiveRate);
         etKernelRatio = view.findViewById(R.id.etKernelRatio);
-        etWeightKg = view.findViewById(R.id.etWeightKg);
-        etQualityGrade = view.findViewById(R.id.etQualityGrade);
         etAflatoxin = view.findViewById(R.id.etAflatoxin);
         etPesticideResidue = view.findViewById(R.id.etPesticideResidue);
         etHeavyMetals = view.findViewById(R.id.etHeavyMetals);
         etNotes = view.findViewById(R.id.etNotes);
+
 
         Button btnCancel = view.findViewById(R.id.btnCancel);
         Button btnSave = view.findViewById(R.id.btnSave);
@@ -165,32 +199,167 @@ public class QualityBatchDialog extends DialogFragment {
             loadExistingData();
         } else {
             btnSave.setOnClickListener(v -> saveBatch());
-            // Generate batch number suggestion
-            generateBatchNumber();
         }
+
+        // Load deliveries when supplier is selected
+        etSupplier.setOnItemClickListener((parent, view1, position, id) -> {
+            String selectedSupplier = (String) parent.getItemAtPosition(position);
+            if (supplierList != null) {
+                for (SupplierEntity supplier : supplierList) {
+                    String displayName = supplier.getName() + " (" +
+                            supplier.getType().getDisplayName() + ")";
+                    if (displayName.equals(selectedSupplier)) {
+                        loadDeliveryBatchesForSupplier(supplier.getId());
+                        break;
+                    }
+                }
+            }
+        });
 
         updateDateLabel();
     }
 
-    private void generateBatchNumber() {
-        String timestamp = new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(new java.util.Date());
-        etBatchNumber.setText("BATCH-" + timestamp + "-" + System.currentTimeMillis() % 1000);
+    private void loadDeliveryBatchesForSupplier(long supplierId) {
+        executor.execute(() -> {
+            if (qualityBatchRepository != null) {
+                deliveryBatches = qualityBatchRepository.getBatchesBySupplierIdSync(supplierId);
+
+                if (getActivity() != null) {
+                    final List<QualityBatchEntity> finalBatches = deliveryBatches;
+
+                    getActivity().runOnUiThread(() -> {
+                        List<String> batchDisplayNames = new ArrayList<>();
+                        for (QualityBatchEntity batch : finalBatches) {
+                            batchDisplayNames.add(batch.getBatchNumber() + " - " +
+                                    batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)");
+                        }
+
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                batchDisplayNames
+                        );
+                        etDeliveryBatch.setAdapter(adapter);
+
+                        etDeliveryBatch.setOnItemClickListener((parent, view, position, id) -> {
+                            QualityBatchEntity selectedBatch = finalBatches.get(position);
+                            if (selectedBatch != null) {
+                                preFillFromDelivery(selectedBatch);
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    private void preFillFromDelivery(QualityBatchEntity deliveryBatch) {
+        // Auto-populate read-only fields from delivery
+        etBatchNumberDisplay.setText(deliveryBatch.getBatchNumber());
+        etProcessingDateDisplay.setText(deliveryBatch.getFormattedDate());
+        etWeightKgDisplay.setText(String.valueOf(deliveryBatch.getWeightKg()));
+
+        // Set quality grade (auto-populated from delivery)
+        etQualityGradeDisplay.setText(deliveryBatch.getQualityGrade().getDisplayName(), false);
+
+        // ✅ FIXED: Removed getIcon() call
+        if (deliveryBatch.getSourceType() != null) {
+            etSourceTypeDisplay.setText(deliveryBatch.getSourceType().getDisplayName(), false);
+        }
+
+        // Set batch type from batch number
+        String batchNumber = deliveryBatch.getBatchNumber();
+        if (batchNumber.contains("-ORG-")) {
+            etBatchTypeDisplay.setText("Organic", false);
+        } else if (batchNumber.contains("-CONV-")) {
+            etBatchTypeDisplay.setText("Conventional", false);
+        }
+
+        // Set notes from delivery
+        etNotes.setText(deliveryBatch.getNotes());
+
+        Toast.makeText(getContext(), "Loaded delivery: " + deliveryBatch.getBatchNumber(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupBatchTypeDropdown() {
+        String[] types = {"Organic", "Conventional"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                types
+        );
+        etBatchTypeDisplay.setAdapter(adapter);
+    }
+
+    private void setupSourceTypeDropdown() {
+        QualityBatchEntity.SourceType[] types = QualityBatchEntity.SourceType.values();
+        String[] typeNames = new String[types.length];
+
+        for (int i = 0; i < types.length; i++) {
+            typeNames[i] = types[i].getDisplayName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                typeNames
+        );
+
+        etSourceTypeDisplay.setAdapter(adapter);
+    }
+
+    private void loadSuppliersForDropdown() {
+        executor.execute(() -> {
+            if (supplierRepository != null) {
+                supplierList = supplierRepository.getSuppliersSync();
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        List<String> supplierNames = new ArrayList<>();
+                        for (SupplierEntity supplier : supplierList) {
+                            supplierNames.add(supplier.getName() + " (" +
+                                    supplier.getType().getDisplayName() + ")");
+                        }
+
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                supplierNames
+                        );
+                        etSupplier.setAdapter(adapter);
+                    });
+                }
+            }
+        });
     }
 
     private void loadExistingData() {
         if (existingBatch == null) return;
 
-        etBatchNumber.setText(existingBatch.getBatchNumber());
-        etBatchNumber.setEnabled(false);
+        // For edit mode, populate all fields
+        etBatchNumberDisplay.setText(existingBatch.getBatchNumber());
+        etProcessingDateDisplay.setText(existingBatch.getFormattedDate());
+        etWeightKgDisplay.setText(String.valueOf(existingBatch.getWeightKg()));
+
         etMoistureContent.setText(String.valueOf(existingBatch.getMoistureContent()));
         etNutCount.setText(String.valueOf(existingBatch.getNutCountPerKg()));
         etDefectiveRate.setText(String.valueOf(existingBatch.getDefectiveRate()));
         etKernelRatio.setText(String.valueOf(existingBatch.getKernelRatio()));
-        etWeightKg.setText(String.valueOf(existingBatch.getWeightKg()));
-        etQualityGrade.setText(existingBatch.getQualityGrade().getDisplayName(), false);
+        etQualityGradeDisplay.setText(existingBatch.getQualityGrade().getDisplayName(), false);
         etNotes.setText(existingBatch.getNotes());
 
-        // Load test results
+        // ✅ FIXED: Removed getIcon() call
+        if (existingBatch.getSourceType() != null) {
+            etSourceTypeDisplay.setText(existingBatch.getSourceType().getDisplayName(), false);
+        }
+
+        String batchNumber = existingBatch.getBatchNumber();
+        if (batchNumber.contains("-ORG-")) {
+            etBatchTypeDisplay.setText("Organic", false);
+        } else if (batchNumber.contains("-CONV-")) {
+            etBatchTypeDisplay.setText("Conventional", false);
+        }
+
         QualityBatchEntity.TestResults results =
                 QualityBatchEntity.TestResults.fromJson(existingBatch.getTestResults());
         if (results.hasResults()) {
@@ -205,7 +374,7 @@ public class QualityBatchDialog extends DialogFragment {
         String[] gradeNames = new String[grades.length];
 
         for (int i = 0; i < grades.length; i++) {
-            gradeNames[i] = grades[i].getIcon() + " " + grades[i].getDisplayName();
+            gradeNames[i] = grades[i].getDisplayName();
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -214,13 +383,12 @@ public class QualityBatchDialog extends DialogFragment {
                 gradeNames
         );
 
-        etQualityGrade.setAdapter(adapter);
-        etQualityGrade.setText(gradeNames[0], false);
+        etQualityGradeDisplay.setAdapter(adapter);
     }
 
     private void setupDatePicker() {
-        etProcessingDate.setOnClickListener(v -> showDatePicker());
-        etProcessingDate.setOnFocusChangeListener((v, hasFocus) -> {
+        etProcessingDateDisplay.setOnClickListener(v -> showDatePicker());
+        etProcessingDateDisplay.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) showDatePicker();
         });
     }
@@ -243,11 +411,10 @@ public class QualityBatchDialog extends DialogFragment {
 
     private void updateDateLabel() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        etProcessingDate.setText(sdf.format(selectedDate.getTime()));
+        etProcessingDateDisplay.setText(sdf.format(selectedDate.getTime()));
     }
 
     private void saveBatch() {
-        // Validate inputs
         if (!validateInputs()) return;
 
         try {
@@ -255,13 +422,92 @@ public class QualityBatchDialog extends DialogFragment {
             int nutCount = Integer.parseInt(etNutCount.getText().toString().trim());
             double defective = Double.parseDouble(etDefectiveRate.getText().toString().trim());
             double kernel = Double.parseDouble(etKernelRatio.getText().toString().trim());
-            double weight = Double.parseDouble(etWeightKg.getText().toString().trim());
 
-            // Get quality grade
-            String gradeStr = etQualityGrade.getText().toString().trim();
+            String batchNumber = etBatchNumberDisplay.getText().toString().trim();
+            String gradeStr = etQualityGradeDisplay.getText().toString().trim();
+            QualityBatchEntity.QualityGrade grade = getGradeFromDisplay(gradeStr);
+            double weight = Double.parseDouble(etWeightKgDisplay.getText().toString().trim());
+
+            long verifiedAt = System.currentTimeMillis();
+
+            final String finalBatchNumber = batchNumber;
+            final QualityBatchEntity.QualityGrade finalGrade = grade;
+            final double finalMoisture = moisture;
+            final int finalNutCount = nutCount;
+            final double finalDefective = defective;
+            final double finalKernel = kernel;
+            final double finalWeight = weight;
+            final String finalNotes = etNotes.getText().toString().trim();
+
+            QualityBatchEntity.TestResults results = new QualityBatchEntity.TestResults();
+            if (!TextUtils.isEmpty(etAflatoxin.getText())) {
+                results.setAflatoxin(Double.parseDouble(etAflatoxin.getText().toString().trim()));
+            }
+            if (!TextUtils.isEmpty(etPesticideResidue.getText())) {
+                results.setPesticideResidue(Double.parseDouble(etPesticideResidue.getText().toString().trim()));
+            }
+            if (!TextUtils.isEmpty(etHeavyMetals.getText())) {
+                results.setHeavyMetals(Double.parseDouble(etHeavyMetals.getText().toString().trim()));
+            }
+            final String finalTestResults = results.toJson();
+
+            executor.execute(() -> {
+                QualityBatchEntity existingBatch = qualityBatchRepository.getBatchByNumberSync(finalBatchNumber);
+
+                if (existingBatch != null) {
+                    existingBatch.setMoistureContent(finalMoisture);
+                    existingBatch.setNutCountPerKg(finalNutCount);
+                    existingBatch.setDefectiveRate(finalDefective);
+                    existingBatch.setKernelRatio(finalKernel);
+                    existingBatch.setQualityGrade(finalGrade);
+                    existingBatch.setTestResults(finalTestResults);
+                    existingBatch.setNotes(finalNotes);
+                    existingBatch.setUpdatedAt(System.currentTimeMillis());
+
+                    qualityBatchRepository.updateBatch(existingBatch, new QualityBatchRepository.RepositoryCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(getContext(), "Quality metrics updated!", Toast.LENGTH_SHORT).show();
+                                    if (listener != null) listener.onBatchAdded();
+                                    dismiss();
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "Error: Batch not found. Please select a delivery.", Toast.LENGTH_LONG).show();
+                }
+            });
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateBatch() {
+        if (!validateInputs()) return;
+
+        try {
+            double moisture = Double.parseDouble(etMoistureContent.getText().toString().trim());
+            int nutCount = Integer.parseInt(etNutCount.getText().toString().trim());
+            double defective = Double.parseDouble(etDefectiveRate.getText().toString().trim());
+            double kernel = Double.parseDouble(etKernelRatio.getText().toString().trim());
+            double weight = Double.parseDouble(etWeightKgDisplay.getText().toString().trim());
+
+            String gradeStr = etQualityGradeDisplay.getText().toString().trim();
             QualityBatchEntity.QualityGrade grade = getGradeFromDisplay(gradeStr);
 
-            // Build test results
             QualityBatchEntity.TestResults results = new QualityBatchEntity.TestResults();
             if (!TextUtils.isEmpty(etAflatoxin.getText())) {
                 results.setAflatoxin(Double.parseDouble(etAflatoxin.getText().toString().trim()));
@@ -273,12 +519,16 @@ public class QualityBatchDialog extends DialogFragment {
                 results.setHeavyMetals(Double.parseDouble(etHeavyMetals.getText().toString().trim()));
             }
 
-            // Create batch
-            QualityBatchEntity batch = new QualityBatchEntity(
+            // ✅ Get existing batch to preserve sustainability
+            final QualityBatchEntity finalExistingBatch = existingBatch;
+
+            QualityBatchEntity updatedBatch = new QualityBatchEntity(
                     farmId,
-                    null, // blockId - can be added later
-                    null, // harvestCycleId - can be added later
-                    etBatchNumber.getText().toString().trim(),
+                    null,
+                    null,
+                    existingBatch.getSupplierId(),
+                    existingBatch.getSourceType(),
+                    etBatchNumberDisplay.getText().toString().trim(),
                     selectedDate.getTimeInMillis(),
                     moisture,
                     nutCount,
@@ -288,15 +538,22 @@ public class QualityBatchDialog extends DialogFragment {
                     grade,
                     etNotes.getText().toString().trim()
             );
-            batch.setTestResults(results.toJson());
+            updatedBatch.setId(batchId);
+            updatedBatch.setTestResults(results.toJson());
 
-            // Save to repository
-            repository.insertBatch(batch, new QualityBatchRepository.InsertCallback() {
+            // ✅ Preserve sustainability fields from existing batch
+            updatedBatch.setNoChildLabor(existingBatch.isNoChildLabor());
+            updatedBatch.setFarmOsMonitored(existingBatch.isFarmOsMonitored());
+            updatedBatch.setFirebreakProtection(existingBatch.isFirebreakProtection());
+            updatedBatch.setSustainableHarvesting(existingBatch.isSustainableHarvesting());
+            updatedBatch.setVerifiedAt(existingBatch.getVerifiedAt());
+
+            qualityBatchRepository.updateBatch(updatedBatch, new QualityBatchRepository.RepositoryCallback<Boolean>() {
                 @Override
-                public void onSuccess(long id) {
+                public void onSuccess(Boolean result) {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Quality batch added!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Batch updated successfully!", Toast.LENGTH_SHORT).show();
                             if (listener != null) listener.onBatchAdded();
                             dismiss();
                         });
@@ -318,22 +575,41 @@ public class QualityBatchDialog extends DialogFragment {
         }
     }
 
-    private void updateBatch() {
-        // Similar to save but updates existing
-        // Implementation similar to saveBatch but uses updateBatch method
+    private QualityBatchEntity.SourceType getSourceTypeFromDisplay(String display) {
+        for (QualityBatchEntity.SourceType type : QualityBatchEntity.SourceType.values()) {
+            if (display.contains(type.getDisplayName())) {
+                return type;
+            }
+        }
+        return QualityBatchEntity.SourceType.COOPERATIVE;
     }
 
     private boolean validateInputs() {
-        // Validate all fields
-        if (TextUtils.isEmpty(etBatchNumber.getText())) {
-            etBatchNumber.setError("Batch number required");
+        if (TextUtils.isEmpty(etBatchNumberDisplay.getText())) {
+            etBatchNumberDisplay.setError("Please select a delivery");
+            Toast.makeText(getContext(), "Please select a delivery first", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (TextUtils.isEmpty(etMoistureContent.getText())) {
             etMoistureContent.setError("Moisture content required");
             return false;
         }
-        // Add more validations...
+        if (TextUtils.isEmpty(etNutCount.getText())) {
+            etNutCount.setError("Nut count required");
+            return false;
+        }
+        if (TextUtils.isEmpty(etDefectiveRate.getText())) {
+            etDefectiveRate.setError("Defective rate required");
+            return false;
+        }
+        if (TextUtils.isEmpty(etKernelRatio.getText())) {
+            etKernelRatio.setError("Kernel ratio required");
+            return false;
+        }
+        if (TextUtils.isEmpty(etQualityGradeDisplay.getText())) {
+            etQualityGradeDisplay.setError("Quality grade required");
+            return false;
+        }
         return true;
     }
 

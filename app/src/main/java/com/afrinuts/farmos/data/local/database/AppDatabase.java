@@ -15,6 +15,7 @@ import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
+import com.afrinuts.farmos.data.local.dao.SupplierDao;
 import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
@@ -26,6 +27,7 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -42,14 +44,15 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 ExpenseEntity.class,
                 RevenueEntity.class,
                 TaskEntity.class,
-                TaskAssignmentHistoryEntity.class,  // Added this entity
+                TaskAssignmentHistoryEntity.class,
                 WeatherCacheEntity.class,
                 UserEntity.class,
                 PhotoEntity.class,
                 SyncEntity.class,
-                QualityBatchEntity.class
+                QualityBatchEntity.class,
+                SupplierEntity.class
         },
-        version = 15,
+        version = 19,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -75,7 +78,10 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SyncDao syncDao();
 
     public abstract TaskAssignmentDao taskAssignmentDao();
+
     public abstract QualityBatchDao qualityBatchDao();
+
+    public abstract SupplierDao supplierDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -88,10 +94,6 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "afrinuts_farm_os.db"
                             )
-                            // REMOVE THIS LINE - it's destructive!
-                            // .fallbackToDestructiveMigration()
-
-                            // ✅ Add all your migrations instead
                             .addMigrations(
                                     new Migration1To2(),
                                     new Migration2To3(),
@@ -106,7 +108,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration11To12(),
                                     new Migration12To13(),
                                     new Migration13To14(),
-                                    new Migration14To15()
+                                    new Migration14To15(),
+                                    new Migration15To16(),
+                                    new Migration16To17(),
+                                    new Migration17To18(),
+                                    new Migration18To19()
                             )
                             .build();
                 }

@@ -4,418 +4,172 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="?android:attr/colorBackground">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:title="Quality Batch Details" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:background="?attr/cardBackgroundPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-            <!-- Batch Header -->
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Batch Details"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header Card - Modern Glass -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundAccent"
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
-                    android:gravity="center">
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
 
-                    <TextView
-                        android:id="@+id/tvBatchNumber"
-                        android:layout_width="wrap_content"
+                    <!-- Batch Number & Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="#BATCH-001"
-                        style="@style/Text.H2"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/tvGrade"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/tvBatchNumber"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="#AFN-260625-001"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:id="@+id/tvBatchDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jun 25, 2026"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Grade & Score -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="⭐ Premium"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:background="@drawable/circle_quality_score_large">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_star"
+                                app:tint="?attr/colorSecondary"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:id="@+id/tvGrade"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Premium"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorSecondary" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
                             <TextView
                                 android:id="@+id/tvQualityScore"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="85"
-                                style="@style/Text.Display"
-                                android:textSize="32sp"
-                                android:textColor="@android:color/white"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Quality Score"
-                                android:textSize="12sp"
-                                android:textColor="@android:color/white"
-                                android:alpha="0.8" />
-
-                        </LinearLayout>
-
-                    </FrameLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Metrics Grid -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Quality Metrics"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="16dp" />
-
-                    <GridLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:rowCount="3">
-
-                        <!-- Moisture -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_water_drop"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvMoistureValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="6.5%"
-                                style="@style/Text.H3"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
                                 android:textColor="?attr/colorPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Moisture"
-                                style="@style/Text.Caption" />
+                                android:text="/100"
+                                android:textSize="14sp"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:layout_marginStart="4dp" />
 
-                        </LinearLayout>
-
-                        <!-- Defective Rate -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_cancel"
-                                app:tint="?attr/colorSecondary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvDefectiveValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="3.2%"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorSecondary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Defective"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <!-- Nut Count -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_inventory"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvNutCountValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="220"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Nut Count/kg"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <!-- Kernel Ratio -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_grain"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvKernelValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="88%"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Kernel Ratio"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <!-- Weight -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_weight"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvWeightValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="100 kg"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Weight"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <!-- Processing Date -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_today"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginBottom="4dp" />
-
-                            <TextView
-                                android:id="@+id/tvDateValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Jun 20, 2024"
-                                style="@style/Text.H3"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Processing Date"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                    </GridLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Test Results -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardTestResults"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardElevation="2dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lab Test Results"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="16dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/tvAflatoxinValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H4" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Aflatoxin"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/tvPesticideValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H4" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Pesticide"
-                                style="@style/Text.Caption" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/tvHeavyMetalsValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H4" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Heavy Metals"
-                                style="@style/Text.Caption" />
+                            <com.google.android.material.progressindicator.CircularProgressIndicator
+                                android:id="@+id/qualityProgress"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="12dp"
+                                app:indicatorSize="48dp"
+                                app:trackColor="?attr/colorSurfaceVariant"
+                                app:indicatorColor="?attr/colorPrimary"
+                                app:trackThickness="4dp"
+                                android:indeterminate="false" />
 
                         </LinearLayout>
 
@@ -425,15 +179,459 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Notes -->
+            <!-- Source Information Card - Modern Glass -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_info"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Source Information"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Source Type -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Source"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_handshake"
+                            app:tint="?attr/colorSecondary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvSourceType"
+                            style="@style/Text.Caption"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Cooperative"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Supplier Name (visible only for external sources) -->
+                    <LinearLayout
+                        android:id="@+id/layoutSupplier"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Supplier"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_person"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvSupplierName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="AfriNuts Coop"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnViewSupplier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            android:paddingHorizontal="8dp"
+                            android:minWidth="0dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            app:icon="@drawable/ic_forward"
+                            app:iconGravity="textEnd"
+                            app:iconTint="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Batch Type -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Batch Type"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_organic"
+                            app:tint="?attr/colorSecondary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvBatchType"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Organic"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quality Metrics Card - Modern Glass -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_labs"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Quality Metrics"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- 2-column grid -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="3"
+                        android:layout_marginTop="4dp">
+
+                        <!-- Moisture -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_water_drop"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Moisture"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvMoistureValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="6.2%"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Defective Rate -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_warning"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Defective"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvDefectiveValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2.5%"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Nut Count -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_grain"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nut Count"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvNutCountValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="185"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Kernel Ratio -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_percentage"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Kernel Ratio"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvKernelValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="95%"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Weight (spans 2 columns) -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnSpan="2"
+                            android:layout_columnWeight="2"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_weight"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Weight"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvWeightValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="40,000 kg"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Sustainability Verification -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutSustainability"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                android:visibility="gone">
+                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -441,54 +639,469 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Notes"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:id="@+id/tvNotesValue"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No notes"
-                        style="@style/Text.Body" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_verified"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Sustainability Verification"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/tvSustainabilityScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="100%"
+                            style="@style/Text.Stat"
+                            android:textColor="?attr/colorSecondary" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvVerifiedDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Verified: Jun 28, 2026"
+                        style="@style/Text.Caption"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.6"
+                        android:layout_marginBottom="12dp" />
+
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="2"
+                        android:alignmentMode="alignMargins"
+                        android:columnOrderPreserved="false">
+
+                        <!-- No Child Labor -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="8dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_child_friendly"
+                                app:tint="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="No Child Labor"
+                                style="@style/Text.Caption" />
+
+                            <TextView
+                                android:id="@+id/tvNoChildLabor"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Yes"
+                                style="@style/Text.Caption"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Farm OS Monitored -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="8dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_farm"
+                                app:tint="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Farm OS Monitored"
+                                style="@style/Text.Caption" />
+
+                            <TextView
+                                android:id="@+id/tvFarmOsMonitored"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Yes"
+                                style="@style/Text.Caption"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Firebreak Protection -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="8dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_firebreak"
+                                app:tint="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Firebreak Protection"
+                                style="@style/Text.Caption" />
+
+                            <TextView
+                                android:id="@+id/tvFirebreakProtection"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Yes"
+                                style="@style/Text.Caption"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Sustainable Harvesting -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="8dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_sustainable"
+                                app:tint="?attr/colorOnSurface"
+                                android:alpha="0.6"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Sustainable Harvesting"
+                                style="@style/Text.Caption" />
+
+                            <TextView
+                                android:id="@+id/tvSustainableHarvesting"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Yes"
+                                style="@style/Text.Caption"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                    </GridLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
+            <!-- Test Results Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTestResults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundAccent"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_science"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lab Test Results"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="3"
+                        android:layout_marginTop="4dp">
+
+                        <!-- Aflatoxin -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_warning"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Aflatoxin"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvAflatoxinValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.00"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Pesticide -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_pesticide"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pesticide"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvPesticideValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.00"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <!-- Heavy Metals -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_heavy_metals"
+                                    app:tint="?attr/colorOnSurface"
+                                    android:alpha="0.6"
+                                    android:layout_marginEnd="4dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Heavy Metals"
+                                    style="@style/Text.Caption.Small"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:alpha="0.6" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvHeavyMetalsValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.00"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorOnSurface"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Notes Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_note"
+                            app:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Notes"
+                            style="@style/Text.H5"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvNotesValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Batch notes here..."
+                        style="@style/Text.Caption"
+                        android:textColor="?attr/colorOnSurface" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_horizontal"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEdit"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="46dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@color/accent"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
                     app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconGravity="textStart" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="46dp"
                     android:layout_weight="1"
+                    android:layout_marginStart="8dp"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:backgroundTint="@android:color/holo_red_dark"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white" />

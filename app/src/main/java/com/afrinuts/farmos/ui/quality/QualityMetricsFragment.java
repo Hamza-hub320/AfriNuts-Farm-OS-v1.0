@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.quality;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,7 @@ public class QualityMetricsFragment extends Fragment {
     private FarmEntity currentFarm;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    // ✅ ADD THIS: Store farmId for use by parent activity
+    // Store farmId for use by parent activity
     private long farmId = -1;
 
     private List<QualityBatchEntity> allBatches = new ArrayList<>();
@@ -87,8 +88,8 @@ public class QualityMetricsFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
         avgMoistureValue = view.findViewById(R.id.avgMoistureValue);
         avgDefectiveValue = view.findViewById(R.id.avgDefectiveValue);
-        avgQualityScoreValue = view.findViewById(R.id.avgQualityScoreValue);
         avgKernelValue = view.findViewById(R.id.avgKernelValue);
+        avgQualityScoreValue = view.findViewById(R.id.avgQualityScoreValue);
         avgNutCountValue = view.findViewById(R.id.avgNutCountValue);
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
     }
@@ -96,9 +97,10 @@ public class QualityMetricsFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new QualityBatchAdapter(filteredBatches, batch -> {
-            // Navigate to detail view
-            // TODO: Open QualityBatchDetailActivity
-            Toast.makeText(getContext(), "Batch: " + batch.getBatchNumber(), Toast.LENGTH_SHORT).show();
+            // Navigate to QualityBatchDetailActivity
+            Intent intent = new Intent(getActivity(), QualityBatchDetailActivity.class);
+            intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
+            startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
     }
@@ -138,12 +140,12 @@ public class QualityMetricsFragment extends Fragment {
         });
     }
 
-    // ✅ ADD THIS: Method for parent activity to get farmId
+    // Method for parent activity to get farmId
     public long getFarmId() {
         return farmId;
     }
 
-    // ✅ ADD THIS: Method for parent activity to refresh data after adding batch
+    // Method for parent activity to refresh data after adding batch
     public void refreshData() {
         if (repository != null) {
             loadBatches();
@@ -170,7 +172,7 @@ public class QualityMetricsFragment extends Fragment {
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
-                // ✅ SET THE FARM ID HERE
+                // SET THE FARM ID HERE
                 farmId = currentFarm.getId();
 
                 if (getActivity() != null) {
@@ -193,23 +195,20 @@ public class QualityMetricsFragment extends Fragment {
     private void loadBatches() {
         if (repository == null) return;
 
-        repository.getAllBatches().observe(getViewLifecycleOwner(), new Observer<List<QualityBatchEntity>>() {
-            @Override
-            public void onChanged(List<QualityBatchEntity> batches) {
-                allBatches.clear();
-                if (batches != null) {
-                    allBatches.addAll(batches);
-                }
+        repository.getAllBatches().observe(getViewLifecycleOwner(), batches -> {
+            allBatches.clear();
+            if (batches != null) {
+                allBatches.addAll(batches);
+            }
 
-                showLoading(false);
+            showLoading(false);
 
-                if (allBatches.isEmpty()) {
-                    showEmpty(true);
-                } else {
-                    showEmpty(false);
-                    updateSummaryStats();
-                    applyFilter();
-                }
+            if (allBatches.isEmpty()) {
+                showEmpty(true);
+            } else {
+                showEmpty(false);
+                updateSummaryStats();
+                applyFilter();
             }
         });
     }

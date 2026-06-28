@@ -1,8 +1,7 @@
 package com.afrinuts.farmos.data.sync;
 
 import static com.afrinuts.farmos.data.remote.FirebaseManager.COLLECTION_FARMS;
-import static com.afrinuts.farmos.data.remote.FirebaseManager.SUBCOLLECTION_TASKS;
-import static com.afrinuts.farmos.data.remote.FirebaseManager.SUBCOLLECTION_TASK_ASSIGNMENTS;
+
 
 import android.content.Context;
 import android.util.Log;
@@ -10,6 +9,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
@@ -24,7 +25,10 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,6 +53,9 @@ public class FirestoreSyncManager {
     private ListenerRegistration usersListener;
     private ListenerRegistration assignmentsListener;
     private ListenerRegistration qualityBatchesListener;
+    private ListenerRegistration suppliersListener;
+    private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
+
 
 
     private FirestoreSyncManager(Context context) {
@@ -78,6 +85,7 @@ public class FirestoreSyncManager {
         listenToUsers();
         listenToAssignments();
         listenToQualityBatches();
+        listenToSuppliers();
     }
 
     /**
@@ -92,6 +100,8 @@ public class FirestoreSyncManager {
         if (usersListener != null) usersListener.remove();
         if (assignmentsListener != null) assignmentsListener.remove();
         if (qualityBatchesListener != null) qualityBatchesListener.remove();
+        if (suppliersListener != null) suppliersListener.remove();
+
 
         Log.d(TAG, "All Firestore listeners stopped");
     }
@@ -183,19 +193,43 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
+                                    // ✅ Check if batch/supplier exists before inserting
+                                    if (remoteExpense.getBatchId() != null && remoteExpense.getBatchId() > 0) {
+                                        QualityBatchEntity batch = database.qualityBatchDao()
+                                                .getBatchById(remoteExpense.getBatchId());
+                                        if (batch == null) {
+                                            Log.w(TAG, "⚠️ Skipping expense - batch " + remoteExpense.getBatchId() +
+                                                    " not found in local DB. Will sync later.");
+                                            // Queue for later processing or skip for now
+                                            continue;
+                                        }
+                                    }
+
+                                    if (remoteExpense.getSupplierId() != null && remoteExpense.getSupplierId() > 0) {
+                                        SupplierEntity supplier = database.supplierDao()
+                                                .getSupplierById(remoteExpense.getSupplierId());
+                                        if (supplier == null) {
+                                            Log.w(TAG, "⚠️ Skipping expense - supplier " + remoteExpense.getSupplierId() +
+                                                    " not found in local DB. Will sync later.");
+                                            continue;
+                                        }
+                                    }
+
                                     ExpenseEntity localExpense = database.expenseDao().getExpenseById(remoteExpense.getId());
 
                                     isApplyingRemoteUpdate = true;
 
                                     if (localExpense == null) {
                                         database.expenseDao().insert(remoteExpense);
-                                        Log.d(TAG, "New expense: " + remoteExpense.getId());
+                                        Log.d(TAG, "✅ New expense: " + remoteExpense.getId() +
+                                                " (Batch: " + remoteExpense.getBatchNumber() +
+                                                ", Supplier: " + remoteExpense.getSupplierName() + ")");
                                     } else {
                                         if (remoteExpense.getUpdatedAt() > localExpense.getUpdatedAt()) {
                                             database.expenseDao().update(remoteExpense);
-                                            Log.d(TAG, "Updated expense (remote newer): " + remoteExpense.getId());
+                                            Log.d(TAG, "📝 Updated expense (remote newer): " + remoteExpense.getId());
                                         } else {
-                                            Log.d(TAG, "Skipped expense (local newer): " + remoteExpense.getId());
+                                            Log.d(TAG, "⏭️ Skipped expense (local newer): " + remoteExpense.getId());
                                         }
                                     }
 
@@ -204,7 +238,7 @@ public class FirestoreSyncManager {
 
                                 case REMOVED:
                                     database.expenseDao().delete(remoteExpense);
-                                    Log.d(TAG, "Expense deleted: " + remoteExpense.getId());
+                                    Log.d(TAG, "❌ Expense deleted: " + remoteExpense.getId());
                                     break;
                             }
                         }
@@ -255,6 +289,27 @@ public class FirestoreSyncManager {
                                 }
                             }
 
+                            // ✅ Check if batch/supplier exists before inserting
+                            if (remoteRevenue.getBatchId() != null && remoteRevenue.getBatchId() > 0) {
+                                QualityBatchEntity batch = database.qualityBatchDao()
+                                        .getBatchById(remoteRevenue.getBatchId());
+                                if (batch == null) {
+                                    Log.w(TAG, "⚠️ Skipping revenue - batch " + remoteRevenue.getBatchId() +
+                                            " not found in local DB. Will sync later.");
+                                    continue;
+                                }
+                            }
+
+                            if (remoteRevenue.getSupplierId() != null && remoteRevenue.getSupplierId() > 0) {
+                                SupplierEntity supplier = database.supplierDao()
+                                        .getSupplierById(remoteRevenue.getSupplierId());
+                                if (supplier == null) {
+                                    Log.w(TAG, "⚠️ Skipping revenue - supplier " + remoteRevenue.getSupplierId() +
+                                            " not found in local DB. Will sync later.");
+                                    continue;
+                                }
+                            }
+
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
@@ -265,7 +320,9 @@ public class FirestoreSyncManager {
                                     if (localRevenue == null) {
                                         try {
                                             database.revenueDao().insert(remoteRevenue);
-                                            Log.d(TAG, "✅ New revenue: " + remoteRevenue.getId());
+                                            Log.d(TAG, "✅ New revenue: " + remoteRevenue.getId() +
+                                                    " (Batch: " + remoteRevenue.getBatchNumber() +
+                                                    ", Supplier: " + remoteRevenue.getSupplierName() + ")");
                                         } catch (Exception e) {
                                             Log.e(TAG, "Error inserting revenue", e);
                                         }
@@ -542,8 +599,106 @@ public class FirestoreSyncManager {
     }
 
     // ========================================
-    // QUALITY BATCHES LISTENER
+    // SUPPLIERS LISTENER
     // ========================================
+
+    private void listenToSuppliers() {
+        suppliersListener = db.collection("farms")
+                .document(farmId)
+                .collection("suppliers")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Suppliers listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            SupplierEntity remoteSupplier =
+                                    EntityMapper.fromFirestoreSupplier(dc.getDocument());
+                            if (remoteSupplier == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    SupplierEntity localSupplier =
+                                            database.supplierDao().getSupplierById(remoteSupplier.getId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localSupplier == null) {
+                                        database.supplierDao().insert(remoteSupplier);
+                                        Log.d(TAG, "➕ New supplier: " + remoteSupplier.getName());
+                                    } else {
+                                        if (remoteSupplier.getUpdatedAt() > localSupplier.getUpdatedAt()) {
+                                            database.supplierDao().update(remoteSupplier);
+                                            Log.d(TAG, "📥 Updated supplier: " + remoteSupplier.getName());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped supplier (local newer): " +
+                                                    remoteSupplier.getName());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    // ✅ CASCADE DELETE: Delete all associated batches first
+                                    try {
+                                        // 1. Get all batches for this supplier
+                                        List<QualityBatchEntity> batches = database.qualityBatchDao()
+                                                .getBatchesBySupplierIdSync(remoteSupplier.getId());
+
+                                        // 2. Delete all batches
+                                        for (QualityBatchEntity batch : batches) {
+                                            database.qualityBatchDao().delete(batch);
+                                            Log.d(TAG, "🗑️ Deleted batch: " + batch.getBatchNumber() +
+                                                    " for supplier: " + remoteSupplier.getName());
+                                        }
+
+                                        // 3. Delete the supplier
+                                        database.supplierDao().delete(remoteSupplier);
+                                        Log.d(TAG, "🗑️ Deleted supplier: " + remoteSupplier.getName() +
+                                                " with " + batches.size() + " batches");
+
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error deleting supplier and batches", e);
+                                    }
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Suppliers listener registered");
+    }
+
+    // Add this helper method
+    private void deleteSupplierAndBatches(SupplierEntity supplier) {
+        try {
+            // 1. Get all batches for this supplier
+            List<QualityBatchEntity> batches = database.qualityBatchDao()
+                    .getBatchesBySupplierIdSync(supplier.getId());
+
+            // 2. Delete all batches
+            for (QualityBatchEntity batch : batches) {
+                database.qualityBatchDao().delete(batch);
+                Log.d(TAG, "🗑️ Deleted batch: " + batch.getBatchNumber() + " for supplier: " + supplier.getName());
+            }
+
+            // 3. Delete the supplier
+            database.supplierDao().delete(supplier);
+            Log.d(TAG, "🗑️ Deleted supplier: " + supplier.getName() + " with " + batches.size() + " batches");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error deleting supplier and batches", e);
+        }
+    }
+
+    // ========================================
+// QUALITY BATCHES LISTENER with Supplier Check
+// ========================================
 
     private void listenToQualityBatches() {
         qualityBatchesListener = db.collection("farms")
@@ -566,6 +721,27 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
+                                    // Check if supplier exists
+                                    boolean supplierExists = true;
+                                    if (remoteBatch.getSupplierId() != null && remoteBatch.getSupplierId() > 0) {
+                                        SupplierEntity supplier = database.supplierDao()
+                                                .getSupplierById(remoteBatch.getSupplierId());
+                                        if (supplier == null) {
+                                            supplierExists = false;
+                                            // Queue this batch for later
+                                            pendingBatches.add(remoteBatch);
+                                            Log.d(TAG, "⏳ Queued batch " + remoteBatch.getBatchNumber() +
+                                                    " waiting for supplier " + remoteBatch.getSupplierId());
+                                        }
+                                    }
+
+                                    if (!supplierExists) {
+                                        continue; // Skip insertion, wait for supplier
+                                    }
+
+                                    // Process any pending batches for this supplier
+                                    processPendingBatches(remoteBatch.getSupplierId());
+
                                     QualityBatchEntity localBatch =
                                             database.qualityBatchDao().getBatchById(remoteBatch.getId());
 
@@ -596,6 +772,24 @@ public class FirestoreSyncManager {
                     });
                 });
         Log.d(TAG, "👂 Quality batches listener registered");
+    }
+
+    private void processPendingBatches(Long supplierId) {
+        if (supplierId == null) return;
+
+        List<QualityBatchEntity> toProcess = new ArrayList<>();
+        for (QualityBatchEntity batch : pendingBatches) {
+            if (batch.getSupplierId() != null && batch.getSupplierId().equals(supplierId)) {
+                toProcess.add(batch);
+            }
+        }
+
+        for (QualityBatchEntity batch : toProcess) {
+            pendingBatches.remove(batch);
+            // Insert the batch now that supplier exists
+            database.qualityBatchDao().insert(batch);
+            Log.d(TAG, "✅ Processed queued batch: " + batch.getBatchNumber());
+        }
     }
 
     // ========================================

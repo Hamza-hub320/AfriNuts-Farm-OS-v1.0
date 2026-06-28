@@ -8,11 +8,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
-import com.afrinuts.farmos.ui.expenses.ExpenseDetailActivity;
 
 import java.util.List;
 
@@ -49,9 +49,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         return expenses.size();
     }
 
+    public void updateExpenses(List<ExpenseWithBlockName> newExpenses) {
+        this.expenses = newExpenses;
+        notifyDataSetChanged();
+    }
+
     static class ExpenseViewHolder extends RecyclerView.ViewHolder {
 
-        // Changed from TextView to ImageView
         private ImageView ivCategoryIcon;
         private TextView tvCategory;
         private TextView tvBlockInfo;
@@ -62,7 +66,6 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
         ExpenseViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Updated to use ivCategoryIcon instead of tvCategoryIcon
             ivCategoryIcon = itemView.findViewById(R.id.ivCategoryIcon);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvBlockInfo = itemView.findViewById(R.id.tvBlockInfo);
@@ -76,6 +79,52 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             ExpenseEntity expense = item.getExpense();
 
             // Set category icon based on expense category
+            setCategoryIcon(expense);
+
+            // Set category name
+            tvCategory.setText(expense.getCategory().getDisplayName());
+
+            // ✅ Set block info - now shows procurement info if applicable
+            tvBlockInfo.setText(item.getDisplayName());
+
+            // ✅ If procurement, add a badge or indicator
+            if (expense.isProcurementRelated()) {
+                tvBlockInfo.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.accent));
+            } else {
+                // Use the theme's text color
+                tvBlockInfo.setTextColor(
+                        androidx.core.content.res.ResourcesCompat.getColor(
+                                itemView.getResources(),
+                                android.R.color.secondary_text_dark,
+                                null
+                        )
+                );
+            }
+
+            // Set amount
+            tvAmount.setText(item.getFormattedAmount());
+
+            // Set date
+            tvDate.setText(item.getFormattedDate());
+
+            // Set description
+            if (expense.getDescription() != null && !expense.getDescription().isEmpty()) {
+                tvDescription.setText(expense.getDescription());
+            } else {
+                tvDescription.setText("No description");
+            }
+
+            // Click listener
+            cardView.setOnClickListener(v -> {
+                android.content.Context context = itemView.getContext();
+                android.content.Intent intent =
+                        new android.content.Intent(context, ExpenseDetailActivity.class);
+                intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
+                context.startActivity(intent);
+            });
+        }
+
+        private void setCategoryIcon(ExpenseEntity expense) {
             switch (expense.getCategory()) {
                 case LAND_CLEARING:
                     ivCategoryIcon.setImageResource(R.drawable.ic_tractor);
@@ -110,38 +159,22 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
                 case PROCESSING_CENTER:
                     ivCategoryIcon.setImageResource(R.drawable.ic_factory);
                     break;
+                case PROCUREMENT:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_shopping_cart);
+                    break;
+                case TRANSPORT:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_local_shipping);
+                    break;
+                case QUALITY_TESTING:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_science);
+                    break;
+                case STORAGE:
+                    ivCategoryIcon.setImageResource(R.drawable.ic_warehouse);
+                    break;
                 default:
                     ivCategoryIcon.setImageResource(R.drawable.ic_attach_money);
                     break;
             }
-
-            // Set category name
-            tvCategory.setText(expense.getCategory().getDisplayName());
-
-            // Set block info
-            tvBlockInfo.setText(item.getDisplayName());
-
-            // Set amount
-            tvAmount.setText(item.getFormattedAmount());
-
-            // Set date
-            tvDate.setText(item.getFormattedDate());
-
-            // Set description
-            if (expense.getDescription() != null && !expense.getDescription().isEmpty()) {
-                tvDescription.setText(expense.getDescription());
-            } else {
-                tvDescription.setText("No description");
-            }
-
-            // Click listener
-            cardView.setOnClickListener(v -> {
-                android.content.Context context = itemView.getContext();
-                android.content.Intent intent =
-                        new android.content.Intent(context, ExpenseDetailActivity.class);
-                intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
-                context.startActivity(intent);
-            });
         }
     }
 }

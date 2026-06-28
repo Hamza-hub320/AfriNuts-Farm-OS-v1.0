@@ -103,4 +103,17 @@ public interface QualityBatchDao {
 
     @Query("SELECT SUM(weightKg) FROM quality_batches WHERE farmId = :farmId")
     double getTotalProcessedWeight(long farmId);
+
+    @Query("SELECT * FROM quality_batches WHERE supplierId = :supplierId ORDER BY processingDate DESC")
+    LiveData<List<QualityBatchEntity>> getBatchesBySupplierIdLiveData(long supplierId);
+
+    @Query("SELECT * FROM quality_batches WHERE supplierId = :supplierId ORDER BY processingDate DESC")
+    List<QualityBatchEntity> getBatchesBySupplierIdSync(long supplierId);
+
+
+    @Query("SELECT COUNT(*) FROM quality_batches WHERE supplierId = :supplierId")
+    int getBatchCountBySupplierId(long supplierId);
+
+    @Query("SELECT SUM(weightKg) FROM quality_batches WHERE supplierId = :supplierId")
+    double getTotalWeightBySupplierId(long supplierId);
 }

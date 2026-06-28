@@ -6,6 +6,7 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -236,11 +237,19 @@ public class EntityMapper {
         map.put("id", expense.getId());
         map.put("farmId", expense.getFarmId());
         map.put("blockId", expense.getBlockId());
+
+        // ✅ Add new fields for procurement tracking
+        map.put("batchId", expense.getBatchId());
+        map.put("supplierId", expense.getSupplierId());
+        map.put("batchNumber", expense.getBatchNumber());
+        map.put("supplierName", expense.getSupplierName());
+
         map.put("category", expense.getCategory().name());
         map.put("amount", expense.getAmount());
         map.put("date", expense.getDate());
         map.put("description", expense.getDescription());
         map.put("receiptPath", expense.getReceiptPath());
+        map.put("firestoreId", expense.getFirestoreId());
         map.put("createdAt", expense.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
         return map;
@@ -251,16 +260,27 @@ public class EntityMapper {
             long id = Long.parseLong(doc.getId());
             long farmId = getLongSafe(doc, "farmId");
             Long blockId = getNullableLong(doc, "blockId");
+
+            // ✅ Get new fields for procurement tracking
+            Long batchId = getNullableLong(doc, "batchId");
+            Long supplierId = getNullableLong(doc, "supplierId");
+            String batchNumber = doc.getString("batchNumber");
+            String supplierName = doc.getString("supplierName");
+
             String categoryStr = getStringSafe(doc, "category");
             double amount = getDoubleSafe(doc, "amount");
             long date = getLongSafe(doc, "date");
             String description = getStringSafe(doc, "description");
             String receiptPath = doc.getString("receiptPath");
+            String firestoreId = doc.getString("firestoreId");
             long createdAt = getLongSafe(doc, "createdAt");
+            long updatedAt = getLongSafe(doc, "updatedAt");
 
             ExpenseEntity expense = new ExpenseEntity(
                     farmId,
                     blockId,
+                    batchId,
+                    supplierId,
                     ExpenseEntity.ExpenseCategory.valueOf(categoryStr),
                     amount,
                     date,
@@ -268,7 +288,14 @@ public class EntityMapper {
             );
             expense.setId(id);
             expense.setReceiptPath(receiptPath);
+            expense.setFirestoreId(firestoreId);
             expense.setCreatedAt(createdAt);
+            expense.setUpdatedAt(updatedAt > 0 ? updatedAt : createdAt);
+
+            // ✅ Set denormalized fields
+            expense.setBatchNumber(batchNumber);
+            expense.setSupplierName(supplierName);
+
             return expense;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping expense document", e);
@@ -285,6 +312,13 @@ public class EntityMapper {
         map.put("id", revenue.getId());
         map.put("farmId", revenue.getFarmId());
         map.put("blockId", revenue.getBlockId());
+
+        // ✅ Add new fields for procurement tracking
+        map.put("batchId", revenue.getBatchId());
+        map.put("supplierId", revenue.getSupplierId());
+        map.put("batchNumber", revenue.getBatchNumber());
+        map.put("supplierName", revenue.getSupplierName());
+
         map.put("harvestDate", revenue.getHarvestDate());
         map.put("quantityKg", revenue.getQuantityKg());
         map.put("pricePerKg", revenue.getPricePerKg());
@@ -305,6 +339,13 @@ public class EntityMapper {
             long id = Long.parseLong(doc.getId());
             long farmId = getLongSafe(doc, "farmId");
             Long blockId = getNullableLong(doc, "blockId");
+
+            // ✅ Get new fields for procurement tracking
+            Long batchId = getNullableLong(doc, "batchId");
+            Long supplierId = getNullableLong(doc, "supplierId");
+            String batchNumber = doc.getString("batchNumber");
+            String supplierName = doc.getString("supplierName");
+
             long harvestDate = getLongSafe(doc, "harvestDate");
             double quantityKg = getDoubleSafe(doc, "quantityKg");
             double pricePerKg = getDoubleSafe(doc, "pricePerKg");
@@ -312,6 +353,7 @@ public class EntityMapper {
             String qualityStr = getStringSafe(doc, "quality");
             String notes = getStringSafe(doc, "notes");
             long createdAt = getLongSafe(doc, "createdAt");
+            long updatedAt = getLongSafe(doc, "updatedAt");
             String harvestCycleId = doc.getString("harvestCycleId");
 
             // Handle harvestYear - could be stored as Long or Integer in Firestore
@@ -347,6 +389,8 @@ public class EntityMapper {
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
                     blockId,
+                    batchId,
+                    supplierId,
                     harvestDate,
                     quantityKg,
                     pricePerKg,
@@ -356,9 +400,15 @@ public class EntityMapper {
             );
             revenue.setId(id);
             revenue.setCreatedAt(createdAt);
+            revenue.setUpdatedAt(updatedAt > 0 ? updatedAt : createdAt);
             revenue.setHarvestCycleId(harvestCycleId);
             revenue.setHarvestYear(harvestYear);
             revenue.setHarvestSeason(harvestSeason);
+
+            // ✅ Set denormalized fields
+            revenue.setBatchNumber(batchNumber);
+            revenue.setSupplierName(supplierName);
+
             return revenue;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping revenue document", e);
@@ -512,8 +562,8 @@ public class EntityMapper {
     }
 
     // ========================================
-// QUALITY BATCH MAPPING
-// ========================================
+    // QUALITY BATCH MAPPING
+    // ========================================
 
     public static QualityBatchEntity fromFirestoreQualityBatch(DocumentSnapshot doc) {
         return mapToQualityBatch(doc);
@@ -525,6 +575,8 @@ public class EntityMapper {
         map.put("farmId", batch.getFarmId());
         map.put("blockId", batch.getBlockId());
         map.put("harvestCycleId", batch.getHarvestCycleId());
+        map.put("supplierId", batch.getSupplierId());
+        map.put("sourceType", batch.getSourceType() != null ? batch.getSourceType().name() : null);
         map.put("batchNumber", batch.getBatchNumber());
         map.put("processingDate", batch.getProcessingDate());
         map.put("moistureContent", batch.getMoistureContent());
@@ -539,6 +591,11 @@ public class EntityMapper {
         map.put("createdAt", batch.getCreatedAt());
         map.put("updatedAt", batch.getUpdatedAt());
         map.put("isSynced", batch.isSynced());
+        map.put("noChildLabor", batch.isNoChildLabor());
+        map.put("farmOsMonitored", batch.isFarmOsMonitored());
+        map.put("firebreakProtection", batch.isFirebreakProtection());
+        map.put("sustainableHarvesting", batch.isSustainableHarvesting());
+        map.put("verifiedAt", batch.getVerifiedAt());
         return map;
     }
 
@@ -548,6 +605,8 @@ public class EntityMapper {
             long farmId = getFarmId(doc);
             Long blockId = getNullableLong(doc, "blockId");
             Long harvestCycleId = getNullableLong(doc, "harvestCycleId");
+            Long supplierId = getNullableLong(doc, "supplierId");
+            String sourceTypeStr = getStringSafe(doc, "sourceType");
             String batchNumber = getStringSafe(doc, "batchNumber");
             long processingDate = getLongSafe(doc, "processingDate");
             double moistureContent = getDoubleSafe(doc, "moistureContent");
@@ -560,14 +619,41 @@ public class EntityMapper {
             String testResults = doc.getString("testResults");
             double qualityScore = getDoubleSafe(doc, "qualityScore");
             String notes = doc.getString("notes");
+            boolean noChildLabor = doc.getBoolean("noChildLabor") != null && doc.getBoolean("noChildLabor");
+            boolean farmOsMonitored = doc.getBoolean("farmOsMonitored") != null && doc.getBoolean("farmOsMonitored");
+            boolean firebreakProtection = doc.getBoolean("firebreakProtection") != null && doc.getBoolean("firebreakProtection");
+            boolean sustainableHarvesting = doc.getBoolean("sustainableHarvesting") != null && doc.getBoolean("sustainableHarvesting");
+            Long verifiedAtLong = getLongSafe(doc, "verifiedAt");
+            long verifiedAt = verifiedAtLong != null ? verifiedAtLong : 0;
             long createdAt = getLongSafe(doc, "createdAt");
             long updatedAt = getLongSafe(doc, "updatedAt");
             boolean isSynced = getBooleanSafe(doc, "isSynced");
 
+            // Parse source type
+            QualityBatchEntity.SourceType sourceType = QualityBatchEntity.SourceType.OWN_FARM;
+            if (sourceTypeStr != null && !sourceTypeStr.isEmpty()) {
+                try {
+                    sourceType = QualityBatchEntity.SourceType.valueOf(sourceTypeStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown source type: " + sourceTypeStr);
+                }
+            }
+
+            // FIXED: Use the correct constructor with 14 arguments
             QualityBatchEntity batch = new QualityBatchEntity(
-                    farmId, blockId, harvestCycleId, batchNumber, processingDate,
-                    moistureContent, nutCountPerKg, defectiveRate, kernelRatio,
-                    weightKg, QualityBatchEntity.QualityGrade.valueOf(gradeStr),
+                    farmId,
+                    blockId,
+                    harvestCycleId,
+                    supplierId,
+                    sourceType,
+                    batchNumber,
+                    processingDate,
+                    moistureContent,
+                    nutCountPerKg,
+                    defectiveRate,
+                    kernelRatio,
+                    weightKg,
+                    QualityBatchEntity.QualityGrade.valueOf(gradeStr),
                     notes
             );
             batch.setId(id);
@@ -576,10 +662,150 @@ public class EntityMapper {
             batch.setCreatedAt(createdAt);
             batch.setUpdatedAt(updatedAt);
             batch.setSynced(isSynced);
+            batch.setNoChildLabor(noChildLabor);
+            batch.setFarmOsMonitored(farmOsMonitored);
+            batch.setFirebreakProtection(firebreakProtection);
+            batch.setSustainableHarvesting(sustainableHarvesting);
+            batch.setVerifiedAt(verifiedAt);
 
             return batch;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping quality batch", e);
+            return null;
+        }
+    }
+
+    // ========================================
+// SUPPLIER MAPPING
+// ========================================
+
+    public static SupplierEntity fromFirestoreSupplier(DocumentSnapshot doc) {
+        return mapToSupplier(doc);
+    }
+
+    public static Map<String, Object> supplierToMap(SupplierEntity supplier) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", supplier.getId());
+        map.put("farmId", supplier.getFarmId());
+        map.put("name", supplier.getName());
+        map.put("type", supplier.getType() != null ? supplier.getType().name() : null);
+        map.put("contactPerson", supplier.getContactPerson());
+        map.put("phone", supplier.getPhone());
+        map.put("email", supplier.getEmail());
+        map.put("location", supplier.getLocation());
+        map.put("region", supplier.getRegion());
+        map.put("country", supplier.getCountry());
+        map.put("latitude", supplier.getLatitude());
+        map.put("longitude", supplier.getLongitude());
+        map.put("hasLocation", supplier.hasLocation());
+        map.put("registrationNumber", supplier.getRegistrationNumber());
+        map.put("taxId", supplier.getTaxId());
+        map.put("annualVolumeKg", supplier.getAnnualVolumeKg());
+        map.put("averageQualityScore", supplier.getAverageQualityScore());
+        map.put("rating", supplier.getRating());
+        map.put("certificationType", supplier.getCertificationType());
+        map.put("certificationNumber", supplier.getCertificationNumber());
+        map.put("certificationExpiryDate", supplier.getCertificationExpiryDate());
+        map.put("isCertified", supplier.isCertified());
+        map.put("status", supplier.getStatus() != null ? supplier.getStatus().name() : null);
+        map.put("isActive", supplier.isActive());
+        map.put("notes", supplier.getNotes());
+
+        // ✅ ADD FARMER PROFILE FIELDS
+        map.put("photoUrl", supplier.getPhotoUrl());
+        map.put("yearsFarming", supplier.getYearsFarming());
+        map.put("bio", supplier.getBio());
+        map.put("quote", supplier.getQuote());
+        map.put("farmSize", supplier.getFarmSize());
+        map.put("firebreakProtection", supplier.isFirebreakProtection());
+        map.put("sustainableHarvesting", supplier.isSustainableHarvesting());
+        map.put("noChildLabor", supplier.isNoChildLabor());
+
+        map.put("createdAt", supplier.getCreatedAt());
+        map.put("updatedAt", supplier.getUpdatedAt());
+        map.put("isSynced", supplier.isSynced());
+        return map;
+    }
+
+    public static SupplierEntity mapToSupplier(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = getFarmId(doc);
+            String name = getStringSafe(doc, "name");
+            String typeStr = getStringSafe(doc, "type");
+            String contactPerson = getStringSafe(doc, "contactPerson");
+            String phone = getStringSafe(doc, "phone");
+            String email = getStringSafe(doc, "email");
+            String location = getStringSafe(doc, "location");
+            String region = getStringSafe(doc, "region");
+            String country = getStringSafe(doc, "country");
+            String registrationNumber = getStringSafe(doc, "registrationNumber");
+            String taxId = getStringSafe(doc, "taxId");
+            double annualVolumeKg = getDoubleSafe(doc, "annualVolumeKg");
+            double averageQualityScore = getDoubleSafe(doc, "averageQualityScore");
+            Long ratingLong = getLongSafe(doc, "rating");
+            int rating = ratingLong != null ? ratingLong.intValue() : 3;
+            String certificationType = getStringSafe(doc, "certificationType");
+            String certificationNumber = getStringSafe(doc, "certificationNumber");
+            long certificationExpiryDate = getLongSafe(doc, "certificationExpiryDate");
+            boolean isCertified = getBooleanSafe(doc, "isCertified");
+            String statusStr = getStringSafe(doc, "status");
+            boolean isActive = getBooleanSafe(doc, "isActive");
+            String notes = getStringSafe(doc, "notes");
+
+            // ✅ ADD FARMER PROFILE FIELDS
+            String photoUrl = doc.getString("photoUrl");
+            Long yearsFarmingLong = getLongSafe(doc, "yearsFarming");
+            int yearsFarming = yearsFarmingLong != null ? yearsFarmingLong.intValue() : 0;
+            String bio = doc.getString("bio");
+            String quote = doc.getString("quote");
+            Double farmSize = doc.getDouble("farmSize");
+            Boolean firebreakProtection = doc.getBoolean("firebreakProtection");
+            Boolean sustainableHarvesting = doc.getBoolean("sustainableHarvesting");
+            Boolean noChildLabor = doc.getBoolean("noChildLabor");
+
+            long createdAt = getLongSafe(doc, "createdAt");
+            long updatedAt = getLongSafe(doc, "updatedAt");
+            boolean isSynced = getBooleanSafe(doc, "isSynced");
+
+            SupplierEntity supplier = new SupplierEntity(
+                    farmId, name, SupplierEntity.SupplierType.valueOf(typeStr),
+                    contactPerson, phone, location, registrationNumber
+            );
+            supplier.setId(id);
+            supplier.setEmail(email);
+            supplier.setRegion(region);
+            supplier.setCountry(country);
+            supplier.setRegistrationNumber(registrationNumber);
+            supplier.setTaxId(taxId);
+            supplier.setAnnualVolumeKg(annualVolumeKg);
+            supplier.setAverageQualityScore(averageQualityScore);
+            supplier.setRating(rating);
+            supplier.setCertificationType(certificationType);
+            supplier.setCertificationNumber(certificationNumber);
+            supplier.setCertificationExpiryDate(certificationExpiryDate);
+            supplier.setCertified(isCertified);
+            supplier.setStatus(SupplierEntity.SupplierStatus.valueOf(statusStr));
+            supplier.setActive(isActive);
+            supplier.setNotes(notes);
+
+            // ✅ SET FARMER PROFILE FIELDS
+            supplier.setPhotoUrl(photoUrl);
+            supplier.setYearsFarming(yearsFarming);
+            supplier.setBio(bio);
+            supplier.setQuote(quote);
+            supplier.setFarmSize(farmSize != null ? farmSize : 0);
+            supplier.setFirebreakProtection(firebreakProtection != null && firebreakProtection);
+            supplier.setSustainableHarvesting(sustainableHarvesting != null && sustainableHarvesting);
+            supplier.setNoChildLabor(noChildLabor != null && noChildLabor);
+
+            supplier.setCreatedAt(createdAt);
+            supplier.setUpdatedAt(updatedAt);
+            supplier.setSynced(isSynced);
+
+            return supplier;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping supplier", e);
             return null;
         }
     }

@@ -14,6 +14,7 @@ import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.blocks.BlocksFragment;
 import com.afrinuts.farmos.ui.tasks.TasksFragment;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardFragment;
+import com.afrinuts.farmos.ui.suppliers.SuppliersFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -61,6 +62,7 @@ public class FarmHubActivity extends BaseHubActivity {
             visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS));
             visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
             visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS));
+            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS)); // Add Suppliers
         }
         // Workers only see Tasks tab
         else if (sessionManager.isWorker()) {
@@ -111,9 +113,8 @@ public class FarmHubActivity extends BaseHubActivity {
 
         // Set FAB based on tab type
         if (tabItem.type == TabType.BLOCKS && (sessionManager.isOwner() || sessionManager.isManager())) {
-            fabAdd.setImageResource(R.drawable.ic_park);
+            fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
-                // Get the fragment from adapter
                 Fragment fragment = pagerAdapter.getFragment(position);
                 if (fragment instanceof BlocksFragment) {
                     ((BlocksFragment) fragment).showAddBlockDialog();
@@ -124,11 +125,23 @@ public class FarmHubActivity extends BaseHubActivity {
             fabAdd.show();
         }
         else if (tabItem.type == TabType.TASKS) {
-            fabAdd.setImageResource(R.drawable.ic_check_circle);
+            fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
                 if (fragment instanceof TasksFragment) {
                     ((TasksFragment) fragment).showAddTaskDialog();
+                } else {
+                    Toast.makeText(this, "Error: Fragment not ready", Toast.LENGTH_SHORT).show();
+                }
+            });
+            fabAdd.show();
+        }
+        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager())) {
+            fabAdd.setImageResource(R.drawable.ic_add);
+            fabAdd.setOnClickListener(v -> {
+                Fragment fragment = pagerAdapter.getFragment(position);
+                if (fragment instanceof SuppliersFragment) {
+                    ((SuppliersFragment) fragment).showAddSupplierDialog();
                 } else {
                     Toast.makeText(this, "Error: Fragment not ready", Toast.LENGTH_SHORT).show();
                 }
@@ -168,7 +181,7 @@ public class FarmHubActivity extends BaseHubActivity {
 
     // Tab types
     private enum TabType {
-        BLOCKS, TASKS, WORKERS
+        BLOCKS, TASKS, WORKERS, SUPPLIERS
     }
 
     // Tab item class
@@ -191,6 +204,7 @@ public class FarmHubActivity extends BaseHubActivity {
         private final BlocksFragment blocksFragment;
         private final TasksFragment tasksFragment;
         private final WorkerDashboardFragment workerFragment;
+        private final SuppliersFragment suppliersFragment; // Add SuppliersFragment
 
         public FarmPagerAdapter(FarmHubActivity activity, List<TabItem> tabs) {
             super(activity);
@@ -200,6 +214,7 @@ public class FarmHubActivity extends BaseHubActivity {
             this.blocksFragment = new BlocksFragment();
             this.tasksFragment = new TasksFragment();
             this.workerFragment = new WorkerDashboardFragment();
+            this.suppliersFragment = new SuppliersFragment(); // Initialize SuppliersFragment
         }
 
         @NonNull
@@ -213,6 +228,8 @@ public class FarmHubActivity extends BaseHubActivity {
                     return tasksFragment;
                 case WORKERS:
                     return workerFragment;
+                case SUPPLIERS:
+                    return suppliersFragment;
                 default:
                     return tasksFragment;
             }
@@ -232,6 +249,8 @@ public class FarmHubActivity extends BaseHubActivity {
                     return tasksFragment;
                 case WORKERS:
                     return workerFragment;
+                case SUPPLIERS:
+                    return suppliersFragment;
                 default:
                     return tasksFragment;
             }

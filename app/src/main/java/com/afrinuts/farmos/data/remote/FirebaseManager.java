@@ -12,6 +12,7 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -58,6 +59,8 @@ public class FirebaseManager {
     private static final String SUBCOLLECTION_PHOTOS = "photos";
     public static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
     private static final String SUBCOLLECTION_QUALITY_BATCHES = "quality_batches";
+    private static final String SUBCOLLECTION_SUPPLIERS = "suppliers";
+
 
     private FirebaseManager() {
         auth = FirebaseAuth.getInstance();
@@ -226,19 +229,27 @@ public class FirebaseManager {
     }
 
     // ========================================
-    // EXPENSE OPERATIONS - UPDATED to use subcollections
-    // ========================================
+// EXPENSE OPERATIONS - UPDATED to use subcollections
+// ========================================
 
     public void saveExpense(ExpenseEntity expense, String farmId) throws Exception {
         Map<String, Object> expenseMap = new HashMap<>();
         expenseMap.put("id", expense.getId());
         expenseMap.put("farmId", farmId);
         expenseMap.put("blockId", expense.getBlockId());
+
+        // ✅ Add new fields for procurement tracking
+        expenseMap.put("batchId", expense.getBatchId());
+        expenseMap.put("supplierId", expense.getSupplierId());
+        expenseMap.put("batchNumber", expense.getBatchNumber());
+        expenseMap.put("supplierName", expense.getSupplierName());
+
         expenseMap.put("category", expense.getCategory().name());
         expenseMap.put("amount", expense.getAmount());
         expenseMap.put("date", expense.getDate());
         expenseMap.put("description", expense.getDescription());
         expenseMap.put("receiptPath", expense.getReceiptPath());
+        expenseMap.put("firestoreId", expense.getFirestoreId());
         expenseMap.put("createdAt", expense.getCreatedAt());
         expenseMap.put("updatedAt", System.currentTimeMillis());
 
@@ -262,15 +273,38 @@ public class FirebaseManager {
                 .get();
     }
 
-    // ========================================
-    // REVENUE OPERATIONS - UPDATED to use subcollections
-    // ========================================
+    // In FirebaseManager.java - Add this method
+
+    public void saveExpenseMap(Map<String, Object> expenseMap, String farmId, long expenseId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_EXPENSES)
+                    .document(String.valueOf(expenseId))
+                    .set(expenseMap));
+            Log.d(TAG, "Expense saved to Firestore: " + expenseId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving expense: " + expenseId, e);
+            throw new Exception("Failed to save expense to Firestore", e);
+        }
+    }
+
+// ========================================
+// REVENUE OPERATIONS - UPDATED to use subcollections
+// ========================================
 
     public void saveRevenue(RevenueEntity revenue, String farmId) throws Exception {
         Map<String, Object> revenueMap = new HashMap<>();
         revenueMap.put("id", revenue.getId());
         revenueMap.put("farmId", farmId);
         revenueMap.put("blockId", revenue.getBlockId());
+
+        // ✅ Add new fields for procurement tracking
+        revenueMap.put("batchId", revenue.getBatchId());
+        revenueMap.put("supplierId", revenue.getSupplierId());
+        revenueMap.put("batchNumber", revenue.getBatchNumber());
+        revenueMap.put("supplierName", revenue.getSupplierName());
+
         revenueMap.put("harvestDate", revenue.getHarvestDate());
         revenueMap.put("quantityKg", revenue.getQuantityKg());
         revenueMap.put("pricePerKg", revenue.getPricePerKg());
@@ -303,7 +337,6 @@ public class FirebaseManager {
                 .collection(SUBCOLLECTION_REVENUES)
                 .get();
     }
-
     // ========================================
     // TASK OPERATIONS - UPDATED to use subcollections
     // ========================================
@@ -547,13 +580,11 @@ public class FirebaseManager {
     }
 
     // ========================================
-        // QUALITY BATCH OPERATIONS
-    // ========================================
+// QUALITY BATCH OPERATIONS
+// ========================================
 
     public void saveQualityBatch(QualityBatchEntity batch, String farmId) throws Exception {
         Map<String, Object> batchMap = EntityMapper.qualityBatchToMap(batch);
-
-        String docId = farmId + "_" + batch.getId();
 
         try {
             Tasks.await(db.collection(COLLECTION_FARMS)
@@ -587,6 +618,46 @@ public class FirebaseManager {
             Log.e(TAG, "Error deleting quality batch", e);
             throw new Exception("Failed to delete quality batch from Firestore", e);
         }
+    }
+
+// ========================================
+// SUPPLIER OPERATIONS
+// ========================================
+
+    /**
+     * Save supplier to Firestore
+     */
+    public void saveSupplier(SupplierEntity supplier, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.supplierToMap(supplier);
+        Task<Void> task = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_SUPPLIERS)
+                .document(String.valueOf(supplier.getId()))
+                .set(data);
+
+        Tasks.await(task);
+        Log.d(TAG, "Saved supplier to Firestore: " + supplier.getName());
+    }
+
+    /**
+     * Delete supplier from Firestore
+     */
+    public void deleteSupplier(String farmId, long supplierId) throws Exception {
+        Task<Void> task = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_SUPPLIERS)
+                .document(String.valueOf(supplierId))
+                .delete();
+
+        Tasks.await(task);
+        Log.d(TAG, "Deleted supplier from Firestore: " + supplierId);
+    }
+
+    public Task<QuerySnapshot> getSuppliersForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_SUPPLIERS)
+                .get();
     }
 
     // ========================================

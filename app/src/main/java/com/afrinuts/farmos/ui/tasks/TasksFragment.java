@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,6 +57,9 @@ public class TasksFragment extends Fragment {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+
+    // ✅ Flag to track if observer is already registered
+    private boolean isObserverRegistered = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -290,40 +294,48 @@ public class TasksFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
-        requireActivity().runOnUiThread(() -> {
-            if (progressBar != null) progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-            if (emptyLayout != null) emptyLayout.setVisibility(View.GONE);
-        });
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (progressBar != null) progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+                if (emptyLayout != null) emptyLayout.setVisibility(View.GONE);
+            });
+        }
     }
 
     private void showEmpty(boolean show, String title, String subtitle) {
-        if (emptyLayout != null) {
-            emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (emptyLayout != null) {
+                    emptyLayout.setVisibility(show ? View.VISIBLE : View.GONE);
 
-            if (show) {
-                // Find and update the TextViews inside the empty layout
-                if (emptyLayout.getChildCount() >= 3) {
-                    View titleView = emptyLayout.getChildAt(1);
-                    View subtitleView = emptyLayout.getChildAt(2);
+                    if (show) {
+                        // Find and update the TextViews inside the empty layout
+                        if (emptyLayout.getChildCount() >= 3) {
+                            View titleView = emptyLayout.getChildAt(1);
+                            View subtitleView = emptyLayout.getChildAt(2);
 
-                    if (titleView instanceof TextView && title != null) {
-                        ((TextView) titleView).setText(title);
-                    }
+                            if (titleView instanceof TextView && title != null) {
+                                ((TextView) titleView).setText(title);
+                            }
 
-                    if (subtitleView instanceof TextView && subtitle != null) {
-                        ((TextView) subtitleView).setText(subtitle);
+                            if (subtitleView instanceof TextView && subtitle != null) {
+                                ((TextView) subtitleView).setText(subtitle);
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
-        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                if (recyclerView != null) recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+            });
+        }
     }
 
     private void showError(String message) {
-        android.widget.Toast.makeText(getContext(), message, android.widget.Toast.LENGTH_SHORT).show();
+        if (getContext() != null) {
+            android.widget.Toast.makeText(getContext(), message, android.widget.Toast.LENGTH_SHORT).show();
+        }
         showLoading(false);
         showEmpty(true, "Error", message);
     }

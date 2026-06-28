@@ -14,7 +14,9 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -141,6 +143,12 @@ public class AutoSyncWorker extends Worker {
                 case "assignment":
                 case "assignments":
                     syncAssignment(syncItem);
+                    break;
+                case "suppliers":
+                    syncSupplier(syncItem);
+                    break;
+                case "quality_batch":
+                    syncQualityBatch(syncItem);
                     break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
@@ -342,6 +350,78 @@ public class AutoSyncWorker extends Worker {
 
                 firebaseManager.deleteTask(farmId, task.getId(), assignments);
                 Log.d(TAG, "Task deleted from Firestore: " + task.getTitle());
+                break;
+        }
+    }
+
+    // Add this new method
+    // In AutoSyncWorker.java, update the syncSupplier method:
+
+    private void syncSupplier(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncSupplier called: ID=" + syncItem.getEntityId() + " action=" + syncItem.getAction());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                SupplierEntity supplier = database.supplierDao().getSupplierById(syncItem.getEntityId());
+                if (supplier == null) {
+                    Log.e(TAG, "Supplier not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                firebaseManager.saveSupplier(supplier, farmId);
+                Log.d(TAG, "Supplier saved to Firestore: " + supplier.getName());
+                break;
+
+            case DELETE:
+                // For DELETE, the supplier might already be gone from local DB
+                Log.d(TAG, "Deleting supplier from Firestore: ID=" + syncItem.getEntityId());
+                try {
+                    // First, delete all associated quality batches from Firestore
+                    List<QualityBatchEntity> batches = database.qualityBatchDao()
+                            .getBatchesBySupplierIdSync(syncItem.getEntityId());
+
+                    for (QualityBatchEntity batch : batches) {
+                        firebaseManager.deleteQualityBatch(farmId, batch.getId());
+                        Log.d(TAG, "Deleted associated batch from Firestore: " + batch.getBatchNumber());
+                    }
+
+                    // Then delete the supplier
+                    firebaseManager.deleteSupplier(farmId, syncItem.getEntityId());
+                    Log.d(TAG, "Supplier deleted from Firestore: ID=" + syncItem.getEntityId());
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete supplier from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    // Update syncQualityBatch method:
+    private void syncQualityBatch(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncQualityBatch called: ID=" + syncItem.getEntityId() + " action=" + syncItem.getAction());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                QualityBatchEntity batch = database.qualityBatchDao().getBatchById(syncItem.getEntityId());
+                if (batch == null) {
+                    Log.e(TAG, "Quality batch not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                firebaseManager.saveQualityBatch(batch, farmId);
+                Log.d(TAG, "Quality batch saved to Firestore: " + batch.getBatchNumber());
+                break;
+
+            case DELETE:
+                // For DELETE, the batch might already be gone from local DB
+                Log.d(TAG, "Deleting quality batch from Firestore: ID=" + syncItem.getEntityId());
+                try {
+                    firebaseManager.deleteQualityBatch(farmId, syncItem.getEntityId());
+                    Log.d(TAG, "Quality batch deleted from Firestore: ID=" + syncItem.getEntityId());
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete quality batch from Firestore", e);
+                    throw e;
+                }
                 break;
         }
     }

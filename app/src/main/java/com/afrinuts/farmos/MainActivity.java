@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
     private SyncStatusReceiver syncReceiver;
     private boolean isSyncInitialized = false;
 
+    private static ExecutorService backgroundExecutor;
+
     // UI Elements - Bottom Navigation
     private LinearLayout navHome;
     private LinearLayout navFarm;
@@ -274,16 +276,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        // Cancel any pending Firestore operations if possible
+        // (You'd need to store the Firestore listener registration)
+
         // Shutdown executor gracefully
         if (databaseExecutor != null && !databaseExecutor.isShutdown()) {
             databaseExecutor.shutdown();
             try {
-                // Wait up to 1 second for tasks to complete
-                if (!databaseExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                if (!databaseExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                     databaseExecutor.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 databaseExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -1450,6 +1455,12 @@ public class MainActivity extends AppCompatActivity {
     private void loadUsersFromFirestore() {
         if (currentFarm == null) return;
 
+        // Check if activity is finishing or executor is shutdown
+        if (isFinishing() || isDestroyed() || databaseExecutor == null || databaseExecutor.isShutdown()) {
+            Log.d(TAG, "Activity is finishing or executor shutdown, skipping user sync");
+            return;
+        }
+
         Log.d(TAG, "Loading users from Firestore for farm: " + currentFarm.getId());
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -1459,7 +1470,12 @@ public class MainActivity extends AppCompatActivity {
                 .whereEqualTo("farmId", farmId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Collect all users first (still on main thread, but just parsing)
+                    // Check again before processing
+                    if (isFinishing() || isDestroyed() || databaseExecutor == null || databaseExecutor.isShutdown()) {
+                        Log.d(TAG, "Activity destroyed during Firestore callback, skipping");
+                        return;
+                    }
+
                     List<UserEntity> firestoreUsers = new ArrayList<>();
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
@@ -1471,20 +1487,29 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d(TAG, "Found " + firestoreUsers.size() + " users in Firestore");
 
+                    // Check again before submitting to executor
+                    if (isFinishing() || isDestroyed() || databaseExecutor == null || databaseExecutor.isShutdown()) {
+                        Log.d(TAG, "Activity destroyed before executor submission, skipping");
+                        return;
+                    }
+
                     // Move database operations to background thread
                     databaseExecutor.execute(() -> {
+                        // Check again inside the background thread
+                        if (isFinishing() || isDestroyed()) {
+                            Log.d(TAG, "Activity destroyed during background execution, skipping");
+                            return;
+                        }
+
                         for (UserEntity user : firestoreUsers) {
                             try {
-                                // Check if user exists by email
                                 UserEntity existing = database.userDao().getUserByEmail(user.getEmail());
 
                                 if (existing == null) {
-                                    // Insert new user
                                     long id = database.userDao().insert(user);
                                     user.setLocalId(id);
                                     Log.d(TAG, "✅ Inserted new user: " + user.getEmail());
                                 } else {
-                                    // Update existing user, preserving localId
                                     user.setLocalId(existing.getLocalId());
                                     database.userDao().update(user);
                                     Log.d(TAG, "✅ Updated existing user: " + user.getEmail());
@@ -1494,14 +1519,19 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        // After all users are processed, run on UI thread if needed
-                        runOnUiThread(() -> {
-                            // Optional: Refresh UI or show completion message
-                            Log.d(TAG, "✅ User sync completed from Firestore");
-                        });
+                        // Update UI if activity is still alive
+                        if (!isFinishing() && !isDestroyed()) {
+                            runOnUiThread(() -> {
+                                Log.d(TAG, "✅ User sync completed from Firestore");
+                            });
+                        }
                     });
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to load users from Firestore", e));
+                .addOnFailureListener(e -> {
+                    if (!isFinishing() && !isDestroyed()) {
+                        Log.e(TAG, "❌ Failed to load users from Firestore", e);
+                    }
+                });
     }
 
     // ========================================

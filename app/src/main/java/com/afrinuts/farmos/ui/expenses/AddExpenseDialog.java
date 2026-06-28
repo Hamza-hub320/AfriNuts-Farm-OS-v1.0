@@ -9,14 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -24,8 +21,12 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -47,29 +48,43 @@ public class AddExpenseDialog extends DialogFragment {
     private long farmId;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
+    private List<QualityBatchEntity> allBatches;
+    private List<SupplierEntity> allSuppliers;
     private ExpenseRepository expenseRepository;
+    private QualityBatchRepository batchRepository;
+    private SupplierRepository supplierRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
     private TextInputEditText etAmount;
     private MaterialAutoCompleteTextView etCategory;
     private TextInputEditText etDate;
+
+    // Expense Scope
+    private View layoutExpenseScope;  // ✅ Container for expense scope
     private MaterialButtonToggleGroup toggleExpenseType;
     private Button btnFarmWide;
     private Button btnBlockSpecific;
     private TextInputLayout layoutBlockSelector;
     private MaterialAutoCompleteTextView etBlock;
+
     private TextInputEditText etDescription;
 
+    // ✅ Procurement UI Elements
+    private View layoutProcurementSection;  // ✅ Container for procurement section
+    private TextInputLayout layoutSupplierSelector;
+    private MaterialAutoCompleteTextView etSupplier;
+    private TextInputLayout layoutBatchSelector;
+    private MaterialAutoCompleteTextView etBatch;
+
     private Calendar selectedDate = Calendar.getInstance();
-    private boolean isFarmWide = true; // Default to farm-wide
+    private boolean isFarmWide = true;
 
-    // Store the selected category
     private ExpenseEntity.ExpenseCategory selectedCategory = null;
-
-    // Store the display names for the dropdown
-    private String[] categoryDisplayNames;
-    private ExpenseEntity.ExpenseCategory[] categories;
+    private Long selectedBatchId = null;
+    private Long selectedSupplierId = null;
+    private String selectedBatchNumber = null;
+    private String selectedSupplierName = null;
 
     public interface OnExpenseAddedListener {
         void onExpenseAdded();
@@ -97,14 +112,9 @@ public class AddExpenseDialog extends DialogFragment {
             farmId = getArguments().getLong(ARG_FARM_ID);
         }
 
-        // Initialize repository
         expenseRepository = new ExpenseRepository(requireContext(), farmId);
-
-        // Load data in background
-        executor.execute(() -> {
-            // We still need direct DB access for blocks until we create BlockRepository
-            // For now, we'll keep direct DB access
-        });
+        batchRepository = new QualityBatchRepository(requireContext(), farmId);
+        supplierRepository = new SupplierRepository(requireContext(), farmId);
     }
 
     @NonNull
@@ -117,6 +127,7 @@ public class AddExpenseDialog extends DialogFragment {
         setupDatePicker();
         setupExpenseTypeToggle();
         loadBlocksForDropdown();
+        loadSuppliersForDropdown();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -127,7 +138,6 @@ public class AddExpenseDialog extends DialogFragment {
         dialog.setOnShowListener(dialogInterface -> {
             Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
             btnSave.setVisibility(View.GONE);
             btnCancel.setVisibility(View.GONE);
         });
@@ -139,12 +149,23 @@ public class AddExpenseDialog extends DialogFragment {
         etAmount = view.findViewById(R.id.etAmount);
         etCategory = view.findViewById(R.id.etCategory);
         etDate = view.findViewById(R.id.etDate);
+
+        // Expense Scope
+        layoutExpenseScope = view.findViewById(R.id.layoutExpenseScope);
         toggleExpenseType = view.findViewById(R.id.toggleExpenseType);
         btnFarmWide = view.findViewById(R.id.btnFarmWide);
         btnBlockSpecific = view.findViewById(R.id.btnBlockSpecific);
         layoutBlockSelector = view.findViewById(R.id.layoutBlockSelector);
         etBlock = view.findViewById(R.id.etBlock);
+
         etDescription = view.findViewById(R.id.etDescription);
+
+        // ✅ Procurement UI Elements
+        layoutProcurementSection = view.findViewById(R.id.layoutProcurementSection);
+        layoutSupplierSelector = view.findViewById(R.id.layoutSupplierSelector);
+        etSupplier = view.findViewById(R.id.etSupplier);
+        layoutBatchSelector = view.findViewById(R.id.layoutBatchSelector);
+        etBatch = view.findViewById(R.id.etBatch);
 
         Button btnCancel = view.findViewById(R.id.btnCancel);
         Button btnSave = view.findViewById(R.id.btnSave);
@@ -158,65 +179,9 @@ public class AddExpenseDialog extends DialogFragment {
         // Default to farm-wide selected
         toggleExpenseType.check(R.id.btnFarmWide);
         layoutBlockSelector.setVisibility(View.GONE);
-    }
 
-    private void setupCategoryDropdown() {
-        categories = ExpenseEntity.ExpenseCategory.values();
-
-        // Create array of display names
-        categoryDisplayNames = new String[categories.length];
-        for (int i = 0; i < categories.length; i++) {
-            categoryDisplayNames[i] = categories[i].getDisplayName();
-        }
-
-        // Create a simple ArrayAdapter with display names
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                categoryDisplayNames) {
-
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext())
-                            .inflate(R.layout.item_category_dropdown, parent, false);
-                }
-
-                ImageView iconView = convertView.findViewById(R.id.categoryIcon);
-                TextView textView = convertView.findViewById(R.id.categoryName);
-
-                // Get the actual category enum for this position
-                ExpenseEntity.ExpenseCategory category = categories[position];
-
-                // Set vector icon using ExpenseIconHelper
-                iconView.setImageResource(ExpenseIconHelper.getCategoryIconResId(category));
-                iconView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary));
-
-                // Set display name
-                textView.setText(categoryDisplayNames[position]);
-
-                return convertView;
-            }
-
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                return getView(position, convertView, parent);
-            }
-        };
-
-        etCategory.setAdapter(adapter);
-
-        // Set item click listener to capture the selected category
-        etCategory.setOnItemClickListener((parent, view, position, id) -> {
-            selectedCategory = categories[position];
-
-            // Auto-fill description if available
-            if (selectedCategory.getDefaultDescription() != null &&
-                    TextUtils.isEmpty(etDescription.getText())) {
-                etDescription.setText(selectedCategory.getDefaultDescription());
-            }
-        });
+        // Hide procurement section initially
+        layoutProcurementSection.setVisibility(View.GONE);
     }
 
     private void setupDatePicker() {
@@ -266,7 +231,6 @@ public class AddExpenseDialog extends DialogFragment {
 
     private void loadBlocksForDropdown() {
         executor.execute(() -> {
-            // For now, use direct DB access until we create BlockRepository
             AppDatabase database = AppDatabase.getInstance(requireContext());
             allBlocks = database.blockDao().getBlocksByFarmId(farmId);
 
@@ -283,6 +247,127 @@ public class AddExpenseDialog extends DialogFragment {
                             blockNames
                     );
                     etBlock.setAdapter(adapter);
+                });
+            }
+        });
+    }
+
+    private void setupCategoryDropdown() {
+        ExpenseEntity.ExpenseCategory[] categories = ExpenseEntity.ExpenseCategory.values();
+        String[] categoryDisplayNames = new String[categories.length];
+        for (int i = 0; i < categories.length; i++) {
+            categoryDisplayNames[i] = categories[i].getDisplayName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                categoryDisplayNames
+        );
+
+        etCategory.setAdapter(adapter);
+
+        etCategory.setOnItemClickListener((parent, view, position, id) -> {
+            selectedCategory = categories[position];
+
+            // ✅ Check if category is procurement-related
+            boolean isProcurement = selectedCategory == ExpenseEntity.ExpenseCategory.PROCUREMENT ||
+                    selectedCategory == ExpenseEntity.ExpenseCategory.TRANSPORT ||
+                    selectedCategory == ExpenseEntity.ExpenseCategory.QUALITY_TESTING ||
+                    selectedCategory == ExpenseEntity.ExpenseCategory.STORAGE;
+
+            if (isProcurement) {
+                // ✅ Hide Expense Scope for procurement
+                layoutExpenseScope.setVisibility(View.GONE);
+
+                // ✅ Show Procurement Section
+                layoutProcurementSection.setVisibility(View.VISIBLE);
+                layoutSupplierSelector.setVisibility(View.VISIBLE);
+                layoutBatchSelector.setVisibility(View.VISIBLE);
+
+                // Load suppliers if not loaded
+                if (allSuppliers == null || allSuppliers.isEmpty()) {
+                    loadSuppliersForDropdown();
+                }
+            } else {
+                // ✅ Show Expense Scope for farm expenses
+                layoutExpenseScope.setVisibility(View.VISIBLE);
+
+                // ✅ Hide Procurement Section
+                layoutProcurementSection.setVisibility(View.GONE);
+                layoutSupplierSelector.setVisibility(View.GONE);
+                layoutBatchSelector.setVisibility(View.GONE);
+
+                // Clear procurement selections
+                selectedSupplierId = null;
+                selectedSupplierName = null;
+                selectedBatchId = null;
+                selectedBatchNumber = null;
+                etSupplier.setText("");
+                etBatch.setText("");
+            }
+        });
+    }
+
+    // ✅ Load suppliers for dropdown
+    private void loadSuppliersForDropdown() {
+        executor.execute(() -> {
+            allSuppliers = supplierRepository.getSuppliersSync();
+
+            List<String> supplierNames = new ArrayList<>();
+            for (SupplierEntity supplier : allSuppliers) {
+                supplierNames.add(supplier.getName() + " (" + supplier.getType().getDisplayName() + ")");
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            supplierNames
+                    );
+                    etSupplier.setAdapter(adapter);
+
+                    // ✅ When supplier is selected, load their batches
+                    etSupplier.setOnItemClickListener((parent, view, position, id) -> {
+                        SupplierEntity selectedSupplier = allSuppliers.get(position);
+                        selectedSupplierId = selectedSupplier.getId();
+                        selectedSupplierName = selectedSupplier.getName();
+
+                        // Load batches for this supplier
+                        loadBatchesForSupplier(selectedSupplierId);
+                    });
+                });
+            }
+        });
+    }
+
+    // ✅ Load batches for a specific supplier
+    private void loadBatchesForSupplier(long supplierId) {
+        executor.execute(() -> {
+            List<QualityBatchEntity> supplierBatches =
+                    batchRepository.getBatchesBySupplierIdSync(supplierId);
+
+            List<String> batchDisplayNames = new ArrayList<>();
+            for (QualityBatchEntity batch : supplierBatches) {
+                batchDisplayNames.add(batch.getBatchNumber() + " - " +
+                        batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)");
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            batchDisplayNames
+                    );
+                    etBatch.setAdapter(adapter);
+
+                    etBatch.setOnItemClickListener((parent, view, position, id) -> {
+                        QualityBatchEntity selectedBatch = supplierBatches.get(position);
+                        selectedBatchId = selectedBatch.getId();
+                        selectedBatchNumber = selectedBatch.getBatchNumber();
+                    });
                 });
             }
         });
@@ -308,33 +393,54 @@ public class AddExpenseDialog extends DialogFragment {
             return;
         }
 
-        // Validate category was selected
         if (selectedCategory == null) {
             Toast.makeText(getContext(), "Please select a category", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Validate block if block-specific
+        // ✅ Check if procurement category
+        boolean isProcurement = selectedCategory == ExpenseEntity.ExpenseCategory.PROCUREMENT ||
+                selectedCategory == ExpenseEntity.ExpenseCategory.TRANSPORT ||
+                selectedCategory == ExpenseEntity.ExpenseCategory.QUALITY_TESTING ||
+                selectedCategory == ExpenseEntity.ExpenseCategory.STORAGE;
+
         Long blockId = null;
-        if (!isFarmWide) {
-            String blockStr = etBlock.getText().toString().trim();
-            if (TextUtils.isEmpty(blockStr)) {
-                etBlock.setError("Please select a block");
+
+        if (isProcurement) {
+            // ✅ Validate procurement fields
+            if (selectedSupplierId == null) {
+                Toast.makeText(getContext(), "Please select a supplier", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Find block ID from name
-            String blockName = blockStr.split(" - ")[0];
-            for (BlockEntity block : allBlocks) {
-                if (block.getBlockName().equals(blockName)) {
-                    blockId = block.getId();
-                    break;
+            if (selectedBatchId == null) {
+                Toast.makeText(getContext(), "Please select a batch", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            // ✅ Validate block if block-specific (farm expenses only)
+            if (!isFarmWide) {
+                String blockStr = etBlock.getText().toString().trim();
+                if (TextUtils.isEmpty(blockStr)) {
+                    etBlock.setError("Please select a block");
+                    return;
                 }
-            }
 
-            if (blockId == null) {
-                Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
-                return;
+                // Find block ID from name
+                if (allBlocks != null) {
+                    String blockName = blockStr.split(" - ")[0];
+                    for (BlockEntity block : allBlocks) {
+                        if (block.getBlockName().equals(blockName)) {
+                            blockId = block.getId();
+                            break;
+                        }
+                    }
+                }
+
+                if (blockId == null) {
+                    Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
         }
 
@@ -346,31 +452,31 @@ public class AddExpenseDialog extends DialogFragment {
 
         long date = selectedDate.getTimeInMillis();
 
-        // Create expense object
+        // Create expense with batch and supplier info
         ExpenseEntity expense = new ExpenseEntity(
                 farmId,
                 blockId,
+                isProcurement ? selectedBatchId : null,
+                isProcurement ? selectedSupplierId : null,
                 selectedCategory,
                 amount,
                 date,
                 description
         );
 
-        // Show loading state
-        Button btnSave = getDialog() != null ? getDialog().findViewById(R.id.btnSave) : null;
-        if (btnSave != null) {
-            btnSave.setEnabled(false);
-            btnSave.setText("Saving...");
+        // Set denormalized fields for quick display
+        if (isProcurement) {
+            expense.setBatchNumber(selectedBatchNumber);
+            expense.setSupplierName(selectedSupplierName);
         }
 
-        // Use repository to save
+        // Save using repository
         expenseRepository.insertExpense(expense, new BaseRepository.InsertCallback() {
             @Override
             public void onSuccess(long id) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(),
-                                "Expense added successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Expense added successfully!", Toast.LENGTH_SHORT).show();
                         if (listener != null) {
                             listener.onExpenseAdded();
                         }
@@ -383,12 +489,7 @@ public class AddExpenseDialog extends DialogFragment {
             public void onError(String error) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(),
-                                "Error adding expense: " + error, Toast.LENGTH_LONG).show();
-                        if (btnSave != null) {
-                            btnSave.setEnabled(true);
-                            btnSave.setText("Save Expense");
-                        }
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
                     });
                 }
             }
@@ -400,6 +501,12 @@ public class AddExpenseDialog extends DialogFragment {
         super.onDestroy();
         if (expenseRepository != null) {
             expenseRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
+        }
+        if (supplierRepository != null) {
+            supplierRepository.shutdown();
         }
         executor.shutdown();
     }

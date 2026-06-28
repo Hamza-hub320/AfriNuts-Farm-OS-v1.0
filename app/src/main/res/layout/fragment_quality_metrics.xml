@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="?android:attr/colorBackground">
 
-    <!-- Summary Cards Row - 4 cards across -->
+    <!-- Summary Cards Row - 4 cards across with Glass Morphism -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="8dp"
         android:weightSum="4">
 
         <!-- Avg Moisture Card -->
@@ -19,9 +19,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_margin="2dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="1dp"
+            app:cardElevation="4dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -36,8 +36,8 @@
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:text="Moisture"
                     style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
 
@@ -78,10 +78,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
+            android:layout_margin="2dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="1dp"
+            app:cardElevation="4dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -96,8 +95,8 @@
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
@@ -125,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:text="Defective"
                     style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
 
@@ -138,14 +137,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
+            android:layout_margin="2dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="1dp"
+            app:cardElevation="4dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -156,8 +155,8 @@
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
@@ -185,7 +184,7 @@
                     android:layout_height="wrap_content"
                     android:text="Kernel"
                     style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
 
@@ -198,13 +197,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="2dp"
+            android:layout_margin="2dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="1dp"
+            app:cardElevation="4dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -215,8 +215,8 @@
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
@@ -244,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:text="Nut Count"
                     style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
 
@@ -254,21 +254,20 @@
 
     </LinearLayout>
 
-    <!-- Row 2: Quality Score -->
+    <!-- Row 2: Quality Score with Glass Morphism -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="8dp"
         android:paddingBottom="8dp">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_margin="2dp"
             app:cardCornerRadius="24dp"
-            app:cardElevation="1dp"
+            app:cardElevation="4dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -283,13 +282,13 @@
                 android:background="?attr/cardBackgroundPrimary">
 
                 <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/iconBackgroundGlass">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_star"
                         app:tint="?attr/colorPrimary"
@@ -319,7 +318,7 @@
                         android:layout_height="wrap_content"
                         android:text="Avg Quality Score"
                         style="@style/Text.Caption.Small"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.7" />
 
@@ -331,7 +330,7 @@
 
     </LinearLayout>
 
-    <!-- Filter Chips -->
+    <!-- Filter Chips with Glass Morphism -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -344,8 +343,8 @@
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             app:selectionRequired="true"
             app:singleSelection="true">
 
@@ -355,8 +354,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="All Batches"
-                android:textSize="13sp"
+                android:text="All"
+                android:textSize="12sp"
                 app:chipIcon="@drawable/ic_view_list"
                 app:chipIconTint="?attr/colorPrimary" />
 
@@ -365,8 +364,8 @@
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⭐ Premium"
-                android:textSize="13sp"
+                android:text="Premium"
+                android:textSize="12sp"
                 app:chipIcon="@drawable/ic_star"
                 app:chipIconTint="?attr/colorPrimary" />
 
@@ -375,8 +374,8 @@
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✓ Standard"
-                android:textSize="13sp"
+                android:text="Standard"
+                android:textSize="12sp"
                 app:chipIcon="@drawable/ic_check_circle"
                 app:chipIconTint="?attr/colorSecondary" />
 
@@ -385,8 +384,8 @@
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚙️ Processing"
-                android:textSize="13sp"
+                android:text="Processing"
+                android:textSize="12sp"
                 app:chipIcon="@drawable/ic_construction"
                 app:chipIconTint="?attr/colorOnSurface" />
 
@@ -405,25 +404,45 @@
         android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone" />
 
-    <!-- Empty State -->
+    <!-- Empty State with Glass Morphism -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
         android:visibility="gone">
 
         <FrameLayout
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:background="?attr/iconBackgroundGlass"
             android:padding="8dp">
 
+            <!-- Edge Effect -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_edge_effect"
+                android:alpha="0.3" />
+
+            <!-- Glassy Overlay -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_glassy_overlay"
+                android:alpha="0.4" />
+
+            <!-- Inner Shadow -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_inner_shadow" />
+
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_inventory"
                 app:tint="?attr/colorOnSurface"
@@ -459,9 +478,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="6dp"
+        android:padding="4dp"
         android:clipToPadding="false"
         android:visibility="gone"
-        android:background="@color/background" />
+        android:background="?android:attr/colorBackground" />
 
 </LinearLayout>

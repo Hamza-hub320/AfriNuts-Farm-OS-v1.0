@@ -2,9 +2,13 @@ package com.afrinuts.farmos.data.local.entity;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 @Entity(tableName = "revenues",
         foreignKeys = {
@@ -19,6 +23,18 @@ import com.afrinuts.farmos.R;
                         parentColumns = "id",
                         childColumns = "blockId",
                         onDelete = ForeignKey.SET_NULL
+                ),
+                @ForeignKey(
+                        entity = QualityBatchEntity.class,
+                        parentColumns = "id",
+                        childColumns = "batchId",
+                        onDelete = ForeignKey.SET_NULL
+                ),
+                @ForeignKey(
+                        entity = SupplierEntity.class,
+                        parentColumns = "id",
+                        childColumns = "supplierId",
+                        onDelete = ForeignKey.SET_NULL
                 )
         })
 public class RevenueEntity {
@@ -29,6 +45,10 @@ public class RevenueEntity {
     private long farmId;
     private Long blockId;  // null for farm-wide revenue (e.g., processing center sales)
 
+    // ✅ New fields for batch/supplier tracking
+    private Long batchId;        // Link to quality batch
+    private Long supplierId;     // Link to supplier
+
     private long harvestDate;
     private double quantityKg;
     private double pricePerKg;
@@ -38,14 +58,17 @@ public class RevenueEntity {
     private QualityGrade quality;  // PREMIUM, STANDARD, etc.
     private String notes;
 
+    // ✅ Denormalized fields for quick display
+    private String batchNumber;
+    private String supplierName;
+
     // Audit timestamps
     private long createdAt;
     private long updatedAt;
 
     private String harvestCycleId;
-    private int harvestYear = 0;      // Default value
-    private int harvestSeason = 1;    // Default value (first harvest)
-
+    private int harvestYear = 0;
+    private int harvestSeason = 1;
 
     public enum QualityGrade {
         PREMIUM("Premium", "Premium Grade", R.drawable.ic_star),
@@ -54,7 +77,7 @@ public class RevenueEntity {
 
         private final String displayName;
         private final String description;
-        private final int iconResId; // Store vector icon resource ID
+        private final int iconResId;
 
         QualityGrade(String displayName, String description, int iconResId) {
             this.displayName = displayName;
@@ -64,15 +87,17 @@ public class RevenueEntity {
 
         public String getDisplayName() { return displayName; }
         public String getDescription() { return description; }
-        public int getIconResId() { return iconResId; } // New getter for vector icon
+        public int getIconResId() { return iconResId; }
     }
 
-    // Constructor
-    public RevenueEntity(long farmId, Long blockId, long harvestDate,
-                         double quantityKg, double pricePerKg,
+    // ✅ Primary constructor with batch/supplier support
+    public RevenueEntity(long farmId, Long blockId, Long batchId, Long supplierId,
+                         long harvestDate, double quantityKg, double pricePerKg,
                          String buyer, QualityGrade quality, String notes) {
         this.farmId = farmId;
         this.blockId = blockId;
+        this.batchId = batchId;
+        this.supplierId = supplierId;
         this.harvestDate = harvestDate;
         this.quantityKg = quantityKg;
         this.pricePerKg = pricePerKg;
@@ -86,6 +111,14 @@ public class RevenueEntity {
         this.updatedAt = now;
     }
 
+    // ✅ Convenience constructor (backward compatible)
+    @Ignore
+    public RevenueEntity(long farmId, Long blockId, long harvestDate,
+                         double quantityKg, double pricePerKg,
+                         String buyer, QualityGrade quality, String notes) {
+        this(farmId, blockId, null, null, harvestDate, quantityKg, pricePerKg, buyer, quality, notes);
+    }
+
     // Getters and Setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
@@ -96,6 +129,18 @@ public class RevenueEntity {
     public Long getBlockId() { return blockId; }
     public void setBlockId(Long blockId) {
         this.blockId = blockId;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public Long getBatchId() { return batchId; }
+    public void setBatchId(Long batchId) {
+        this.batchId = batchId;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public Long getSupplierId() { return supplierId; }
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
         this.updatedAt = System.currentTimeMillis();
     }
 
@@ -120,11 +165,7 @@ public class RevenueEntity {
     }
 
     public double getTotalAmount() { return totalAmount; }
-
-    // Required by Room for hydration from database
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
 
     public String getBuyer() { return buyer; }
     public void setBuyer(String buyer) {
@@ -141,6 +182,18 @@ public class RevenueEntity {
     public String getNotes() { return notes; }
     public void setNotes(String notes) {
         this.notes = notes;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getBatchNumber() { return batchNumber; }
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
         this.updatedAt = System.currentTimeMillis();
     }
 
@@ -164,6 +217,10 @@ public class RevenueEntity {
         return blockId == null;
     }
 
+    public boolean isProcurementRelated() {
+        return batchId != null || supplierId != null;
+    }
+
     public String getFormattedTotal() {
         return String.format("%,.0f XAF", totalAmount);
     }
@@ -174,6 +231,22 @@ public class RevenueEntity {
 
     public String getFormattedPrice() {
         return String.format("%,.0f XAF/kg", pricePerKg);
+    }
+
+    public String getFormattedDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        return sdf.format(new java.util.Date(harvestDate));
+    }
+
+    public String getProcurementInfo() {
+        if (batchNumber != null && supplierName != null) {
+            return "📦 Batch: " + batchNumber + " | 🏢 Supplier: " + supplierName;
+        } else if (batchNumber != null) {
+            return "📦 Batch: " + batchNumber;
+        } else if (supplierName != null) {
+            return "🏢 Supplier: " + supplierName;
+        }
+        return "—";
     }
 
     public static String generateHarvestCycleId(long blockId, int year) {

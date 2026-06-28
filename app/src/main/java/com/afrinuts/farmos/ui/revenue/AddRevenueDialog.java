@@ -1,7 +1,5 @@
 package com.afrinuts.farmos.ui.revenue;
 
-import static android.content.ContentValues.TAG;
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -26,9 +24,13 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -45,6 +47,7 @@ import java.util.concurrent.Executors;
 
 public class AddRevenueDialog extends DialogFragment {
 
+    private static final String TAG = "AddRevenueDialog";  // ✅ Add TAG constant
     private static final String ARG_FARM_ID = "farm_id";
     private static final String ARG_EDIT_MODE = "edit_mode";
     private static final String ARG_REVENUE_ID = "revenue_id";
@@ -57,8 +60,12 @@ public class AddRevenueDialog extends DialogFragment {
     private RevenueEntity existingRevenue = null;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
+    private List<QualityBatchEntity> allBatches;
+    private List<SupplierEntity> allSuppliers;
     private AppDatabase database;
     private RevenueRepository revenueRepository;
+    private QualityBatchRepository batchRepository;
+    private SupplierRepository supplierRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -77,9 +84,22 @@ public class AddRevenueDialog extends DialogFragment {
     private TextInputEditText etNotes;
     private TextView tvTotalAmount;
 
+    // ✅ Procurement UI Elements
+    private View layoutProcurementSection;
+    private TextInputLayout layoutSupplierSelector;
+    private MaterialAutoCompleteTextView etSupplier;
+    private TextInputLayout layoutBatchSelector;
+    private MaterialAutoCompleteTextView etBatch;
+
     private Calendar selectedDate = Calendar.getInstance();
     private boolean isPerBlock = true;
     private RevenueEntity.QualityGrade selectedQuality = RevenueEntity.QualityGrade.PREMIUM;
+
+    // ✅ Procurement tracking fields
+    private Long selectedSupplierId = null;
+    private Long selectedBatchId = null;
+    private String selectedSupplierName = null;
+    private String selectedBatchNumber = null;
 
     public interface OnRevenueAddedListener {
         void onRevenueAdded();
@@ -125,6 +145,8 @@ public class AddRevenueDialog extends DialogFragment {
 
         database = AppDatabase.getInstance(requireContext());
         revenueRepository = new RevenueRepository(requireContext(), farmId);
+        batchRepository = new QualityBatchRepository(requireContext(), farmId);
+        supplierRepository = new SupplierRepository(requireContext(), farmId);
 
         // Load data in background
         executor.execute(() -> {
@@ -151,6 +173,7 @@ public class AddRevenueDialog extends DialogFragment {
         setupRevenueTypeToggle();
         loadBlocksForDropdown();
         setupTotalCalculation();
+        loadSuppliersForDropdown();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -179,6 +202,13 @@ public class AddRevenueDialog extends DialogFragment {
         etNotes = view.findViewById(R.id.etNotes);
         tvTotalAmount = view.findViewById(R.id.tvTotalAmount);
 
+        // ✅ Procurement UI Elements
+        layoutProcurementSection = view.findViewById(R.id.layoutProcurementSection);
+        layoutSupplierSelector = view.findViewById(R.id.layoutSupplierSelector);
+        etSupplier = view.findViewById(R.id.etSupplier);
+        layoutBatchSelector = view.findViewById(R.id.layoutBatchSelector);
+        etBatch = view.findViewById(R.id.etBatch);
+
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
 
@@ -188,6 +218,7 @@ public class AddRevenueDialog extends DialogFragment {
             btnSave.setText("Update Revenue");
             btnSave.setOnClickListener(v -> updateRevenue());
         } else {
+            btnSave.setText("Add Revenue");
             btnSave.setOnClickListener(v -> insertRevenue());
         }
 
@@ -217,32 +248,34 @@ public class AddRevenueDialog extends DialogFragment {
         } else {
             toggleRevenueType.check(R.id.btnPerBlock);
             layoutBlockSelector.setVisibility(View.VISIBLE);
+            layoutProcurementSection.setVisibility(View.GONE);
         }
     }
 
+    // ✅ Fixed QualityGradeAdapter
     private class QualityGradeAdapter extends ArrayAdapter<RevenueEntity.QualityGrade> {
         private List<RevenueEntity.QualityGrade> grades;
 
         public QualityGradeAdapter(Context context, List<RevenueEntity.QualityGrade> grades) {
-            super(context, 0, grades);
+            super(context, 0, grades);  // ✅ Use 0 as layout resource, and pass grades list
             this.grades = grades;
         }
 
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createViewFromResource(position, convertView, parent, R.layout.item_quality_dropdown);
+            return createViewFromResource(position, convertView, parent);
         }
 
         @Override
         public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            return createViewFromResource(position, convertView, parent, R.layout.item_quality_dropdown);
+            return createViewFromResource(position, convertView, parent);
         }
 
-        private View createViewFromResource(int position, View convertView, ViewGroup parent, int resource) {
+        private View createViewFromResource(int position, View convertView, ViewGroup parent) {
             View view = convertView;
             if (view == null) {
-                view = LayoutInflater.from(getContext()).inflate(resource, parent, false);
+                view = LayoutInflater.from(getContext()).inflate(R.layout.item_quality_dropdown, parent, false);
             }
 
             RevenueEntity.QualityGrade grade = getItem(position);
@@ -336,9 +369,14 @@ public class AddRevenueDialog extends DialogFragment {
                 if (checkedId == R.id.btnPerBlock) {
                     isPerBlock = true;
                     layoutBlockSelector.setVisibility(View.VISIBLE);
+                    // ✅ Hide procurement section for block revenue
+                    layoutProcurementSection.setVisibility(View.GONE);
                 } else {
                     isPerBlock = false;
                     layoutBlockSelector.setVisibility(View.GONE);
+                    // ✅ Show procurement section for processing center revenue
+                    layoutProcurementSection.setVisibility(View.VISIBLE);
+                    loadSuppliersForDropdown();
                 }
             }
         });
@@ -357,43 +395,29 @@ public class AddRevenueDialog extends DialogFragment {
                 return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
             });
 
-            // Get the selected year from the harvest date picker
             int selectedYear = selectedDate.get(Calendar.YEAR);
-
-            // Get all revenues for this farm
             List<RevenueEntity> existingRevenues = database.revenueDao().getRevenuesByFarmId(farmId);
 
-            // Track blocks that have already been harvested THIS YEAR
             java.util.HashSet<Long> blocksHarvestedThisYear = new java.util.HashSet<>();
-            // Track how many harvests each block has had this year (for multiple harvests per year)
             java.util.HashMap<Long, Integer> blockHarvestCountThisYear = new java.util.HashMap<>();
 
             for (RevenueEntity revenue : existingRevenues) {
                 if (revenue.getBlockId() != null && revenue.getHarvestYear() == selectedYear) {
                     blocksHarvestedThisYear.add(revenue.getBlockId());
-
-                    // Count harvests per block this year
                     int count = blockHarvestCountThisYear.getOrDefault(revenue.getBlockId(), 0);
                     blockHarvestCountThisYear.put(revenue.getBlockId(), count + 1);
                 }
             }
 
-            // Maximum harvests per block per year (you can adjust this value)
-            int MAX_HARVESTS_PER_YEAR = 2;  // Allow up to 2 harvests per block per year
-
-            // Filter blocks that are available for harvest THIS YEAR
             List<String> availableBlockNames = new ArrayList<>();
             List<BlockEntity> availableBlocks = new ArrayList<>();
 
             for (BlockEntity block : sortedBlocks) {
-                // Only consider PLANTED blocks (mature enough to harvest)
                 if (!block.isPlanted()) {
                     continue;
                 }
 
                 int harvestsThisYear = blockHarvestCountThisYear.getOrDefault(block.getId(), 0);
-
-                // Block is available if it hasn't reached max harvests per year
                 if (harvestsThisYear < MAX_HARVESTS_PER_YEAR) {
                     String statusInfo = "";
                     if (harvestsThisYear > 0) {
@@ -409,18 +433,11 @@ public class AddRevenueDialog extends DialogFragment {
             requireActivity().runOnUiThread(() -> {
                 if (availableBlockNames.isEmpty()) {
                     etBlock.setEnabled(false);
-
-                    // Show helpful message based on why no blocks are available
                     boolean hasAnyPlanted = sortedBlocks.stream().anyMatch(BlockEntity::isPlanted);
                     if (hasAnyPlanted) {
                         etBlock.setText("All blocks have reached maximum harvests for " + selectedYear, false);
-                        Toast.makeText(getContext(),
-                                "All blocks have been harvested " + MAX_HARVESTS_PER_YEAR + " times in " + selectedYear +
-                                        ". Come back next year!", Toast.LENGTH_LONG).show();
                     } else {
                         etBlock.setText("No blocks are ready for harvest yet", false);
-                        Toast.makeText(getContext(),
-                                "No blocks are currently PLANTED and ready for harvest.", Toast.LENGTH_LONG).show();
                     }
                 } else {
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -431,7 +448,6 @@ public class AddRevenueDialog extends DialogFragment {
                     etBlock.setAdapter(adapter);
                     etBlock.setEnabled(true);
 
-                    // Auto-select the next available block
                     if (!isEditMode && !finalAvailableBlocks.isEmpty()) {
                         BlockEntity suggestedBlock = finalAvailableBlocks.get(0);
                         int harvestsSoFar = blockHarvestCountThisYear.getOrDefault(suggestedBlock.getId(), 0);
@@ -440,15 +456,70 @@ public class AddRevenueDialog extends DialogFragment {
                             suggestedText += " (Harvest #" + (harvestsSoFar + 1) + ")";
                         }
                         etBlock.setText(suggestedText, false);
-
-                        if (harvestsSoFar > 0) {
-                            Toast.makeText(getContext(),
-                                    "Suggested: " + suggestedBlock.getBlockName() + " - this will be harvest #" + (harvestsSoFar + 1) + " for " + selectedYear,
-                                    Toast.LENGTH_LONG).show();
-                        }
                     }
                 }
             });
+        });
+    }
+
+    // ✅ Load suppliers for procurement
+    private void loadSuppliersForDropdown() {
+        executor.execute(() -> {
+            allSuppliers = supplierRepository.getSuppliersSync();
+
+            List<String> supplierNames = new ArrayList<>();
+            for (SupplierEntity supplier : allSuppliers) {
+                supplierNames.add(supplier.getName() + " (" + supplier.getType().getDisplayName() + ")");
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            supplierNames
+                    );
+                    etSupplier.setAdapter(adapter);
+
+                    etSupplier.setOnItemClickListener((parent, view, position, id) -> {
+                        SupplierEntity selectedSupplier = allSuppliers.get(position);
+                        selectedSupplierId = selectedSupplier.getId();
+                        selectedSupplierName = selectedSupplier.getName();
+                        loadBatchesForSupplier(selectedSupplierId);
+                    });
+                });
+            }
+        });
+    }
+
+    // ✅ Load batches for a specific supplier
+    private void loadBatchesForSupplier(long supplierId) {
+        executor.execute(() -> {
+            List<QualityBatchEntity> supplierBatches =
+                    batchRepository.getBatchesBySupplierIdSync(supplierId);
+
+            List<String> batchDisplayNames = new ArrayList<>();
+            for (QualityBatchEntity batch : supplierBatches) {
+                batchDisplayNames.add(batch.getBatchNumber() + " - " +
+                        batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)");
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            batchDisplayNames
+                    );
+                    etBatch.setAdapter(adapter);
+
+                    etBatch.setOnItemClickListener((parent, view, position, id) -> {
+                        QualityBatchEntity selectedBatch = supplierBatches.get(position);
+                        selectedBatchId = selectedBatch.getId();
+                        selectedBatchNumber = selectedBatch.getBatchNumber();
+                    });
+                });
+            }
         });
     }
 
@@ -492,6 +563,7 @@ public class AddRevenueDialog extends DialogFragment {
     }
 
     private void insertRevenue() {
+        // Validate quantity
         String quantityStr = etQuantity.getText().toString().trim();
         if (TextUtils.isEmpty(quantityStr)) {
             etQuantity.setError("Quantity is required");
@@ -510,6 +582,7 @@ public class AddRevenueDialog extends DialogFragment {
             return;
         }
 
+        // Validate price
         String priceStr = etPricePerKg.getText().toString().trim();
         if (TextUtils.isEmpty(priceStr)) {
             etPricePerKg.setError("Price is required");
@@ -534,8 +607,13 @@ public class AddRevenueDialog extends DialogFragment {
         int selectedYear = selectedDate.get(Calendar.YEAR);
 
         Long blockId = null;
+        Long batchId = null;
+        Long supplierId = null;
+        String batchNumber = null;
+        String supplierName = null;
 
         if (isPerBlock) {
+            // ✅ Validate block for per-block revenue
             String blockStr = etBlock.getText().toString().trim();
             if (TextUtils.isEmpty(blockStr)) {
                 etBlock.setError("Please select a block");
@@ -555,21 +633,17 @@ public class AddRevenueDialog extends DialogFragment {
                 return;
             }
 
-            // ✅ MOVED TO BACKGROUND THREAD - Check block harvest history
             final Long finalBlockId = blockId;
             final String finalBlockName = blockName;
             btnSave.setEnabled(false);
             btnSave.setText("Saving...");
 
-
             executor.execute(() -> {
                 try {
-                    // Get harvests for this block in the selected year ONLY
                     List<RevenueEntity> blockHarvestsThisYear = database.revenueDao()
                             .getRevenuesByBlockIdAndYear(finalBlockId, selectedYear);
                     int harvestCountThisYear = blockHarvestsThisYear.size();
 
-                    // Check if max harvests reached for this year
                     if (harvestCountThisYear >= MAX_HARVESTS_PER_YEAR) {
                         requireActivity().runOnUiThread(() -> {
                             btnSave.setEnabled(true);
@@ -582,11 +656,9 @@ public class AddRevenueDialog extends DialogFragment {
                         return;
                     }
 
-                    // Season number is based on THIS YEAR's harvests
                     int seasonNumber = harvestCountThisYear + 1;
                     String cycleId = RevenueEntity.generateHarvestCycleId(finalBlockId, selectedYear);
 
-                    // Create revenue with harvest cycle tracking
                     RevenueEntity revenue = new RevenueEntity(
                             farmId,
                             finalBlockId,
@@ -602,7 +674,6 @@ public class AddRevenueDialog extends DialogFragment {
                     revenue.setHarvestSeason(seasonNumber);
                     revenue.setHarvestCycleId(cycleId);
 
-                    // Save to database
                     revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
                         @Override
                         public void onSuccess(long id) {
@@ -640,13 +711,31 @@ public class AddRevenueDialog extends DialogFragment {
             });
 
         } else {
-            // Processing Center revenue (no block assignment)
+            // ✅ Processing Center revenue with procurement support
+            // Validate procurement fields
+            if (selectedSupplierId == null) {
+                Toast.makeText(getContext(), "Please select a supplier", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (selectedBatchId == null) {
+                Toast.makeText(getContext(), "Please select a batch", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            supplierId = selectedSupplierId;
+            batchId = selectedBatchId;
+            batchNumber = selectedBatchNumber;
+            supplierName = selectedSupplierName;
+
             btnSave.setEnabled(false);
             btnSave.setText("Saving...");
 
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
                     null, // No block for processing center
+                    batchId,
+                    supplierId,
                     harvestDate,
                     quantity,
                     price,
@@ -655,9 +744,12 @@ public class AddRevenueDialog extends DialogFragment {
                     notes.isEmpty() ? null : notes
             );
 
-            // Processing center revenues don't need harvest cycle tracking
+            // Set denormalized fields for quick display
+            revenue.setBatchNumber(batchNumber);
+            revenue.setSupplierName(supplierName);
+
             revenue.setHarvestYear(selectedYear);
-            revenue.setHarvestSeason(0); // 0 indicates processing center
+            revenue.setHarvestSeason(0);
             revenue.setHarvestCycleId("PROCESSING_CENTER_YEAR_" + selectedYear);
 
             revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
@@ -686,49 +778,6 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             });
         }
-    }
-
-    private void proceedWithInsert(double quantity, double price, Long blockId,
-                                   String buyer, String notes, long harvestDate) {
-        btnSave.setEnabled(false);
-        btnSave.setText("Saving...");
-
-        RevenueEntity revenue = new RevenueEntity(
-                farmId,
-                blockId,
-                harvestDate,
-                quantity,
-                price,
-                buyer.isEmpty() ? null : buyer,
-                selectedQuality,
-                notes.isEmpty() ? null : notes
-        );
-
-        revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
-            @Override
-            public void onSuccess(long id) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Revenue added successfully!", Toast.LENGTH_SHORT).show();
-                        if (listener != null) {
-                            listener.onRevenueAdded();
-                        }
-                        dismiss();
-                    });
-                }
-            }
-
-            @Override
-            public void onError(String error) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        btnSave.setEnabled(true);
-                        btnSave.setText("Add Revenue");
-                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
-                    });
-                }
-            }
-        });
     }
 
     private void updateRevenue() {
@@ -774,7 +823,13 @@ public class AddRevenueDialog extends DialogFragment {
         }
 
         Long blockId = null;
+        Long batchId = null;
+        Long supplierId = null;
+        String batchNumber = null;
+        String supplierName = null;
+
         if (isPerBlock) {
+            // Per-block revenue - no procurement
             String blockStr = etBlock.getText().toString().trim();
             if (TextUtils.isEmpty(blockStr)) {
                 etBlock.setError("Please select a block");
@@ -789,27 +844,8 @@ public class AddRevenueDialog extends DialogFragment {
                 }
             }
 
-            // Check if user is skipping order
-            BlockEntity nextExpectedBlock = null;
-            for (BlockEntity block : allBlocks) {
-                List<RevenueEntity> revenues = database.revenueDao().getRevenuesByBlockId(block.getId());
-                if (revenues.isEmpty()) {
-                    nextExpectedBlock = block;
-                    break;
-                }
-            }
-
-            if (nextExpectedBlock != null && (blockId == null || nextExpectedBlock.getId() != blockId)) {
-                Toast.makeText(getContext(),
-                        "Warning: You are skipping the suggested harvest order. Next suggested block is "
-                                + nextExpectedBlock.getBlockName(),
-                        Toast.LENGTH_LONG).show();
-            }
-
             if (existingRevenue.getBlockId() != null && (blockId == null || existingRevenue.getBlockId() != blockId)) {
-                Toast.makeText(getContext(),
-                        "Cannot change block after harvest is recorded.",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Cannot change block after harvest is recorded.", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -817,6 +853,22 @@ public class AddRevenueDialog extends DialogFragment {
                 Toast.makeText(getContext(), "Invalid block selection", Toast.LENGTH_SHORT).show();
                 return;
             }
+        } else {
+            // Processing center revenue - use procurement
+            if (selectedSupplierId == null) {
+                Toast.makeText(getContext(), "Please select a supplier", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (selectedBatchId == null) {
+                Toast.makeText(getContext(), "Please select a batch", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            supplierId = selectedSupplierId;
+            batchId = selectedBatchId;
+            batchNumber = selectedBatchNumber;
+            supplierName = selectedSupplierName;
         }
 
         if (selectedQuality == null) {
@@ -835,6 +887,10 @@ public class AddRevenueDialog extends DialogFragment {
         existingRevenue.setPricePerKg(price);
         existingRevenue.setHarvestDate(harvestDate);
         existingRevenue.setBlockId(blockId);
+        existingRevenue.setBatchId(batchId);
+        existingRevenue.setSupplierId(supplierId);
+        existingRevenue.setBatchNumber(batchNumber);
+        existingRevenue.setSupplierName(supplierName);
         existingRevenue.setQuality(selectedQuality);
         existingRevenue.setBuyer(buyer.isEmpty() ? null : buyer);
         existingRevenue.setNotes(notes.isEmpty() ? null : notes);
@@ -872,6 +928,12 @@ public class AddRevenueDialog extends DialogFragment {
         super.onDestroy();
         if (revenueRepository != null) {
             revenueRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
+        }
+        if (supplierRepository != null) {
+            supplierRepository.shutdown();
         }
         executor.shutdown();
     }

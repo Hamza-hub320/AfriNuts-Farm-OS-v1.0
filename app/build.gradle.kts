@@ -126,4 +126,7 @@ dependencies {
 
     // SwipeRefreshLayout for pull-to-refresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

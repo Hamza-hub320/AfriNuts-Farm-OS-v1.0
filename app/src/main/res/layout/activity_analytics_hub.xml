@@ -10,10 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:paddingBottom="80dp">
+        android:padding="12dp"
+        android:paddingBottom="72dp">
 
-        <!-- Tab Layout - Using theme attribute for background -->
+        <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
@@ -24,19 +24,28 @@
             app:tabTextColor="?attr/colorOnSurface"
             app:tabMode="fixed"
             app:tabGravity="fill"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            android:elevation="2dp"
-            android:layout_marginBottom="8dp"
+            android:elevation="1dp"
+            android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
-            app:tabBackground="@drawable/tab_selector_glass" />
+            app:tabBackground="@drawable/tab_selector_glass"
+            app:tabTextAppearance="@style/TextAppearance.TabCompact"
+            app:tabMinWidth="60dp"
+            app:tabMaxWidth="120dp"
+            app:tabPaddingStart="8dp"
+            app:tabPaddingEnd="8dp" />
 
-        <!-- ViewPager2 -->
+        <!-- ViewPager2 - content will scroll under the padding -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:padding="4dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp"
+            android:visibility="visible" />
 
         <!-- Floating Action Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -78,7 +87,7 @@
         app:cardUseCompatPadding="true">
 
 
-    <LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

@@ -6,9 +6,11 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
@@ -39,6 +41,7 @@ public class QualityBatchRepository {
         void onSuccess(T result);
         void onError(String error);
     }
+
     public QualityBatchEntity getBatchByIdSync(long batchId) {
         return database.qualityBatchDao().getBatchById(batchId);
     }
@@ -57,12 +60,14 @@ public class QualityBatchRepository {
     public void insertBatch(QualityBatchEntity batch, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                // 1. Insert into local database
                 long id = database.qualityBatchDao().insert(batch);
                 batch.setId(id);
                 Log.d(TAG, "Quality batch saved locally with ID: " + id);
 
-                // 2. Queue for sync (only if NOT a remote update)
+                if (batch.getSupplierId() != null && batch.getSupplierId() > 0) {
+                    createDeliveryFromBatch(batch);
+                }
+
                 if (!firestoreSyncManager.isRemoteUpdate()) {
                     syncManager.queueForSync("quality_batch", id, SyncEntity.SyncAction.CREATE);
                     syncManager.triggerAutoSync();
@@ -78,12 +83,72 @@ public class QualityBatchRepository {
         });
     }
 
+    private void createDeliveryFromBatch(QualityBatchEntity batch) {
+        try {
+            SupplierEntity supplier = database.supplierDao().getSupplierById(batch.getSupplierId());
+            if (supplier == null) {
+                Log.e(TAG, "Supplier not found for batch: " + batch.getId());
+                return;
+            }
+
+            double newVolume = supplier.getAnnualVolumeKg() + batch.getWeightKg();
+            supplier.setAnnualVolumeKg(newVolume);
+
+            double currentAvg = supplier.getAverageQualityScore();
+            double oldVolume = supplier.getAnnualVolumeKg() - batch.getWeightKg();
+            if (oldVolume > 0) {
+                double newAvg = (currentAvg * oldVolume + batch.getQualityScore() * batch.getWeightKg()) / newVolume;
+                supplier.setAverageQualityScore(newAvg);
+            } else {
+                supplier.setAverageQualityScore(batch.getQualityScore());
+            }
+
+            supplier.setUpdatedAt(System.currentTimeMillis());
+            database.supplierDao().update(supplier);
+
+            Log.d(TAG, "✅ Updated supplier metrics for: " + supplier.getName() +
+                    " | New Volume: " + newVolume + "kg" +
+                    " | Avg Quality: " + supplier.getAverageQualityScore());
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating delivery from batch", e);
+        }
+    }
+
+    private double calculateNewAverageQualityScore(SupplierEntity supplier, QualityBatchEntity batch) {
+        double currentAvg = supplier.getAverageQualityScore();
+        double currentVolume = supplier.getAnnualVolumeKg();
+        double newVolume = batch.getWeightKg();
+
+        if (currentVolume == 0) {
+            return batch.getQualityScore();
+        }
+
+        return (currentAvg * currentVolume + batch.getQualityScore() * newVolume) /
+                (currentVolume + newVolume);
+    }
+
     // ========================================
     // READ
     // ========================================
 
     public LiveData<List<QualityBatchEntity>> getAllBatches() {
-        return database.qualityBatchDao().getBatchesByFarmIdLiveData(farmId);
+        MutableLiveData<List<QualityBatchEntity>> liveData = new MutableLiveData<>();
+
+        executor.execute(() -> {
+            List<QualityBatchEntity> batches = database.qualityBatchDao().getBatchesByFarmId(farmId);
+            for (QualityBatchEntity batch : batches) {
+                if (batch.getSupplierId() != null) {
+                    SupplierEntity supplier = database.supplierDao().getSupplierById(batch.getSupplierId());
+                    if (supplier != null) {
+                        batch.setSupplierName(supplier.getName());
+                    }
+                }
+            }
+            mainHandler.post(() -> liveData.setValue(batches));
+        });
+
+        return liveData;
     }
 
     public LiveData<QualityBatchEntity> getBatchById(long batchId) {
@@ -100,6 +165,19 @@ public class QualityBatchRepository {
 
     public List<QualityBatchEntity> getAllBatchesSync() {
         return database.qualityBatchDao().getBatchesByFarmId(farmId);
+    }
+
+    // Supplier-related batch queries
+    public LiveData<List<QualityBatchEntity>> getBatchesBySupplierId(long supplierId) {
+        return database.qualityBatchDao().getBatchesBySupplierIdLiveData(supplierId);
+    }
+
+    public List<QualityBatchEntity> getBatchesBySupplierIdSync(long supplierId) {
+        return database.qualityBatchDao().getBatchesBySupplierIdSync(supplierId);
+    }
+
+    public QualityBatchEntity getBatchByNumberSync(String batchNumber) {
+        return database.qualityBatchDao().getBatchByNumber(batchNumber);
     }
 
     // ========================================
@@ -130,12 +208,15 @@ public class QualityBatchRepository {
     // DELETE
     // ========================================
 
+    // In QualityBatchRepository.java
     public void deleteBatch(QualityBatchEntity batch, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
+                // Delete from local database
                 database.qualityBatchDao().delete(batch);
-                Log.d(TAG, "Quality batch deleted locally: " + batch.getId());
+                Log.d(TAG, "Quality batch deleted locally: " + batch.getBatchNumber());
 
+                // Queue for sync to Firestore
                 if (!firestoreSyncManager.isRemoteUpdate()) {
                     syncManager.queueForSync("quality_batch", batch.getId(), SyncEntity.SyncAction.DELETE);
                     syncManager.triggerAutoSync();

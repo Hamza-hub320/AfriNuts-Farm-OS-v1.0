@@ -1,10 +1,13 @@
 package com.afrinuts.farmos.ui.revenue;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -13,24 +16,30 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 
-import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -45,12 +54,18 @@ public class RevenueDetailActivity extends BaseActivity {
     private RevenueEntity revenue;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
+    private List<QualityBatchEntity> allBatches;
+    private List<SupplierEntity> allSuppliers;
+    private QualityBatchEntity batch;
+    private SupplierEntity supplier;
     private AppDatabase database;
     private RevenueRepository revenueRepository;
+    private QualityBatchRepository batchRepository;
+    private SupplierRepository supplierRepository;
     private long farmId = 1;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    // UI Elements
+    // UI Elements - Display
     private ImageView tvQualityIcon;
     private TextView tvQualityGrade;
     private TextView tvSource;
@@ -61,10 +76,45 @@ public class RevenueDetailActivity extends BaseActivity {
     private TextView tvBuyer;
     private TextView tvNotes;
     private LinearLayout notesLayout;
+
+    // ✅ UI Elements - Edit
+    private TextInputEditText etQuantity;
+    private TextInputEditText etPricePerKg;
+    private TextInputEditText etHarvestDate;
+    private TextInputEditText etBuyer;
+    private TextInputEditText etNotes;
+    private MaterialAutoCompleteTextView etQuality;
+
+    // ✅ Procurement UI Elements - Display
+    private LinearLayout layoutProcurementInfo;
+    private TextView tvBatchNumber;
+    private TextView tvSupplierName;
+    private TextView tvProcurementInfo;
+    private MaterialButton btnViewBatch;
+    private MaterialButton btnViewSupplier;
+
+    // ✅ Procurement UI Elements - Edit
+    private LinearLayout layoutProcurementSection;
+    private TextInputLayout layoutSupplierSelector;
+    private MaterialAutoCompleteTextView etSupplier;
+    private TextInputLayout layoutBatchSelector;
+    private MaterialAutoCompleteTextView etBatch;
+
+    // Buttons
     private Button btnDelete;
     private MaterialButton btnEdit;
+    private MaterialButton btnSave;
 
+    private boolean isEditMode = false;
+    private Calendar selectedDate = Calendar.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+
+    // ✅ Procurement tracking fields
+    private Long selectedSupplierId = null;
+    private Long selectedBatchId = null;
+    private String selectedSupplierName = null;
+    private String selectedBatchNumber = null;
+    private RevenueEntity.QualityGrade selectedQuality = RevenueEntity.QualityGrade.PREMIUM;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -92,6 +142,8 @@ public class RevenueDetailActivity extends BaseActivity {
 
         database = AppDatabase.getInstance(this);
         revenueRepository = new RevenueRepository(this, farmId);
+        batchRepository = new QualityBatchRepository(this, farmId);
+        supplierRepository = new SupplierRepository(this, farmId);
 
         initViews();
         setupToolbar();
@@ -103,6 +155,7 @@ public class RevenueDetailActivity extends BaseActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Display views
         tvQualityIcon = findViewById(R.id.tvQualityIcon);
         tvQualityGrade = findViewById(R.id.tvQualityGrade);
         tvSource = findViewById(R.id.tvSource);
@@ -113,14 +166,83 @@ public class RevenueDetailActivity extends BaseActivity {
         tvBuyer = findViewById(R.id.tvBuyer);
         tvNotes = findViewById(R.id.tvNotes);
         notesLayout = findViewById(R.id.notesLayout);
+
+        // ✅ Edit mode fields
+        etQuantity = findViewById(R.id.etQuantity);
+        etPricePerKg = findViewById(R.id.etPricePerKg);
+        etHarvestDate = findViewById(R.id.etHarvestDate);
+        etBuyer = findViewById(R.id.etBuyer);
+        etNotes = findViewById(R.id.etNotes);
+        etQuality = findViewById(R.id.etQuality);
+
+        // ✅ Procurement display
+        layoutProcurementInfo = findViewById(R.id.layoutProcurementInfo);
+        tvBatchNumber = findViewById(R.id.tvBatchNumber);
+        tvSupplierName = findViewById(R.id.tvSupplierName);
+        tvProcurementInfo = findViewById(R.id.tvProcurementInfo);
+        btnViewBatch = findViewById(R.id.btnViewBatch);
+        btnViewSupplier = findViewById(R.id.btnViewSupplier);
+
+        // ✅ Procurement edit
+        layoutProcurementSection = findViewById(R.id.layoutProcurementSection);
+        layoutSupplierSelector = findViewById(R.id.layoutSupplierSelector);
+        etSupplier = findViewById(R.id.etSupplier);
+        layoutBatchSelector = findViewById(R.id.layoutBatchSelector);
+        etBatch = findViewById(R.id.etBatch);
+
+        // Buttons
         btnDelete = findViewById(R.id.btnDelete);
         btnEdit = findViewById(R.id.btnEdit);
+        btnSave = findViewById(R.id.btnSave);
 
         btnDelete.setOnClickListener(v -> confirmDelete());
 
         if (btnEdit != null) {
-            btnEdit.setOnClickListener(v -> openEditDialog());
+            btnEdit.setOnClickListener(v -> enableEditMode(true));
         }
+
+        if (btnSave != null) {
+            btnSave.setOnClickListener(v -> saveChanges());
+        }
+
+        // ✅ Set click listeners for procurement navigation
+        if (btnViewBatch != null) {
+            btnViewBatch.setOnClickListener(v -> viewBatch());
+        }
+
+        if (btnViewSupplier != null) {
+            btnViewSupplier.setOnClickListener(v -> viewSupplier());
+        }
+
+        // ✅ Supplier selection listener
+        if (etSupplier != null) {
+            etSupplier.setOnItemClickListener((parent, view, position, id) -> {
+                if (allSuppliers != null && position < allSuppliers.size()) {
+                    SupplierEntity selectedSupplier = allSuppliers.get(position);
+                    selectedSupplierId = selectedSupplier.getId();
+                    selectedSupplierName = selectedSupplier.getName();
+                    loadBatchesForSupplier(selectedSupplierId);
+                }
+            });
+        }
+
+        // ✅ Batch selection listener
+        if (etBatch != null) {
+            etBatch.setOnItemClickListener((parent, view, position, id) -> {
+                if (allBatches != null && position < allBatches.size()) {
+                    QualityBatchEntity selectedBatch = allBatches.get(position);
+                    selectedBatchId = selectedBatch.getId();
+                    selectedBatchNumber = selectedBatch.getBatchNumber();
+                }
+            });
+        }
+
+        // Setup date picker
+        setupDatePicker();
+
+        // Initially not editable
+        setFieldsEditable(false);
+        setEditModeVisibility(false);
     }
 
     private void setupToolbar() {
@@ -128,8 +250,6 @@ public class RevenueDetailActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Revenue Details");
         }
     }
@@ -150,18 +270,49 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setupRoleBasedUI() {
-        // Edit button: Owners and Managers can edit
         if (sessionManager.canEditData()) {
             if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
         } else {
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
         }
 
-        // Delete button: ONLY OWNERS can delete
         if (sessionManager.isOwner()) {
             if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
         } else {
             if (btnDelete != null) btnDelete.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupDatePicker() {
+        if (etHarvestDate != null) {
+            etHarvestDate.setOnClickListener(v -> showDatePicker());
+            etHarvestDate.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    showDatePicker();
+                }
+            });
+        }
+    }
+
+    private void showDatePicker() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateLabel();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+    private void updateDateLabel() {
+        if (etHarvestDate != null) {
+            etHarvestDate.setText(dateFormat.format(selectedDate.getTime()));
         }
     }
 
@@ -170,7 +321,6 @@ public class RevenueDetailActivity extends BaseActivity {
             try {
                 Log.d(TAG, "Loading revenue with ID: " + revenueId);
 
-                // First, check if database is accessible
                 if (database == null) {
                     Log.e(TAG, "Database is null");
                     runOnUiThread(() -> {
@@ -197,26 +347,48 @@ public class RevenueDetailActivity extends BaseActivity {
                         ", farmId: " + revenue.getFarmId() +
                         ", quality: " + revenue.getQuality());
 
-                // Update repository with correct farmId
                 farmId = revenue.getFarmId();
                 revenueRepository = new RevenueRepository(RevenueDetailActivity.this, farmId);
+                batchRepository = new QualityBatchRepository(RevenueDetailActivity.this, farmId);
+                supplierRepository = new SupplierRepository(RevenueDetailActivity.this, farmId);
 
-                // Load farm data
                 currentFarm = database.farmDao().getFirstFarm();
-                if (currentFarm == null) {
-                    Log.e(TAG, "No farm found in database");
-                } else {
-                    Log.d(TAG, "Current farm ID: " + currentFarm.getId());
-                }
-
-                // Load blocks for block name lookup
                 allBlocks = database.blockDao().getBlocksByFarmId(currentFarm != null ?
                         currentFarm.getId() : 1L);
-                Log.d(TAG, "Loaded " + (allBlocks != null ? allBlocks.size() : 0) + " blocks");
+
+                // ✅ Load all suppliers and batches for dropdowns
+                allSuppliers = supplierRepository.getSuppliersSync();
+                allBatches = batchRepository.getAllBatchesSync();
+
+                // ✅ Load specific batch and supplier if linked
+                if (revenue.getBatchId() != null && revenue.getBatchId() > 0) {
+                    batch = database.qualityBatchDao().getBatchById(revenue.getBatchId());
+                    if (batch != null) {
+                        Log.d(TAG, "Loaded batch: " + batch.getBatchNumber());
+                        selectedBatchId = batch.getId();
+                        selectedBatchNumber = batch.getBatchNumber();
+                    }
+                }
+
+                if (revenue.getSupplierId() != null && revenue.getSupplierId() > 0) {
+                    supplier = database.supplierDao().getSupplierById(revenue.getSupplierId());
+                    if (supplier != null) {
+                        Log.d(TAG, "Loaded supplier: " + supplier.getName());
+                        selectedSupplierId = supplier.getId();
+                        selectedSupplierName = supplier.getName();
+                    }
+                }
+
+                if (revenue.getQuality() != null) {
+                    selectedQuality = revenue.getQuality();
+                }
 
                 runOnUiThread(() -> {
                     try {
+                        setupQualityDropdown();
+                        setupProcurementDropdowns();
                         displayRevenueData();
+                        setEditModeVisibility(false);
                     } catch (Exception e) {
                         Log.e(TAG, "Error displaying revenue data", e);
                         Toast.makeText(RevenueDetailActivity.this,
@@ -237,9 +409,81 @@ public class RevenueDetailActivity extends BaseActivity {
         });
     }
 
+    private void setupQualityDropdown() {
+        RevenueEntity.QualityGrade[] grades = RevenueEntity.QualityGrade.values();
+        List<String> gradeDisplayNames = new ArrayList<>();
+        for (RevenueEntity.QualityGrade grade : grades) {
+            gradeDisplayNames.add(grade.getDisplayName() + " Grade");
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                gradeDisplayNames
+        );
+        etQuality.setAdapter(adapter);
+
+        etQuality.setOnItemClickListener((parent, view, position, id) -> {
+            selectedQuality = grades[position];
+        });
+    }
+
+    private void setupProcurementDropdowns() {
+        // Setup supplier dropdown
+        if (allSuppliers != null && etSupplier != null) {
+            List<String> supplierNames = new ArrayList<>();
+            for (SupplierEntity supplier : allSuppliers) {
+                supplierNames.add(supplier.getName() + " (" + supplier.getType().getDisplayName() + ")");
+            }
+            ArrayAdapter<String> supplierAdapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    supplierNames
+            );
+            etSupplier.setAdapter(supplierAdapter);
+        }
+
+        // Setup batch dropdown
+        if (allBatches != null && etBatch != null) {
+            List<String> batchDisplayNames = new ArrayList<>();
+            for (QualityBatchEntity batch : allBatches) {
+                batchDisplayNames.add(batch.getBatchNumber() + " - " +
+                        batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)");
+            }
+            ArrayAdapter<String> batchAdapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    batchDisplayNames
+            );
+            etBatch.setAdapter(batchAdapter);
+        }
+    }
+
+    private void loadBatchesForSupplier(long supplierId) {
+        executor.execute(() -> {
+            List<QualityBatchEntity> supplierBatches =
+                    batchRepository.getBatchesBySupplierIdSync(supplierId);
+
+            runOnUiThread(() -> {
+                List<String> batchDisplayNames = new ArrayList<>();
+                for (QualityBatchEntity batch : supplierBatches) {
+                    batchDisplayNames.add(batch.getBatchNumber() + " - " +
+                            batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)");
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        batchDisplayNames
+                );
+                etBatch.setAdapter(adapter);
+            });
+        });
+    }
+
     private void displayRevenueData() {
         if (revenue == null) return;
 
+        // Quality Grade
         switch (revenue.getQuality()) {
             case PREMIUM:
                 tvQualityIcon.setImageResource(R.drawable.ic_star);
@@ -253,14 +497,12 @@ public class RevenueDetailActivity extends BaseActivity {
                 tvQualityIcon.setImageResource(R.drawable.ic_construction);
                 tvQualityIcon.setColorFilter(getColor(R.color.navy));
                 break;
-            default:
-                tvQualityIcon.setImageResource(R.drawable.ic_star);
-                tvQualityIcon.setColorFilter(getColor(R.color.accent));
-                break;
         }
 
         tvQualityGrade.setText(revenue.getQuality().getDisplayName() + " Grade");
+        selectedQuality = revenue.getQuality();
 
+        // Source (Block or Processing Center)
         if (revenue.getBlockId() != null) {
             String blockName = getBlockName(revenue.getBlockId());
             tvSource.setText("Block " + blockName);
@@ -268,27 +510,75 @@ public class RevenueDetailActivity extends BaseActivity {
             tvSource.setText("Processing Center");
         }
 
+        // Financial details - display values
         tvQuantity.setText(String.format(Locale.getDefault(), "%.1f kg", revenue.getQuantityKg()));
         tvPricePerKg.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getPricePerKg()));
         tvTotalAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount()));
         tvHarvestDate.setText(dateFormat.format(revenue.getHarvestDate()));
 
+        // Set edit fields
+        etQuantity.setText(String.valueOf(revenue.getQuantityKg()));
+        etPricePerKg.setText(String.valueOf(revenue.getPricePerKg()));
+        selectedDate.setTimeInMillis(revenue.getHarvestDate());
+        updateDateLabel();
+        etQuality.setText(revenue.getQuality().getDisplayName() + " Grade", false);
+
+        // Buyer
         if (revenue.getBuyer() != null && !revenue.getBuyer().isEmpty()) {
             tvBuyer.setText(revenue.getBuyer());
+            etBuyer.setText(revenue.getBuyer());
         } else {
             tvBuyer.setText("No buyer recorded");
+            etBuyer.setText("");
         }
 
+        // Notes
         if (revenue.getNotes() != null && !revenue.getNotes().isEmpty()) {
             tvNotes.setText(revenue.getNotes());
+            etNotes.setText(revenue.getNotes());
             notesLayout.setVisibility(View.VISIBLE);
         } else {
             notesLayout.setVisibility(View.GONE);
+            etNotes.setText("");
+        }
+
+        // ✅ Display procurement info if linked
+        if (revenue.isProcurementRelated()) {
+            layoutProcurementInfo.setVisibility(View.VISIBLE);
+
+            // Batch number
+            if (revenue.getBatchNumber() != null && !revenue.getBatchNumber().isEmpty()) {
+                tvBatchNumber.setText("#" + revenue.getBatchNumber());
+                tvBatchNumber.setVisibility(View.VISIBLE);
+                btnViewBatch.setVisibility(View.VISIBLE);
+                // Set in edit field
+                etBatch.setText(revenue.getBatchNumber(), false);
+            } else {
+                tvBatchNumber.setVisibility(View.GONE);
+                btnViewBatch.setVisibility(View.GONE);
+            }
+
+            // Supplier name
+            if (revenue.getSupplierName() != null && !revenue.getSupplierName().isEmpty()) {
+                tvSupplierName.setText(revenue.getSupplierName());
+                tvSupplierName.setVisibility(View.VISIBLE);
+                btnViewSupplier.setVisibility(View.VISIBLE);
+                // Set in edit field
+                etSupplier.setText(revenue.getSupplierName(), false);
+            } else {
+                tvSupplierName.setVisibility(View.GONE);
+                btnViewSupplier.setVisibility(View.GONE);
+            }
+
+            // Combined procurement info
+            tvProcurementInfo.setText(revenue.getProcurementInfo());
+        } else {
+            layoutProcurementInfo.setVisibility(View.GONE);
         }
     }
 
     private String getBlockName(Long blockId) {
-        if (blockId == null) return null;
+        if (blockId == null || allBlocks == null) return null;
         for (BlockEntity block : allBlocks) {
             if (block.getId() == blockId) {
                 return block.getBlockName();
@@ -297,21 +587,248 @@ public class RevenueDetailActivity extends BaseActivity {
         return null;
     }
 
-    private void openEditDialog() {
-        if (revenue == null || currentFarm == null) return;
+    private void setFieldsEditable(boolean editable) {
+        if (etQuantity != null) etQuantity.setEnabled(editable);
+        if (etPricePerKg != null) etPricePerKg.setEnabled(editable);
+        if (etHarvestDate != null) etHarvestDate.setEnabled(editable);
+        if (etBuyer != null) etBuyer.setEnabled(editable);
+        if (etNotes != null) etNotes.setEnabled(editable);
+        if (etQuality != null) etQuality.setEnabled(editable);
 
-        AddRevenueDialog dialog =
-                AddRevenueDialog.newEditInstance(currentFarm.getId(), revenue.getId());
+        // ✅ Enable procurement fields if revenue is procurement-related
+        if (revenue != null && revenue.isProcurementRelated()) {
+            if (etSupplier != null) etSupplier.setEnabled(editable);
+            if (etBatch != null) etBatch.setEnabled(editable);
+        }
+    }
 
-        dialog.setOnRevenueAddedListener(() -> {
-            loadData();
+    private void setEditModeVisibility(boolean visible) {
+        // Display views (hide in edit mode)
+        int displayVisibility = visible ? View.GONE : View.VISIBLE;
+        tvQuantity.setVisibility(displayVisibility);
+        tvPricePerKg.setVisibility(displayVisibility);
+        tvTotalAmount.setVisibility(displayVisibility);
+        tvHarvestDate.setVisibility(displayVisibility);
+        tvBuyer.setVisibility(displayVisibility);
+
+        // ✅ Edit fields layout (show in edit mode)
+        CardView layoutEditFields = findViewById(R.id.layoutEditFields);
+        if (layoutEditFields != null) {
+            layoutEditFields.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+
+        // Edit views (enable/disable)
+        int editVisibility = visible ? View.VISIBLE : View.GONE;
+        if (etQuantity != null) etQuantity.setVisibility(editVisibility);
+        if (etPricePerKg != null) etPricePerKg.setVisibility(editVisibility);
+        if (etHarvestDate != null) etHarvestDate.setVisibility(editVisibility);
+        if (etBuyer != null) etBuyer.setVisibility(editVisibility);
+        if (etNotes != null) etNotes.setVisibility(editVisibility);
+        if (etQuality != null) etQuality.setVisibility(editVisibility);
+
+        // Show/hide procurement section in edit mode
+        if (revenue != null && revenue.isProcurementRelated()) {
+            if (layoutProcurementSection != null) {
+                layoutProcurementSection.setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
+            if (etSupplier != null) etSupplier.setVisibility(editVisibility);
+            if (etBatch != null) etBatch.setVisibility(editVisibility);
+        } else {
+            if (layoutProcurementSection != null) {
+                layoutProcurementSection.setVisibility(View.GONE);
+            }
+        }
+
+        // Notes layout
+        if (visible) {
+            if (notesLayout != null) notesLayout.setVisibility(View.VISIBLE);
+        } else {
+            if (revenue != null && revenue.getNotes() != null && !revenue.getNotes().isEmpty()) {
+                if (notesLayout != null) notesLayout.setVisibility(View.VISIBLE);
+            } else {
+                if (notesLayout != null) notesLayout.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void enableEditMode(boolean enable) {
+        if (!sessionManager.canEditData()) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "You don't have permission to edit", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        isEditMode = enable;
+
+        // Toggle button visibility
+        if (btnEdit != null) {
+            btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+        }
+        if (btnSave != null) {
+            btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
+        }
+
+        setFieldsEditable(enable);
+        setEditModeVisibility(enable);
+
+        if (enable) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Edit mode enabled. Make your changes and save.",
+                    Snackbar.LENGTH_LONG).show();
+        } else {
+            // Refresh display
+            displayRevenueData();
+        }
+    }
+
+    // ✅ View batch detail
+    private void viewBatch() {
+        if (batch == null) {
+            Toast.makeText(this, "Batch not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(this, com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity.class);
+        intent.putExtra(com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
+        startActivity(intent);
+    }
+
+    // ✅ View supplier detail
+    private void viewSupplier() {
+        if (supplier == null) {
+            Toast.makeText(this, "Supplier not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(this, com.afrinuts.farmos.ui.suppliers.SupplierDetailActivity.class);
+        intent.putExtra(com.afrinuts.farmos.ui.suppliers.SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
+        startActivity(intent);
+    }
+
+    private void saveChanges() {
+        if (revenue == null || revenueRepository == null) return;
+
+        // Validate quantity
+        String quantityStr = etQuantity.getText().toString().trim();
+        if (TextUtils.isEmpty(quantityStr)) {
+            etQuantity.setError("Quantity is required");
+            return;
+        }
+
+        double quantity;
+        try {
+            quantity = Double.parseDouble(quantityStr);
+            if (quantity <= 0) {
+                etQuantity.setError("Quantity must be positive");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            etQuantity.setError("Invalid quantity");
+            return;
+        }
+
+        // Validate price
+        String priceStr = etPricePerKg.getText().toString().trim();
+        if (TextUtils.isEmpty(priceStr)) {
+            etPricePerKg.setError("Price is required");
+            return;
+        }
+
+        double price;
+        try {
+            price = Double.parseDouble(priceStr);
+            if (price <= 0) {
+                etPricePerKg.setError("Price must be positive");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            etPricePerKg.setError("Invalid price");
+            return;
+        }
+
+        // ✅ Update procurement fields if procurement-related
+        if (revenue.isProcurementRelated()) {
+            // Get supplier from dropdown
+            String supplierStr = etSupplier.getText().toString().trim();
+            if (!TextUtils.isEmpty(supplierStr) && allSuppliers != null) {
+                for (SupplierEntity supplier : allSuppliers) {
+                    String displayName = supplier.getName() + " (" + supplier.getType().getDisplayName() + ")";
+                    if (displayName.equals(supplierStr)) {
+                        selectedSupplierId = supplier.getId();
+                        selectedSupplierName = supplier.getName();
+                        break;
+                    }
+                }
+            }
+
+            // Get batch from dropdown
+            String batchStr = etBatch.getText().toString().trim();
+            if (!TextUtils.isEmpty(batchStr) && allBatches != null) {
+                for (QualityBatchEntity batch : allBatches) {
+                    String displayName = batch.getBatchNumber() + " - " +
+                            batch.getFormattedDate() + " (" + batch.getWeightKg() + "kg)";
+                    if (displayName.equals(batchStr)) {
+                        selectedBatchId = batch.getId();
+                        selectedBatchNumber = batch.getBatchNumber();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Update revenue object
+        revenue.setQuantityKg(quantity);
+        revenue.setPricePerKg(price);
+        revenue.setHarvestDate(selectedDate.getTimeInMillis());
+        revenue.setQuality(selectedQuality);
+        revenue.setBuyer(etBuyer.getText().toString().trim());
+        revenue.setNotes(etNotes.getText().toString().trim());
+
+        // ✅ Update procurement fields
+        if (revenue.isProcurementRelated()) {
+            revenue.setBatchId(selectedBatchId);
+            revenue.setSupplierId(selectedSupplierId);
+            revenue.setBatchNumber(selectedBatchNumber);
+            revenue.setSupplierName(selectedSupplierName);
+        }
+
+        revenue.setUpdatedAt(System.currentTimeMillis());
+
+        if (btnSave != null) {
+            btnSave.setEnabled(false);
+            btnSave.setText("Saving...");
+        }
+
+        revenueRepository.updateRevenue(revenue, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(RevenueDetailActivity.this,
+                            "Changes saved successfully!", Toast.LENGTH_SHORT).show();
+                    if (btnSave != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Save");
+                    }
+                    enableEditMode(false);
+                    loadData();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(RevenueDetailActivity.this,
+                            "Error saving changes: " + error, Toast.LENGTH_LONG).show();
+                    if (btnSave != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Save");
+                    }
+                });
+            }
         });
-
-        dialog.show(getSupportFragmentManager(), "EditRevenueDialog");
     }
 
     private void confirmDelete() {
-
         if (!sessionManager.isOwner()) {
             Snackbar.make(findViewById(android.R.id.content),
                     "Only owners can delete revenue records", Snackbar.LENGTH_SHORT).show();
@@ -354,6 +871,12 @@ public class RevenueDetailActivity extends BaseActivity {
         super.onDestroy();
         if (revenueRepository != null) {
             revenueRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
+        }
+        if (supplierRepository != null) {
+            supplierRepository.shutdown();
         }
         executor.shutdown();
     }
