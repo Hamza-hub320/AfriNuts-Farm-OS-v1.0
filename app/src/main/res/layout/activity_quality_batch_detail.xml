@@ -1074,6 +1074,53 @@
 
             </androidx.cardview.widget.CardView>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <!-- Export Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExportQR"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Export QR"
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                app:icon="@drawable/ic_download"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorPrimary" />
+
+            <!-- Share Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShare"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Share"
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                app:icon="@drawable/ic_share"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorPrimary" />
+        </LinearLayout>
+
+            <!-- Generate Traceability Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGenerateTraceability"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:text="Generate Traceability"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                android:layout_marginBottom="8dp"
+                app:icon="@drawable/ic_qr_code"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white" />
+
             <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout
                 android:layout_width="match_parent"

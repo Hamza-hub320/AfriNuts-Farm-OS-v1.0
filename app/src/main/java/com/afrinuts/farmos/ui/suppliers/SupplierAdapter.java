@@ -94,6 +94,14 @@ public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.Suppli
             tvSupplierType.setText(supplier.getType().getDisplayName());
             tvRating.setText(String.valueOf(supplier.getRating()));
 
+            // ✅ Show special badge for Own Farm
+            if (supplier.getType() == SupplierEntity.SupplierType.OWN_FARM) {
+                tvSupplierType.setText(supplier.getType().getDisplayName());
+                // Add a special indicator
+                tvSupplierName.setTextColor(itemView.getContext().getColor(R.color.primary));
+                tvSupplierName.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_own_farm, 0, 0, 0);
+            }
+
             // ✅ Set rating icon color
             ivRatingIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent));
 

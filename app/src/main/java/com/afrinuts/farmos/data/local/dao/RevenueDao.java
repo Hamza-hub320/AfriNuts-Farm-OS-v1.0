@@ -76,6 +76,11 @@ public interface RevenueDao {
     @Query("SELECT * FROM revenues WHERE blockId = :blockId AND harvestYear = :year ORDER BY harvestDate DESC")
     List<RevenueEntity> getRevenuesByBlockIdAndYear(long blockId, int year);
 
+    @Query("SELECT * FROM revenues WHERE batchId = :batchId ORDER BY harvestDate DESC")
+    List<RevenueEntity> getRevenuesByBatchId(long batchId);
+
+
+
     // Inner class for block yield data
     class BlockYield {
         public long blockId;

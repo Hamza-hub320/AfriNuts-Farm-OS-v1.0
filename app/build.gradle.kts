@@ -129,4 +129,21 @@ dependencies {
 
     // Google Play Services - Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // ✅ QR Code Scanning - Alternative setup
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0") {
+        exclude(group = "com.google.zxing", module = "android-core")
+    }
+    implementation("com.google.zxing:core:3.5.2")
+    // ✅ ML Kit Barcode Scanning (Alternative to ZXing)
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // ✅ PDF Generation (for bulk QR export)
+    implementation("com.itextpdf:itext7-core:7.2.5")
+
+    // ✅ Image processing
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+
+    // Firebase Storage
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 }

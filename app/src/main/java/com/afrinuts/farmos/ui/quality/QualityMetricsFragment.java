@@ -22,6 +22,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
+import com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class QualityMetricsFragment extends Fragment {
 
@@ -50,7 +52,7 @@ public class QualityMetricsFragment extends Fragment {
     private QualityBatchRepository repository;
     private AppDatabase database;
     private FarmEntity currentFarm;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // Store farmId for use by parent activity
     private long farmId = -1;
@@ -59,6 +61,9 @@ public class QualityMetricsFragment extends Fragment {
     private List<QualityBatchEntity> filteredBatches = new ArrayList<>();
 
     private String currentFilter = "ALL"; // ALL, PREMIUM, STANDARD, PROCESSING
+
+    // Flag to track if fragment is destroyed
+    private boolean isDestroyed = false;
 
     @Nullable
     @Override
@@ -88,8 +93,8 @@ public class QualityMetricsFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyView);
         avgMoistureValue = view.findViewById(R.id.avgMoistureValue);
         avgDefectiveValue = view.findViewById(R.id.avgDefectiveValue);
-        avgKernelValue = view.findViewById(R.id.avgKernelValue);
         avgQualityScoreValue = view.findViewById(R.id.avgQualityScoreValue);
+        avgKernelValue = view.findViewById(R.id.avgKernelValue);
         avgNutCountValue = view.findViewById(R.id.avgNutCountValue);
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
     }
@@ -97,10 +102,12 @@ public class QualityMetricsFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new QualityBatchAdapter(filteredBatches, batch -> {
-            // Navigate to QualityBatchDetailActivity
-            Intent intent = new Intent(getActivity(), QualityBatchDetailActivity.class);
-            intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
-            startActivity(intent);
+            // ✅ Use getActivity() to start intent
+            if (getActivity() != null) {
+                Intent intent = new Intent(getActivity(), QualityBatchDetailActivity.class);
+                intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
+                getActivity().startActivity(intent);
+            }
         });
         recyclerView.setAdapter(adapter);
     }
@@ -111,33 +118,41 @@ public class QualityMetricsFragment extends Fragment {
         Chip chipStandard = getView().findViewById(R.id.chipStandard);
         Chip chipProcessing = getView().findViewById(R.id.chipProcessing);
 
-        chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "ALL";
-                applyFilter();
-            }
-        });
+        if (chipAll != null) {
+            chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "ALL";
+                    applyFilter();
+                }
+            });
+        }
 
-        chipPremium.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "PREMIUM";
-                applyFilter();
-            }
-        });
+        if (chipPremium != null) {
+            chipPremium.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "PREMIUM";
+                    applyFilter();
+                }
+            });
+        }
 
-        chipStandard.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "STANDARD";
-                applyFilter();
-            }
-        });
+        if (chipStandard != null) {
+            chipStandard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "STANDARD";
+                    applyFilter();
+                }
+            });
+        }
 
-        chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "PROCESSING";
-                applyFilter();
-            }
-        });
+        if (chipProcessing != null) {
+            chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "PROCESSING";
+                    applyFilter();
+                }
+            });
+        }
     }
 
     // Method for parent activity to get farmId
@@ -147,23 +162,35 @@ public class QualityMetricsFragment extends Fragment {
 
     // Method for parent activity to refresh data after adding batch
     public void refreshData() {
-        if (repository != null) {
+        if (repository != null && !isDestroyed) {
             loadBatches();
-        } else {
+        } else if (!isDestroyed) {
             loadFarmAndData();
         }
     }
 
     private void loadFarmAndData() {
+        // Check if fragment is destroyed before executing
+        if (isDestroyed || getActivity() == null) {
+            return;
+        }
+
         showLoading(true);
 
         executor.execute(() -> {
+            // Check again inside the thread
+            if (isDestroyed || getActivity() == null) {
+                return;
+            }
+
             if (database == null) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        showLoading(false);
-                        showEmpty(true);
-                        Toast.makeText(getContext(), "Database not initialized", Toast.LENGTH_SHORT).show();
+                        if (!isDestroyed) {
+                            showLoading(false);
+                            showEmpty(true);
+                            Toast.makeText(getContext(), "Database not initialized", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 }
                 return;
@@ -177,15 +204,19 @@ public class QualityMetricsFragment extends Fragment {
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        repository = new QualityBatchRepository(getContext(), currentFarm.getId());
-                        loadBatches();
+                        if (!isDestroyed) {
+                            repository = new QualityBatchRepository(getContext(), currentFarm.getId());
+                            loadBatches();
+                        }
                     });
                 }
             } else {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        showLoading(false);
-                        showEmpty(true);
+                        if (!isDestroyed) {
+                            showLoading(false);
+                            showEmpty(true);
+                        }
                     });
                 }
             }
@@ -193,9 +224,16 @@ public class QualityMetricsFragment extends Fragment {
     }
 
     private void loadBatches() {
-        if (repository == null) return;
+        // Check if fragment is destroyed
+        if (isDestroyed || repository == null || getViewLifecycleOwner() == null) {
+            return;
+        }
 
         repository.getAllBatches().observe(getViewLifecycleOwner(), batches -> {
+            if (isDestroyed) {
+                return;
+            }
+
             allBatches.clear();
             if (batches != null) {
                 allBatches.addAll(batches);
@@ -282,12 +320,20 @@ public class QualityMetricsFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
+        if (isDestroyed) {
+            return;
+        }
+
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         emptyView.setVisibility(View.GONE);
     }
 
     private void showEmpty(boolean show) {
+        if (isDestroyed) {
+            return;
+        }
+
         emptyView.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
@@ -296,7 +342,7 @@ public class QualityMetricsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (repository != null) {
+        if (repository != null && !isDestroyed) {
             loadBatches();
         }
     }
@@ -304,9 +350,23 @@ public class QualityMetricsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isDestroyed = true;
+
+        // Shutdown executor properly
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+
         if (repository != null) {
             repository.shutdown();
         }
-        executor.shutdown();
     }
 }

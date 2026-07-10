@@ -200,9 +200,6 @@ public class FirestoreHelper {
         updates.put("buyer", revenue.getBuyer());
         updates.put("notes", revenue.getNotes());
         updates.put("updatedAt", System.currentTimeMillis());
-        updates.put("harvestCycleId", revenue.getHarvestCycleId());
-        updates.put("harvestYear", revenue.getHarvestYear());
-        updates.put("harvestSeason", revenue.getHarvestSeason());
 
         return db.collection(COLLECTION_FARMS)
                 .document(String.valueOf(farmId))

@@ -2,7 +2,6 @@ package com.afrinuts.farmos;
 
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
-import com.afrinuts.farmos.ui.analytics.AnalyticsDashboardActivity;
 import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
@@ -276,19 +275,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Cancel any pending Firestore operations if possible
-        // (You'd need to store the Firestore listener registration)
-
         // Shutdown executor gracefully
         if (databaseExecutor != null && !databaseExecutor.isShutdown()) {
             databaseExecutor.shutdown();
             try {
-                if (!databaseExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                // Wait up to 1 second for tasks to complete
+                if (!databaseExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
                     databaseExecutor.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 databaseExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
             }
         }
 

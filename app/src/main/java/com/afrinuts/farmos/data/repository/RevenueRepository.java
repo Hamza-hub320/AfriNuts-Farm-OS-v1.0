@@ -25,6 +25,10 @@ public class RevenueRepository extends BaseRepository {
         this.firestoreSyncManager = FirestoreSyncManager.getInstance(context);
     }
 
+    public List<RevenueEntity> getRevenuesByBatchId(long batchId) {
+        return database.revenueDao().getRevenuesByBatchId(batchId);
+    }
+
     public void insertRevenue(RevenueEntity revenue, InsertCallback callback) {
         executor.execute(() -> {
             try {

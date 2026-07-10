@@ -1,9 +1,13 @@
 package com.afrinuts.farmos.data.remote;
 
+import static com.afrinuts.farmos.data.remote.FirebaseManager.COLLECTION_FARMS;
+
 import android.util.Log;
 
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
@@ -11,10 +15,14 @@ import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class EntityMapper {
     private static final String TAG = "EntityMapper";
@@ -445,6 +453,12 @@ public class EntityMapper {
             String description = getStringSafe(doc, "description");
             String statusStr = getStringSafe(doc, "status");
             String typeStr = getStringSafe(doc, "type");
+            SupplierEntity.SupplierType type;
+            try {
+                type = SupplierEntity.SupplierType.valueOf(typeStr);
+            } catch (IllegalArgumentException e) {
+                type = SupplierEntity.SupplierType.COOPERATIVE;
+            }
             long dueDate = getLongSafe(doc, "dueDate");
             Long completedDate = getNullableLong(doc, "completedDate");
             long createdAt = getLongSafe(doc, "createdAt");
@@ -575,6 +589,7 @@ public class EntityMapper {
         map.put("farmId", batch.getFarmId());
         map.put("blockId", batch.getBlockId());
         map.put("harvestCycleId", batch.getHarvestCycleId());
+        map.put("verificationCode", batch.getVerificationCode());
         map.put("supplierId", batch.getSupplierId());
         map.put("sourceType", batch.getSourceType() != null ? batch.getSourceType().name() : null);
         map.put("batchNumber", batch.getBatchNumber());
@@ -616,6 +631,7 @@ public class EntityMapper {
             double kernelRatio = getDoubleSafe(doc, "kernelRatio");
             double weightKg = getDoubleSafe(doc, "weightKg");
             String gradeStr = getStringSafe(doc, "qualityGrade");
+            String verificationCode = doc.getString("verificationCode");
             String testResults = doc.getString("testResults");
             double qualityScore = getDoubleSafe(doc, "qualityScore");
             String notes = doc.getString("notes");
@@ -661,6 +677,7 @@ public class EntityMapper {
             batch.setQualityScore(qualityScore);
             batch.setCreatedAt(createdAt);
             batch.setUpdatedAt(updatedAt);
+            batch.setVerificationCode(verificationCode);
             batch.setSynced(isSynced);
             batch.setNoChildLabor(noChildLabor);
             batch.setFarmOsMonitored(farmOsMonitored);
@@ -676,8 +693,8 @@ public class EntityMapper {
     }
 
     // ========================================
-// SUPPLIER MAPPING
-// ========================================
+    // SUPPLIER MAPPING
+    // ========================================
 
     public static SupplierEntity fromFirestoreSupplier(DocumentSnapshot doc) {
         return mapToSupplier(doc);
@@ -810,9 +827,214 @@ public class EntityMapper {
         }
     }
 
-    // ========================================
-// FIRESTORE TO ENTITY ALIASES (for listeners)
 // ========================================
+// BATCH TRACEABILITY MAPPING
+// ========================================
+
+    public static Map<String, Object> batchTraceabilityToMap(BatchTraceabilityEntity traceability) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", traceability.getId());
+        map.put("batchNumber", traceability.getBatchNumber());
+        map.put("farmId", traceability.getFarmId());
+        map.put("harvestCycleId", traceability.getHarvestCycleId());
+        map.put("harvestYear", traceability.getHarvestYear());
+        map.put("qualityBatchId", traceability.getQualityBatchId());
+        map.put("supplierId", traceability.getSupplierId());
+        map.put("supplierName", traceability.getSupplierName());
+        map.put("qualityGrade", traceability.getQualityGrade());
+        map.put("certificationIds", traceability.getCertificationIds());
+
+        // ✅ Add verification code
+        map.put("verificationCode", traceability.getVerificationCode());
+
+        // ✅ Use sustainabilityMetrics instead of sustainabilityMetricsId
+        map.put("sustainabilityMetrics", traceability.getSustainabilityMetrics());
+
+        map.put("processingDate", traceability.getProcessingDate());
+        map.put("exportDate", traceability.getExportDate());
+        map.put("buyer", traceability.getBuyer());
+        map.put("destination", traceability.getDestination());
+        map.put("weightKg", traceability.getWeightKg());
+        map.put("grade", traceability.getGrade());
+        map.put("pricePerKg", traceability.getPricePerKg());
+        map.put("totalAmount", traceability.getTotalAmount());
+        map.put("documents", traceability.getDocuments());
+        map.put("traceabilityUrl", traceability.getTraceabilityUrl());
+        map.put("createdAt", traceability.getCreatedAt());
+        map.put("updatedAt", traceability.getUpdatedAt());
+        map.put("isSynced", traceability.isSynced());
+        return map;
+    }
+
+    public static BatchTraceabilityEntity mapToBatchTraceability(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            long farmId = getLongSafe(doc, "farmId");
+            String batchNumber = getStringSafe(doc, "batchNumber");
+            Long harvestCycleId = getNullableLong(doc, "harvestCycleId");
+            Long qualityBatchId = getNullableLong(doc, "qualityBatchId");
+            Long supplierId = getNullableLong(doc, "supplierId");
+            String supplierName = doc.getString("supplierName");
+            String qualityGrade = doc.getString("qualityGrade");
+            String certificationIds = doc.getString("certificationIds");
+
+            // ✅ Read verification code
+            String verificationCode = doc.getString("verificationCode");
+
+            // ✅ Read sustainabilityMetrics instead of sustainabilityMetricsId
+            String sustainabilityMetrics = doc.getString("sustainabilityMetrics");
+
+            int harvestYear = 0;
+            Object harvestYearObj = doc.get("harvestYear");
+            if (harvestYearObj instanceof Long) {
+                harvestYear = ((Long) harvestYearObj).intValue();
+            } else if (harvestYearObj instanceof Integer) {
+                harvestYear = (Integer) harvestYearObj;
+            } else if (harvestYearObj instanceof String) {
+                try {
+                    harvestYear = Integer.parseInt((String) harvestYearObj);
+                } catch (NumberFormatException e) {
+                    harvestYear = 0;
+                }
+            }
+
+            long processingDate = getLongSafe(doc, "processingDate");
+            Long exportDate = getNullableLong(doc, "exportDate");
+            String buyer = doc.getString("buyer");
+            String destination = doc.getString("destination");
+            double weightKg = getDoubleSafe(doc, "weightKg");
+            String grade = getStringSafe(doc, "grade");
+            double pricePerKg = getDoubleSafe(doc, "pricePerKg");
+            double totalAmount = getDoubleSafe(doc, "totalAmount");
+            String documents = doc.getString("documents");
+            String traceabilityUrl = doc.getString("traceabilityUrl");
+            long createdAt = getLongSafe(doc, "createdAt");
+            long updatedAt = getLongSafe(doc, "updatedAt");
+            boolean isSynced = getBooleanSafe(doc, "isSynced");
+
+            BatchTraceabilityEntity traceability = new BatchTraceabilityEntity(
+                    farmId,
+                    batchNumber,
+                    processingDate,
+                    weightKg,
+                    grade,
+                    pricePerKg
+            );
+            traceability.setId(id);
+            traceability.setHarvestCycleId(harvestCycleId);
+            traceability.setQualityBatchId(qualityBatchId);
+            traceability.setSupplierId(supplierId);
+            traceability.setHarvestYear(harvestYear);
+            traceability.setSupplierName(supplierName);
+            traceability.setQualityGrade(qualityGrade);
+            traceability.setCertificationIds(certificationIds);
+
+            // ✅ Set verification code
+            traceability.setVerificationCode(verificationCode);
+
+            // ✅ Set sustainabilityMetrics
+            traceability.setSustainabilityMetrics(sustainabilityMetrics);
+
+            traceability.setExportDate(exportDate);
+            traceability.setBuyer(buyer);
+            traceability.setDestination(destination);
+            traceability.setDocuments(documents);
+            traceability.setTraceabilityUrl(traceabilityUrl != null ? traceabilityUrl :
+                    traceability.generateTraceabilityUrl(batchNumber));
+            traceability.setCreatedAt(createdAt);
+            traceability.setUpdatedAt(updatedAt > 0 ? updatedAt : createdAt);
+            traceability.setSynced(isSynced);
+
+            return traceability;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping batch traceability", e);
+            return null;
+        }
+    }
+
+// ========================================
+// MASTER BATCH TRACEABILITY MAPPING
+// ========================================
+
+    public static Map<String, Object> masterTraceabilityToMap(MasterBatchTraceabilityEntity master) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", master.getId());
+        map.put("masterBatchNumber", master.getMasterBatchNumber());
+        map.put("shipmentName", master.getShipmentName());
+        map.put("shipmentId", master.getShipmentId());
+        map.put("totalWeightKg", master.getTotalWeightKg());
+        map.put("totalBatches", master.getTotalBatches());
+        map.put("grades", master.getGrades());
+        map.put("certifications", master.getCertifications());
+        map.put("batchNumbers", master.getBatchNumbersJson());
+        map.put("batchTraceabilityIds", master.getBatchTraceabilityIdsJson());
+        map.put("buyer", master.getBuyer());
+        map.put("destination", master.getDestination());
+        map.put("exportDate", master.getExportDate());
+
+        // ✅ Add verification code
+        map.put("verificationCode", master.getVerificationCode());
+
+        map.put("traceabilityUrl", master.getTraceabilityUrl());
+        map.put("createdAt", master.getCreatedAt());
+        map.put("updatedAt", master.getUpdatedAt());
+        map.put("isSynced", master.isSynced());
+        return map;
+    }
+
+    public static MasterBatchTraceabilityEntity mapToMasterTraceability(DocumentSnapshot doc) {
+        try {
+            long id = doc.getLong("id");
+            String masterBatchNumber = doc.getString("masterBatchNumber");
+            String shipmentName = doc.getString("shipmentName");
+
+            MasterBatchTraceabilityEntity master = new MasterBatchTraceabilityEntity(masterBatchNumber, shipmentName);
+
+            master.setId(id);
+            master.setShipmentId(doc.getString("shipmentId"));
+
+            // ✅ Read verification code
+            String verificationCode = doc.getString("verificationCode");
+            master.setVerificationCode(verificationCode);
+
+            Double totalWeight = doc.getDouble("totalWeightKg");
+            if (totalWeight != null) master.setTotalWeightKg(totalWeight);
+
+            Long totalBatches = doc.getLong("totalBatches");
+            if (totalBatches != null) master.setTotalBatches(totalBatches.intValue());
+
+            master.setGrades(doc.getString("grades"));
+            master.setCertifications(doc.getString("certifications"));
+            master.setBatchNumbersJson(doc.getString("batchNumbers"));
+            master.setBatchTraceabilityIdsJson(doc.getString("batchTraceabilityIds"));
+            master.setBuyer(doc.getString("buyer"));
+            master.setDestination(doc.getString("destination"));
+
+            Long exportDate = doc.getLong("exportDate");
+            if (exportDate != null) master.setExportDate(exportDate);
+
+            master.setTraceabilityUrl(doc.getString("traceabilityUrl"));
+
+            Long createdAt = doc.getLong("createdAt");
+            if (createdAt != null) master.setCreatedAt(createdAt);
+
+            Long updatedAt = doc.getLong("updatedAt");
+            if (updatedAt != null) master.setUpdatedAt(updatedAt);
+
+            Boolean isSynced = doc.getBoolean("isSynced");
+            if (isSynced != null) master.setSynced(isSynced);
+
+            return master;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping master traceability", e);
+            return null;
+        }
+    }
+
+    // ========================================
+    // FIRESTORE TO ENTITY ALIASES (for listeners)
+    // ========================================
 
     public static BlockEntity fromFirestoreBlock(DocumentSnapshot doc) {
         return mapToBlock(doc);

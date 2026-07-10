@@ -50,9 +50,11 @@ public class QualityBatchEntity {
     private long farmId;
 
     // Source tracking
-    private Long blockId;           // NULL = not from AfriNuts farm block
-    private Long harvestCycleId;     // Reference to RevenueEntity (AfriNuts harvest)
-    private Long supplierId;         // Reference to SupplierEntity (external source)
+    private Long blockId;
+    private Long harvestCycleId;
+    private Long supplierId;
+
+    private String verificationCode;
 
     private transient String supplierName;
 
@@ -318,6 +320,9 @@ public class QualityBatchEntity {
 
     public String getTestResults() { return testResults; }
     public void setTestResults(String testResults) { this.testResults = testResults; }
+
+    public String getVerificationCode() { return verificationCode; }
+    public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
 
     public double getQualityScore() { return qualityScore; }
     public void setQualityScore(double qualityScore) { this.qualityScore = qualityScore; }

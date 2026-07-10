@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.analytics;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -10,10 +11,14 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
-import com.afrinuts.farmos.ui.expenses.ExpenseChartsFragment;
 import com.afrinuts.farmos.ui.quality.QualityMetricsFragment;
 import com.afrinuts.farmos.ui.quality.QualityBatchDialog;
 import com.afrinuts.farmos.ui.reports.ReportsFragment;
+import com.afrinuts.farmos.ui.traceability.CreateMasterTraceabilityDialog;
+import com.afrinuts.farmos.ui.traceability.MasterTraceabilityFragment;
+import com.afrinuts.farmos.ui.traceability.QRScannerActivity;
+import com.afrinuts.farmos.ui.traceability.TraceabilityFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -25,6 +30,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     private FloatingActionButton fabAction;
     private AnalyticsPagerAdapter pagerAdapter;
     private QualityMetricsFragment qualityMetricsFragment;
+    private TraceabilityFragment traceabilityFragment;
+    private MasterTraceabilityFragment masterTraceabilityFragment;
 
     @Override
     protected int getLayoutResourceId() {
@@ -43,10 +50,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         setupFab();
     }
 
-    // ✅ Implement the abstract method from BaseActivity
     @Override
     protected boolean checkRoleAccess() {
-        // All roles can access analytics (investors can view too)
         return true;
     }
 
@@ -67,12 +72,16 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                     tab.setIcon(R.drawable.ic_quality);
                     break;
                 case 1:
-                    tab.setText("Charts");
-                    tab.setIcon(R.drawable.ic_insert_chart);
-                    break;
-                case 2:
                     tab.setText("Reports");
                     tab.setIcon(R.drawable.ic_pdf);
+                    break;
+                case 2:
+                    tab.setText("Traceability");
+                    tab.setIcon(R.drawable.ic_qr_code);
+                    break;
+                case 3:
+                    tab.setText("Bulk");
+                    tab.setIcon(R.drawable.ic_batch);
                     break;
             }
         }).attach();
@@ -85,63 +94,63 @@ public class AnalyticsHubActivity extends BaseHubActivity {
             }
         });
 
-        // Get reference to QualityMetricsFragment after adapter is ready
+        // ✅ Get references to fragments - FIXED: Use correct positions
         qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(0);
+        // Reports fragment doesn't need a reference
+        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(2);  // Position 2
+        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(3);  // Position 3
     }
 
     private void updateFabForTab(int position) {
-        if (position == 0) {
-            // Quality tab - show FAB
+        if (position == 2) {
+            // Traceability tab - show FAB with QR icon
+            fabAction.show();
+            fabAction.setImageResource(R.drawable.ic_qr_code);
+            fabAction.setOnClickListener(v -> {
+                if (traceabilityFragment != null) {
+                    traceabilityFragment.showTraceabilityOptions();
+                }
+            });
+        } else if (position == 3) {
+            // Bulk/Master Traceability tab - show FAB with add icon
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_add);
-            fabAction.setOnClickListener(v -> showAddQualityDialog());
+            fabAction.setOnClickListener(v -> showCreateMasterDialog());
         } else {
-            // Other tabs - hide FAB
             fabAction.hide();
         }
     }
 
     private void setupFab() {
-        // Initially hidden, will be shown in updateFabForTab
         fabAction.hide();
     }
 
-    private void showAddQualityDialog() {
-        if (qualityMetricsFragment == null) {
-            Toast.makeText(this, "Quality fragment not ready", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Get farm ID from the fragment
-        long farmId = qualityMetricsFragment.getFarmId();
-        if (farmId <= 0) {
-            Toast.makeText(this, "Farm not loaded", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        QualityBatchDialog dialog = QualityBatchDialog.newInstance(farmId);
-        dialog.setOnBatchAddedListener(() -> {
-            // Refresh the quality metrics fragment
-            if (qualityMetricsFragment != null) {
-                qualityMetricsFragment.refreshData();
+    private void showCreateMasterDialog() {
+        CreateMasterTraceabilityDialog dialog = CreateMasterTraceabilityDialog.newInstance();
+        dialog.setOnMasterTraceabilityCreatedListener(master -> {
+            Toast.makeText(this, "✅ Master created: " + master.getMasterBatchNumber(), Toast.LENGTH_LONG).show();
+            if (masterTraceabilityFragment != null) {
+                // Refresh the master list
+                // You'll need to add a refreshData() method to MasterTraceabilityFragment
             }
-            Toast.makeText(this, "Quality batch added!", Toast.LENGTH_SHORT).show();
         });
-        dialog.show(getSupportFragmentManager(), "QualityBatchDialog");
+        dialog.show(getSupportFragmentManager(), "CreateMasterTraceabilityDialog");
     }
 
     // ViewPager Adapter
     private static class AnalyticsPagerAdapter extends FragmentStateAdapter {
 
         private final QualityMetricsFragment metricsFragment;
-        private final ExpenseChartsFragment chartsFragment;
         private final ReportsFragment reportsFragment;
+        private final TraceabilityFragment traceabilityFragment;
+        private final MasterTraceabilityFragment masterTraceabilityFragment;
 
         public AnalyticsPagerAdapter(AnalyticsHubActivity activity) {
             super(activity);
             metricsFragment = new QualityMetricsFragment();
-            chartsFragment = new ExpenseChartsFragment();
             reportsFragment = new ReportsFragment();
+            traceabilityFragment = new TraceabilityFragment();
+            masterTraceabilityFragment = new MasterTraceabilityFragment();
         }
 
         @NonNull
@@ -151,9 +160,11 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 case 0:
                     return metricsFragment;
                 case 1:
-                    return chartsFragment;
-                case 2:
                     return reportsFragment;
+                case 2:
+                    return traceabilityFragment;
+                case 3:
+                    return masterTraceabilityFragment;
                 default:
                     return metricsFragment;
             }
@@ -161,7 +172,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
         @Override
         public int getItemCount() {
-            return 3;
+            return 4; // ✅ 4 tabs
         }
 
         public Fragment getFragment(int position) {
@@ -169,9 +180,11 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 case 0:
                     return metricsFragment;
                 case 1:
-                    return chartsFragment;
-                case 2:
                     return reportsFragment;
+                case 2:
+                    return traceabilityFragment;
+                case 3:
+                    return masterTraceabilityFragment;
                 default:
                     return metricsFragment;
             }

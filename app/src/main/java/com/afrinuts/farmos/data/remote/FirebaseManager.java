@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
@@ -414,7 +415,7 @@ public class FirebaseManager {
 
         StorageReference storageRef = storage.getReference().child(finalPath);
 
-        Log.d(TAG, "📤 Uploading photo to: " + finalPath);
+        Log.d(TAG, "Uploading photo to: " + finalPath);
 
         UploadTask uploadTask = storageRef.putFile(Uri.fromFile(photoFile));
 
@@ -423,14 +424,14 @@ public class FirebaseManager {
             callback.onProgress(progress);
         }).addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                Log.d(TAG, "✅ Photo uploaded successfully: " + uri.toString());
+                Log.d(TAG, "Photo uploaded successfully: " + uri.toString());
                 callback.onSuccess(uri.toString());
             }).addOnFailureListener(e -> {
-                Log.e(TAG, "❌ Failed to get download URL", e);
+                Log.e(TAG, "Failed to get download URL", e);
                 callback.onError(e.getMessage());
             });
         }).addOnFailureListener(e -> {
-            Log.e(TAG, "❌ Upload failed", e);
+            Log.e(TAG, "Upload failed", e);
             callback.onError(e.getMessage());
         });
     }
@@ -450,15 +451,15 @@ public class FirebaseManager {
         photoMap.put("updatedAt", System.currentTimeMillis());
 
         String docId = String.valueOf(photo.getId());
-        Log.d(TAG, "📝 Saving photo metadata to: farms/" + farmId + "/photos/" + docId);
+        Log.d(TAG, "Saving photo metadata to: farms/" + farmId + "/photos/" + docId);
 
         db.collection("farms")
                 .document(farmId)
                 .collection("photos")
                 .document(docId)
                 .set(photoMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Photo metadata saved"))
-                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to save metadata", e));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Photo metadata saved"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to save metadata", e));
     }
 
     // Overloaded version with callback
@@ -510,8 +511,8 @@ public class FirebaseManager {
     }
 
     // ========================================
-   //  TASK ASSIGNMENT OPERATIONS
-   // ========================================
+    //  TASK ASSIGNMENT OPERATIONS
+    // ========================================
 
     public void saveAssignment(TaskAssignmentHistoryEntity assignment, String farmId) throws Exception {
         Map<String, Object> assignmentMap = new HashMap<>();
@@ -657,6 +658,47 @@ public class FirebaseManager {
         return db.collection(COLLECTION_FARMS)
                 .document(farmId)
                 .collection(SUBCOLLECTION_SUPPLIERS)
+                .get();
+    }
+
+    // ========================================
+    // BATCH TRACEABILITY OPERATIONS
+    // ========================================
+
+    public void saveBatchTraceability(BatchTraceabilityEntity traceability, String farmId) throws Exception {
+        Map<String, Object> traceabilityMap = EntityMapper.batchTraceabilityToMap(traceability);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection("batch_traceability")
+                    .document(String.valueOf(traceability.getId()))
+                    .set(traceabilityMap));
+            Log.d(TAG, "Batch traceability saved: " + traceability.getBatchNumber());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving batch traceability", e);
+            throw new Exception("Failed to save batch traceability to Firestore", e);
+        }
+    }
+
+    public void deleteBatchTraceability(String farmId, long traceabilityId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection("batch_traceability")
+                    .document(String.valueOf(traceabilityId))
+                    .delete());
+            Log.d(TAG, "Batch traceability deleted: " + traceabilityId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting batch traceability", e);
+            throw new Exception("Failed to delete batch traceability from Firestore", e);
+        }
+    }
+
+    public Task<QuerySnapshot> getBatchTraceabilityForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("batch_traceability")
                 .get();
     }
 

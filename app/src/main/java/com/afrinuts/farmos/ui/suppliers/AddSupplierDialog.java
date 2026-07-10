@@ -174,7 +174,7 @@ public class AddSupplierDialog extends DialogFragment {
         String[] typeNames = new String[types.length];
 
         for (int i = 0; i < types.length; i++) {
-            typeNames[i] = types[i].getDisplayName(); // Remove emoji icons
+            typeNames[i] = types[i].getDisplayName();
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(

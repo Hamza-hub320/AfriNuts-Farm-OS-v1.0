@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -54,6 +56,8 @@ public class FirestoreSyncManager {
     private ListenerRegistration assignmentsListener;
     private ListenerRegistration qualityBatchesListener;
     private ListenerRegistration suppliersListener;
+    private ListenerRegistration batchTraceabilityListener;
+    private ListenerRegistration masterTraceabilityListener;
     private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
 
 
@@ -86,6 +90,8 @@ public class FirestoreSyncManager {
         listenToAssignments();
         listenToQualityBatches();
         listenToSuppliers();
+        listenToMasterTraceability();
+        listenToBatchTraceability();
     }
 
     /**
@@ -101,6 +107,8 @@ public class FirestoreSyncManager {
         if (assignmentsListener != null) assignmentsListener.remove();
         if (qualityBatchesListener != null) qualityBatchesListener.remove();
         if (suppliersListener != null) suppliersListener.remove();
+        if (batchTraceabilityListener != null) batchTraceabilityListener.remove();
+        if (masterTraceabilityListener != null) masterTraceabilityListener.remove();
 
 
         Log.d(TAG, "All Firestore listeners stopped");
@@ -790,6 +798,131 @@ public class FirestoreSyncManager {
             database.qualityBatchDao().insert(batch);
             Log.d(TAG, "✅ Processed queued batch: " + batch.getBatchNumber());
         }
+    }
+
+    // ========================================
+    // BATCH TRACEABILITY LISTENER
+    // ========================================
+
+    private void listenToBatchTraceability() {
+        batchTraceabilityListener = db.collection("farms")
+                .document(farmId)
+                .collection("batch_traceability")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Batch traceability listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            BatchTraceabilityEntity remoteTraceability =
+                                    EntityMapper.mapToBatchTraceability(dc.getDocument());
+                            if (remoteTraceability == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // Check if referenced quality batch exists
+                                    if (remoteTraceability.getQualityBatchId() != null) {
+                                        QualityBatchEntity batch = database.qualityBatchDao()
+                                                .getBatchById(remoteTraceability.getQualityBatchId());
+                                        if (batch == null) {
+                                            Log.w(TAG, "⚠️ Skipping traceability - quality batch " +
+                                                    remoteTraceability.getQualityBatchId() + " not found");
+                                            continue;
+                                        }
+                                    }
+
+                                    BatchTraceabilityEntity localTraceability =
+                                            database.batchTraceabilityDao()
+                                                    .getById(remoteTraceability.getId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localTraceability == null) {
+                                        database.batchTraceabilityDao().insert(remoteTraceability);
+                                        Log.d(TAG, "➕ New traceability: " + remoteTraceability.getBatchNumber());
+                                    } else {
+                                        if (remoteTraceability.getUpdatedAt() > localTraceability.getUpdatedAt()) {
+                                            database.batchTraceabilityDao().update(remoteTraceability);
+                                            Log.d(TAG, "📥 Updated traceability: " + remoteTraceability.getBatchNumber());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped traceability (local newer): " +
+                                                    remoteTraceability.getBatchNumber());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.batchTraceabilityDao().delete(remoteTraceability);
+                                    Log.d(TAG, "❌ Traceability deleted: " + remoteTraceability.getBatchNumber());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Batch traceability listener registered");
+    }
+
+    // ========================================
+    // MASTER TRACEABILITY LISTENER
+    // ========================================
+
+    // Add this method
+    private void listenToMasterTraceability() {
+        masterTraceabilityListener = db.collection("farms")
+                .document(farmId)
+                .collection("master_traceability")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Master traceability listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            MasterBatchTraceabilityEntity remoteMaster =
+                                    EntityMapper.mapToMasterTraceability(dc.getDocument());
+                            if (remoteMaster == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    MasterBatchTraceabilityEntity localMaster =
+                                            database.masterTraceabilityDao()
+                                                    .getById(remoteMaster.getId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localMaster == null) {
+                                        database.masterTraceabilityDao().insert(remoteMaster);
+                                        Log.d(TAG, "➕ New master traceability: " + remoteMaster.getMasterBatchNumber());
+                                    } else {
+                                        if (remoteMaster.getUpdatedAt() > localMaster.getUpdatedAt()) {
+                                            database.masterTraceabilityDao().update(remoteMaster);
+                                            Log.d(TAG, "📥 Updated master traceability: " + remoteMaster.getMasterBatchNumber());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.masterTraceabilityDao().delete(remoteMaster);
+                                    Log.d(TAG, "❌ Master traceability deleted: " + remoteMaster.getMasterBatchNumber());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Master traceability listener registered");
     }
 
     // ========================================

@@ -20,6 +20,9 @@
     <color name="gradient_bg_soft_start">#F5F5F5</color>
     <color name="gradient_bg_soft_end">#E8F0D6</color>
 
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+
 
     <!-- Text Colors -->
     <color name="text_dark">#5A4D47</color>

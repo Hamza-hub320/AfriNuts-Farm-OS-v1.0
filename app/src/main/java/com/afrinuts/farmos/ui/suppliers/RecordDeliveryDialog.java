@@ -1,9 +1,12 @@
 package com.afrinuts.farmos.ui.suppliers;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -29,6 +32,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -189,9 +193,14 @@ public class RecordDeliveryDialog extends DialogFragment {
         );
 
         etSourceType.setAdapter(adapter);
-        etSourceType.setText(typeNames[0], false);
-    }
 
+        // ✅ If supplier is OWN_FARM, auto-select OWN_FARM source type
+        if (supplier != null && supplier.getType() == SupplierEntity.SupplierType.OWN_FARM) {
+            etSourceType.setText("Own Farm", false);
+        } else {
+            etSourceType.setText(typeNames[0], false);
+        }
+    }
     private void generateBatchNumber() {
         if (supplier == null) {
             String timestamp = new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(new java.util.Date());
@@ -332,6 +341,10 @@ public class RecordDeliveryDialog extends DialogFragment {
             String sourceTypeStr = etSourceType.getText().toString().trim();
             QualityBatchEntity.SourceType sourceType = getSourceTypeFromDisplay(sourceTypeStr);
 
+            // ✅ Get Batch Type from dropdown
+            String batchTypeStr = etBatchType.getText().toString().trim();
+            String batchTypeCode = getBatchTypeCode(batchTypeStr);
+
             boolean noChildLabor = switchNoChildLabor.isChecked();
             boolean farmOsMonitored = switchFarmOsMonitored.isChecked();
             boolean firebreakProtection = switchFirebreakProtection.isChecked();
@@ -354,6 +367,14 @@ public class RecordDeliveryDialog extends DialogFragment {
                     grade,
                     notes
             );
+
+            // ✅ Generate verification code using the batch type code
+            String verificationCode = BatchNumberGenerator.generateVerificationCode(
+                    sourceType.name(),
+                    batchTypeCode,  // ✅ Use the code, not the display name
+                    new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(selectedDate.getTime())
+            );
+            batch.setVerificationCode(verificationCode);
 
             // ✅ Set sustainability fields
             batch.setNoChildLabor(noChildLabor);
@@ -389,6 +410,14 @@ public class RecordDeliveryDialog extends DialogFragment {
         } catch (NumberFormatException e) {
             Toast.makeText(getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // ✅ Add this helper method to get batch type code
+    private String getBatchTypeCode(String typeDisplay) {
+        if (TextUtils.isEmpty(typeDisplay)) return "ORG";
+        if (typeDisplay.contains("Organic")) return "ORG";
+        if (typeDisplay.contains("Conventional")) return "CONV";
+        return "ORG";
     }
 
     private QualityBatchEntity.SourceType getSourceTypeFromDisplay(String display) {

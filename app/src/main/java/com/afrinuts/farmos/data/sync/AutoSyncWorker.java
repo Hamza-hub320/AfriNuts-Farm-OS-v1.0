@@ -11,6 +11,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
@@ -150,6 +151,9 @@ public class AutoSyncWorker extends Worker {
                 case "quality_batch":
                     syncQualityBatch(syncItem);
                     break;
+                case "batch_traceability":
+                    syncBatchTraceability(syncItem);
+                    break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
                     throw new RuntimeException("Unknown entity type: " + syncItem.getEntityType());
@@ -158,16 +162,45 @@ public class AutoSyncWorker extends Worker {
             // Mark as completed
             syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
             database.syncDao().update(syncItem);
-            Log.d(TAG, "✓ Successfully synced: " + syncItem.getEntityType() + ":" + syncItem.getEntityId());
+            Log.d(TAG, "Successfully synced: " + syncItem.getEntityType() + ":" + syncItem.getEntityId());
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, "✗ Failed to sync item: " + syncItem.getId(), e);
+            Log.e(TAG, "Failed to sync item: " + syncItem.getId(), e);
 
             syncItem.setStatus(SyncEntity.SyncStatus.FAILED);
             syncItem.setAttemptCount(syncItem.getAttemptCount() + 1);
             database.syncDao().update(syncItem);
             return false;
+        }
+    }
+    private void syncBatchTraceability(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncBatchTraceability called: ID=" + syncItem.getEntityId() +
+                " action=" + syncItem.getAction());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                BatchTraceabilityEntity traceability = database.batchTraceabilityDao()
+                        .getById(syncItem.getEntityId());
+                if (traceability == null) {
+                    Log.e(TAG, "Traceability not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                firebaseManager.saveBatchTraceability(traceability, farmId);
+                Log.d(TAG, "Traceability saved to Firestore: " + traceability.getBatchNumber());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting traceability from Firestore: ID=" + syncItem.getEntityId());
+                try {
+                    firebaseManager.deleteBatchTraceability(farmId, syncItem.getEntityId());
+                    Log.d(TAG, "Traceability deleted from Firestore: " + syncItem.getEntityId());
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete traceability from Firestore", e);
+                    throw e;
+                }
+                break;
         }
     }
 
@@ -271,45 +304,49 @@ public class AutoSyncWorker extends Worker {
     }
 
     private void syncExpense(SyncEntity syncItem) throws Exception {
-        ExpenseEntity expense = database.expenseDao().getExpenseById(syncItem.getEntityId());
-        if (expense == null) {
-            Log.e(TAG, "Expense not found in local DB: " + syncItem.getEntityId());
-            return;
-        }
-
-        Log.d(TAG, "Syncing expense ID: " + syncItem.getEntityId() + " action: " + syncItem.getAction());
+        Log.d(TAG, "syncExpense called: ID=" + syncItem.getEntityId() + " action=" + syncItem.getAction());
 
         switch (syncItem.getAction()) {
             case CREATE:
             case UPDATE:
+                ExpenseEntity expense = database.expenseDao().getExpenseById(syncItem.getEntityId());
+                if (expense == null) {
+                    Log.e(TAG, "Expense not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                Log.d(TAG, "Syncing expense: " + expense.getId() + " amount: " + expense.getAmount());
                 firebaseManager.saveExpense(expense, farmId);
                 Log.d(TAG, "Expense saved to Firestore: " + expense.getId());
                 break;
+
             case DELETE:
-                firebaseManager.deleteExpense(farmId, expense.getId());
-                Log.d(TAG, "Expense deleted from Firestore: " + expense.getId());
+                Log.d(TAG, "Deleting expense from Firestore: ID=" + syncItem.getEntityId());
+                firebaseManager.deleteExpense(farmId, syncItem.getEntityId());
+                Log.d(TAG, "Expense deleted from Firestore: " + syncItem.getEntityId());
                 break;
         }
     }
 
     private void syncRevenue(SyncEntity syncItem) throws Exception {
-        RevenueEntity revenue = database.revenueDao().getRevenueById(syncItem.getEntityId());
-        if (revenue == null) {
-            Log.e(TAG, "Revenue not found in local DB: " + syncItem.getEntityId());
-            return;
-        }
-
-        Log.d(TAG, "Syncing revenue ID: " + syncItem.getEntityId() + " action: " + syncItem.getAction());
+        Log.d(TAG, "syncRevenue called: ID=" + syncItem.getEntityId() + " action=" + syncItem.getAction());
 
         switch (syncItem.getAction()) {
             case CREATE:
             case UPDATE:
+                RevenueEntity revenue = database.revenueDao().getRevenueById(syncItem.getEntityId());
+                if (revenue == null) {
+                    Log.e(TAG, "Revenue not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                Log.d(TAG, "Syncing revenue: " + revenue.getId() + " amount: " + revenue.getTotalAmount());
                 firebaseManager.saveRevenue(revenue, farmId);
                 Log.d(TAG, "Revenue saved to Firestore: " + revenue.getId());
                 break;
+
             case DELETE:
-                firebaseManager.deleteRevenue(farmId, revenue.getId());
-                Log.d(TAG, "Revenue deleted from Firestore: " + revenue.getId());
+                Log.d(TAG, "Deleting revenue from Firestore: ID=" + syncItem.getEntityId());
+                firebaseManager.deleteRevenue(farmId, syncItem.getEntityId());
+                Log.d(TAG, "Revenue deleted from Firestore: " + syncItem.getEntityId());
                 break;
         }
     }

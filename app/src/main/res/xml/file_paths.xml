@@ -20,6 +20,11 @@
         name="cache"
         path="/" />
 
+    <cache-path name="cache" path="/" />
+    <external-cache-path name="external_cache" path="/" />
+    <external-files-path name="external_files" path="/" />
+    <files-path name="files" path="/" />
+
     <!-- For files directory (internal storage) -->
     <files-path
         name="internal_files"

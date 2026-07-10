@@ -70,6 +70,8 @@ public class SupplierEntity {
     private boolean isSynced;
 
     public enum SupplierType {
+        OWN_FARM("Own Farm",  "AfriNuts-owned farm, organic certified"),
+
         COOPERATIVE("Cooperative", "Farmer cooperative organization"),
         INDEPENDENT_FARMER("Independent Farmer", "Individual smallholder farmer"),
         REGIONAL_SUPPLIER("Regional Supplier", "Regional commercial supplier"),

@@ -1,5 +1,7 @@
 package com.afrinuts.farmos.data.local.database;
 
+import static androidx.compose.ui.text.input.CursorAnchorInfoBuilder_androidKt.build;
+
 import android.content.Context;
 
 import androidx.room.Database;
@@ -9,9 +11,11 @@ import androidx.room.TypeConverters;
 
 import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.data.local.converter.Converters;
+import com.afrinuts.farmos.data.local.dao.BatchTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
+import com.afrinuts.farmos.data.local.dao.MasterTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
@@ -21,9 +25,11 @@ import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
 import com.afrinuts.farmos.data.local.dao.UserDao;
 import com.afrinuts.farmos.data.local.dao.WeatherDao;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -50,9 +56,11 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 PhotoEntity.class,
                 SyncEntity.class,
                 QualityBatchEntity.class,
-                SupplierEntity.class
+                SupplierEntity.class,
+                BatchTraceabilityEntity.class,
+                MasterBatchTraceabilityEntity.class
         },
-        version = 19,
+        version = 22,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -82,6 +90,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract QualityBatchDao qualityBatchDao();
 
     public abstract SupplierDao supplierDao();
+    public abstract BatchTraceabilityDao batchTraceabilityDao();
+    public abstract MasterTraceabilityDao masterTraceabilityDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -112,7 +122,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration15To16(),
                                     new Migration16To17(),
                                     new Migration17To18(),
-                                    new Migration18To19()
+                                    new Migration18To19(),
+                                    new Migration19To20(),
+                                    new Migration20To21(),
+                                    new Migration21To22()
+
                             )
                             .build();
                 }

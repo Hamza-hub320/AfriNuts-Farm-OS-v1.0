@@ -1,9 +1,12 @@
 package com.afrinuts.farmos.ui.quality;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,11 +20,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.utils.BatchNumberGenerator;
+import com.afrinuts.farmos.utils.TraceabilityAutoCreator;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -469,6 +475,11 @@ public class QualityBatchDialog extends DialogFragment {
                         public void onSuccess(Boolean result) {
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
+
+                                    TraceabilityAutoCreator autoCreator = new TraceabilityAutoCreator(
+                                            getContext(), farmId);
+                                    autoCreator.createMissingTraceabilities();
+
                                     Toast.makeText(getContext(), "Quality metrics updated!", Toast.LENGTH_SHORT).show();
                                     if (listener != null) listener.onBatchAdded();
                                     dismiss();

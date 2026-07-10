@@ -9,15 +9,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Storage permission (for older Android versions) -->
-    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
-    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" /> -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".FarmApplication"
@@ -31,6 +26,7 @@
         android:theme="@style/Theme.AfriNutsFarmOS"
         android:usesCleartextTraffic="true">
 
+        <!-- Login Activity (Launcher) -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true"
@@ -41,11 +37,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
         </activity>
 
+        <!-- Blocks -->
         <activity
             android:name=".ui.blocks.BlocksActivity"
             android:parentActivityName=".MainActivity" />
@@ -54,6 +52,7 @@
             android:name=".ui.blocks.BlockDetailActivity"
             android:parentActivityName=".ui.blocks.BlocksActivity" />
 
+        <!-- Expenses -->
         <activity
             android:name=".ui.expenses.ExpensesListActivity"
             android:parentActivityName=".MainActivity" />
@@ -66,16 +65,18 @@
             android:name=".ui.expenses.ExpenseChartsActivity"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Revenue -->
         <activity
             android:name=".ui.revenue.RevenuesListActivity"
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".ui.tasks.TasksListActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".ui.revenue.RevenueDetailActivity"
+            android:parentActivityName=".ui.revenue.RevenuesListActivity" />
 
+        <!-- Tasks -->
         <activity
-            android:name=".ui.profit.ProfitDashboardActivity"
+            android:name=".ui.tasks.TasksListActivity"
             android:parentActivityName=".MainActivity" />
 
         <activity
@@ -83,22 +84,16 @@
             android:parentActivityName=".ui.tasks.TasksListActivity"
             android:exported="false" />
 
+        <!-- Workers -->
         <activity
             android:name=".ui.workers.WorkerDashboardActivity"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name=".ui.revenue.RevenueDetailActivity"
-            android:parentActivityName=".ui.revenue.RevenuesListActivity" />
-
-        <activity
-            android:name=".ui.weather.WeatherActivity"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.workers.WorkerDetailActivity"
             android:parentActivityName=".ui.workers.WorkerDashboardActivity" />
 
+        <!-- Users -->
         <activity
             android:name=".ui.users.UsersListActivity"
             android:parentActivityName=".MainActivity" />
@@ -107,6 +102,7 @@
             android:name=".ui.users.UserDetailActivity"
             android:parentActivityName=".ui.users.UsersListActivity" />
 
+        <!-- Hubs -->
         <activity
             android:name=".ui.farm.FarmHubActivity"
             android:parentActivityName=".MainActivity" />
@@ -114,22 +110,12 @@
         <activity
             android:name=".ui.finance.FinanceHubActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.analytics.AnalyticsHubActivity"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Add file provider for camera photos -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-
-        <!-- Add photo activities -->
+        <!-- Photos -->
         <activity
             android:name=".ui.photos.PhotoGalleryActivity"
             android:parentActivityName=".MainActivity" />
@@ -138,51 +124,59 @@
             android:name=".ui.photos.PhotoDetailActivity"
             android:parentActivityName=".ui.photos.PhotoGalleryActivity" />
 
+        <!-- Reports -->
         <activity
             android:name=".ui.reports.ReportsActivity"
             android:parentActivityName=".MainActivity"
             android:exported="false" />
 
-        <activity
+        <!-- <activity
             android:name=".ui.analytics.AnalyticsDashboardActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity" /> -->
 
-        <!-- Add SyncService -->
-        <service
-            android:name=".data.sync.SyncService"
-            android:exported="false" />
-
-        <!-- Add Firebase Messaging Service -->
-        <service
-            android:name=".data.notifications.FarmMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <!-- Add notification icon -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_notification" />
-
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/primary" />
-
+        <!-- Settings -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Weather -->
+        <activity
+            android:name=".ui.weather.WeatherActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Profit -->
+        <activity
+            android:name=".ui.profit.ProfitDashboardActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Quality -->
         <activity
             android:name=".ui.quality.QualityBatchDetailActivity"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Suppliers -->
         <activity
             android:name=".ui.suppliers.SupplierDetailActivity"
-            android:parentActivityName=".ui.suppliers.SuppliersFragment"
+            android:parentActivityName=".MainActivity"
             android:exported="false" />
 
+        <!-- ✅ Traceability Activities (Fixed) -->
+        <activity
+            android:name=".ui.traceability.TraceabilityDetailActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AfriNutsFarmOS" />
+
+        <activity
+            android:name=".ui.traceability.QRScannerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AfriNutsFarmOS" />
+
+        <activity
+            android:name=".ui.traceability.MasterTraceabilityDetailActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AfriNutsFarmOS" />
+
+        <!-- File Provider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -192,6 +186,29 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- Sync Service -->
+        <service
+            android:name=".data.sync.SyncService"
+            android:exported="false" />
+
+        <!-- Firebase Messaging Service -->
+        <service
+            android:name=".data.notifications.FarmMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Notification Meta Data -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/primary" />
 
     </application>
 
