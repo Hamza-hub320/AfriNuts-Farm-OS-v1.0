@@ -37,6 +37,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -588,25 +589,97 @@ public class LoginActivity extends AppCompatActivity {
     // ========================================
 
     private void loginSuccess() {
+        // ✅ Set all login tracking fields
         selectedUser.setLastLoginAt(System.currentTimeMillis());
+        selectedUser.setLastLoginIp(getIpAddress());
+        selectedUser.setLastLoginDevice(getDeviceInfo());
+        selectedUser.setEmailVerified(true);
 
+        // ✅ Save to local database AND Firestore
         databaseExecutor.execute(() -> {
+            // Update local database
             database.userDao().update(selectedUser);
+            Log.d(TAG, "User updated in local database");
+
+            // ✅ Update Firestore with all fields including login info
+            updateUserInFirestore(selectedUser);
 
             runOnUiThread(() -> {
                 SessionManager sessionManager = new SessionManager(LoginActivity.this);
                 sessionManager.createLoginSession(selectedUser);
 
-                if (!sessionManager.isLoggedIn()) {
-                    Log.e(TAG, "Session not saved! Check SharedPreferences.");
-                    loginFailed("Login error - please try again");
-                    return;
-                }
-
-                Log.d(TAG, "Session created successfully, navigating to Main...");
+                Log.d(TAG, "Session created successfully with login tracking");
                 navigateToMain();
             });
         });
+    }
+
+    private void updateUserInFirestore(UserEntity user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("lastLoginAt", user.getLastLoginAt());
+        userMap.put("lastLoginIp", user.getLastLoginIp());
+        userMap.put("lastLoginDevice", user.getLastLoginDevice());
+        userMap.put("lastUpdatedAt", System.currentTimeMillis());
+        userMap.put("emailVerified", user.isEmailVerified());
+        userMap.put("updatedAt", System.currentTimeMillis());
+
+        // Also update other fields if they were set
+        if (user.getBio() != null) userMap.put("bio", user.getBio());
+        if (user.getCompany() != null) userMap.put("company", user.getCompany());
+        if (user.getTitle() != null) userMap.put("title", user.getTitle());
+
+        db.collection("users")
+                .document(user.getUid())
+                .update(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Firestore updated with login info for: " + user.getName());
+                    Log.d(TAG, "   - Last Login: " + new java.util.Date(user.getLastLoginAt()));
+                    Log.d(TAG, "   - IP: " + user.getLastLoginIp());
+                    Log.d(TAG, "   - Device: " + user.getLastLoginDevice());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update Firestore with login info", e);
+                });
+    }
+
+    private String getDeviceName() {
+        String manufacturer = android.os.Build.MANUFACTURER;
+        String model = android.os.Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+    private String getDeviceInfo() {
+        String device = getDeviceName();
+        String osVersion = android.os.Build.VERSION.RELEASE;
+        return device + " (Android " + osVersion + ")";
+    }
+
+    private String getIpAddress() {
+        try {
+            java.net.InetAddress ip = java.net.InetAddress.getLocalHost();
+            return ip.getHostAddress();
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting IP address", e);
+            return "Unknown";
+        }
+    }
+
+    private String capitalize(String s) {
+        if (s == null || s.isEmpty()) {
+            return "";
+        }
+        char first = s.charAt(0);
+        if (Character.isUpperCase(first)) {
+            return s;
+        } else {
+            return Character.toUpperCase(first) + s.substring(1);
+        }
     }
 
     private void loginFailed(String message) {
