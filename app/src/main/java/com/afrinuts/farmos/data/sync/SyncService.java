@@ -490,7 +490,6 @@ public class SyncService extends Service {
             return null;
         }
     }
-
     /**
      * Download tasks from Firebase
      */

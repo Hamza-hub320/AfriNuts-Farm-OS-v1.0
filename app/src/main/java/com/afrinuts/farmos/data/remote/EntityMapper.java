@@ -19,7 +19,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -54,8 +56,21 @@ public class EntityMapper {
     }
 
     private static double getDoubleSafe(DocumentSnapshot doc, String field) {
-        Double value = doc.getDouble(field);
-        return value != null ? value : 0;
+        Object value = doc.get(field);
+        if (value instanceof Double) {
+            return (Double) value;
+        } else if (value instanceof Long) {
+            return ((Long) value).doubleValue();
+        } else if (value instanceof Integer) {
+            return ((Integer) value).doubleValue();
+        } else if (value instanceof String) {
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     private static String getStringSafe(DocumentSnapshot doc, String field) {
@@ -91,28 +106,58 @@ public class EntityMapper {
     }
 
     // ========================================
-    // USER MAPPING
-    // ========================================
+// USER MAPPING
+// ========================================
 
     public static Map<String, Object> userToMap(UserEntity user) {
         Map<String, Object> map = new HashMap<>();
-        map.put("uid", user.getUid());  // Store Firebase UID
-        map.put("localId", user.getLocalId());  // Also store local ID if needed
+
+        // Core fields
+        map.put("uid", user.getUid());
+        map.put("localId", user.getLocalId());
         map.put("name", user.getName());
         map.put("role", user.getRole().name());
         map.put("phone", user.getPhone());
         map.put("email", user.getEmail());
         map.put("authMethod", user.getAuthMethod().name());
         map.put("isActive", user.isActive());
+        map.put("farmId", user.getFarmId());
+
+        // ✅ Security & Authentication fields
+        map.put("lastLoginAt", user.getLastLoginAt());
+        map.put("lastLoginIp", user.getLastLoginIp());
+        map.put("lastLoginDevice", user.getLastLoginDevice());
+        map.put("emailVerified", user.isEmailVerified());
+        map.put("passwordChangedAt", user.getPasswordChangedAt());
+        map.put("failedLoginAttempts", user.getFailedLoginAttempts());
+        map.put("lockedUntil", user.getLockedUntil());
+        map.put("twoFactorEnabled", user.isTwoFactorEnabled());
+        map.put("twoFactorSecret", user.getTwoFactorSecret());
+
+        // ✅ Account Status fields
+        map.put("lastUpdatedAt", user.getLastUpdatedAt());
+        map.put("deactivatedAt", user.getDeactivatedAt());
+        map.put("deactivatedBy", user.getDeactivatedBy());
+        map.put("deactivationReason", user.getDeactivationReason());
+
+        // ✅ Profile fields
+        map.put("bio", user.getBio());
+        map.put("company", user.getCompany());
+        map.put("title", user.getTitle());
+        map.put("timezone", user.getTimezone());
+
+        // Audit timestamps
         map.put("createdAt", user.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
-        map.put("farmId", user.getFarmId()); // Now getFarmId() exists
+
         return map;
     }
 
     public static UserEntity mapToUser(DocumentSnapshot doc) {
         try {
             String uid = doc.getId();  // Firebase Auth UID is the document ID
+
+            // Core fields
             String name = getStringSafe(doc, "name");
             String roleStr = getStringSafe(doc, "role");
             String phone = getStringSafe(doc, "phone");
@@ -120,12 +165,12 @@ public class EntityMapper {
             String authMethodStr = getStringSafe(doc, "authMethod");
             boolean isActive = getBooleanSafe(doc, "isActive");
             long createdAt = getLongSafe(doc, "createdAt");
-            long farmId = getFarmId(doc); // Get farmId from document
+            long farmId = getFarmId(doc);
 
             // Get localId if exists (for backward compatibility)
             Long localId = getNullableLong(doc, "localId");
 
-            // FIXED: Include farmId in constructor
+            // Create user with core fields
             UserEntity user = new UserEntity(
                     uid,
                     name,
@@ -133,15 +178,83 @@ public class EntityMapper {
                     phone,
                     email,
                     "", // password hash not needed when reading
-                    farmId  // Add farmId parameter
+                    farmId
             );
 
             if (localId != null) {
                 user.setLocalId(localId);
             }
+
+            // ✅ Security & Authentication fields
             user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethodStr));
             user.setActive(isActive);
             user.setCreatedAt(createdAt);
+
+            // Last login info
+            Long lastLoginAt = getNullableLong(doc, "lastLoginAt");
+            if (lastLoginAt != null) user.setLastLoginAt(lastLoginAt);
+
+            String lastLoginIp = doc.getString("lastLoginIp");
+            if (lastLoginIp != null) user.setLastLoginIp(lastLoginIp);
+
+            String lastLoginDevice = doc.getString("lastLoginDevice");
+            if (lastLoginDevice != null) user.setLastLoginDevice(lastLoginDevice);
+
+            // Email verification
+            Boolean emailVerified = doc.getBoolean("emailVerified");
+            if (emailVerified != null) user.setEmailVerified(emailVerified);
+
+            // Password change tracking
+            Long passwordChangedAt = getNullableLong(doc, "passwordChangedAt");
+            if (passwordChangedAt != null) user.setPasswordChangedAt(passwordChangedAt);
+
+            // Security settings
+            Integer failedLoginAttempts = getIntSafe(doc, "failedLoginAttempts", 0);
+            user.setFailedLoginAttempts(failedLoginAttempts);
+
+            Long lockedUntil = getNullableLong(doc, "lockedUntil");
+            if (lockedUntil != null) user.setLockedUntil(lockedUntil);
+
+            Boolean twoFactorEnabled = doc.getBoolean("twoFactorEnabled");
+            if (twoFactorEnabled != null) user.setTwoFactorEnabled(twoFactorEnabled);
+
+            String twoFactorSecret = doc.getString("twoFactorSecret");
+            if (twoFactorSecret != null) user.setTwoFactorSecret(twoFactorSecret);
+
+            // ✅ Account Status fields
+            Long lastUpdatedAt = getNullableLong(doc, "lastUpdatedAt");
+            if (lastUpdatedAt != null) {
+                user.setLastUpdatedAt(lastUpdatedAt);
+            } else {
+                user.setLastUpdatedAt(createdAt);
+            }
+
+            Long deactivatedAt = getNullableLong(doc, "deactivatedAt");
+            if (deactivatedAt != null) user.setDeactivatedAt(deactivatedAt);
+
+            String deactivatedBy = doc.getString("deactivatedBy");
+            if (deactivatedBy != null) user.setDeactivatedBy(deactivatedBy);
+
+            String deactivationReason = doc.getString("deactivationReason");
+            if (deactivationReason != null) user.setDeactivationReason(deactivationReason);
+
+            // ✅ Profile fields
+            String bio = doc.getString("bio");
+            if (bio != null) user.setBio(bio);
+
+            String company = doc.getString("company");
+            if (company != null) user.setCompany(company);
+
+            String title = doc.getString("title");
+            if (title != null) user.setTitle(title);
+
+            String timezone = doc.getString("timezone");
+            if (timezone != null) {
+                user.setTimezone(timezone);
+            } else {
+                user.setTimezone("UTC"); // Default timezone
+            }
+
             return user;
         } catch (Exception e) {
             Log.e(TAG, "Error mapping user document", e);
@@ -166,6 +279,12 @@ public class EntityMapper {
         map.put("survivalRate", block.getSurvivalRate());
         map.put("replacementCount", block.getReplacementCount());
         map.put("notes", block.getNotes());
+        // ✅ Add harvest fields
+        map.put("harvestHistory", block.getHarvestHistory());
+        map.put("lastHarvestDate", block.getLastHarvestDate());
+        map.put("lastHarvestQuantity", block.getLastHarvestQuantity());
+        map.put("totalHarvestQuantity", block.getTotalHarvestQuantity());
+        map.put("harvestCount", block.getHarvestCount());
         map.put("createdAt", block.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
         return map;
@@ -175,16 +294,12 @@ public class EntityMapper {
         try {
             long id = Long.parseLong(doc.getId());
 
-            // CRITICAL FIX: farmId may not be in the document
-            // Try to get from document first, but don't fail if missing
-            long farmId = 1L; // default farm ID
-
-            // Try to get farmId as Long
+            // Get farmId
+            long farmId = 1L;
             Long farmIdLong = getNullableLong(doc, "farmId");
             if (farmIdLong != null) {
                 farmId = farmIdLong;
             } else {
-                // Try as String
                 String farmIdStr = getStringSafe(doc, "farmId");
                 if (!farmIdStr.isEmpty()) {
                     try {
@@ -192,10 +307,6 @@ public class EntityMapper {
                     } catch (NumberFormatException e) {
                         Log.w(TAG, "Invalid farmId format, using default: " + farmIdStr);
                     }
-                } else {
-                    // farmId not in document - this is expected for subcollection documents
-                    // The farmId is implied by the collection path
-                    Log.d(TAG, "No farmId in document, will use repository context");
                 }
             }
 
@@ -208,9 +319,11 @@ public class EntityMapper {
             double hectareSize = getDoubleSafe(doc, "hectareSize");
             String notes = doc.getString("notes");
 
+            // ✅ Create block with proper constructor
             BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes);
             block.setId(id);
 
+            // Set status
             try {
                 String status = getStringSafe(doc, "status");
                 if (!status.isEmpty()) {
@@ -220,12 +333,87 @@ public class EntityMapper {
                 Log.e(TAG, "Invalid status for block: " + id, e);
             }
 
+            // Set dates
             block.setClearedDate(getNullableLong(doc, "clearedDate"));
             block.setPlowedDate(getNullableLong(doc, "plowedDate"));
             block.setPlantedDate(getNullableLong(doc, "plantedDate"));
             block.setSurvivalRate(getDoubleSafe(doc, "survivalRate"));
+
             Long replacementCountValue = getNullableLong(doc, "replacementCount");
             block.setReplacementCount(replacementCountValue != null ? replacementCountValue.intValue() : 0);
+
+            // ✅ Parse harvest fields - FIX: Use proper parsing
+            // Get harvestHistory as string
+            String harvestHistory = doc.getString("harvestHistory");
+            if (harvestHistory != null && !harvestHistory.isEmpty()) {
+                block.setHarvestHistory(harvestHistory);
+            } else {
+                // Initialize empty if null
+                block.setHarvestHistory(new Gson().toJson(new ArrayList<>()));
+            }
+
+            // ✅ Parse lastHarvestDate - handle both Long and String
+            Object lastHarvestDateObj = doc.get("lastHarvestDate");
+            if (lastHarvestDateObj != null) {
+                if (lastHarvestDateObj instanceof Long) {
+                    block.setLastHarvestDate((Long) lastHarvestDateObj);
+                } else if (lastHarvestDateObj instanceof String) {
+                    try {
+                        block.setLastHarvestDate(Long.parseLong((String) lastHarvestDateObj));
+                    } catch (NumberFormatException e) {
+                        block.setLastHarvestDate(null);
+                    }
+                }
+            }
+
+            // ✅ Parse lastHarvestQuantity
+            Object lastHarvestQtyObj = doc.get("lastHarvestQuantity");
+            if (lastHarvestQtyObj != null) {
+                if (lastHarvestQtyObj instanceof Double) {
+                    block.setLastHarvestQuantity((Double) lastHarvestQtyObj);
+                } else if (lastHarvestQtyObj instanceof Long) {
+                    block.setLastHarvestQuantity(((Long) lastHarvestQtyObj).doubleValue());
+                } else if (lastHarvestQtyObj instanceof String) {
+                    try {
+                        block.setLastHarvestQuantity(Double.parseDouble((String) lastHarvestQtyObj));
+                    } catch (NumberFormatException e) {
+                        block.setLastHarvestQuantity(0);
+                    }
+                }
+            }
+
+            // ✅ Parse totalHarvestQuantity
+            Object totalHarvestQtyObj = doc.get("totalHarvestQuantity");
+            if (totalHarvestQtyObj != null) {
+                if (totalHarvestQtyObj instanceof Double) {
+                    block.setTotalHarvestQuantity((Double) totalHarvestQtyObj);
+                } else if (totalHarvestQtyObj instanceof Long) {
+                    block.setTotalHarvestQuantity(((Long) totalHarvestQtyObj).doubleValue());
+                } else if (totalHarvestQtyObj instanceof String) {
+                    try {
+                        block.setTotalHarvestQuantity(Double.parseDouble((String) totalHarvestQtyObj));
+                    } catch (NumberFormatException e) {
+                        block.setTotalHarvestQuantity(0);
+                    }
+                }
+            }
+
+            // ✅ Parse harvestCount
+            Object harvestCountObj = doc.get("harvestCount");
+            if (harvestCountObj != null) {
+                if (harvestCountObj instanceof Long) {
+                    block.setHarvestCount(((Long) harvestCountObj).intValue());
+                } else if (harvestCountObj instanceof Integer) {
+                    block.setHarvestCount((Integer) harvestCountObj);
+                } else if (harvestCountObj instanceof String) {
+                    try {
+                        block.setHarvestCount(Integer.parseInt((String) harvestCountObj));
+                    } catch (NumberFormatException e) {
+                        block.setHarvestCount(0);
+                    }
+                }
+            }
+
             block.setCreatedAt(getLongSafe(doc, "createdAt"));
             block.setUpdatedAt(getLongSafe(doc, "updatedAt"));
 
@@ -233,6 +421,27 @@ public class EntityMapper {
         } catch (Exception e) {
             Log.e(TAG, "Error mapping block document", e);
             return null;
+        }
+    }
+
+    public static int getIntSafe(DocumentSnapshot doc, String field, int defaultValue) {
+        try {
+            Object value = doc.get(field);
+            if (value == null) return defaultValue;
+            if (value instanceof Long) {
+                return ((Long) value).intValue();
+            } else if (value instanceof Integer) {
+                return (Integer) value;
+            } else if (value instanceof String) {
+                try {
+                    return Integer.parseInt((String) value);
+                } catch (NumberFormatException e) {
+                    return defaultValue;
+                }
+            }
+            return defaultValue;
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
@@ -850,6 +1059,15 @@ public class EntityMapper {
         // ✅ Use sustainabilityMetrics instead of sustainabilityMetricsId
         map.put("sustainabilityMetrics", traceability.getSustainabilityMetrics());
 
+        map.put("processingLocation", traceability.getProcessingLocation());
+        map.put("processingMethod", traceability.getProcessingMethod());
+        map.put("processingFacility", traceability.getProcessingFacility());
+        map.put("rawWeightKg", traceability.getRawWeightKg());
+        map.put("kernelWeightKg", traceability.getKernelWeightKg());
+        map.put("yieldPercentage", traceability.getYieldPercentage());
+        map.put("shellingMethod", traceability.getShellingMethod());
+        map.put("gradingMethod", traceability.getGradingMethod());
+
         map.put("processingDate", traceability.getProcessingDate());
         map.put("exportDate", traceability.getExportDate());
         map.put("buyer", traceability.getBuyer());
@@ -906,6 +1124,14 @@ public class EntityMapper {
             String grade = getStringSafe(doc, "grade");
             double pricePerKg = getDoubleSafe(doc, "pricePerKg");
             double totalAmount = getDoubleSafe(doc, "totalAmount");
+            String processingLocation = doc.getString("processingLocation");
+            String processingMethod = doc.getString("processingMethod");
+            String processingFacility = doc.getString("processingFacility");
+            double rawWeightKg = getDoubleSafe(doc, "rawWeightKg");
+            double kernelWeightKg = getDoubleSafe(doc, "kernelWeightKg");
+            double yieldPercentage = getDoubleSafe(doc, "yieldPercentage");
+            String shellingMethod = doc.getString("shellingMethod");
+            String gradingMethod = doc.getString("gradingMethod");
             String documents = doc.getString("documents");
             String traceabilityUrl = doc.getString("traceabilityUrl");
             long createdAt = getLongSafe(doc, "createdAt");
@@ -938,6 +1164,17 @@ public class EntityMapper {
             traceability.setExportDate(exportDate);
             traceability.setBuyer(buyer);
             traceability.setDestination(destination);
+            traceability.setTotalAmount(totalAmount);
+
+            // ✅ Set new processing fields
+            traceability.setProcessingLocation(processingLocation);
+            traceability.setProcessingMethod(processingMethod);
+            traceability.setProcessingFacility(processingFacility);
+            traceability.setKernelWeightKg(kernelWeightKg);
+            traceability.setRawWeightKg(rawWeightKg);
+            traceability.setYieldPercentage(yieldPercentage);
+            traceability.setShellingMethod(shellingMethod);
+            traceability.setGradingMethod(gradingMethod);
             traceability.setDocuments(documents);
             traceability.setTraceabilityUrl(traceabilityUrl != null ? traceabilityUrl :
                     traceability.generateTraceabilityUrl(batchNumber));
@@ -952,9 +1189,31 @@ public class EntityMapper {
         }
     }
 
+    /**
+     * Helper method to safely get int values from DocumentSnapshot
+     * Handles Long, Integer, and String types
+     */
+    private static int getIntSafe(DocumentSnapshot doc, String field) {
+        Object value = doc.get(field);
+        if (value instanceof Long) {
+            return ((Long) value).intValue();
+        } else if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    // ========================================
+// MASTER BATCH TRACEABILITY OPERATIONS
 // ========================================
-// MASTER BATCH TRACEABILITY MAPPING
-// ========================================
+
+    // In EntityMapper.java - add this method
 
     public static Map<String, Object> masterTraceabilityToMap(MasterBatchTraceabilityEntity master) {
         Map<String, Object> map = new HashMap<>();
@@ -971,10 +1230,6 @@ public class EntityMapper {
         map.put("buyer", master.getBuyer());
         map.put("destination", master.getDestination());
         map.put("exportDate", master.getExportDate());
-
-        // ✅ Add verification code
-        map.put("verificationCode", master.getVerificationCode());
-
         map.put("traceabilityUrl", master.getTraceabilityUrl());
         map.put("createdAt", master.getCreatedAt());
         map.put("updatedAt", master.getUpdatedAt());
@@ -982,6 +1237,7 @@ public class EntityMapper {
         return map;
     }
 
+    // Also add mapToMasterTraceability for reading from Firestore
     public static MasterBatchTraceabilityEntity mapToMasterTraceability(DocumentSnapshot doc) {
         try {
             long id = doc.getLong("id");
@@ -993,12 +1249,10 @@ public class EntityMapper {
             master.setId(id);
             master.setShipmentId(doc.getString("shipmentId"));
 
-            // ✅ Read verification code
-            String verificationCode = doc.getString("verificationCode");
-            master.setVerificationCode(verificationCode);
-
             Double totalWeight = doc.getDouble("totalWeightKg");
             if (totalWeight != null) master.setTotalWeightKg(totalWeight);
+
+            String verificationCode = doc.getString("verificationCode");
 
             Long totalBatches = doc.getLong("totalBatches");
             if (totalBatches != null) master.setTotalBatches(totalBatches.intValue());

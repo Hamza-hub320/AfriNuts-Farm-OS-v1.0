@@ -36,18 +36,18 @@ public class SyncManager {
     private long currentFarmId;
     private SyncListener listener;
 
-    // Add this field to track sync state
     private boolean isSyncing = false;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    // Added flags for initialization and periodic sync scheduling
     private boolean isInitialized = false;
     private boolean isPeriodicSyncScheduled = false;
 
-    // Handler and Runnable for debouncing sync triggers
     private Handler syncHandler = new Handler(Looper.getMainLooper());
     private final long SYNC_DEBOUNCE_MS = 500;
     private Runnable pendingSyncRunnable;
+
+    // ✅ Track the current work ID to prevent duplicate observers
+    private String currentWorkId = null;
 
     public interface SyncListener {
         void onSyncStarted();
@@ -79,12 +79,10 @@ public class SyncManager {
         this.currentFarmId = farmId;
         this.listener = listener;
 
-        // Remove any existing network observer to prevent duplicates
         if (networkUtils != null) {
             networkUtils.removeObservers(null);
         }
 
-        // Observe network changes with debounce
         networkUtils.observe(lifecycleOwner, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isConnected) {
@@ -99,7 +97,6 @@ public class SyncManager {
             }
         });
 
-        // Schedule periodic sync only once
         schedulePeriodicSync();
 
         isInitialized = true;
@@ -116,12 +113,7 @@ public class SyncManager {
         syncHandler.postDelayed(pendingSyncRunnable, SYNC_DEBOUNCE_MS);
     }
 
-    /**
-     * Queue an item for sync
-     */
     public void queueForSync(String entityType, long entityId, SyncEntity.SyncAction action) {
-        // 🚫 CRITICAL FIX: Prevent syncing USERS from local → Firestore
-        // Users must ONLY be created from Authentication + Admin flow
         if ("users".equalsIgnoreCase(entityType)) {
             Log.w(TAG, "⛔ Blocking user sync to prevent duplicates. entityId: " + entityId);
             return;
@@ -132,18 +124,15 @@ public class SyncManager {
         }
 
         new Thread(() -> {
-            // Check if already queued
             SyncEntity existing = database.syncDao().getSyncItem(entityType, entityId);
 
             if (existing != null) {
-                // Update existing
                 existing.setAction(action);
                 existing.setStatus(SyncEntity.SyncStatus.PENDING);
                 existing.setAttemptCount(0);
                 database.syncDao().update(existing);
                 Log.d(TAG, "Updated sync item for entityType: " + entityType + ", entityId: " + entityId);
             } else {
-                // Create new
                 SyncEntity syncItem = new SyncEntity(
                         entityType,
                         entityId,
@@ -154,23 +143,16 @@ public class SyncManager {
                 Log.d(TAG, "Created new sync item for entityType: " + entityType + ", entityId: " + entityId);
             }
 
-            // If online, trigger sync with debounce
             if (NetworkUtils.isConnected(context)) {
                 debouncedTriggerSync();
             }
         }).start();
     }
 
-    /**
-     * Check if sync is currently in progress
-     */
     public boolean isSyncing() {
         return isSyncing;
     }
 
-    /**
-     * Trigger auto-sync (respects WorkManager constraints)
-     */
     public void triggerAutoSync() {
         Log.d(TAG, "triggerAutoSync called");
         if (currentFarmId <= 0) {
@@ -178,7 +160,6 @@ public class SyncManager {
             return;
         }
 
-        // Prevent concurrent syncs
         if (isSyncing) {
             Log.d(TAG, "Sync already in progress, skipping trigger");
             return;
@@ -195,7 +176,6 @@ public class SyncManager {
 
             Log.d(TAG, "Triggering auto-sync for " + pendingCount + " items");
 
-            // Create work request with constraints
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
@@ -211,16 +191,21 @@ public class SyncManager {
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
                     .build();
 
-            // Set syncing flag to true
             isSyncing = true;
             if (listener != null) listener.onSyncStarted();
 
-            // Enqueue work
+            // ✅ Cancel any existing work
+            WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
+
+            // ✅ Store the work ID
+            String workId = syncWork.getId().toString();
+            currentWorkId = workId;
+
             WorkManager.getInstance(context)
-                    .beginUniqueWork(UNIQUE_SYNC_WORK, ExistingWorkPolicy.KEEP, syncWork)
+                    .beginUniqueWork(UNIQUE_SYNC_WORK, ExistingWorkPolicy.REPLACE, syncWork)
                     .enqueue();
 
-            // FIX: Move observeForever to main thread
+            // ✅ Use a more reliable way to observe work completion
             mainHandler.post(() -> {
                 WorkManager.getInstance(context).getWorkInfoByIdLiveData(syncWork.getId())
                         .observeForever(new Observer<WorkInfo>() {
@@ -228,8 +213,12 @@ public class SyncManager {
                             public void onChanged(WorkInfo workInfo) {
                                 if (workInfo == null) return;
 
+                                Log.d(TAG, "WorkInfo state: " + workInfo.getState());
+
                                 if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                    Log.d(TAG, "✅ Sync work SUCCEEDED");
                                     isSyncing = false;
+                                    currentWorkId = null;
                                     if (listener != null) {
                                         listener.onSyncCompleted(pendingCount);
                                     }
@@ -237,27 +226,45 @@ public class SyncManager {
                                             .getWorkInfoByIdLiveData(syncWork.getId())
                                             .removeObserver(this);
                                 } else if (workInfo.getState() == WorkInfo.State.FAILED) {
+                                    Log.e(TAG, "❌ Sync work FAILED");
                                     isSyncing = false;
+                                    currentWorkId = null;
                                     if (listener != null) {
                                         listener.onSyncFailed("Sync failed");
                                     }
                                     WorkManager.getInstance(context)
                                             .getWorkInfoByIdLiveData(syncWork.getId())
                                             .removeObserver(this);
+                                } else if (workInfo.getState() == WorkInfo.State.CANCELLED) {
+                                    Log.d(TAG, "⚠️ Sync work CANCELLED");
+                                    isSyncing = false;
+                                    currentWorkId = null;
+                                    WorkManager.getInstance(context)
+                                            .getWorkInfoByIdLiveData(syncWork.getId())
+                                            .removeObserver(this);
                                 }
-                                // Ignore RUNNING state
                             }
                         });
             });
 
+            // ✅ Add a timeout to prevent infinite sync
+            mainHandler.postDelayed(() -> {
+                if (isSyncing) {
+                    Log.e(TAG, "⚠️ Sync timed out after 60 seconds - forcing reset");
+                    isSyncing = false;
+                    currentWorkId = null;
+                    if (listener != null) {
+                        listener.onSyncFailed("Sync timeout");
+                    }
+                    // Cancel the work
+                    WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
+                }
+            }, 60000); // 60 second timeout
+
         }).start();
     }
 
-    /**
-     * Schedule periodic background sync (every 6 hours)
-     */
     private void schedulePeriodicSync() {
-        // Schedule only once
         if (isPeriodicSyncScheduled) {
             Log.d(TAG, "Periodic sync already scheduled");
             return;
@@ -294,11 +301,9 @@ public class SyncManager {
         isPeriodicSyncScheduled = true;
     }
 
-    /**
-     * Force immediate sync (manual override)
-     */
     public void forceSyncNow() {
         Log.d(TAG, "forceSyncNow called");
+        isSyncing = false;
         WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
         triggerAutoSync();
     }
@@ -307,7 +312,6 @@ public class SyncManager {
         void onCountReceived(int count);
     }
 
-    // Get number of pending sync items
     public void getPendingCount(SyncCountCallback callback) {
         new Thread(() -> {
             int count = database.syncDao().getPendingCount();
@@ -315,18 +319,12 @@ public class SyncManager {
         }).start();
     }
 
-    /**
-     * Clean up
-     */
     public void shutdown() {
         if (networkUtils != null) {
             networkUtils.removeObservers(null);
         }
     }
 
-    /**
-     * Mark a sync item as successfully synced
-     */
     public void markAsSynced(long syncItemId) {
         new Thread(() -> {
             SyncEntity syncItem = database.syncDao().getSyncItemById(syncItemId);
@@ -338,9 +336,6 @@ public class SyncManager {
         }).start();
     }
 
-    /**
-     * Mark a sync item as failed and update attempt count
-     */
     public void markAsFailed(long syncItemId) {
         new Thread(() -> {
             SyncEntity syncItem = database.syncDao().getSyncItemById(syncItemId);
@@ -354,9 +349,6 @@ public class SyncManager {
         }).start();
     }
 
-    /**
-     * Get a sync item by entity type and ID (for AutoSyncWorker)
-     */
     public SyncEntity getSyncItem(String entityType, long entityId) {
         return database.syncDao().getSyncItem(entityType, entityId);
     }

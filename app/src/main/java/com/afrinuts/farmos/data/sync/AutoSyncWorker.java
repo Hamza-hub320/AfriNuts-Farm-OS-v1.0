@@ -26,6 +26,7 @@ import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 
 import java.io.File;
 import java.util.List;
@@ -154,6 +155,9 @@ public class AutoSyncWorker extends Worker {
                 case "batch_traceability":
                     syncBatchTraceability(syncItem);
                     break;
+                case "master_traceability":
+                    syncMasterTraceability(syncItem);
+                    break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
                     throw new RuntimeException("Unknown entity type: " + syncItem.getEntityType());
@@ -198,6 +202,36 @@ public class AutoSyncWorker extends Worker {
                     Log.d(TAG, "Traceability deleted from Firestore: " + syncItem.getEntityId());
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to delete traceability from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    private void syncMasterTraceability(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncMasterTraceability called: ID=" + syncItem.getEntityId() +
+                " action=" + syncItem.getAction());
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                MasterBatchTraceabilityEntity master = database.masterTraceabilityDao()
+                        .getById(syncItem.getEntityId());
+                if (master == null) {
+                    Log.e(TAG, "Master traceability not found in local DB: " + syncItem.getEntityId());
+                    return;
+                }
+                firebaseManager.saveMasterTraceability(master, farmId);
+                Log.d(TAG, "Master traceability saved to Firestore: " + master.getMasterBatchNumber());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting master traceability from Firestore: ID=" + syncItem.getEntityId());
+                try {
+                    firebaseManager.deleteMasterTraceability(farmId, syncItem.getEntityId());
+                    Log.d(TAG, "Master traceability deleted from Firestore: " + syncItem.getEntityId());
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete master traceability from Firestore", e);
                     throw e;
                 }
                 break;

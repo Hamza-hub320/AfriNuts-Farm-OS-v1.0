@@ -12,6 +12,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
@@ -702,6 +703,50 @@ public class FirebaseManager {
                 .get();
     }
 
+
+    // In FirebaseManager.java - add these methods if they don't exist
+
+// ========================================
+// MASTER TRACEABILITY OPERATIONS
+// ========================================
+
+    public void saveMasterTraceability(MasterBatchTraceabilityEntity master, String farmId) throws Exception {
+        Map<String, Object> masterMap = EntityMapper.masterTraceabilityToMap(master);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection("master_traceability")
+                    .document(String.valueOf(master.getId()))
+                    .set(masterMap));
+            Log.d(TAG, "Master traceability saved: " + master.getMasterBatchNumber());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving master traceability", e);
+            throw new Exception("Failed to save master traceability to Firestore", e);
+        }
+    }
+
+    public void deleteMasterTraceability(String farmId, long masterId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection("master_traceability")
+                    .document(String.valueOf(masterId))
+                    .delete());
+            Log.d(TAG, "Master traceability deleted: " + masterId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting master traceability", e);
+            throw new Exception("Failed to delete master traceability from Firestore", e);
+        }
+    }
+
+    public Task<QuerySnapshot> getMasterTraceabilityForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("master_traceability")
+                .get();
+    }
+
     // ========================================
     // DELETE OPERATIONS - UPDATED to use subcollections
     // ========================================
@@ -804,6 +849,27 @@ public class FirebaseManager {
             throw new Exception("Failed to save assignment to Firestore", e);
         }
     }
+
+    // In FirebaseManager.java - add logging
+    public Task<Void> saveBlockMap(Map<String, Object> blockMap, String farmId, long blockId) {
+        // ✅ Log what's being saved
+        Log.d(TAG, "📤 saveBlockMap: blockId=" + blockId +
+                " harvestCount=" + blockMap.get("harvestCount") +
+                " totalHarvest=" + blockMap.get("totalHarvestQuantity"));
+
+        return db.collection("farms")
+                .document(farmId)
+                .collection("blocks")
+                .document(String.valueOf(blockId))
+                .set(blockMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Block saved to Firestore successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to save block to Firestore", e);
+                });
+    }
+
 
     public void deletePhoto(String farmId, long photoId, PhotoUploadCallback callback) {
         // Delete from Storage first
