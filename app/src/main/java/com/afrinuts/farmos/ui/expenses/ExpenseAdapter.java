@@ -4,22 +4,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
-    private List<ExpenseWithBlockName> expenses;
+    private List<ExpenseWithBlockName> expenses = new ArrayList<>();
     private OnExpenseClickListener listener;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     public interface OnExpenseClickListener {
         void onExpenseClick(ExpenseEntity expense);
@@ -41,7 +44,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     @Override
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         ExpenseWithBlockName item = expenses.get(position);
-        holder.bind(item, listener);
+        ExpenseEntity expense = item.getExpense();
+        holder.bind(item);
     }
 
     @Override
@@ -49,131 +53,103 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         return expenses.size();
     }
 
-    public void updateExpenses(List<ExpenseWithBlockName> newExpenses) {
-        this.expenses = newExpenses;
-        notifyDataSetChanged();
-    }
-
-    static class ExpenseViewHolder extends RecyclerView.ViewHolder {
-
-        private ImageView ivCategoryIcon;
+    class ExpenseViewHolder extends RecyclerView.ViewHolder {
         private TextView tvCategory;
-        private TextView tvBlockInfo;
+        private TextView tvSourceInfo;
+        private TextView tvProcurementInfo;
         private TextView tvAmount;
         private TextView tvDate;
         private TextView tvDescription;
-        private CardView cardView;
+        private ImageView ivCategoryIcon;
+        private LinearLayout layoutProcurementBadge;
 
-        ExpenseViewHolder(@NonNull View itemView) {
+        public ExpenseViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivCategoryIcon = itemView.findViewById(R.id.ivCategoryIcon);
+
             tvCategory = itemView.findViewById(R.id.tvCategory);
-            tvBlockInfo = itemView.findViewById(R.id.tvBlockInfo);
+            tvSourceInfo = itemView.findViewById(R.id.tvSourceInfo);
+            tvProcurementInfo = itemView.findViewById(R.id.tvProcurementInfo);
             tvAmount = itemView.findViewById(R.id.tvAmount);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvDescription = itemView.findViewById(R.id.tvDescription);
-            cardView = (CardView) itemView;
-        }
+            ivCategoryIcon = itemView.findViewById(R.id.ivCategoryIcon);
+            layoutProcurementBadge = itemView.findViewById(R.id.layoutProcurementBadge);
 
-        void bind(ExpenseWithBlockName item, OnExpenseClickListener listener) {
-            ExpenseEntity expense = item.getExpense();
-
-            // Set category icon based on expense category
-            setCategoryIcon(expense);
-
-            // Set category name
-            tvCategory.setText(expense.getCategory().getDisplayName());
-
-            // ✅ Set block info - now shows procurement info if applicable
-            tvBlockInfo.setText(item.getDisplayName());
-
-            // ✅ If procurement, add a badge or indicator
-            if (expense.isProcurementRelated()) {
-                tvBlockInfo.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.accent));
-            } else {
-                // Use the theme's text color
-                tvBlockInfo.setTextColor(
-                        androidx.core.content.res.ResourcesCompat.getColor(
-                                itemView.getResources(),
-                                android.R.color.secondary_text_dark,
-                                null
-                        )
-                );
-            }
-
-            // Set amount
-            tvAmount.setText(item.getFormattedAmount());
-
-            // Set date
-            tvDate.setText(item.getFormattedDate());
-
-            // Set description
-            if (expense.getDescription() != null && !expense.getDescription().isEmpty()) {
-                tvDescription.setText(expense.getDescription());
-            } else {
-                tvDescription.setText("No description");
-            }
-
-            // Click listener
-            cardView.setOnClickListener(v -> {
-                android.content.Context context = itemView.getContext();
-                android.content.Intent intent =
-                        new android.content.Intent(context, ExpenseDetailActivity.class);
-                intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
-                context.startActivity(intent);
+            itemView.setOnClickListener(v -> {
+                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
+                    listener.onExpenseClick(expenses.get(getAdapterPosition()).getExpense());
+                }
             });
         }
 
-        private void setCategoryIcon(ExpenseEntity expense) {
-            switch (expense.getCategory()) {
-                case LAND_CLEARING:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_tractor);
-                    break;
-                case PLOWING:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_grain);
-                    break;
-                case SEEDLINGS:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_grass);
-                    break;
-                case LABOR:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_people);
-                    break;
-                case SECURITY:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_security);
-                    break;
-                case FENCING:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_fence);
-                    break;
-                case FERTILIZER:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_fertilizer);
-                    break;
-                case IRRIGATION:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_water_drop);
-                    break;
-                case EQUIPMENT:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_construction);
-                    break;
-                case MAINTENANCE:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_maintenance);
-                    break;
-                case PROCESSING_CENTER:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_factory);
-                    break;
-                case PROCUREMENT:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_shopping_cart);
-                    break;
-                case TRANSPORT:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_local_shipping);
-                    break;
-                case QUALITY_TESTING:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_science);
-                    break;
-                case STORAGE:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_warehouse);
-                    break;
-                default:
-                    ivCategoryIcon.setImageResource(R.drawable.ic_attach_money);
-                    break;
+        void bind(ExpenseWithBlockName item) {
+            ExpenseEntity expense = item.getExpense();
+            String blockName = item.getBlockName();
+
+            // Category
+            if (expense.getCategory() != null) {
+                tvCategory.setText(expense.getCategory().getDisplayName());
+
+                // Set category icon
+                int iconRes = expense.getCategory().getIconResId();
+                ivCategoryIcon.setImageResource(iconRes);
+            }
+
+            // Source Info
+            boolean isProcurement = expense.isProcurementRelated();
+
+            if (isProcurement) {
+                // Procurement expense
+                tvSourceInfo.setText("Procurement");
+                tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.primary));
+
+                // Show procurement details
+                String procurementInfo = "";
+                if (expense.getBatchNumber() != null && !expense.getBatchNumber().isEmpty()) {
+                    procurementInfo += "Batch: " + expense.getBatchNumber();
+                }
+                if (expense.getSupplierName() != null && !expense.getSupplierName().isEmpty()) {
+                    if (!procurementInfo.isEmpty()) procurementInfo += " | ";
+                    procurementInfo += "Supplier: " + expense.getSupplierName();
+                }
+                if (!procurementInfo.isEmpty()) {
+                    tvProcurementInfo.setVisibility(View.VISIBLE);
+                    tvProcurementInfo.setText(procurementInfo);
+                } else {
+                    tvProcurementInfo.setVisibility(View.GONE);
+                }
+
+                // Show procurement badge
+                layoutProcurementBadge.setVisibility(View.VISIBLE);
+
+            } else {
+                // Farm expense
+                layoutProcurementBadge.setVisibility(View.GONE);
+                tvProcurementInfo.setVisibility(View.GONE);
+
+                if (blockName != null) {
+                    tvSourceInfo.setText("Block: " + blockName);
+                    tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.primary));
+                } else {
+                    tvSourceInfo.setText("Farm-Wide");
+                    tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.navy));
+                }
+            }
+
+            // Amount
+            tvAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount()));
+
+            // Date
+            if (expense.getDate() > 0) {
+                tvDate.setText(dateFormat.format(expense.getDate()));
+            }
+
+            // Description
+            if (expense.getDescription() != null && !expense.getDescription().isEmpty()) {
+                tvDescription.setText(expense.getDescription());
+                tvDescription.setVisibility(View.VISIBLE);
+            } else {
+                tvDescription.setVisibility(View.GONE);
             }
         }
     }

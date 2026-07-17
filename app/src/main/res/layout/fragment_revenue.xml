@@ -14,7 +14,7 @@
         android:padding="12dp"
         android:weightSum="2">
 
-        <!-- Total Revenue Card - Compact -->
+        <!-- Total Revenue Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Total Harvest Card - Compact -->
+        <!-- Total Quantity Sold Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -103,12 +103,12 @@
                         android:layout_gravity="center"
                         android:src="@drawable/ic_inventory"
                         app:tint="?attr/colorSecondary"
-                        android:contentDescription="Harvest icon" />
+                        android:contentDescription="Quantity icon" />
 
                 </FrameLayout>
 
                 <TextView
-                    android:id="@+id/totalHarvestValue"
+                    android:id="@+id/totalQuantityValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 kg"
@@ -120,7 +120,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Harvest"
+                    android:text="Sold"
                     style="@style/Text.Caption.Small"
                     android:textSize="10sp"
                     android:textColor="?attr/colorOnSurface"
@@ -132,7 +132,7 @@
 
     </LinearLayout>
 
-    <!-- Filter Chips - Compact -->
+    <!-- Filter Chips - Updated for Processing Revenue -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -155,24 +155,8 @@
                 android:id="@+id/chipAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Revenue"
+                android:text="All Sales"
                 android:checked="true"
-                app:chipIconTint="?attr/colorPrimary"
-                style="@style/Widget.AfriNuts.Chip" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipBlocks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Blocks"
-                app:chipIconTint="?attr/colorPrimary"
-                style="@style/Widget.AfriNuts.Chip" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipProcessing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Processing"
                 app:chipIconTint="?attr/colorPrimary"
                 style="@style/Widget.AfriNuts.Chip" />
 
@@ -196,11 +180,21 @@
                 app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipProcessing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Processing"
+                app:chipIcon="@drawable/ic_factory"
+                app:chipIconTint="?attr/colorPrimaryVariant"
+                app:iconStartPadding="4dp"
+                style="@style/Widget.AfriNuts.Chip" />
+
         </com.google.android.material.chip.ChipGroup>
 
     </HorizontalScrollView>
 
-    <!-- Progress Bar - Compact -->
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.AfriNuts.ProgressBar"
@@ -211,7 +205,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State - Compact -->
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -230,7 +224,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_grass"
+                android:src="@drawable/ic_attach_money"
                 app:tint="?attr/colorOnSurface"
                 android:alpha="0.5" />
 
@@ -239,7 +233,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No harvest records"
+            android:text="No revenue records"
             style="@style/Text.H4"
             android:textSize="16sp"
             android:textColor="?attr/colorOnSurface"
@@ -248,7 +242,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap + to add harvest"
+            android:text="Tap + to record processing revenue"
             style="@style/Text.Caption"
             android:textSize="11sp"
             android:textColor="?attr/colorOnSurface"

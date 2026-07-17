@@ -19,7 +19,7 @@
         android:padding="12dp"
         android:background="?attr/cardBackgroundPrimary">
 
-        <!-- Top Row: Icon + Quality + Amount -->
+        <!-- Top Row: Icon + Batch Info + Amount -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp">
 
-            <!-- Icon with Glass Container - Compact -->
+            <!-- Icon with Glass Container -->
             <FrameLayout
                 android:layout_width="36dp"
                 android:layout_height="36dp"
@@ -39,9 +39,9 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_star"
+                    android:src="@drawable/ic_factory"
                     app:tint="?attr/colorSecondary"
-                    android:contentDescription="Quality icon" />
+                    android:contentDescription="Processing icon" />
 
             </FrameLayout>
 
@@ -52,19 +52,20 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvQuality"
+                    android:id="@+id/tvBatchNumber"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Premium Grade"
+                    android:text="BATCH-2026-001"
                     style="@style/Text.H6"
                     android:textSize="14sp"
-                    android:textColor="?attr/colorPrimary" />
+                    android:textColor="?attr/colorPrimary"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvSource"
+                    android:id="@+id/tvSupplier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Block A1"
+                    android:text="Supplier Name"
                     style="@style/Text.Caption"
                     android:textSize="11sp"
                     android:textColor="?attr/colorOnSurface"
@@ -83,7 +84,7 @@
 
         </LinearLayout>
 
-        <!-- Stats Row - Compact -->
+        <!-- Stats Row: Quality + Grade -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -172,11 +173,42 @@
 
                 </LinearLayout>
 
+                <!-- Quality Grade Badge -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?attr/iconBackgroundGlass"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    app:cardCornerRadius="12dp">
+
+                    <ImageView
+                        android:id="@+id/tvQualityBadgeIcon"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_star"
+                        app:tint="?attr/colorSecondary"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvQualityBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Premium"
+                        style="@style/Text.Caption.Small"
+                        android:textSize="10sp"
+                        android:textColor="?attr/colorSecondary"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Bottom Row: Date + Buyer - Compact -->
+        <!-- Bottom Row: Date + Buyer -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -212,7 +244,7 @@
 
             </LinearLayout>
 
-            <!-- Buyer Badge - Compact -->
+            <!-- Buyer Badge -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -236,7 +268,7 @@
                     android:id="@+id/tvBuyer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Olam"
+                    android:text="Buyer"
                     style="@style/Text.Caption.Small"
                     android:textSize="11sp"
                     android:textColor="?attr/colorOnSurface"

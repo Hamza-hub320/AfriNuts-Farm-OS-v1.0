@@ -21,7 +21,11 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -44,16 +48,21 @@ public class ExpensesFragment extends Fragment {
     private Chip chipAll;
     private Chip chipFarmWide;
     private Chip chipByBlock;
+    private Chip chipProcurement;
 
     private AppDatabase database;
     private FarmEntity currentFarm;
     private ExpenseRepository expenseRepository;
+    private QualityBatchRepository batchRepository;
+    private SupplierRepository supplierRepository;
     private List<ExpenseWithBlockName> allExpenses = new ArrayList<>();
     private List<ExpenseWithBlockName> filteredExpenses = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private Map<Long, String> batchNumberMap = new HashMap<>();
+    private Map<Long, String> supplierNameMap = new HashMap<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private String currentFilter = "ALL"; // ALL, FARM_WIDE, BLOCK_SPECIFIC
+    private String currentFilter = "ALL"; // ALL, FARM_WIDE, BLOCK_SPECIFIC, PROCUREMENT
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -76,6 +85,7 @@ public class ExpensesFragment extends Fragment {
         chipAll = view.findViewById(R.id.chipAll);
         chipFarmWide = view.findViewById(R.id.chipFarmWide);
         chipByBlock = view.findViewById(R.id.chipByBlock);
+        chipProcurement = view.findViewById(R.id.chipProcurement);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         setupFilters();
@@ -108,6 +118,15 @@ public class ExpensesFragment extends Fragment {
                 }
             });
         }
+
+        if (chipProcurement != null) {
+            chipProcurement.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "PROCUREMENT";
+                    applyFilter();
+                }
+            });
+        }
     }
 
     private void loadFarmData() {
@@ -119,6 +138,8 @@ public class ExpensesFragment extends Fragment {
             if (currentFarm != null) {
                 long farmId = currentFarm.getId();
                 expenseRepository = new ExpenseRepository(requireContext(), farmId);
+                batchRepository = new QualityBatchRepository(requireContext(), farmId);
+                supplierRepository = new SupplierRepository(requireContext(), farmId);
 
                 // Load blocks for name mapping
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farmId);
@@ -128,6 +149,24 @@ public class ExpensesFragment extends Fragment {
                 }
                 blockNameMap.clear();
                 blockNameMap.putAll(blockMap);
+
+                // Load batches for name mapping
+                List<QualityBatchEntity> batches = batchRepository.getAllBatchesSync();
+                Map<Long, String> batchMap = new HashMap<>();
+                for (QualityBatchEntity batch : batches) {
+                    batchMap.put(batch.getId(), batch.getBatchNumber());
+                }
+                batchNumberMap.clear();
+                batchNumberMap.putAll(batchMap);
+
+                // Load suppliers for name mapping
+                List<SupplierEntity> suppliers = supplierRepository.getSuppliersSync();
+                Map<Long, String> supplierMap = new HashMap<>();
+                for (SupplierEntity supplier : suppliers) {
+                    supplierMap.put(supplier.getId(), supplier.getName());
+                }
+                supplierNameMap.clear();
+                supplierNameMap.putAll(supplierMap);
 
                 requireActivity().runOnUiThread(() -> {
                     expenseRepository.getAllExpenses().observe(getViewLifecycleOwner(), new Observer<List<ExpenseEntity>>() {
@@ -151,9 +190,28 @@ public class ExpensesFragment extends Fragment {
         allExpenses.clear();
         for (ExpenseEntity expense : expenseList) {
             String blockName = null;
+            String batchNumber = null;
+            String supplierName = null;
+
             if (expense.getBlockId() != null) {
                 blockName = blockNameMap.get(expense.getBlockId());
             }
+
+            // Enrich with batch and supplier info
+            if (expense.getBatchId() != null) {
+                batchNumber = batchNumberMap.get(expense.getBatchId());
+                if (batchNumber != null) {
+                    expense.setBatchNumber(batchNumber);
+                }
+            }
+
+            if (expense.getSupplierId() != null) {
+                supplierName = supplierNameMap.get(expense.getSupplierId());
+                if (supplierName != null) {
+                    expense.setSupplierName(supplierName);
+                }
+            }
+
             allExpenses.add(new ExpenseWithBlockName(expense, blockName));
         }
 
@@ -172,17 +230,25 @@ public class ExpensesFragment extends Fragment {
         filteredExpenses.clear();
 
         for (ExpenseWithBlockName item : allExpenses) {
+            ExpenseEntity expense = item.getExpense();
+            boolean isProcurement = expense.isProcurementRelated();
+
             switch (currentFilter) {
                 case "ALL":
                     filteredExpenses.add(item);
                     break;
                 case "FARM_WIDE":
-                    if (item.isFarmWide()) {
+                    if (item.isFarmWide() && !isProcurement) {
                         filteredExpenses.add(item);
                     }
                     break;
                 case "BLOCK_SPECIFIC":
-                    if (!item.isFarmWide()) {
+                    if (!item.isFarmWide() && !isProcurement) {
+                        filteredExpenses.add(item);
+                    }
+                    break;
+                case "PROCUREMENT":
+                    if (isProcurement) {
                         filteredExpenses.add(item);
                     }
                     break;
@@ -216,6 +282,7 @@ public class ExpensesFragment extends Fragment {
             });
             dialog.show(getParentFragmentManager(), "AddExpenseDialog");
         } else {
+            // ✅ FIXED: LENGTH_SHORT (not LENGTH_SHOW)
             Toast.makeText(getContext(), "Farm not configured", Toast.LENGTH_SHORT).show();
         }
     }
@@ -241,6 +308,12 @@ public class ExpensesFragment extends Fragment {
         super.onDestroy();
         if (expenseRepository != null) {
             expenseRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
+        }
+        if (supplierRepository != null) {
+            supplierRepository.shutdown();
         }
         executor.shutdown();
     }

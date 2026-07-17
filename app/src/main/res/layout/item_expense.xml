@@ -59,14 +59,27 @@
                     style="@style/Text.H5"
                     android:textColor="?attr/colorPrimary" />
 
+                <!-- ✅ Source Info: Farm-Wide, Block, or Procurement -->
                 <TextView
-                    android:id="@+id/tvBlockInfo"
+                    android:id="@+id/tvSourceInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm-Wide"
                     style="@style/Text.Caption"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
+
+                <!-- ✅ Batch/Supplier Info for Procurement -->
+                <TextView
+                    android:id="@+id/tvProcurementInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Batch: BATCH-001 | Supplier: ABC Ltd"
+                    style="@style/Text.Caption.Small"
+                    android:textColor="?attr/colorSecondary"
+                    android:alpha="0.8"
+                    android:visibility="gone"
+                    android:layout_marginTop="2dp" />
 
             </LinearLayout>
 
@@ -132,6 +145,38 @@
                 android:alpha="0.8"
                 android:maxLines="2"
                 android:ellipsize="end" />
+
+            <!-- ✅ Procurement Badge -->
+            <LinearLayout
+                android:id="@+id/layoutProcurementBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?attr/iconBackgroundGlass"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:layout_marginStart="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="12dp">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_shopping_cart"
+                    app:tint="?attr/colorSecondary"
+                    android:layout_marginEnd="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Procurement"
+                    style="@style/Text.Caption.Small"
+                    android:textSize="10sp"
+                    android:textColor="?attr/colorSecondary"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -21,7 +21,9 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
@@ -43,16 +45,18 @@ public class RevenuesListActivity extends BaseActivity {
     private ProgressBar progressBar;
     private LinearLayout emptyLayout;
     private TextView totalRevenueValue;
-    private TextView totalHarvestValue;
+    private TextView totalQuantityValue;  // Changed from totalHarvestValue
     private ChipGroup filterChipGroup;
 
     private AppDatabase database;
     private FarmEntity currentFarm;
     private RevenueRepository revenueRepository;
+    private QualityBatchRepository batchRepository;
     private String farmIdString = "1";
     private List<RevenueWithBlockName> allRevenues = new ArrayList<>();
     private List<RevenueWithBlockName> filteredRevenues = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private Map<Long, String> batchNumberMap = new HashMap<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL";
@@ -81,7 +85,7 @@ public class RevenuesListActivity extends BaseActivity {
         progressBar = findViewById(R.id.progressBar);
         emptyLayout = findViewById(R.id.emptyView);
         totalRevenueValue = findViewById(R.id.totalRevenueValue);
-        totalHarvestValue = findViewById(R.id.totalHarvestValue);
+        totalQuantityValue = findViewById(R.id.totalQuantityValue);  // Updated ID
         filterChipGroup = findViewById(R.id.filterChipGroup);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -100,7 +104,7 @@ public class RevenuesListActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
-            getSupportActionBar().setTitle("Harvest Revenue");
+            getSupportActionBar().setTitle("Processing Revenue");
         }
     }
 
@@ -129,28 +133,13 @@ public class RevenuesListActivity extends BaseActivity {
 
     private void setupFilters() {
         Chip chipAll = findViewById(R.id.chipAll);
-        Chip chipBlocks = findViewById(R.id.chipBlocks);
-        Chip chipProcessing = findViewById(R.id.chipProcessing);
         Chip chipPremium = findViewById(R.id.chipPremium);
         Chip chipStandard = findViewById(R.id.chipStandard);
+        Chip chipProcessing = findViewById(R.id.chipProcessing);
 
         chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "ALL";
-                applyFilter();
-            }
-        });
-
-        chipBlocks.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "BLOCKS";
-                applyFilter();
-            }
-        });
-
-        chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "PROCESSING";
                 applyFilter();
             }
         });
@@ -165,6 +154,13 @@ public class RevenuesListActivity extends BaseActivity {
         chipStandard.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "STANDARD";
+                applyFilter();
+            }
+        });
+
+        chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                currentFilter = "PROCESSING";
                 applyFilter();
             }
         });
@@ -198,24 +194,34 @@ public class RevenuesListActivity extends BaseActivity {
             currentFarm = database.farmDao().getFirstFarm();
 
             if (currentFarm != null) {
-
                 revenueRepository = new RevenueRepository(this, currentFarm.getId());
-
+                batchRepository = new QualityBatchRepository(this, currentFarm.getId());
                 farmIdString = String.valueOf(currentFarm.getId());
 
+                // Load block names
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
                 Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
                     blockMap.put(block.getId(), block.getBlockName());
                 }
 
+                // Load batch numbers
+                List<QualityBatchEntity> batches = batchRepository.getAllBatchesSync();
+                Map<Long, String> batchMap = new HashMap<>();
+                for (QualityBatchEntity batch : batches) {
+                    batchMap.put(batch.getId(), batch.getBatchNumber());
+                }
+
                 final Map<Long, String> finalBlockMap = blockMap;
+                final Map<Long, String> finalBatchMap = batchMap;
                 final FarmEntity finalFarm = currentFarm;
 
                 runOnUiThread(() -> {
                     currentFarm = finalFarm;
                     blockNameMap.clear();
                     blockNameMap.putAll(finalBlockMap);
+                    batchNumberMap.clear();
+                    batchNumberMap.putAll(finalBatchMap);
 
                     // Use LiveData from repository
                     revenueRepository.getAllRevenues().observe(this, new Observer<List<RevenueEntity>>() {
@@ -241,6 +247,16 @@ public class RevenuesListActivity extends BaseActivity {
             if (revenue.getBlockId() != null) {
                 blockName = blockNameMap.get(revenue.getBlockId());
             }
+
+            // Enrich with batch number if missing
+            if (revenue.getBatchId() != null &&
+                    (revenue.getBatchNumber() == null || revenue.getBatchNumber().isEmpty())) {
+                String batchNumber = batchNumberMap.get(revenue.getBatchId());
+                if (batchNumber != null) {
+                    revenue.setBatchNumber(batchNumber);
+                }
+            }
+
             allRevenues.add(new RevenueWithBlockName(revenue, blockName));
         }
 
@@ -265,16 +281,6 @@ public class RevenuesListActivity extends BaseActivity {
                 case "ALL":
                     filteredRevenues.add(item);
                     break;
-                case "BLOCKS":
-                    if (item.isFromBlock()) {
-                        filteredRevenues.add(item);
-                    }
-                    break;
-                case "PROCESSING":
-                    if (item.isFromProcessingCenter()) {
-                        filteredRevenues.add(item);
-                    }
-                    break;
                 case "PREMIUM":
                     if (revenue.getQuality() == RevenueEntity.QualityGrade.PREMIUM) {
                         filteredRevenues.add(item);
@@ -285,15 +291,34 @@ public class RevenuesListActivity extends BaseActivity {
                         filteredRevenues.add(item);
                     }
                     break;
+                case "PROCESSING":
+                    if (revenue.getQuality() == RevenueEntity.QualityGrade.PROCESSING) {
+                        filteredRevenues.add(item);
+                    }
+                    break;
             }
         }
 
-        adapter = new RevenueAdapter(filteredRevenues, revenue -> {
-            Intent intent = new Intent(this, RevenueDetailActivity.class);
-            intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
-            startActivity(intent);
-        });
+        List<RevenueEntity> revenueEntities = new ArrayList<>();
+        for (RevenueWithBlockName item : filteredRevenues) {
+            revenueEntities.add(item.getRevenue());
+        }
 
+        adapter = new RevenueAdapter();
+        adapter.setOnRevenueClickListener(new RevenueAdapter.OnRevenueClickListener() {
+            @Override
+            public void onRevenueClick(RevenueEntity revenue) {
+                Intent intent = new Intent(RevenuesListActivity.this, RevenueDetailActivity.class);
+                intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onRevenueLongClick(RevenueEntity revenue) {
+                // Handle long click if needed
+            }
+        });
+        adapter.setRevenues(revenueEntities);
         recyclerView.setAdapter(adapter);
         updateSummary();
     }
@@ -310,8 +335,8 @@ public class RevenuesListActivity extends BaseActivity {
 
         totalRevenueValue.setText(String.format(Locale.getDefault(),
                 "%,.0f XAF", totalRevenue));
-        totalHarvestValue.setText(String.format(Locale.getDefault(),
-                "%.1f kg", totalKg));
+        totalQuantityValue.setText(String.format(Locale.getDefault(),
+                "%,.1f kg", totalKg));
     }
 
     private void showLoading(boolean show) {
@@ -336,21 +361,27 @@ public class RevenuesListActivity extends BaseActivity {
         filteredRevenues.sort((e1, e2) ->
                 Long.compare(e2.getRevenue().getHarvestDate(),
                         e1.getRevenue().getHarvestDate()));
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void sortByAmount() {
         filteredRevenues.sort((e1, e2) ->
                 Double.compare(e2.getRevenue().getTotalAmount(),
                         e1.getRevenue().getTotalAmount()));
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void sortByQuantity() {
         filteredRevenues.sort((e1, e2) ->
                 Double.compare(e2.getRevenue().getQuantityKg(),
                         e1.getRevenue().getQuantityKg()));
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -358,6 +389,9 @@ public class RevenuesListActivity extends BaseActivity {
         super.onDestroy();
         if (revenueRepository != null) {
             revenueRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
         }
         executor.shutdown();
     }

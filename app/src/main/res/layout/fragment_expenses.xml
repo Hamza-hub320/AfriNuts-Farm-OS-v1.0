@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Total Expenses Card - Theme-Aware Glass -->
+    <!-- Total Expenses Card -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Filter Chips - Theme-Aware -->
+    <!-- Filter Chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                 android:id="@+id/chipAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Expenses"
+                android:text="All"
                 android:checked="true"
                 style="@style/Widget.AfriNuts.Chip" />
 
@@ -111,6 +111,16 @@
                 android:text="Per Block"
                 style="@style/Widget.AfriNuts.Chip" />
 
+            <!-- ✅ New Procurement Chip -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipProcurement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Procurement"
+                app:chipIcon="@drawable/ic_shopping_cart"
+                app:chipIconTint="?attr/colorSecondary"
+                style="@style/Widget.AfriNuts.Chip" />
+
         </com.google.android.material.chip.ChipGroup>
 
     </HorizontalScrollView>
@@ -126,7 +136,7 @@
         android:indeterminate="true"
         android:visibility="gone" />
 
-    <!-- Empty State - Theme-Aware Modern Design -->
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"

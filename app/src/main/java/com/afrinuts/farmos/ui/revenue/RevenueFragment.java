@@ -20,7 +20,9 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -40,15 +42,17 @@ public class RevenueFragment extends Fragment {
     private ProgressBar progressBar;
     private LinearLayout emptyLayout;
     private TextView totalRevenueValue;
-    private TextView totalHarvestValue;
+    private TextView totalQuantityValue;  // Changed from totalHarvestValue
     private ChipGroup filterChipGroup;
 
     private AppDatabase database;
     private FarmEntity currentFarm;
     private RevenueRepository revenueRepository;
-    private List<RevenueWithBlockName> allRevenues = new ArrayList<>();
-    private List<RevenueWithBlockName> filteredRevenues = new ArrayList<>();
+    private QualityBatchRepository batchRepository;
+    private List<RevenueEntity> allRevenues = new ArrayList<>();
+    private List<RevenueEntity> filteredRevenues = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
+    private Map<Long, String> batchNumberMap = new HashMap<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL";
@@ -70,7 +74,7 @@ public class RevenueFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         emptyLayout = view.findViewById(R.id.emptyView);
         totalRevenueValue = view.findViewById(R.id.totalRevenueValue);
-        totalHarvestValue = view.findViewById(R.id.totalHarvestValue);
+        totalQuantityValue = view.findViewById(R.id.totalQuantityValue);  // Updated ID
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -79,33 +83,14 @@ public class RevenueFragment extends Fragment {
 
     private void setupFilters() {
         Chip chipAll = filterChipGroup.findViewById(R.id.chipAll);
-        Chip chipBlocks = filterChipGroup.findViewById(R.id.chipBlocks);
-        Chip chipProcessing = filterChipGroup.findViewById(R.id.chipProcessing);
         Chip chipPremium = filterChipGroup.findViewById(R.id.chipPremium);
         Chip chipStandard = filterChipGroup.findViewById(R.id.chipStandard);
+        Chip chipProcessing = filterChipGroup.findViewById(R.id.chipProcessing);
 
         if (chipAll != null) {
             chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
                     currentFilter = "ALL";
-                    applyFilter();
-                }
-            });
-        }
-
-        if (chipBlocks != null) {
-            chipBlocks.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    currentFilter = "BLOCKS";
-                    applyFilter();
-                }
-            });
-        }
-
-        if (chipProcessing != null) {
-            chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    currentFilter = "PROCESSING";
                     applyFilter();
                 }
             });
@@ -128,6 +113,15 @@ public class RevenueFragment extends Fragment {
                 }
             });
         }
+
+        if (chipProcessing != null) {
+            chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    currentFilter = "PROCESSING";
+                    applyFilter();
+                }
+            });
+        }
     }
 
     private void loadFarmData() {
@@ -138,17 +132,21 @@ public class RevenueFragment extends Fragment {
 
             if (currentFarm != null) {
                 revenueRepository = new RevenueRepository(requireContext(), currentFarm.getId());
+                batchRepository = new QualityBatchRepository(requireContext(), currentFarm.getId());
 
+                // Load block names
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
-                Map<Long, String> blockMap = new HashMap<>();
                 for (BlockEntity block : blocks) {
-                    blockMap.put(block.getId(), block.getBlockName());
+                    blockNameMap.put(block.getId(), block.getBlockName());
+                }
+
+                // Load batch numbers
+                List<QualityBatchEntity> batches = batchRepository.getAllBatchesSync();
+                for (QualityBatchEntity batch : batches) {
+                    batchNumberMap.put(batch.getId(), batch.getBatchNumber());
                 }
 
                 requireActivity().runOnUiThread(() -> {
-                    blockNameMap.clear();
-                    blockNameMap.putAll(blockMap);
-
                     revenueRepository.getAllRevenues().observe(getViewLifecycleOwner(), new Observer<List<RevenueEntity>>() {
                         @Override
                         public void onChanged(List<RevenueEntity> revenues) {
@@ -167,12 +165,17 @@ public class RevenueFragment extends Fragment {
 
     private void processRevenues(List<RevenueEntity> revenues) {
         allRevenues.clear();
-        for (RevenueEntity revenue : revenues) {
-            String blockName = null;
-            if (revenue.getBlockId() != null) {
-                blockName = blockNameMap.get(revenue.getBlockId());
+        allRevenues.addAll(revenues);
+
+        // Enrich with batch numbers if missing
+        for (RevenueEntity revenue : allRevenues) {
+            if (revenue.getBatchId() != null &&
+                    (revenue.getBatchNumber() == null || revenue.getBatchNumber().isEmpty())) {
+                String batchNumber = batchNumberMap.get(revenue.getBatchId());
+                if (batchNumber != null) {
+                    revenue.setBatchNumber(batchNumber);
+                }
             }
-            allRevenues.add(new RevenueWithBlockName(revenue, blockName));
         }
 
         showLoading(false);
@@ -189,43 +192,47 @@ public class RevenueFragment extends Fragment {
     private void applyFilter() {
         filteredRevenues.clear();
 
-        for (RevenueWithBlockName item : allRevenues) {
-            RevenueEntity revenue = item.getRevenue();
-
+        for (RevenueEntity revenue : allRevenues) {
             switch (currentFilter) {
                 case "ALL":
-                    filteredRevenues.add(item);
-                    break;
-                case "BLOCKS":
-                    if (item.isFromBlock()) {
-                        filteredRevenues.add(item);
-                    }
-                    break;
-                case "PROCESSING":
-                    if (item.isFromProcessingCenter()) {
-                        filteredRevenues.add(item);
-                    }
+                    filteredRevenues.add(revenue);
                     break;
                 case "PREMIUM":
                     if (revenue.getQuality() == RevenueEntity.QualityGrade.PREMIUM) {
-                        filteredRevenues.add(item);
+                        filteredRevenues.add(revenue);
                     }
                     break;
                 case "STANDARD":
                     if (revenue.getQuality() == RevenueEntity.QualityGrade.STANDARD) {
-                        filteredRevenues.add(item);
+                        filteredRevenues.add(revenue);
+                    }
+                    break;
+                case "PROCESSING":
+                    if (revenue.getQuality() == RevenueEntity.QualityGrade.PROCESSING) {
+                        filteredRevenues.add(revenue);
                     }
                     break;
             }
         }
 
-        adapter = new RevenueAdapter(filteredRevenues, revenue -> {
-            Intent intent = new Intent(getContext(), RevenueDetailActivity.class);
-            intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
-            startActivity(intent);
-        });
+        // ✅ FIXED: Pass filteredRevenues directly and handle click in adapter
+        adapter = new RevenueAdapter();
+        adapter.setOnRevenueClickListener(new RevenueAdapter.OnRevenueClickListener() {
+            @Override
+            public void onRevenueClick(RevenueEntity revenue) {
+                Intent intent = new Intent(getContext(), RevenueDetailActivity.class);
+                intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());  // ✅ Now gets ID from RevenueEntity
+                startActivity(intent);
+            }
 
+            @Override
+            public void onRevenueLongClick(RevenueEntity revenue) {
+                // Handle long click if needed
+            }
+        });
+        adapter.setRevenues(filteredRevenues);
         recyclerView.setAdapter(adapter);
+
         updateSummary();
     }
 
@@ -233,22 +240,22 @@ public class RevenueFragment extends Fragment {
         double totalRevenue = 0;
         double totalKg = 0;
 
-        for (RevenueWithBlockName item : filteredRevenues) {
-            RevenueEntity revenue = item.getRevenue();
+        for (RevenueEntity revenue : filteredRevenues) {
             totalRevenue += revenue.getTotalAmount();
             totalKg += revenue.getQuantityKg();
         }
 
         totalRevenueValue.setText(String.format(Locale.getDefault(),
                 "%,.0f XAF", totalRevenue));
-        totalHarvestValue.setText(String.format(Locale.getDefault(),
-                "%.1f kg", totalKg));
+        totalQuantityValue.setText(String.format(Locale.getDefault(),
+                "%,.1f kg", totalKg));
     }
 
     public void showAddRevenueDialog() {
         if (currentFarm != null) {
             AddRevenueDialog dialog = AddRevenueDialog.newInstance(currentFarm.getId());
             dialog.setOnRevenueAddedListener(() -> {
+                // Refresh data after adding revenue
                 loadFarmData();
             });
             dialog.show(getParentFragmentManager(), "AddRevenueDialog");
@@ -278,6 +285,9 @@ public class RevenueFragment extends Fragment {
         super.onDestroy();
         if (revenueRepository != null) {
             revenueRepository.shutdown();
+        }
+        if (batchRepository != null) {
+            batchRepository.shutdown();
         }
         executor.shutdown();
     }
