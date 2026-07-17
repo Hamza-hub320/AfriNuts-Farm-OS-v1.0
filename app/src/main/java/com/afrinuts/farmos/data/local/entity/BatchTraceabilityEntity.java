@@ -64,7 +64,11 @@ public class BatchTraceabilityEntity {
     private long processingDate;
     private Long exportDate;
 
-    // ✅ ADD THIS FIELD
+    private String digitalSignature;       // Full signature (FOS-SIG-{hash}-{timestamp})
+    private String verificationHash;        // SHA-256 hash of the data
+    private String verificationCode;        // Human-readable verification code
+    private String verificationUrl;         // URL for verification
+    private long signedAt;
     private int harvestYear;               // Harvest year (e.g., 2026)
 
     // Shipment details (from Revenue)
@@ -75,7 +79,15 @@ public class BatchTraceabilityEntity {
     private double pricePerKg;
     private double totalAmount;
 
-    private String verificationCode;
+    private double rawWeightKg;           // Original raw cashew weight
+    private double kernelWeightKg;        // Processed kernel weight (25% of raw)
+    private double yieldPercentage;       // Yield percentage (e.g., 25%)
+
+    private String processingLocation;      // Where processing occurred
+    private String processingMethod;        // How it was processed
+    private String processingFacility;      // Which facility
+    private String shellingMethod;          // How shells were removed
+    private String gradingMethod;           // How grading was performed
 
     // Documents
     private String documents;
@@ -260,6 +272,45 @@ public class BatchTraceabilityEntity {
     // Getters and Setters
     // ========================================
 
+    public String getDigitalSignature() { return digitalSignature; }
+    public void setDigitalSignature(String digitalSignature) {
+        this.digitalSignature = digitalSignature;
+    }
+
+    public String getVerificationHash() { return verificationHash; }
+    public void setVerificationHash(String verificationHash) {
+        this.verificationHash = verificationHash;
+    }
+
+    public String getVerificationCode() { return verificationCode; }
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public String getVerificationUrl() { return verificationUrl; }
+    public void setVerificationUrl(String verificationUrl) {
+        this.verificationUrl = verificationUrl;
+    }
+
+    public long getSignedAt() { return signedAt; }
+    public void setSignedAt(long signedAt) { this.signedAt = signedAt; }
+
+    public boolean isVerified() {
+        return digitalSignature != null && !digitalSignature.isEmpty();
+    }
+
+    public String getFormattedSignedDate() {
+        if (signedAt <= 0) return "Not signed";
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault());
+        return sdf.format(new java.util.Date(signedAt));
+    }
+
+    public double getRawWeightKg() { return rawWeightKg; }
+    public void setRawWeightKg(double rawWeightKg) {
+        this.rawWeightKg = rawWeightKg;
+        calculateYieldPercentage();
+    }
+
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 
@@ -349,9 +400,59 @@ public class BatchTraceabilityEntity {
     public boolean isSynced() { return isSynced; }
     public void setSynced(boolean synced) { isSynced = synced; }
 
+    public String getProcessingLocation() { return processingLocation; }
+    public void setProcessingLocation(String processingLocation) {
+        this.processingLocation = processingLocation;
+    }
+
+    public String getProcessingMethod() { return processingMethod; }
+    public void setProcessingMethod(String processingMethod) {
+        this.processingMethod = processingMethod;
+    }
+
+    public String getProcessingFacility() { return processingFacility; }
+    public void setProcessingFacility(String processingFacility) {
+        this.processingFacility = processingFacility;
+    }
+
+    public double get() { return kernelWeightKg; }
+    public double getKernelWeightKg() { return kernelWeightKg; }
+    public void setKernelWeightKg(double kernelWeightKg) {
+        this.kernelWeightKg = kernelWeightKg;
+        calculateYieldPercentage();
+    }
+
+
+    public double getYieldPercentage() { return yieldPercentage; }
+    public void setYieldPercentage(double yieldPercentage) {
+        this.yieldPercentage = yieldPercentage;
+    }
+
+    public String getShellingMethod() { return shellingMethod; }
+    public void setShellingMethod(String shellingMethod) {
+        this.shellingMethod = shellingMethod;
+    }
+
+    public String getGradingMethod() { return gradingMethod; }
+    public void setGradingMethod(String gradingMethod) {
+        this.gradingMethod = gradingMethod;
+    }
+
+
     // ========================================
     // Helper Methods
     // ========================================
+
+    private void calculateYieldPercentage() {
+        if (rawWeightKg > 0 && kernelWeightKg > 0) {
+            this.yieldPercentage = (kernelWeightKg / rawWeightKg) * 100;
+        }
+    }
+
+    public boolean hasProcessingDetails() {
+        return rawWeightKg > 0 || kernelWeightKg > 0 ||
+                processingMethod != null || processingFacility != null;
+    }
 
     public String getFormattedProcessingDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
@@ -376,6 +477,17 @@ public class BatchTraceabilityEntity {
         return String.format(Locale.getDefault(), "%,.0f XAF/kg", pricePerKg);
     }
 
+    public String getFormattedYield() {
+        if (yieldPercentage > 0) {
+            return String.format(Locale.getDefault(), "%.1f%%", yieldPercentage);
+        } else if (weightKg > 0 && kernelWeightKg > 0) {
+            // Calculate on the fly if not stored
+            double yield = (kernelWeightKg / weightKg) * 100;
+            return String.format(Locale.getDefault(), "%.1f%%", yield);
+        }
+        return "0%";
+    }
+
     public Documents getDocumentsObject() {
         return Documents.fromJson(documents);
     }
@@ -388,32 +500,21 @@ public class BatchTraceabilityEntity {
         return getDocumentsObject().hasDocuments();
     }
 
-    public String getVerificationCode() {
-        return verificationCode;
-    }
 
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
-    }
 
     public String generateTraceabilityUrl(String batchNumber) {
-        return "https://www.afrinutsexport.com/trace/" + batchNumber;
+        return "https://www.afrinutsexport.com/trace?batchId=" + batchNumber;
     }
 
     public String getQrCodeUrl() {
         if (traceabilityUrl != null && !traceabilityUrl.isEmpty()) {
             return traceabilityUrl;
         }
-        return generateTraceabilityUrl(batchNumber);
+        return "https://www.afrinutsexport.com/trace?batchId=" + batchNumber;
     }
 
     public boolean isExported() {
         return exportDate != null && exportDate > 0;
-    }
-
-    public boolean isVerified() {
-        SustainabilityMetrics metrics = getSustainabilityMetricsObject();
-        return metrics != null && metrics.getVerifiedAt() > 0;
     }
 
     // ✅ Extract sustainability metrics from QualityBatchEntity

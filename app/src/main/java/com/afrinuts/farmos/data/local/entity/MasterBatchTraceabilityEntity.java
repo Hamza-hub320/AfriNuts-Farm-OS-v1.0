@@ -53,7 +53,7 @@ public class MasterBatchTraceabilityEntity {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
         this.isSynced = false;
-        this.traceabilityUrl = "https://www.afrinutsexport.com/trace/" + masterBatchNumber;
+        this.traceabilityUrl = "https://www.afrinutsexport.com/trace?batchId=" + masterBatchNumber;
     }
 
     // Getters and Setters
@@ -159,7 +159,9 @@ public class MasterBatchTraceabilityEntity {
     }
 
     public String getQrCodeUrl() {
-        return traceabilityUrl != null ? traceabilityUrl :
-                "https://www.afrinutsexport.com/trace/" + masterBatchNumber;
+        if (traceabilityUrl != null && !traceabilityUrl.isEmpty()) {
+            return traceabilityUrl;
+        }
+        return "https://www.afrinutsexport.com/trace?batchId=" + masterBatchNumber;
     }
 }

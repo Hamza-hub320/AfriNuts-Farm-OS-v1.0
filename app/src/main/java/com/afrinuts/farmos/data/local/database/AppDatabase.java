@@ -60,7 +60,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 BatchTraceabilityEntity.class,
                 MasterBatchTraceabilityEntity.class
         },
-        version = 22,
+        version = 25,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -125,7 +125,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration18To19(),
                                     new Migration19To20(),
                                     new Migration20To21(),
-                                    new Migration21To22()
+                                    new Migration21To22(),
+                                    new Migration22To23(),
+                                    new Migration23To24(),
+                                    new Migration24To25()
+
 
                             )
                             .build();
