@@ -212,7 +212,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
 
     private void shareMasterTraceability() {
         StringBuilder shareText = new StringBuilder();
-        shareText.append("🌿 AfriNuts Master Traceability\n");
+        shareText.append("AfriNuts Master Traceability\n");
         shareText.append("=================================\n");
         shareText.append("Master Batch: ").append(master.getMasterBatchNumber()).append("\n");
         shareText.append("Shipment: ").append(master.getShipmentName()).append("\n");
@@ -222,7 +222,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         shareText.append("Total Batches: ").append(master.getTotalBatches()).append("\n");
         shareText.append("Grades: ").append(master.getGrades()).append("\n");
         shareText.append("Export Date: ").append(master.getFormattedExportDate()).append("\n");
-        shareText.append("\n🔗 Trace URL: ").append(master.getTraceabilityUrl());
+        shareText.append("\n Trace URL: ").append(master.getTraceabilityUrl());
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");

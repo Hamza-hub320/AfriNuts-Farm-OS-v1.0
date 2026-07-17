@@ -18,8 +18,6 @@ import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class DocumentGenerator {
 
@@ -33,63 +31,56 @@ public class DocumentGenerator {
         void onProgress(int progress);
     }
 
-    /**
-     * Generate and upload Certificate of Origin to Firebase Storage
-     */
+    // ========================================
+    // UPLOAD METHODS
+    // ========================================
+
     public static void generateAndUploadCertificateOfOrigin(Context context,
                                                             SupplierEntity supplier,
                                                             QualityBatchEntity batch,
+                                                            BatchTraceabilityEntity traceability,
                                                             String farmId,
                                                             DocumentUploadCallback callback) {
-        String content = generateCertificateOfOrigin(supplier, batch);
+        String content = generateCertificateOfOrigin(supplier, batch, traceability);
         String fileName = "Certificate_of_Origin_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
 
-    /**
-     * Generate and upload Packing List to Firebase Storage
-     */
     public static void generateAndUploadPackingList(Context context,
                                                     QualityBatchEntity batch,
                                                     SupplierEntity supplier,
+                                                    BatchTraceabilityEntity traceability,
                                                     String farmId,
                                                     DocumentUploadCallback callback) {
-        String content = generatePackingList(batch, supplier);
+        String content = generatePackingList(batch, supplier, traceability);
         String fileName = "Packing_List_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
 
-    /**
-     * Generate and upload Commercial Invoice to Firebase Storage
-     */
     public static void generateAndUploadCommercialInvoice(Context context,
                                                           QualityBatchEntity batch,
                                                           RevenueEntity revenue,
                                                           SupplierEntity supplier,
+                                                          BatchTraceabilityEntity traceability,
                                                           String farmId,
                                                           DocumentUploadCallback callback) {
-        String content = generateCommercialInvoice(batch, revenue, supplier);
+        String content = generateCommercialInvoice(batch, revenue, supplier, traceability);
         String fileName = "Commercial_Invoice_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
 
-    /**
-     * Generate and upload Full Document Package to Firebase Storage
-     */
     public static void generateAndUploadDocumentPackage(Context context,
                                                         SupplierEntity supplier,
                                                         QualityBatchEntity batch,
                                                         RevenueEntity revenue,
+                                                        BatchTraceabilityEntity traceability,
                                                         String farmId,
                                                         DocumentUploadCallback callback) {
-        String content = generateBatchDocumentPackage(supplier, batch, revenue);
+        String content = generateBatchDocumentPackage(supplier, batch, revenue, traceability);
         String fileName = "Document_Package_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
 
-    /**
-     * Upload document to Firebase Storage
-     */
     private static void uploadDocument(Context context,
                                        String content,
                                        String fileName,
@@ -97,23 +88,19 @@ public class DocumentGenerator {
                                        String folder,
                                        DocumentUploadCallback callback) {
         try {
-            // 1. Save content to local file
             File tempFile = new File(context.getCacheDir(), fileName);
             FileWriter writer = new FileWriter(tempFile);
             writer.write(content);
             writer.close();
 
-            // 2. Upload to Firebase Storage
-            // ✅ Fix: Use the correct path structure
             StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                     .child("farms")
                     .child(farmId)
-                    .child("documents")  // ✅ Use "documents" folder
+                    .child("documents")
                     .child(fileName);
 
             UploadTask uploadTask = storageRef.putFile(Uri.fromFile(tempFile));
 
-            // Track progress
             uploadTask.addOnProgressListener(taskSnapshot -> {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 if (callback != null) {
@@ -121,20 +108,16 @@ public class DocumentGenerator {
                 }
             });
 
-            // Handle success
             uploadTask.addOnSuccessListener(taskSnapshot -> {
                 storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String downloadUrl = uri.toString();
-                    Log.d(TAG, "Document uploaded: " + downloadUrl);
-
-                    // Clean up temp file
+                    Log.d(TAG, "✅ Document uploaded: " + downloadUrl);
                     tempFile.delete();
-
                     if (callback != null) {
                         callback.onSuccess(downloadUrl);
                     }
                 }).addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to get download URL", e);
+                    Log.e(TAG, "❌ Failed to get download URL", e);
                     tempFile.delete();
                     if (callback != null) {
                         callback.onError("Failed to get download URL: " + e.getMessage());
@@ -142,9 +125,8 @@ public class DocumentGenerator {
                 });
             });
 
-            // Handle failure
             uploadTask.addOnFailureListener(e -> {
-                Log.e(TAG, "Upload failed", e);
+                Log.e(TAG, "❌ Upload failed", e);
                 tempFile.delete();
                 if (callback != null) {
                     callback.onError("Upload failed: " + e.getMessage());
@@ -152,18 +134,20 @@ public class DocumentGenerator {
             });
 
         } catch (Exception e) {
-            Log.e(TAG, "Error uploading document", e);
+            Log.e(TAG, "❌ Error uploading document", e);
             if (callback != null) {
                 callback.onError("Error: " + e.getMessage());
             }
         }
     }
 
-    /**
-     * Generate Certificate of Origin
-     * Auto-generated from supplier and farm data
-     */
-    public static String generateCertificateOfOrigin(SupplierEntity supplier, QualityBatchEntity batch) {
+    // ========================================
+    // CERTIFICATE OF ORIGIN
+    // ========================================
+
+    public static String generateCertificateOfOrigin(SupplierEntity supplier,
+                                                     QualityBatchEntity batch,
+                                                     BatchTraceabilityEntity traceability) {
         StringBuilder doc = new StringBuilder();
 
         doc.append("=== CERTIFICATE OF ORIGIN ===\n");
@@ -189,17 +173,51 @@ public class DocumentGenerator {
         doc.append("--- Product Information ---\n");
         if (batch != null) {
             doc.append("Batch Number: ").append(batch.getBatchNumber()).append("\n");
-            doc.append("Product: Cashew Nuts (Raw/Processed)\n");
+            doc.append("Product: Cashew Nuts (Processed Kernels)\n");
             doc.append("Grade: ").append(batch.getQualityGrade().getDisplayName()).append("\n");
-            doc.append("Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg())).append("\n");
+
+            // ✅ Show both raw and kernel weights
+            if (traceability != null) {
+                if (traceability.getRawWeightKg() > 0) {
+                    doc.append("Raw Input Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg())).append("\n");
+                }
+                if (traceability.getKernelWeightKg() > 0) {
+                    doc.append("Kernel Output Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getKernelWeightKg())).append("\n");
+                }
+                if (traceability.getYieldPercentage() > 0) {
+                    doc.append("Yield Percentage: ").append(String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage())).append("\n");
+                }
+            } else {
+                doc.append("Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg())).append("\n");
+            }
             doc.append("Harvest Date: ").append(DATE_FORMAT.format(new Date(batch.getProcessingDate()))).append("\n");
         }
         doc.append("\n");
 
         doc.append("--- Origin Information ---\n");
-        doc.append("Country of Origin: Côte d'Ivoire (Ivory Coast)\n");
-        doc.append("Region: Odienné, Côte d'Ivoire\n");
-        doc.append("Coordinates: 9.51° N, 7.57° W\n\n");
+        doc.append("Country of Origin: Cote d'Ivoire (Ivory Coast)\n");
+        doc.append("Region: Odienne, Cote d'Ivoire\n");
+        doc.append("Coordinates: 9.7886° N, -6.8342° W\n\n");
+
+        doc.append("--- Processing Information ---\n");
+        if (traceability != null) {
+            if (traceability.getProcessingMethod() != null) {
+                doc.append("Processing Method: ").append(traceability.getProcessingMethod()).append("\n");
+            }
+            if (traceability.getProcessingFacility() != null) {
+                doc.append("Processing Facility: ").append(traceability.getProcessingFacility()).append("\n");
+            }
+            if (traceability.getProcessingLocation() != null) {
+                doc.append("Processing Location: ").append(traceability.getProcessingLocation()).append("\n");
+            }
+            if (traceability.getShellingMethod() != null) {
+                doc.append("Shelling Method: ").append(traceability.getShellingMethod()).append("\n");
+            }
+            if (traceability.getGradingMethod() != null) {
+                doc.append("Grading Method: ").append(traceability.getGradingMethod()).append("\n");
+            }
+        }
+        doc.append("\n");
 
         doc.append("--- Certification ---\n");
         doc.append("This certifies that the above product is of Ivorian origin and was produced\n");
@@ -207,7 +225,7 @@ public class DocumentGenerator {
 
         doc.append("--- Verification ---\n");
         doc.append("This document is digitally verified through Farm OS.\n");
-        doc.append("Traceability URL: https://www.afrinutsexport.com/trace/").append(batch != null ? batch.getBatchNumber() : "").append("\n\n");
+        doc.append("Traceability URL: https://www.afrinutsexport.com/trace?batchId=").append(batch != null ? batch.getBatchNumber() : "").append("\n\n");
 
         doc.append("Authorized Signature: ____________________\n");
         doc.append("Issued by: Farm OS - AfriNuts Export\n");
@@ -217,11 +235,13 @@ public class DocumentGenerator {
         return doc.toString();
     }
 
-    /**
-     * Generate Packing List
-     * Auto-generated from batch and inventory data
-     */
-    public static String generatePackingList(QualityBatchEntity batch, SupplierEntity supplier) {
+    // ========================================
+    // PACKING LIST
+    // ========================================
+
+    public static String generatePackingList(QualityBatchEntity batch,
+                                             SupplierEntity supplier,
+                                             BatchTraceabilityEntity traceability) {
         StringBuilder doc = new StringBuilder();
 
         doc.append("=== PACKING LIST ===\n");
@@ -239,18 +259,25 @@ public class DocumentGenerator {
         doc.append("\n");
 
         doc.append("--- Package Information ---\n");
-        double weightKg = batch != null ? batch.getWeightKg() : 0;
-        int bags = (int) Math.ceil(weightKg / 50); // 50kg bags
-        int boxes = (int) Math.ceil(weightKg / 25); // 25kg boxes
+        // ✅ Use kernel weight if available
+        double weightKg = traceability != null && traceability.getKernelWeightKg() > 0 ?
+                traceability.getKernelWeightKg() :
+                (batch != null ? batch.getWeightKg() : 0);
+
+        int bags = (int) Math.ceil(weightKg / 50);
+        int boxes = (int) Math.ceil(weightKg / 25);
 
         doc.append("Total Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", weightKg)).append("\n");
+        if (traceability != null && traceability.getRawWeightKg() > 0) {
+            doc.append("Raw Input Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg())).append("\n");
+        }
         doc.append("Number of Bags: ").append(bags).append(" (50kg each)\n");
         doc.append("Number of Boxes: ").append(boxes).append(" (25kg each)\n");
         doc.append("Package Type: Jute Bags / Carton Boxes\n");
         doc.append("Storage Conditions: Dry, ventilated area\n\n");
 
         doc.append("--- Product Details ---\n");
-        doc.append("Product: Cashew Nuts\n");
+        doc.append("Product: Cashew Nuts (Processed Kernels)\n");
         doc.append("Grade: ").append(batch != null ? batch.getQualityGrade().getDisplayName() : "N/A").append("\n");
         doc.append("Moisture Content: ").append(batch != null ? String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()) : "N/A").append("\n");
         doc.append("Defective Rate: ").append(batch != null ? String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()) : "N/A").append("\n");
@@ -271,13 +298,14 @@ public class DocumentGenerator {
         return doc.toString();
     }
 
-    /**
-     * Generate Commercial Invoice
-     * Auto-generated from batch, pricing, and buyer data
-     */
+    // ========================================
+    // COMMERCIAL INVOICE
+    // ========================================
+
     public static String generateCommercialInvoice(QualityBatchEntity batch,
                                                    RevenueEntity revenue,
-                                                   SupplierEntity supplier) {
+                                                   SupplierEntity supplier,
+                                                   BatchTraceabilityEntity traceability) {
         StringBuilder doc = new StringBuilder();
 
         doc.append("=== COMMERCIAL INVOICE ===\n");
@@ -285,10 +313,9 @@ public class DocumentGenerator {
 
         doc.append("AfriNuts Export\n");
         doc.append("Odienné, Côte d'Ivoire\n");
-        doc.append("Phone: +225 00 00 00 00\n");
+        doc.append("Phone: +225 07 02 27 27 70\n");
         doc.append("Email: info@afrinutsexport.com\n\n");
 
-        // ✅ Generate unique invoice number
         String invoiceNumber = "INV-" + FILE_DATE_FORMAT.format(new Date())
                 + "-" + String.format("%03d", System.currentTimeMillis() % 1000);
         doc.append("Invoice Number: ").append(invoiceNumber).append("\n");
@@ -298,9 +325,6 @@ public class DocumentGenerator {
         doc.append("--- Bill To ---\n");
         if (revenue != null && revenue.getBuyer() != null) {
             doc.append("Buyer: ").append(revenue.getBuyer()).append("\n");
-        } else if (batch != null) {
-            // Try to get buyer from traceability
-            doc.append("Buyer: ").append("N/A (Please add buyer)\n");
         }
         if (supplier != null && supplier.getLocation() != null) {
             doc.append("Origin: ").append(supplier.getLocation()).append("\n");
@@ -309,32 +333,49 @@ public class DocumentGenerator {
 
         // Product details with pricing
         doc.append("--- Product Details ---\n");
-        doc.append("Product: Cashew Nuts\n");
+        doc.append("Product: Cashew Nuts (Processed Kernels)\n");
         doc.append("Batch Number: ").append(batch != null ? batch.getBatchNumber() : "N/A").append("\n");
         doc.append("Grade: ").append(batch != null ? batch.getQualityGrade().getDisplayName() : "N/A").append("\n");
-        doc.append("Quantity: ").append(batch != null ? String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()) : "0 kg").append("\n");
+
+        // ✅ Use kernel weight from traceability if available
+        double weightKg = traceability != null && traceability.getKernelWeightKg() > 0 ?
+                traceability.getKernelWeightKg() :
+                (batch != null ? batch.getWeightKg() : 0);
+        doc.append("Quantity: ").append(String.format(Locale.getDefault(), "%.0f kg", weightKg)).append("\n");
 
         double pricePerKg = revenue != null ? revenue.getPricePerKg() : 0;
-        double totalAmount = revenue != null ? revenue.getTotalAmount() : (pricePerKg * (batch != null ? batch.getWeightKg() : 0));
+        double totalAmount = revenue != null ? revenue.getTotalAmount() : (pricePerKg * weightKg);
 
         doc.append("Unit Price: ").append(String.format(Locale.getDefault(), "%,.0f XAF/kg", pricePerKg)).append("\n");
         doc.append("Total Amount: ").append(String.format(Locale.getDefault(), "%,.0f XAF", totalAmount)).append("\n\n");
 
-        // Payment terms
+        // ✅ Add processing info if available
+        if (traceability != null) {
+            doc.append("--- Processing Information ---\n");
+            if (traceability.getProcessingMethod() != null) {
+                doc.append("Method: ").append(traceability.getProcessingMethod()).append("\n");
+            }
+            if (traceability.getProcessingFacility() != null) {
+                doc.append("Facility: ").append(traceability.getProcessingFacility()).append("\n");
+            }
+            if (traceability.getYieldPercentage() > 0) {
+                doc.append("Yield: ").append(String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage())).append("\n");
+            }
+            doc.append("\n");
+        }
+
         doc.append("--- Payment Terms ---\n");
         doc.append("Payment Due: 30 days from invoice date\n");
         doc.append("Payment Method: Bank Transfer / Letter of Credit\n");
         doc.append("Currency: XAF (CFA Franc)\n\n");
 
-        // Shipping details
         doc.append("--- Shipping Details ---\n");
         doc.append("Shipping Terms: FOB Abidjan Port\n");
         doc.append("Delivery Time: 14-21 days after order confirmation\n\n");
 
-        // Verification
         doc.append("--- Verification ---\n");
         doc.append("This invoice is digitally generated from Farm OS.\n");
-        doc.append("Traceability: https://www.afrinutsexport.com/trace/")
+        doc.append("Traceability: https://www.afrinutsexport.com/trace?batchId=")
                 .append(batch != null ? batch.getBatchNumber() : "").append("\n\n");
 
         doc.append("Authorized Signature: ____________________\n");
@@ -345,12 +386,14 @@ public class DocumentGenerator {
         return doc.toString();
     }
 
-    /**
-     * Generate Batch Document Package (all documents combined)
-     */
+    // ========================================
+    // DOCUMENT PACKAGE
+    // ========================================
+
     public static String generateBatchDocumentPackage(SupplierEntity supplier,
                                                       QualityBatchEntity batch,
-                                                      RevenueEntity revenue) {
+                                                      RevenueEntity revenue,
+                                                      BatchTraceabilityEntity traceability) {
         StringBuilder packageDoc = new StringBuilder();
 
         packageDoc.append("============================================\n");
@@ -363,26 +406,38 @@ public class DocumentGenerator {
         packageDoc.append("1. Certificate of Origin\n");
         packageDoc.append("2. Packing List\n");
         packageDoc.append("3. Commercial Invoice\n");
-        packageDoc.append("4. Traceability Report\n\n");
+        packageDoc.append("4. Processing Report\n\n");
         packageDoc.append("--- DOCUMENTS ---\n\n");
 
         // Certificate of Origin
         packageDoc.append("=== 1. CERTIFICATE OF ORIGIN ===\n");
-        packageDoc.append(generateCertificateOfOrigin(supplier, batch));
+        packageDoc.append(generateCertificateOfOrigin(supplier, batch, traceability));
         packageDoc.append("\n\n");
 
         // Packing List
         packageDoc.append("=== 2. PACKING LIST ===\n");
-        packageDoc.append(generatePackingList(batch, supplier));
+        packageDoc.append(generatePackingList(batch, supplier, traceability));
         packageDoc.append("\n\n");
 
         // Commercial Invoice
         packageDoc.append("=== 3. COMMERCIAL INVOICE ===\n");
-        packageDoc.append(generateCommercialInvoice(batch, revenue, supplier));
+        packageDoc.append(generateCommercialInvoice(batch, revenue, supplier, traceability));
         packageDoc.append("\n\n");
 
-        // Traceability Summary
-        packageDoc.append("=== 4. TRACEABILITY SUMMARY ===\n");
+        // Processing Report
+        packageDoc.append("=== 4. PROCESSING REPORT ===\n");
+        packageDoc.append("Raw Input Weight: ").append(traceability != null ? String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg()) : "N/A").append("\n");
+        packageDoc.append("Kernel Output Weight: ").append(traceability != null ? String.format(Locale.getDefault(), "%.0f kg", traceability.getKernelWeightKg()) : "N/A").append("\n");
+        packageDoc.append("Yield Percentage: ").append(traceability != null ? String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage()) : "N/A").append("\n");
+        if (traceability != null && traceability.getProcessingMethod() != null) {
+            packageDoc.append("Processing Method: ").append(traceability.getProcessingMethod()).append("\n");
+        }
+        if (traceability != null && traceability.getProcessingFacility() != null) {
+            packageDoc.append("Processing Facility: ").append(traceability.getProcessingFacility()).append("\n");
+        }
+        packageDoc.append("\n");
+
+        packageDoc.append("--- Verification ---\n");
         packageDoc.append("Farm OS Verified\n");
         packageDoc.append("Traceability URL: https://www.afrinutsexport.com/trace/")
                 .append(batch != null ? batch.getBatchNumber() : "").append("\n");
@@ -392,22 +447,20 @@ public class DocumentGenerator {
         return packageDoc.toString();
     }
 
-    /**
-     * Generate verification code for documents
-     */
+    // ========================================
+    // HELPERS
+    // ========================================
+
     private static String generateVerificationCode() {
         return "FOS-" + FILE_DATE_FORMAT.format(new Date()) +
                 "-" + String.format("%06d", System.currentTimeMillis() % 1000000);
     }
 
-    /**
-     * Save document to file
-     */
     public static String saveDocumentToFile(Context context, String fileName, String content) {
         try {
             String fileNameWithExt = fileName + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
-            java.io.File file = new java.io.File(context.getExternalFilesDir(null), fileNameWithExt);
-            java.io.FileWriter writer = new java.io.FileWriter(file);
+            File file = new File(context.getExternalFilesDir(null), fileNameWithExt);
+            FileWriter writer = new FileWriter(file);
             writer.write(content);
             writer.close();
             return file.getAbsolutePath();

@@ -76,6 +76,6 @@ public class BatchNumberUtils {
      * Generate QR code URL for a batch number
      */
     public static String getTraceabilityUrl(String batchNumber) {
-        return "https://www.afrinutsexport.com/trace/" + batchNumber;
+        return "https://www.afrinutsexport.com/trace?batchId=" + batchNumber;
     }
 }

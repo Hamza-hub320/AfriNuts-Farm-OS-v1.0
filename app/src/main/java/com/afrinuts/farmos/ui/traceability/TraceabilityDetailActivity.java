@@ -383,43 +383,227 @@ public class TraceabilityDetailActivity extends BaseActivity {
         tvProcessingDate.setText(traceability.getFormattedProcessingDate());
         tvExportDate.setText(traceability.getFormattedExportDate());
         tvWeight.setText(traceability.getFormattedWeight());
+        displayProcessingDetails();
 
         tvBuyer.setText(traceability.getBuyer() != null ? traceability.getBuyer() : "—");
         tvDestination.setText(traceability.getDestination() != null ? traceability.getDestination() : "—");
         tvSupplierName.setText(traceability.getSupplierName() != null ? traceability.getSupplierName() : "—");
         tvQualityGrade.setText(traceability.getQualityGrade() != null ? traceability.getQualityGrade() : "—");
 
+        // ✅ Processing Details
+        TextView tvRawWeight = findViewById(R.id.tvRawWeight);
+        TextView tvKernelWeight = findViewById(R.id.tvKernelWeight);
+        TextView tvYieldPercentage = findViewById(R.id.tvYieldPercentage);
+        TextView tvProcessingMethod = findViewById(R.id.tvProcessingMethod);
+        TextView tvProcessingFacility = findViewById(R.id.tvProcessingFacility);
+
+        if (traceability.getRawWeightKg() > 0) {
+            tvRawWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", traceability.getRawWeightKg()));
+            tvRawWeight.setVisibility(View.VISIBLE);
+        } else {
+            tvRawWeight.setVisibility(View.GONE);
+        }
+
+        if (traceability.getKernelWeightKg() > 0) {
+            tvKernelWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", traceability.getKernelWeightKg()));
+            tvKernelWeight.setVisibility(View.VISIBLE);
+        } else {
+            tvKernelWeight.setVisibility(View.GONE);
+        }
+
+        if (traceability.getYieldPercentage() > 0) {
+            tvYieldPercentage.setText(String.format(Locale.getDefault(), "%.0f%%", traceability.getYieldPercentage()));
+            tvYieldPercentage.setVisibility(View.VISIBLE);
+        } else {
+            tvYieldPercentage.setVisibility(View.GONE);
+        }
+
+        if (traceability.getProcessingMethod() != null && !traceability.getProcessingMethod().isEmpty()) {
+            tvProcessingMethod.setText(traceability.getProcessingMethod());
+            tvProcessingMethod.setVisibility(View.VISIBLE);
+        } else {
+            tvProcessingMethod.setVisibility(View.GONE);
+        }
+
+        if (traceability.getProcessingFacility() != null && !traceability.getProcessingFacility().isEmpty()) {
+            tvProcessingFacility.setText(traceability.getProcessingFacility());
+            tvProcessingFacility.setVisibility(View.VISIBLE);
+        } else {
+            tvProcessingFacility.setVisibility(View.GONE);
+        }
+
         displayShippingData();
         displaySustainability();
         displayDocuments();
+        displayDigitalSignature();
 
         String qrUrl = traceability.getQrCodeUrl();
         tvQrUrl.setText(qrUrl);
         generateQRCode(qrUrl);
 
-        if (traceability.getVerificationCode() != null) {
-            tvVerificationCode.setText(traceability.getVerificationCode());
-            tvVerificationCode.setVisibility(View.VISIBLE);
-        } else if (qualityBatch != null && qualityBatch.getVerificationCode() != null) {
-            tvVerificationCode.setText(qualityBatch.getVerificationCode());
-            tvVerificationCode.setVisibility(View.VISIBLE);
-        } else {
-            tvVerificationCode.setVisibility(View.GONE);
-        }
-
+        // View buttons
         if (qualityBatch != null) {
             btnViewBatch.setVisibility(View.VISIBLE);
+        } else {
+            btnViewBatch.setVisibility(View.GONE);
         }
 
         if (supplier != null) {
             btnViewSupplier.setVisibility(View.VISIBLE);
+        } else {
+            btnViewSupplier.setVisibility(View.GONE);
         }
 
-        displaySustainability();
-        displayDocuments();
-
+        // Role-based UI
         if (!sessionManager.canEditData()) {
             btnDelete.setVisibility(View.GONE);
+        }
+    }
+
+    // ✅ Add this new method for Digital Signature display
+    private void displayDigitalSignature() {
+        View layoutSignature = findViewById(R.id.layoutSignature);
+        TextView tvVerificationStatus = findViewById(R.id.tvVerificationStatus);
+        TextView tvVerificationCode = findViewById(R.id.tvVerificationCode);
+        TextView tvDigitalSignature = findViewById(R.id.tvDigitalSignature);
+        TextView tvSignedDate = findViewById(R.id.tvSignedDate);
+        ImageView ivCopyCode = findViewById(R.id.ivCopyCode);
+
+
+        if (traceability != null && traceability.isVerified()) {
+            layoutSignature.setVisibility(View.VISIBLE);
+
+            // Status
+            tvVerificationStatus.setText("Verified");
+            tvVerificationStatus.setTextColor(getColor(android.R.color.holo_green_light));
+
+            // Verification Code
+            String code = traceability.getVerificationCode();
+            if (code != null && !code.isEmpty()) {
+                tvVerificationCode.setText(code);
+                tvVerificationCode.setVisibility(View.VISIBLE);
+            } else {
+                tvVerificationCode.setText("—");
+            }
+
+            // Digital Signature (show shortened version)
+            String signature = traceability.getDigitalSignature();
+            if (signature != null && !signature.isEmpty()) {
+                // Show full signature in a smaller font
+                tvDigitalSignature.setText(signature);
+                tvDigitalSignature.setVisibility(View.VISIBLE);
+            } else {
+                tvDigitalSignature.setVisibility(View.GONE);
+            }
+
+            // Signed Date
+            tvSignedDate.setText("Signed: " + traceability.getFormattedSignedDate());
+
+            // Copy verification code
+            if (ivCopyCode != null) {
+                ivCopyCode.setOnClickListener(v -> {
+                    if (traceability.getVerificationCode() != null) {
+                        android.content.ClipboardManager clipboard =
+                                (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText(
+                                "Verification Code", traceability.getVerificationCode());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(this, "Verification code copied!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+
+        // Make verification code clickable to copy
+            tvVerificationCode.setOnClickListener(v -> {
+                if (traceability.getVerificationCode() != null) {
+                    android.content.ClipboardManager clipboard =
+                            (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText(
+                            "Verification Code", traceability.getVerificationCode());
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(this, "Verification code copied!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } else {
+            layoutSignature.setVisibility(View.GONE);
+        }
+    }
+
+    private void displayProcessingDetails() {
+        View layoutProcessingDetails = findViewById(R.id.layoutProcessingDetails);
+        TextView tvRawWeight = findViewById(R.id.tvRawWeight);
+        TextView tvKernelWeight = findViewById(R.id.tvKernelWeight);
+        TextView tvYieldPercentage = findViewById(R.id.tvYieldPercentage);
+        TextView tvProcessingMethod = findViewById(R.id.tvProcessingMethod);
+        TextView tvProcessingFacility = findViewById(R.id.tvProcessingFacility);
+        TextView tvProcessingLocation = findViewById(R.id.tvProcessingLocation);
+
+        // Check if we have any processing data to show
+        boolean hasData = traceability.getRawWeightKg() > 0 ||
+                traceability.getKernelWeightKg() > 0 ||
+                traceability.getProcessingMethod() != null ||
+                traceability.getProcessingFacility() != null;
+
+        if (hasData) {
+            layoutProcessingDetails.setVisibility(View.VISIBLE);
+
+            // Raw Weight
+            if (traceability.getRawWeightKg() > 0) {
+                tvRawWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", traceability.getRawWeightKg()));
+                tvRawWeight.setVisibility(View.VISIBLE);
+            } else {
+                tvRawWeight.setVisibility(View.GONE);
+            }
+
+            // Kernel Weight
+            if (traceability.getKernelWeightKg() > 0) {
+                tvKernelWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", traceability.getKernelWeightKg()));
+                tvKernelWeight.setVisibility(View.VISIBLE);
+            } else {
+                tvKernelWeight.setVisibility(View.GONE);
+            }
+
+            // Yield Percentage
+            if (traceability.getYieldPercentage() > 0) {
+                tvYieldPercentage.setText(String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage()));
+                tvYieldPercentage.setVisibility(View.VISIBLE);
+            } else if (traceability.getRawWeightKg() > 0 && traceability.getKernelWeightKg() > 0) {
+                // Calculate on the fly
+                double yield = (traceability.getKernelWeightKg() / traceability.getRawWeightKg()) * 100;
+                tvYieldPercentage.setText(String.format(Locale.getDefault(), "%.1f%%", yield));
+                tvYieldPercentage.setVisibility(View.VISIBLE);
+            } else {
+                tvYieldPercentage.setVisibility(View.GONE);
+            }
+
+            // Processing Method
+            if (traceability.getProcessingMethod() != null && !traceability.getProcessingMethod().isEmpty()) {
+                tvProcessingMethod.setText(traceability.getProcessingMethod());
+                tvProcessingMethod.setVisibility(View.VISIBLE);
+            } else {
+                tvProcessingMethod.setVisibility(View.GONE);
+            }
+
+            // Processing Facility
+            if (traceability.getProcessingFacility() != null && !traceability.getProcessingFacility().isEmpty()) {
+                tvProcessingFacility.setText(traceability.getProcessingFacility());
+                tvProcessingFacility.setVisibility(View.VISIBLE);
+            } else {
+                tvProcessingFacility.setVisibility(View.GONE);
+            }
+
+            // Processing Location
+            if (traceability.getProcessingLocation() != null && !traceability.getProcessingLocation().isEmpty()) {
+                tvProcessingLocation.setText(traceability.getProcessingLocation());
+                tvProcessingLocation.setVisibility(View.VISIBLE);
+            } else {
+                tvProcessingLocation.setVisibility(View.GONE);
+            }
+
+        } else {
+            layoutProcessingDetails.setVisibility(View.GONE);
         }
     }
 
@@ -461,7 +645,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 ".footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }" +
                 "</style></head><body>" +
                 "<div class='header'>" +
-                "<div class='title'>🌿 AfriNuts Export</div>" +
+                "<div class='title'>AfriNuts Export SARL</div>" +
                 "<div class='batch'>Traceability Report</div>" +
                 "</div>" +
                 "<div class='section'>" +
@@ -883,19 +1067,18 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 switch (documentType) {
                     case "Certificate of Origin":
                         DocumentGenerator.generateAndUploadCertificateOfOrigin(
-                                this, supplier, qualityBatch, String.valueOf(currentFarmId), callback);
+                                this, supplier, qualityBatch, traceability, String.valueOf(currentFarmId), callback);
                         break;
 
                     case "Packing List":
                         DocumentGenerator.generateAndUploadPackingList(
-                                this, qualityBatch, supplier, String.valueOf(currentFarmId), callback);
+                                this, qualityBatch, supplier, traceability, String.valueOf(currentFarmId), callback);
                         break;
 
                     case "Commercial Invoice":
-                        // ✅ Check if revenue exists with price
                         if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
                             DocumentGenerator.generateAndUploadCommercialInvoice(
-                                    this, qualityBatch, finalRevenue, supplier, String.valueOf(currentFarmId), callback);
+                                    this, qualityBatch, finalRevenue, supplier, traceability, String.valueOf(currentFarmId), callback);
                         } else {
                             runOnUiThread(() -> showAddRevenueDialog());
                         }
@@ -903,7 +1086,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
                     case "Document Package":
                         DocumentGenerator.generateAndUploadDocumentPackage(
-                                this, supplier, qualityBatch, finalRevenue, String.valueOf(currentFarmId), callback);
+                                this, supplier, qualityBatch, finalRevenue, traceability, String.valueOf(currentFarmId), callback);
                         break;
 
                     default:

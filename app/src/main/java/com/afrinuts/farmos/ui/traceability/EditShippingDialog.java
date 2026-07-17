@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +22,6 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
-import com.afrinuts.farmos.utils.TraceabilityAutoCreator;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -41,13 +41,30 @@ public class EditShippingDialog extends DialogFragment {
     private QualityBatchRepository qualityBatchRepository;
     private SupplierRepository supplierRepository;
 
+    // Shipping fields
     private TextInputEditText etExportDate;
-    private TextInputEditText etBuyer;        // ✅ New
+    private TextInputEditText etBuyer;
     private TextInputEditText etDestination;
-    private TextInputEditText etHarvestYear;   // ✅ New
-    private TextInputEditText etCertifications; // ✅ New
+    private TextInputEditText etHarvestYear;
+    private TextInputEditText etCertifications;
+
+    // ✅ Processing fields
+    private TextInputEditText etProcessingLocation;
+    private TextInputEditText etProcessingFacility;
+    private TextInputEditText etProcessingMethod;
+    private TextInputEditText etKernelWeight;
+    private TextInputEditText etShellingMethod;
+    private TextInputEditText etGradingMethod;
+    private TextInputEditText etYieldPercentage;
 
     private Calendar selectedDate = Calendar.getInstance();
+
+    // ✅ Default processing values
+    private static final String DEFAULT_PROCESSING_LOCATION = "Odienné, Côte d'Ivoire";
+    private static final String DEFAULT_PROCESSING_FACILITY = "AfriNuts NDC (Nuts Distribution Center)";
+    private static final String DEFAULT_PROCESSING_METHOD = "Steam roasting — zero chemical additives";
+    private static final String DEFAULT_SHELLING_METHOD = "Semi-automated — mechanical and manual";
+    private static final String DEFAULT_GRADING_METHOD = "Manual inspection + electronic sorting";
 
     public interface OnShippingUpdatedListener {
         void onShippingUpdated();
@@ -111,6 +128,9 @@ public class EditShippingDialog extends DialogFragment {
         initViews(view);
         setupDatePicker();
 
+        // ✅ Auto-populate processing fields
+        autoPopulateProcessingFields();
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .setTitle("Edit Shipping Details")
@@ -132,11 +152,28 @@ public class EditShippingDialog extends DialogFragment {
     }
 
     private void initViews(View view) {
+        // Shipping fields
         etExportDate = view.findViewById(R.id.etExportDate);
-        etBuyer = view.findViewById(R.id.etBuyer);              // ✅ New
+        etBuyer = view.findViewById(R.id.etBuyer);
         etDestination = view.findViewById(R.id.etDestination);
-        etHarvestYear = view.findViewById(R.id.etHarvestYear);   // ✅ New
-        etCertifications = view.findViewById(R.id.etCertifications); // ✅ New
+        etHarvestYear = view.findViewById(R.id.etHarvestYear);
+        etCertifications = view.findViewById(R.id.etCertifications);
+
+        // ✅ Processing fields
+        etProcessingLocation = view.findViewById(R.id.etProcessingLocation);
+        etProcessingFacility = view.findViewById(R.id.etProcessingFacility);
+        etProcessingMethod = view.findViewById(R.id.etProcessingMethod);
+        etKernelWeight = view.findViewById(R.id.etKernelWeight);
+        etShellingMethod = view.findViewById(R.id.etShellingMethod);
+        etGradingMethod = view.findViewById(R.id.etGradingMethod);
+        etYieldPercentage = view.findViewById(R.id.etYieldPercentage);
+
+        // ✅ Listen for kernel weight changes to calculate yield
+        etKernelWeight.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                calculateYield();
+            }
+        });
     }
 
     private void setupDatePicker() {
@@ -167,10 +204,76 @@ public class EditShippingDialog extends DialogFragment {
         etExportDate.setText(sdf.format(selectedDate.getTime()));
     }
 
+    // ✅ Auto-populate processing fields with default values
+    private void autoPopulateProcessingFields() {
+        if (traceability != null) {
+            // If values exist in traceability, use them, otherwise use defaults
+            etProcessingLocation.setText(
+                    traceability.getProcessingLocation() != null ?
+                            traceability.getProcessingLocation() : DEFAULT_PROCESSING_LOCATION
+            );
+
+            etProcessingFacility.setText(
+                    traceability.getProcessingFacility() != null ?
+                            traceability.getProcessingFacility() : DEFAULT_PROCESSING_FACILITY
+            );
+
+            etProcessingMethod.setText(
+                    traceability.getProcessingMethod() != null ?
+                            traceability.getProcessingMethod() : DEFAULT_PROCESSING_METHOD
+            );
+
+            etShellingMethod.setText(
+                    traceability.getShellingMethod() != null ?
+                            traceability.getShellingMethod() : DEFAULT_SHELLING_METHOD
+            );
+
+            etGradingMethod.setText(
+                    traceability.getGradingMethod() != null ?
+                            traceability.getGradingMethod() : DEFAULT_GRADING_METHOD
+            );
+
+            // Kernel weight
+            if (traceability.getKernelWeightKg() > 0) {
+                etKernelWeight.setText(String.valueOf(traceability.getKernelWeightKg()));
+                etYieldPercentage.setText(traceability.getFormattedYield());
+            }
+        } else {
+            // New traceability - use all defaults
+            etProcessingLocation.setText(DEFAULT_PROCESSING_LOCATION);
+            etProcessingFacility.setText(DEFAULT_PROCESSING_FACILITY);
+            etProcessingMethod.setText(DEFAULT_PROCESSING_METHOD);
+            etShellingMethod.setText(DEFAULT_SHELLING_METHOD);
+            etGradingMethod.setText(DEFAULT_GRADING_METHOD);
+        }
+    }
+
+    private void calculateYield() {
+        String kernelWeightStr = etKernelWeight.getText().toString().trim();
+        if (TextUtils.isEmpty(kernelWeightStr) || traceability == null) {
+            etYieldPercentage.setText("0%");
+            return;
+        }
+
+        try {
+            double kernelWeight = Double.parseDouble(kernelWeightStr);
+            double rawWeight = traceability.getWeightKg();
+
+            if (rawWeight > 0 && kernelWeight > 0) {
+                double yield = (kernelWeight / rawWeight) * 100;
+                etYieldPercentage.setText(String.format(Locale.getDefault(), "%.1f%%", yield));
+            } else {
+                etYieldPercentage.setText("0%");
+            }
+        } catch (NumberFormatException e) {
+            etYieldPercentage.setText("Invalid");
+        }
+    }
+
     private void populateFields() {
         if (traceability == null) return;
 
-        // ✅ Auto-populate from existing data
+        // Shipping fields
         if (traceability.getExportDate() != null && traceability.getExportDate() > 0) {
             selectedDate.setTimeInMillis(traceability.getExportDate());
             updateDateLabel();
@@ -178,29 +281,19 @@ public class EditShippingDialog extends DialogFragment {
             updateDateLabel();
         }
 
-        // ✅ Buyer - from traceability or from revenue via quality batch
-        if (traceability.getBuyer() != null && !traceability.getBuyer().isEmpty()) {
-            etBuyer.setText(traceability.getBuyer());
-        } else if (qualityBatch != null) {
-            // Try to get buyer from revenue
-            // For now, leave empty
+        etBuyer.setText(traceability.getBuyer());
+        etDestination.setText(traceability.getDestination());
+
+        if (traceability.getHarvestYear() > 0) {
+            etHarvestYear.setText(String.valueOf(traceability.getHarvestYear()));
         }
 
-        if (traceability.getDestination() != null) {
-            etDestination.setText(traceability.getDestination());
-        }
+        etCertifications.setText(traceability.getCertificationIds());
 
-        // ✅ Harvest Year - from traceability or quality batch
-        if (traceability.getHarvestCycleId() != null) {
-            // Try to get harvest year from revenue
-            etHarvestYear.setText(String.valueOf(2026)); // Placeholder
-        }
-
-        // ✅ Certifications - from supplier or traceability
-        if (traceability.getCertificationIds() != null && !traceability.getCertificationIds().isEmpty()) {
-            etCertifications.setText(traceability.getCertificationIds());
-        } else if (supplier != null && supplier.isCertified()) {
-            etCertifications.setText(supplier.getCertificationType());
+        // Processing fields - already auto-populated
+        if (traceability.getKernelWeightKg() > 0) {
+            etKernelWeight.setText(String.valueOf(traceability.getKernelWeightKg()));
+            calculateYield();
         }
     }
 
@@ -210,12 +303,31 @@ public class EditShippingDialog extends DialogFragment {
             return;
         }
 
-        // Get values
+        // Get shipping values
         long exportDate = selectedDate.getTimeInMillis();
         String buyer = etBuyer.getText().toString().trim();
         String destination = etDestination.getText().toString().trim();
-        int harvestYear = 0;
         String harvestYearStr = etHarvestYear.getText().toString().trim();
+        String certifications = etCertifications.getText().toString().trim();
+
+        // ✅ Get processing values
+        String processingLocation = etProcessingLocation.getText().toString().trim();
+        String processingFacility = etProcessingFacility.getText().toString().trim();
+        String processingMethod = etProcessingMethod.getText().toString().trim();
+        String shellingMethod = etShellingMethod.getText().toString().trim();
+        String gradingMethod = etGradingMethod.getText().toString().trim();
+
+        double kernelWeight = 0;
+        String kernelWeightStr = etKernelWeight.getText().toString().trim();
+        if (!TextUtils.isEmpty(kernelWeightStr)) {
+            try {
+                kernelWeight = Double.parseDouble(kernelWeightStr);
+            } catch (NumberFormatException e) {
+                // Keep as 0
+            }
+        }
+
+        int harvestYear = 0;
         if (!TextUtils.isEmpty(harvestYearStr)) {
             try {
                 harvestYear = Integer.parseInt(harvestYearStr);
@@ -223,7 +335,6 @@ public class EditShippingDialog extends DialogFragment {
                 // Keep as 0
             }
         }
-        String certifications = etCertifications.getText().toString().trim();
 
         // Update traceability
         traceability.setExportDate(exportDate);
@@ -233,12 +344,21 @@ public class EditShippingDialog extends DialogFragment {
         traceability.setCertificationIds(certifications.isEmpty() ? null : certifications);
         traceability.setUpdatedAt(System.currentTimeMillis());
 
+        // ✅ Update processing fields
+        traceability.setProcessingLocation(processingLocation.isEmpty() ? DEFAULT_PROCESSING_LOCATION : processingLocation);
+        traceability.setProcessingFacility(processingFacility.isEmpty() ? DEFAULT_PROCESSING_FACILITY : processingFacility);
+        traceability.setProcessingMethod(processingMethod.isEmpty() ? DEFAULT_PROCESSING_METHOD : processingMethod);
+        traceability.setKernelWeightKg(kernelWeight);
+        traceability.setShellingMethod(shellingMethod.isEmpty() ? DEFAULT_SHELLING_METHOD : shellingMethod);
+        traceability.setGradingMethod(gradingMethod.isEmpty() ? DEFAULT_GRADING_METHOD : gradingMethod);
+        // Yield is auto-calculated
+
         repository.updateTraceability(traceability, new BatchTraceabilityRepository.RepositoryCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Shipping details updated!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "✅ Shipping details updated!", Toast.LENGTH_SHORT).show();
                         if (listener != null) listener.onShippingUpdated();
                         dismiss();
                     });
@@ -249,7 +369,7 @@ public class EditShippingDialog extends DialogFragment {
             public void onError(String error) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
                     });
                 }
             }

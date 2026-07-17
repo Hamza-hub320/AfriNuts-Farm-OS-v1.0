@@ -145,6 +145,8 @@ public class TraceabilityAutoCreator {
             double totalAmount = 0;
             String buyer = null;
             Long harvestCycleId = null;
+            double revenueWeight = 0;
+            String revenueBatchNumber = null;
             try {
                 List<RevenueEntity> revenues = database.revenueDao()
                         .getRevenuesByBatchId(batch.getId());
@@ -154,10 +156,59 @@ public class TraceabilityAutoCreator {
                     totalAmount = revenue.getTotalAmount();
                     buyer = revenue.getBuyer();
                     harvestCycleId = revenue.getId();
+                    revenueWeight = revenue.getQuantityKg();
                 }
             } catch (Exception e) {
                 Log.w(TAG, "Could not get revenue data", e);
             }
+
+            // 3. ✅ Set processing details
+            double rawWeight = batch.getWeightKg();  // Raw input weight
+            double kernelWeight = revenueWeight > 0 ? revenueWeight : 0;  // Kernel output
+
+            // 4. ✅ Calculate traceability weight (DECLARE HERE BEFORE USING)
+            double traceabilityWeight = revenueWeight > 0 ? revenueWeight : batch.getWeightKg();
+            double traceabilityPrice = pricePerKg > 0 ? pricePerKg : 0;
+            double traceabilityTotal = totalAmount > 0 ? totalAmount : 0;
+
+            // 5. Create traceability record
+            BatchTraceabilityEntity traceability = new BatchTraceabilityEntity(
+                    batch.getFarmId(),
+                    batch.getBatchNumber(),
+                    batch.getProcessingDate(),
+                    kernelWeight > 0 ? kernelWeight : rawWeight,  // Use kernel weight if available
+                    batch.getQualityGrade().getDisplayName(),
+                    pricePerKg
+            );
+
+            // Set processing fields
+            traceability.setRawWeightKg(rawWeight);
+            traceability.setKernelWeightKg(kernelWeight);
+
+            // ✅ Generate digital signature
+            java.util.Map<String, Object> dataMap = new java.util.HashMap<>();
+            dataMap.put("batchNumber", batch.getBatchNumber());
+            dataMap.put("weightKg", traceabilityWeight > 0 ? traceabilityWeight : batch.getWeightKg());
+            dataMap.put("supplierId", batch.getSupplierId());
+            dataMap.put("qualityGrade", batch.getQualityGrade().name());
+            dataMap.put("processingDate", batch.getProcessingDate());
+            dataMap.put("buyer", buyer != null ? buyer : "");
+            dataMap.put("destination", traceability.getDestination() != null ? traceability.getDestination() : "");
+            dataMap.put("farmId", batch.getFarmId());
+
+
+            // ✅ Set processing fields
+            traceability.setRawWeightKg(rawWeight);
+            traceability.setKernelWeightKg(kernelWeight);
+            // Yield is auto-calculated
+
+            // Generate signature
+            String signature = DigitalSignatureGenerator.generateSignature(
+                    batch.getBatchNumber(), dataMap);
+            String verificationCode = DigitalSignatureGenerator.generateVerificationCode(
+                    batch.getBatchNumber());
+            String verificationUrl = DigitalSignatureGenerator.getVerificationUrl(
+                    batch.getBatchNumber(), signature);
 
             // 3. ✅ Create sustainability metrics JSON
             String sustainabilityMetrics = createSustainabilityMetricsJson(batch);
@@ -171,24 +222,17 @@ public class TraceabilityAutoCreator {
                 // ✅ Update existing with latest data
                 existing.setBuyer(buyer);
                 existing.setHarvestCycleId(harvestCycleId);
-                existing.setPricePerKg(pricePerKg);
+                existing.setWeightKg(traceabilityWeight);
+                existing.setRawWeightKg(batch.getWeightKg());
+                existing.setKernelWeightKg(revenueWeight);
+                existing.setYieldPercentage(revenueWeight > 0 ? (revenueWeight / batch.getWeightKg()) * 100 : 0);
                 existing.setTotalAmount(totalAmount);
                 existing.setSustainabilityMetrics(sustainabilityMetrics);
                 existing.setUpdatedAt(System.currentTimeMillis());
                 database.batchTraceabilityDao().update(existing);
-                Log.d(TAG, "✅ Updated existing traceability with latest data");
+                Log.d(TAG, "Updated existing traceability with latest data");
                 return;
             }
-
-            // 5. Create traceability record
-            BatchTraceabilityEntity traceability = new BatchTraceabilityEntity(
-                    batch.getFarmId(),
-                    batch.getBatchNumber(),
-                    batch.getProcessingDate(),
-                    batch.getWeightKg(),
-                    batch.getQualityGrade().getDisplayName(),
-                    pricePerKg
-            );
 
             // Set all fields
             traceability.setQualityBatchId(batch.getId());
@@ -196,12 +240,30 @@ public class TraceabilityAutoCreator {
             traceability.setSupplierName(supplierName != null ? supplierName : "Unknown Supplier");
             traceability.setQualityGrade(batch.getQualityGrade().getDisplayName());
 
+            // Set signature fields
+            traceability.setDigitalSignature(signature);
+            traceability.setVerificationCode(verificationCode);
+            traceability.setVerificationUrl(verificationUrl);
+            traceability.setSignedAt(System.currentTimeMillis());
+
             // ✅ Set revenue fields
             traceability.setHarvestCycleId(harvestCycleId);
             traceability.setBuyer(buyer);
             traceability.setPricePerKg(pricePerKg);
             traceability.setTotalAmount(totalAmount);
             traceability.setGrade(batch.getQualityGrade().getDisplayName());
+
+            // ✅ Set processing fields
+            traceability.setRawWeightKg(batch.getWeightKg());
+            traceability.setKernelWeightKg(revenueWeight);
+            traceability.setYieldPercentage(revenueWeight > 0 ? (revenueWeight / batch.getWeightKg()) * 100 : 0);
+
+            // ✅ Set processing details from batch or defaults
+            traceability.setProcessingMethod("Steam roasting — zero chemical additives");
+            traceability.setProcessingFacility("AfriNuts NDC (Nuts Distribution Center)");
+            traceability.setProcessingLocation("Odienné, Côte d'Ivoire");
+            traceability.setShellingMethod("Semi-automated — mechanical and manual");
+            traceability.setGradingMethod("Manual inspection + electronic sorting");
 
             // ✅ Set sustainability metrics
             traceability.setSustainabilityMetrics(sustainabilityMetrics);
@@ -212,7 +274,12 @@ public class TraceabilityAutoCreator {
 
             // Save to database
             long id = database.batchTraceabilityDao().insert(traceability);
-            Log.d(TAG, "✅ Created traceability with ID: " + id + " for batch: " + batch.getBatchNumber());
+            Log.d(TAG, "✅ Created traceability with ID: " + id +
+                    " and signature: " + verificationCode);
+            Log.d(TAG, "Created traceability with ID: " + id +
+                    " | Raw: " + batch.getWeightKg() + " kg" +
+                    " | Kernel: " + revenueWeight + " kg" +
+                    " | Yield: " + String.format("%.1f%%", traceability.getYieldPercentage()));
 
             // Queue for sync
             if (!firestoreSyncManager.isRemoteUpdate()) {
