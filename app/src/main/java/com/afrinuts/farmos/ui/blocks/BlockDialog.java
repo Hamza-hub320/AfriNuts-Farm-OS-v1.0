@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +42,9 @@ public class BlockDialog extends DialogFragment {
     private FarmEntity currentFarm;
     private List<BlockEntity> existingBlocks;
     private BlockRepository blockRepository;
+
+    private BlockEntity existingBlock;
+    private boolean isEditMode = false;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -56,10 +58,17 @@ public class BlockDialog extends DialogFragment {
     private TextInputEditText etReplacementCount;
     private TextInputEditText etNotes;
 
+    // Harvest UI Elements
+    private TextInputEditText etHarvestQuantity;
+    private TextInputEditText etHarvestGrade;
+    private TextInputEditText etHarvestNotes;
+    private View harvestCard;
+
     // New layout containers
     private View dateCard;
     private View plantingDetailsCard;
 
+    // ✅ Declare selectedDate as a class-level field
     private Calendar selectedDateCalendar = Calendar.getInstance();
 
     public interface OnBlockAddedListener {
@@ -144,6 +153,12 @@ public class BlockDialog extends DialogFragment {
         etReplacementCount = view.findViewById(R.id.etReplacementCount);
         etNotes = view.findViewById(R.id.etNotes);
 
+        // ✅ Initialize harvest views
+        harvestCard = view.findViewById(R.id.harvestCard);
+        etHarvestQuantity = view.findViewById(R.id.etHarvestQuantity);
+        etHarvestGrade = view.findViewById(R.id.etHarvestGrade);
+        etHarvestNotes = view.findViewById(R.id.etHarvestNotes);
+
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
 
@@ -159,7 +174,8 @@ public class BlockDialog extends DialogFragment {
                 BlockEntity.BlockStatus.NOT_CLEARED.getDisplayName(),
                 BlockEntity.BlockStatus.CLEARED.getDisplayName(),
                 BlockEntity.BlockStatus.PLOWED.getDisplayName(),
-                BlockEntity.BlockStatus.PLANTED.getDisplayName()
+                BlockEntity.BlockStatus.PLANTED.getDisplayName(),
+                BlockEntity.BlockStatus.HARVESTED.getDisplayName()  // ✅ Added HARVESTED
         };
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -222,19 +238,27 @@ public class BlockDialog extends DialogFragment {
         });
     }
 
-    // Single version of updateUIBasedOnStatus (REMOVED THE DUPLICATE)
+    // ✅ Updated updateUIBasedOnStatus with HARVESTED support
     private void updateUIBasedOnStatus(BlockEntity.BlockStatus status) {
         boolean isPlanted = status == BlockEntity.BlockStatus.PLANTED;
+        boolean isHarvested = status == BlockEntity.BlockStatus.HARVESTED;
         boolean isPrePlanting = status == BlockEntity.BlockStatus.CLEARED ||
                 status == BlockEntity.BlockStatus.PLOWED;
 
         // Handle date card
-        if (isPrePlanting || isPlanted) {
+        if (isPrePlanting || isPlanted || isHarvested) {
             if (dateCard != null && dateCard.getVisibility() != View.VISIBLE) {
-                TextView title = getDialog().findViewById(R.id.dateSectionTitle);
-                if (title != null) {
-                    title.setText(isPrePlanting ?
-                            status.getDisplayName() + " Date" : "Planting Date");
+                // Find the title TextView inside the date card
+                View titleView = dateCard.findViewById(R.id.dateSectionTitle);
+                if (titleView instanceof TextView) {
+                    TextView title = (TextView) titleView;
+                    if (isHarvested) {
+                        title.setText("Harvest Date");
+                    } else if (isPrePlanting) {
+                        title.setText(status.getDisplayName() + " Date");
+                    } else {
+                        title.setText("Planting Date");
+                    }
                 }
                 animateCardTransition(null, dateCard);
             }
@@ -245,13 +269,27 @@ public class BlockDialog extends DialogFragment {
         }
 
         // Handle planting details card
-        if (isPlanted) {
+        if (isPlanted || isHarvested) {
             if (plantingDetailsCard != null && plantingDetailsCard.getVisibility() != View.VISIBLE) {
                 animateCardTransition(null, plantingDetailsCard);
             }
+            // Enable/disable fields based on status
+            if (etSurvivalRate != null) etSurvivalRate.setEnabled(!isHarvested);
+            if (etReplacementCount != null) etReplacementCount.setEnabled(!isHarvested);
         } else {
             if (plantingDetailsCard != null && plantingDetailsCard.getVisibility() == View.VISIBLE) {
                 animateCardTransition(plantingDetailsCard, null);
+            }
+        }
+
+        // ✅ Handle harvest card
+        if (isHarvested) {
+            if (harvestCard != null && harvestCard.getVisibility() != View.VISIBLE) {
+                animateCardTransition(null, harvestCard);
+            }
+        } else {
+            if (harvestCard != null && harvestCard.getVisibility() == View.VISIBLE) {
+                animateCardTransition(harvestCard, null);
             }
         }
     }
@@ -298,6 +336,48 @@ public class BlockDialog extends DialogFragment {
             }
         }
         return false;
+    }
+
+    private void populateExistingData() {
+        if (existingBlock == null) return;
+
+        etBlockName.setText(existingBlock.getBlockName());
+        etBlockName.setEnabled(false);
+        etHectareSize.setText(String.valueOf(existingBlock.getHectareSize()));
+
+        // Set status
+        String statusDisplay = existingBlock.getStatus().getDisplayName();
+        etStatus.setText(statusDisplay, false);
+
+        // Set date based on status
+        Long relevantDate = existingBlock.getRelevantDate();
+        if (relevantDate != null && relevantDate > 0) {
+            selectedDateCalendar.setTimeInMillis(relevantDate);
+            updateDateLabel();
+        }
+
+        // Set planting details
+        if (existingBlock.isPlanted()) {
+            etSurvivalRate.setText(String.valueOf(existingBlock.getSurvivalRate()));
+            etReplacementCount.setText(String.valueOf(existingBlock.getReplacementCount()));
+        }
+
+        // ✅ Set harvest details if available
+        if (existingBlock.getHarvestCount() > 0) {
+            etHarvestQuantity.setText(String.valueOf(existingBlock.getLastHarvestQuantity()));
+            // Get the last harvest record to get grade and notes
+            List<BlockEntity.HarvestRecord> records = existingBlock.getHarvestRecords();
+            if (!records.isEmpty()) {
+                BlockEntity.HarvestRecord lastHarvest = records.get(records.size() - 1);
+                etHarvestGrade.setText(lastHarvest.getGrade());
+                etHarvestNotes.setText(lastHarvest.getNotes());
+            }
+        }
+
+        etNotes.setText(existingBlock.getNotes());
+
+        // Update UI based on status
+        updateUIBasedOnStatus(existingBlock.getStatus());
     }
 
     private void saveBlock() {
@@ -362,7 +442,7 @@ public class BlockDialog extends DialogFragment {
         double survivalRate = 0;
         int replacementCount = 0;
 
-        if (status == BlockEntity.BlockStatus.PLANTED) {
+        if (status == BlockEntity.BlockStatus.PLANTED || status == BlockEntity.BlockStatus.HARVESTED) {
             if (TextUtils.isEmpty(survivalRateStr)) {
                 etSurvivalRate.setError("Survival rate is required");
                 return;
@@ -393,9 +473,12 @@ public class BlockDialog extends DialogFragment {
 
         long selectedDate = selectedDateCalendar.getTimeInMillis();
 
-        // Create block object
+        // ✅ Create block object
         BlockEntity block = new BlockEntity(farmId, blockName, hectareSize, notes.isEmpty() ? null : notes);
         block.setStatus(status);
+        block.setPlantedDate(selectedDate);
+        block.setSurvivalRate(survivalRate);
+        block.setReplacementCount(replacementCount);
 
         switch (status) {
             case CLEARED:
@@ -408,6 +491,42 @@ public class BlockDialog extends DialogFragment {
                 block.setPlantedDate(selectedDate);
                 block.setSurvivalRate(survivalRate);
                 block.setReplacementCount(replacementCount);
+                break;
+            case HARVESTED:
+                block.setPlantedDate(selectedDate); // Use planting date for reference
+                block.setSurvivalRate(survivalRate);
+                block.setReplacementCount(replacementCount);
+
+                // ✅ Handle harvest data
+                String harvestQtyStr = etHarvestQuantity.getText().toString().trim();
+                if (TextUtils.isEmpty(harvestQtyStr)) {
+                    etHarvestQuantity.setError("Harvest quantity is required");
+                    return;
+                }
+
+                double harvestQuantity;
+                try {
+                    harvestQuantity = Double.parseDouble(harvestQtyStr);
+                    if (harvestQuantity <= 0) {
+                        etHarvestQuantity.setError("Harvest quantity must be positive");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    etHarvestQuantity.setError("Invalid harvest quantity");
+                    return;
+                }
+
+                String harvestGrade = etHarvestGrade.getText().toString().trim();
+                String harvestNotes = etHarvestNotes.getText().toString().trim();
+
+                // Add harvest record
+                BlockEntity.HarvestRecord harvest = new BlockEntity.HarvestRecord(
+                        selectedDate,
+                        harvestQuantity,
+                        harvestGrade.isEmpty() ? "Standard" : harvestGrade,
+                        harvestNotes.isEmpty() ? null : harvestNotes
+                );
+                block.addHarvestRecord(harvest);
                 break;
         }
 

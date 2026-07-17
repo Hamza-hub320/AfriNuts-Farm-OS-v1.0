@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,21 +18,23 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
-import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.blocks.RecordHarvestDialog;
+import com.afrinuts.farmos.ui.blocks.StatusUpdateDialog;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -70,6 +73,16 @@ public class BlockDetailActivity extends BaseActivity {
     private TextView deadTreesText;
     private ProgressBar survivalProgress;
 
+    // ✅ Harvest UI Elements
+    private TextView tvTotalHarvest;
+    private TextView tvLastHarvestDate;
+    private TextView tvLastHarvestQuantity;
+    private TextView tvHarvestCount;
+    private TextView tvYieldPerHectare;
+    private View harvestSection;
+    private MaterialButton btnRecordHarvest;
+    private LinearLayout harvestHistoryContainer;
+
     // Notes
     private TextInputEditText etNotes;
 
@@ -82,6 +95,8 @@ public class BlockDetailActivity extends BaseActivity {
     private MaterialButton btnEdit;
     private MaterialButton btnSave;
     private Button btnDelete;
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     @Override
     protected boolean checkRoleAccess() {
@@ -103,7 +118,6 @@ public class BlockDetailActivity extends BaseActivity {
         initViews();
         setupToolbar();
 
-        // Initialize repositories with long farmId
         blockRepository = new BlockRepository(this, farmId);
         photoRepository = new PhotoRepository(this, farmId);
 
@@ -136,6 +150,16 @@ public class BlockDetailActivity extends BaseActivity {
         deadTreesText = findViewById(R.id.deadTreesText);
         survivalProgress = findViewById(R.id.survivalProgress);
 
+        // ✅ Harvest UI
+        tvTotalHarvest = findViewById(R.id.tvTotalHarvest);
+        tvLastHarvestDate = findViewById(R.id.tvLastHarvestDate);
+        tvLastHarvestQuantity = findViewById(R.id.tvLastHarvestQuantity);
+        tvHarvestCount = findViewById(R.id.tvHarvestCount);
+        tvYieldPerHectare = findViewById(R.id.tvYieldPerHectare);
+        harvestSection = findViewById(R.id.harvestSection);
+        btnRecordHarvest = findViewById(R.id.btnRecordHarvest);
+        harvestHistoryContainer = findViewById(R.id.harvestHistoryContainer);
+
         etNotes = findViewById(R.id.etNotes);
 
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
@@ -148,6 +172,7 @@ public class BlockDetailActivity extends BaseActivity {
         btnEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
+        btnRecordHarvest.setOnClickListener(v -> showRecordHarvestDialog());
 
         btnPhotoGallery.setOnClickListener(v -> {
             Intent intent = new Intent(this, PhotoGalleryActivity.class);
@@ -192,7 +217,6 @@ public class BlockDetailActivity extends BaseActivity {
                     long correctFarmId = block.getFarmId();
                     if (correctFarmId != farmId) {
                         farmId = correctFarmId;
-
                         blockRepository = new BlockRepository(BlockDetailActivity.this, farmId);
                         photoRepository = new PhotoRepository(BlockDetailActivity.this, farmId);
                     }
@@ -234,6 +258,9 @@ public class BlockDetailActivity extends BaseActivity {
             case PLANTED:
                 statusColor = getColor(android.R.color.holo_green_dark);
                 break;
+            case HARVESTED:
+                statusColor = getColor(android.R.color.holo_purple);
+                break;
             default:
                 statusColor = getColor(R.color.primary);
         }
@@ -263,9 +290,121 @@ public class BlockDetailActivity extends BaseActivity {
             plantingDetailsSection.setVisibility(View.GONE);
         }
 
+        // ✅ Display Harvest Data
+        displayHarvestData();
+
         if (block.getNotes() != null && !block.getNotes().isEmpty()) {
             etNotes.setText(block.getNotes());
         }
+    }
+
+    // ✅ Display Harvest Data
+    private void displayHarvestData() {
+        if (block == null) return;
+
+        // Show harvest section if block has been harvested
+        if (block.getHarvestCount() > 0) {
+            harvestSection.setVisibility(View.VISIBLE);
+
+            tvTotalHarvest.setText(block.getFormattedTotalHarvest());
+            tvLastHarvestDate.setText(block.getFormattedLastHarvestDate());
+            tvLastHarvestQuantity.setText(block.getLastHarvestQuantity() > 0 ?
+                    String.format(Locale.getDefault(), "%,.0f kg", block.getLastHarvestQuantity()) : "N/A");
+            tvHarvestCount.setText(block.getHarvestCount() + " harvest" + (block.getHarvestCount() > 1 ? "s" : ""));
+            tvYieldPerHectare.setText(String.format(Locale.getDefault(), "%,.0f kg/ha", block.getYieldPerHectare()));
+
+            // Show button to record new harvest
+            btnRecordHarvest.setVisibility(View.VISIBLE);
+            btnRecordHarvest.setText("Record New Harvest");
+
+            // Load harvest history
+            loadHarvestHistory();
+
+        } else if (block.isPlanted()) {
+            // Block is planted but not yet harvested
+            harvestSection.setVisibility(View.VISIBLE);
+            tvTotalHarvest.setText("Not harvested yet");
+            tvLastHarvestDate.setText("—");
+            tvLastHarvestQuantity.setText("—");
+            tvHarvestCount.setText("0 harvests");
+            tvYieldPerHectare.setText("—");
+
+            btnRecordHarvest.setVisibility(View.VISIBLE);
+            btnRecordHarvest.setText("Record First Harvest");
+
+        } else {
+            harvestSection.setVisibility(View.GONE);
+        }
+    }
+    private void loadHarvestHistory() {
+        if (block == null || harvestHistoryContainer == null) return;
+
+        harvestHistoryContainer.removeAllViews();
+
+        List<BlockEntity.HarvestRecord> records = block.getHarvestRecords();
+        if (records.isEmpty()) {
+            TextView emptyText = new TextView(this);
+            emptyText.setText("No harvest records yet");
+            emptyText.setTextColor(getColor(R.color.text_dark));
+            emptyText.setPadding(16, 16, 16, 16);
+            harvestHistoryContainer.addView(emptyText);
+            return;
+        }
+
+        // Show up to 5 most recent records (or all)
+        int startIndex = Math.max(0, records.size() - 5);
+        for (int i = startIndex; i < records.size(); i++) {
+            final int index = i;
+            BlockEntity.HarvestRecord record = records.get(i);
+            View itemView = LayoutInflater.from(this).inflate(R.layout.item_harvest_record, harvestHistoryContainer, false);
+
+            TextView tvDate = itemView.findViewById(R.id.tvHarvestDate);
+            TextView tvQuantity = itemView.findViewById(R.id.tvHarvestQuantity);
+            TextView tvGrade = itemView.findViewById(R.id.tvHarvestGrade);
+            TextView tvNotes = itemView.findViewById(R.id.tvHarvestNotes);
+            View editButton = itemView.findViewById(R.id.btnEditRecord);
+
+            tvDate.setText(record.getFormattedDate());
+            tvQuantity.setText(String.format(Locale.getDefault(), "%,.0f kg", record.getQuantityKg()));
+            tvGrade.setText(record.getGrade());
+
+            if (record.getNotes() != null && !record.getNotes().isEmpty()) {
+                tvNotes.setText(record.getNotes());
+                tvNotes.setVisibility(View.VISIBLE);
+            } else {
+                tvNotes.setVisibility(View.GONE);
+            }
+
+            editButton.setOnClickListener(v -> showEditHarvestDialog(index));
+
+            harvestHistoryContainer.addView(itemView);
+        }
+    }
+
+    private void showEditHarvestDialog(int index) {
+        if (block == null) return;
+
+        EditHarvestDialog dialog = EditHarvestDialog.newInstance(block.getId(), index);
+        dialog.setOnHarvestUpdatedListener(updatedBlock -> {
+            this.block = updatedBlock;
+            displayBlockData();
+            Toast.makeText(this, "Harvest record updated", Toast.LENGTH_SHORT).show();
+        });
+        dialog.show(getSupportFragmentManager(), "EditHarvestDialog");
+    }
+
+    private void showRecordHarvestDialog() {
+        RecordHarvestDialog dialog = RecordHarvestDialog.newInstance(block.getId());
+        dialog.setOnHarvestRecordedListener(updatedBlock -> {
+            this.block = updatedBlock;
+            displayBlockData();
+
+            // ✅ Debug: verify data was saved
+            blockRepository.debugBlockData(block.getId());
+
+            Toast.makeText(this, "Harvest recorded successfully!", Toast.LENGTH_SHORT).show();
+        });
+        dialog.show(getSupportFragmentManager(), "RecordHarvestDialog");
     }
 
     private void updateTimelineVisibility() {
@@ -301,8 +440,7 @@ public class BlockDetailActivity extends BaseActivity {
 
     private String formatDate(long timestamp) {
         if (timestamp <= 0) return "Not recorded";
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        return sdf.format(timestamp);
+        return dateFormat.format(timestamp);
     }
 
     private void showStatusUpdateDialog() {
