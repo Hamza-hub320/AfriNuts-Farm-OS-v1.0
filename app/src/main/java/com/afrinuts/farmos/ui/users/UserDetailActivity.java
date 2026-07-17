@@ -27,10 +27,14 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,13 +49,24 @@ public class UserDetailActivity extends BaseActivity {
     private long farmId = 1L;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    // ✅ Dialog reference
+    private AlertDialog editDialog;
+
     // UI Elements
     private TextView tvUserInitials;
     private TextView tvUserName;
+    private TextView tvUserTitle;
     private TextView tvUserRole;
     private Chip chipUserStatus;
     private TextView tvUserPhone;
     private TextView tvUserEmail;
+    private View layoutProfileDetails;
+    private TextView tvUserCompany;
+    private TextView tvUserTitleDetail;
+    private TextView tvUserBio;
+    private View layoutCompany;
+    private View layoutTitle;
+    private View layoutBio;
     private LinearLayout layoutEmail;
     private LinearLayout layoutPin;
     private TextView tvAccessRole;
@@ -130,6 +145,15 @@ public class UserDetailActivity extends BaseActivity {
         btnCall = findViewById(R.id.btnCall);
         btnEmail = findViewById(R.id.btnEmail);
 
+        tvUserTitle = findViewById(R.id.tvUserTitle);
+        layoutProfileDetails = findViewById(R.id.layoutProfileDetails);
+        tvUserCompany = findViewById(R.id.tvUserCompany);
+        tvUserTitleDetail = findViewById(R.id.tvUserTitleDetail);
+        tvUserBio = findViewById(R.id.tvUserBio);
+        layoutCompany = findViewById(R.id.layoutCompany);
+        layoutTitle = findViewById(R.id.layoutTitle);
+        layoutBio = findViewById(R.id.layoutBio);
+
         // Setup click listeners
         btnEdit.setOnClickListener(v -> showEditUserDialog());
         btnDeactivate.setOnClickListener(v -> toggleUserStatus());
@@ -184,6 +208,14 @@ public class UserDetailActivity extends BaseActivity {
         tvUserName.setText(user.getName());
         tvUserRole.setText(user.getDisplayRole());
 
+        // ✅ Display Title (Job Title) below name
+        if (user.getTitle() != null && !user.getTitle().isEmpty()) {
+            tvUserTitle.setText(user.getTitle());
+            tvUserTitle.setVisibility(View.VISIBLE);
+        } else {
+            tvUserTitle.setVisibility(View.GONE);
+        }
+
         // Status
         if (user.isActive()) {
             chipUserStatus.setText("Active");
@@ -191,6 +223,43 @@ public class UserDetailActivity extends BaseActivity {
         } else {
             chipUserStatus.setText("Inactive");
             chipUserStatus.setChipBackgroundColorResource(android.R.color.holo_red_dark);
+        }
+
+        // ✅ Display Profile Details
+        boolean hasProfileInfo = false;
+
+        // Company
+        if (user.getCompany() != null && !user.getCompany().isEmpty()) {
+            tvUserCompany.setText(user.getCompany());
+            layoutCompany.setVisibility(View.VISIBLE);
+            hasProfileInfo = true;
+        } else {
+            layoutCompany.setVisibility(View.GONE);
+        }
+
+        // Title (in profile section)
+        if (user.getTitle() != null && !user.getTitle().isEmpty()) {
+            tvUserTitleDetail.setText(user.getTitle());
+            layoutTitle.setVisibility(View.VISIBLE);
+            hasProfileInfo = true;
+        } else {
+            layoutTitle.setVisibility(View.GONE);
+        }
+
+        // Bio
+        if (user.getBio() != null && !user.getBio().isEmpty()) {
+            tvUserBio.setText(user.getBio());
+            layoutBio.setVisibility(View.VISIBLE);
+            hasProfileInfo = true;
+        } else {
+            layoutBio.setVisibility(View.GONE);
+        }
+
+        // Show/hide Profile Details card
+        if (hasProfileInfo) {
+            layoutProfileDetails.setVisibility(View.VISIBLE);
+        } else {
+            layoutProfileDetails.setVisibility(View.GONE);
         }
 
         // Contact info
@@ -351,19 +420,42 @@ public class UserDetailActivity extends BaseActivity {
     private void showEditUserDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_user, null);
 
+        // Core fields
         TextInputEditText etName = dialogView.findViewById(R.id.etName);
         TextInputEditText etPhone = dialogView.findViewById(R.id.etPhone);
         TextInputEditText etEmail = dialogView.findViewById(R.id.etEmail);
+
+        // New Profile fields
+        TextInputEditText etBio = dialogView.findViewById(R.id.etBio);
+        TextInputEditText etCompany = dialogView.findViewById(R.id.etCompany);
+        TextInputEditText etTitle = dialogView.findViewById(R.id.etTitle);
+
+        // Password fields
         TextInputEditText etNewPassword = dialogView.findViewById(R.id.etNewPassword);
         TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
         TextView tvHelper = dialogView.findViewById(R.id.tvHelperText);
 
-        // Find custom buttons
+        // Custom buttons
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
         Button btnSave = dialogView.findViewById(R.id.btnSave);
 
+        // Populate existing data
         etName.setText(user.getName());
         etPhone.setText(user.getPhone());
+        if (user.getEmail() != null) {
+            etEmail.setText(user.getEmail());
+        }
+
+        // Populate new profile fields
+        if (user.getBio() != null) {
+            etBio.setText(user.getBio());
+        }
+        if (user.getCompany() != null) {
+            etCompany.setText(user.getCompany());
+        }
+        if (user.getTitle() != null) {
+            etTitle.setText(user.getTitle());
+        }
 
         boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
 
@@ -372,35 +464,31 @@ public class UserDetailActivity extends BaseActivity {
         if (isCurrentUser) {
             tvHelper.setText("You are updating YOUR OWN account.");
             etEmail.setEnabled(false);
-            etEmail.setHint("Email (cannot be changed)");
-
-            // For current user, password change is allowed
-            etNewPassword.setEnabled(true);
-            etConfirmPassword.setEnabled(true);
         } else {
             tvHelper.setText("You are updating another user.");
             etEmail.setEnabled(false);
             etNewPassword.setEnabled(false);
             etConfirmPassword.setEnabled(false);
-            etEmail.setHint("Email (cannot be changed)");
         }
 
-        if (user.getEmail() != null) {
-            etEmail.setText(user.getEmail());
-        }
-
-        // Create custom dialog without default buttons
+        // Create custom dialog
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("")
                 .setView(dialogView)
                 .setCancelable(false)
                 .create();
 
-        // Set custom button click listeners
+        // Store dialog reference
+        this.editDialog = dialog;
+
         dialog.setOnShowListener(dialogInterface -> {
             btnSave.setOnClickListener(v -> {
                 String newName = etName.getText().toString().trim();
                 String newPhone = etPhone.getText().toString().trim();
+                String newBio = etBio.getText().toString().trim();
+                String newCompany = etCompany.getText().toString().trim();
+                String newTitle = etTitle.getText().toString().trim();
+
                 String newPassword = etNewPassword.getText().toString().trim();
                 String confirmPassword = etConfirmPassword.getText().toString().trim();
 
@@ -409,8 +497,14 @@ public class UserDetailActivity extends BaseActivity {
                     return;
                 }
 
+                // Update user object with all fields
                 user.setName(newName);
                 user.setPhone(newPhone);
+                user.setBio(newBio.isEmpty() ? null : newBio);
+                user.setCompany(newCompany.isEmpty() ? null : newCompany);
+                user.setTitle(newTitle.isEmpty() ? null : newTitle);
+                user.setLastUpdatedAt(System.currentTimeMillis());
+                user.setUpdatedAt(System.currentTimeMillis());
 
                 // Handle password change for current user
                 if (isCurrentUser && !TextUtils.isEmpty(newPassword)) {
@@ -423,7 +517,6 @@ public class UserDetailActivity extends BaseActivity {
                         return;
                     }
 
-                    // Show loading state
                     btnSave.setEnabled(false);
                     btnSave.setText("Saving...");
 
@@ -431,34 +524,22 @@ public class UserDetailActivity extends BaseActivity {
                     com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser()
                             .updatePassword(newPassword)
                             .addOnSuccessListener(aVoid -> {
-                                // Update local password hash
                                 user.setPasswordHash(AuthUtils.hash(newPassword));
-                                userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean result) {
-                                        runOnUiThread(() -> {
-                                            Toast.makeText(UserDetailActivity.this,
-                                                    "Password updated! Please log in with your new password.",
-                                                    Toast.LENGTH_LONG).show();
+                                user.setPasswordChangedAt(System.currentTimeMillis());
 
-                                            // Log out and redirect to login
-                                            sessionManager.logout();
-                                            Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                            startActivity(intent);
-                                            finish();
-                                        });
-                                    }
+                                // Save to local DB and Firestore
+                                saveUserToDatabaseAndFirestore(user, btnSave);
 
-                                    @Override
-                                    public void onError(String error) {
-                                        runOnUiThread(() -> {
-                                            btnSave.setEnabled(true);
-                                            btnSave.setText("Save Changes");
-                                            Toast.makeText(UserDetailActivity.this,
-                                                    "Error: " + error, Toast.LENGTH_SHORT).show();
-                                        });
-                                    }
+                                runOnUiThread(() -> {
+                                    Toast.makeText(UserDetailActivity.this,
+                                            "Password updated! Please log in with your new password.",
+                                            Toast.LENGTH_LONG).show();
+
+                                    sessionManager.logout();
+                                    Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
                                 });
                             })
                             .addOnFailureListener(e -> {
@@ -472,16 +553,126 @@ public class UserDetailActivity extends BaseActivity {
                             });
                 } else {
                     // Update profile only (no password change)
-                    updateLocalUserOnly();
-                    Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
+                    btnSave.setEnabled(false);
+                    btnSave.setText("Saving...");
+                    saveUserToDatabaseAndFirestore(user, btnSave);
                 }
             });
 
-            btnCancel.setOnClickListener(v -> dialog.dismiss());
+            btnCancel.setOnClickListener(v -> {
+                if (editDialog != null && editDialog.isShowing()) {
+                    editDialog.dismiss();
+                }
+            });
         });
 
         dialog.show();
+    }
+
+    // Save user to both local DB and Firestore
+    private void saveUserToDatabaseAndFirestore(UserEntity user, Button btnSave) {
+        userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                runOnUiThread(() -> {
+                    if (btnSave != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Save Changes");
+                    }
+                    Toast.makeText(UserDetailActivity.this,
+                            "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+                    displayUserData();
+
+                    // Update Firestore directly with all fields
+                    updateUserInFirestore(user);
+
+                    if (editDialog != null && editDialog.isShowing()) {
+                        editDialog.dismiss();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    if (btnSave != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Save Changes");
+                    }
+                    Toast.makeText(UserDetailActivity.this,
+                            "Error: " + error, Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    // ✅ Direct Firestore update with all fields
+    private void updateUserInFirestore(UserEntity user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> userMap = new HashMap<>();
+
+        // Core fields
+        userMap.put("name", user.getName());
+        userMap.put("role", user.getRole().name());
+        userMap.put("phone", user.getPhone());
+        userMap.put("email", user.getEmail());
+
+        // Profile fields
+        userMap.put("bio", user.getBio());
+        userMap.put("company", user.getCompany());
+        userMap.put("title", user.getTitle());
+
+        // Account status fields
+        userMap.put("lastUpdatedAt", user.getLastUpdatedAt());
+        userMap.put("updatedAt", System.currentTimeMillis());
+
+        // ✅ Add missing fields with defaults for legacy profiles
+        if (!userMap.containsKey("emailVerified")) {
+            userMap.put("emailVerified", false);
+        }
+        if (!userMap.containsKey("failedLoginAttempts")) {
+            userMap.put("failedLoginAttempts", 0);
+        }
+        if (!userMap.containsKey("lockedUntil")) {
+            userMap.put("lockedUntil", 0);
+        }
+        if (!userMap.containsKey("twoFactorEnabled")) {
+            userMap.put("twoFactorEnabled", false);
+        }
+        if (!userMap.containsKey("twoFactorSecret")) {
+            userMap.put("twoFactorSecret", null);
+        }
+        if (!userMap.containsKey("lastLoginAt")) {
+            userMap.put("lastLoginAt", 0);
+        }
+        if (!userMap.containsKey("lastLoginIp")) {
+            userMap.put("lastLoginIp", null);
+        }
+        if (!userMap.containsKey("lastLoginDevice")) {
+            userMap.put("lastLoginDevice", null);
+        }
+        if (!userMap.containsKey("deactivatedAt")) {
+            userMap.put("deactivatedAt", 0);
+        }
+        if (!userMap.containsKey("deactivatedBy")) {
+            userMap.put("deactivatedBy", null);
+        }
+        if (!userMap.containsKey("deactivationReason")) {
+            userMap.put("deactivationReason", null);
+        }
+
+        Log.d("UserDetailActivity", "📤 Updating Firestore with fields: " + userMap.keySet());
+
+        db.collection("users")
+                .document(user.getUid())
+                .set(userMap, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("UserDetailActivity", "User updated in Firestore successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UserDetailActivity", "Error updating user in Firestore", e);
+                });
     }
 
     @Override

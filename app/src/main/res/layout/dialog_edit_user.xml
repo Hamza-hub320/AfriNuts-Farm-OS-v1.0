@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header with Icon -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
 
         </LinearLayout>
 
-        <!-- Helper Text Card -->
+        <!-- Helper Text -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Note: Email/password changes require the user to update through Settings"
+                    android:text="Update user profile information"
                     style="@style/Text.Caption.Small"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.8" />
@@ -126,7 +126,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_rounded_description"
-                        android:hint="Full Name"
+                        android:hint="Full Name *"
                         android:inputType="textPersonName" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -150,8 +150,107 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_rounded_description"
-                        android:hint="Phone Number"
+                        android:hint="Phone Number *"
                         android:inputType="phone" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Profile Details Card (NEW) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            android:background="?attr/cardBackgroundSecondary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile Details"
+                    style="@style/Text.H5"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Bio -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="?attr/colorSurface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Bio"
+                        android:inputType="textMultiLine"
+                        android:minLines="2" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Company -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="?attr/colorSurface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCompany"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Company"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Title -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="?attr/colorSurface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Job Title"
+                        android:inputType="text" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -168,14 +267,14 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundSecondary">
+            android:background="?attr/cardBackgroundAccent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -202,7 +301,8 @@
                         android:background="@drawable/bg_rounded_description"
                         android:layout_height="wrap_content"
                         android:hint="Email"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                        android:enabled="false" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -225,7 +325,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="?attr/cardBackgroundPrimary">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -235,7 +335,6 @@
                     android:textColor="?attr/colorSecondary"
                     android:layout_marginBottom="16dp" />
 
-                <!-- New Password -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -260,7 +359,6 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Confirm Password -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -306,8 +404,6 @@
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                app:iconGravity="textStart"
-                app:iconTint="?attr/colorSecondary"
                 app:cornerRadius="28dp" />
 
             <Button

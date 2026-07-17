@@ -27,9 +27,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +53,12 @@ public class AddUserDialog extends DialogFragment {
     private LinearLayout layoutPin;
     private TextInputEditText etPin;
     private TextInputEditText etConfirmPin;
+
+    // ✅ New Profile Fields
+    private TextInputEditText etBio;
+    private TextInputEditText etCompany;
+    private TextInputEditText etTitle;
+    private TextInputEditText etDeactivationReason;
 
     private long farmId;
 
@@ -115,7 +121,7 @@ public class AddUserDialog extends DialogFragment {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("")
                 .setView(view)
-                .setCancelable(false); // Prevent dismissing by tapping outside
+                .setCancelable(false);
 
         AlertDialog dialog = builder.create();
 
@@ -139,6 +145,12 @@ public class AddUserDialog extends DialogFragment {
         layoutPin = view.findViewById(R.id.layoutPin);
         etPin = view.findViewById(R.id.etPin);
         etConfirmPin = view.findViewById(R.id.etConfirmPin);
+
+        // ✅ New Profile Fields
+        etBio = view.findViewById(R.id.etBio);
+        etCompany = view.findViewById(R.id.etCompany);
+        etTitle = view.findViewById(R.id.etTitle);
+        etDeactivationReason = view.findViewById(R.id.etDeactivationReason);
 
         // Default to PIN for workers
         toggleAuthMethod.check(R.id.btnPin);
@@ -210,19 +222,25 @@ public class AddUserDialog extends DialogFragment {
     }
 
     private void saveUser() {
-        // Validate name
+        // ✅ REQUIRED FIELDS (Entered by Admin)
         String name = etName.getText().toString().trim();
         if (TextUtils.isEmpty(name)) {
             etName.setError("Name is required");
             return;
         }
 
-        // Validate phone
+        // Phone is required
         String phone = etPhone.getText().toString().trim();
         if (!AuthUtils.isValidPhone(phone)) {
             etPhone.setError("Invalid phone number");
             return;
         }
+
+        // ✅ OPTIONAL FIELDS (Entered by Admin)
+        String bio = etBio.getText().toString().trim();
+        String company = etCompany.getText().toString().trim();
+        String title = etTitle.getText().toString().trim();
+        String deactivationReason = etDeactivationReason.getText().toString().trim();
 
         if (selectedAuthMethod == UserEntity.AuthMethod.PIN) {
             // Validate PIN
@@ -239,8 +257,8 @@ public class AddUserDialog extends DialogFragment {
                 return;
             }
 
-            // PIN users are local only
-            createLocalPinUser(name, phone, pin);
+            // Create PIN user (local only)
+            createLocalPinUser(name, phone, pin, bio, company, title, deactivationReason);
 
         } else {
             // Validate email
@@ -258,20 +276,54 @@ public class AddUserDialog extends DialogFragment {
             }
 
             // Create in Firebase FIRST
-            createFirebaseUser(name, phone, email, password);
+            createFirebaseUser(name, phone, email, password, bio, company, title, deactivationReason);
         }
     }
 
-    private void createLocalPinUser(String name, String phone, String pin) {
+    private void createLocalPinUser(String name, String phone, String pin,
+                                    String bio, String company, String title,
+                                    String deactivationReason) {
         Toast.makeText(getContext(), "Creating PIN user...", Toast.LENGTH_SHORT).show();
 
-        // Disable save button while processing
         btnSave.setEnabled(false);
         btnSave.setText("Creating...");
 
         executor.execute(() -> {
             String pinHash = AuthUtils.hash(pin);
-            UserEntity user = new UserEntity(name, selectedRole, phone, pinHash, farmId);
+
+            // ✅ Create user with all fields
+            UserEntity user = new UserEntity(
+                    0, // localId will be auto-generated
+                    null, // uid (no Firebase)
+                    name,
+                    selectedRole,
+                    phone,
+                    null, // email (no email for PIN users)
+                    null, // passwordHash (not used for PIN)
+                    pinHash,
+                    UserEntity.AuthMethod.PIN,
+                    0, // lastLoginAt
+                    null, // lastLoginIp
+                    null, // lastLoginDevice
+                    false, // emailVerified
+                    System.currentTimeMillis(), // passwordChangedAt
+                    0, // failedLoginAttempts
+                    0, // lockedUntil
+                    false, // twoFactorEnabled
+                    null, // twoFactorSecret
+                    System.currentTimeMillis(), // lastUpdatedAt
+                    0, // deactivatedAt
+                    null, // deactivatedBy
+                    deactivationReason.isEmpty() ? null : deactivationReason,
+                    bio.isEmpty() ? null : bio,
+                    company.isEmpty() ? null : company,
+                    title.isEmpty() ? null : title,
+                    "UTC", // timezone (default)
+                    System.currentTimeMillis(), // createdAt
+                    System.currentTimeMillis(), // updatedAt
+                    true, // isActive
+                    farmId
+            );
 
             long id = database.userDao().insert(user);
 
@@ -294,10 +346,11 @@ public class AddUserDialog extends DialogFragment {
         });
     }
 
-    private void createFirebaseUser(String name, String phone, String email, String password) {
+    private void createFirebaseUser(String name, String phone, String email, String password,
+                                    String bio, String company, String title,
+                                    String deactivationReason) {
         Toast.makeText(getContext(), "Creating user in Firebase...", Toast.LENGTH_SHORT).show();
 
-        // Disable save button while processing
         btnSave.setEnabled(false);
         btnSave.setText("Creating...");
 
@@ -307,7 +360,8 @@ public class AddUserDialog extends DialogFragment {
                 Log.d(TAG, "Firebase user created: " + firebaseUser.getUid());
 
                 // Now create in local database
-                createLocalUser(name, phone, email, password, firebaseUser.getUid());
+                createLocalUser(name, phone, email, password, firebaseUser.getUid(),
+                        bio, company, title, deactivationReason);
             }
 
             @Override
@@ -335,10 +389,45 @@ public class AddUserDialog extends DialogFragment {
         });
     }
 
-    private void createLocalUser(String name, String phone, String email, String password, String firebaseUid) {
+    private void createLocalUser(String name, String phone, String email, String password,
+                                 String firebaseUid, String bio, String company, String title,
+                                 String deactivationReason) {
         executor.execute(() -> {
-            String passwordHash = AuthUtils.hash(password);
-            UserEntity user = new UserEntity(name, selectedRole, phone, email, passwordHash);
+            long now = System.currentTimeMillis();
+
+            // ✅ Create user with all fields
+            UserEntity user = new UserEntity(
+                    0, // localId will be auto-generated
+                    firebaseUid,
+                    name,
+                    selectedRole,
+                    phone,
+                    email,
+                    AuthUtils.hash(password), // passwordHash
+                    null, // pinHash
+                    UserEntity.AuthMethod.PASSWORD,
+                    0, // lastLoginAt
+                    null, // lastLoginIp
+                    null, // lastLoginDevice
+                    false, // emailVerified
+                    now, // passwordChangedAt
+                    0, // failedLoginAttempts
+                    0, // lockedUntil
+                    false, // twoFactorEnabled
+                    null, // twoFactorSecret
+                    now, // lastUpdatedAt
+                    0, // deactivatedAt
+                    null, // deactivatedBy
+                    deactivationReason.isEmpty() ? null : deactivationReason,
+                    bio.isEmpty() ? null : bio,
+                    company.isEmpty() ? null : company,
+                    title.isEmpty() ? null : title,
+                    "UTC", // timezone (default)
+                    now, // createdAt
+                    now, // updatedAt
+                    true, // isActive
+                    farmId
+            );
 
             long id = database.userDao().insert(user);
             user.setLocalId(id);
@@ -369,22 +458,48 @@ public class AddUserDialog extends DialogFragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getLocalId());
+
+        // ✅ Core fields (Admin Entered - Required)
         userMap.put("name", user.getName());
         userMap.put("role", user.getRole().name());
-        userMap.put("phone", user.getPhone());
         userMap.put("email", user.getEmail());
+        userMap.put("phone", user.getPhone());
+
+        // ✅ Core fields (Admin Entered - Optional)
+        userMap.put("bio", user.getBio());
+        userMap.put("company", user.getCompany());
+        userMap.put("title", user.getTitle());
+        userMap.put("deactivationReason", user.getDeactivationReason());
+
+        // ✅ Auto-Generated fields
+        userMap.put("id", user.getLocalId());
+        userMap.put("uid", firebaseUid);
+        userMap.put("farmId", String.valueOf(user.getFarmId()));
         userMap.put("authMethod", user.getAuthMethod().name());
-        userMap.put("isActive", user.isActive());
         userMap.put("createdAt", user.getCreatedAt());
-        userMap.put("farmId", "1");
-        userMap.put("uid", firebaseUid); // Add UID for reference
+        userMap.put("lastUpdatedAt", user.getLastUpdatedAt());
+        userMap.put("emailVerified", user.isEmailVerified());
+        userMap.put("failedLoginAttempts", user.getFailedLoginAttempts());
+        userMap.put("lockedUntil", user.getLockedUntil());
+        userMap.put("twoFactorEnabled", user.isTwoFactorEnabled());
+        userMap.put("twoFactorSecret", user.getTwoFactorSecret());
+        userMap.put("lastLoginAt", user.getLastLoginAt());
+        userMap.put("lastLoginIp", user.getLastLoginIp());
+        userMap.put("lastLoginDevice", user.getLastLoginDevice());
+        userMap.put("deactivatedAt", user.getDeactivatedAt());
+
+        // ✅ Admin Action + Auto fields
+        userMap.put("isActive", user.isActive());
+        userMap.put("deactivatedBy", user.getDeactivatedBy());
+
+        // Audit
+        userMap.put("updatedAt", System.currentTimeMillis());
 
         db.collection("users")
                 .document(firebaseUid)
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User saved to Firestore");
+                    Log.d(TAG, "User saved to Firestore with all fields");
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error saving user to Firestore", e);

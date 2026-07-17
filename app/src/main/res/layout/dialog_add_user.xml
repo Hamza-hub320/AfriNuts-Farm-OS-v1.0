@@ -70,7 +70,7 @@
                     android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Name Field -->
+                <!-- Name Field (Required) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -88,17 +88,18 @@
                         android:layout_width="match_parent"
                         android:background="@drawable/bg_rounded_description"
                         android:layout_height="wrap_content"
-                        android:hint="Full Name"
+                        android:hint="Full Name *"
                         android:inputType="textPersonName"
                         android:textColor="?attr/colorOnSurface"
                         android:textColorHint="?attr/colorOnSurface" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Phone Field -->
+                <!-- Phone Field (Required) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
                     app:prefixText="+225 "
                     app:boxBackgroundColor="@color/surface"
@@ -113,8 +114,139 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_rounded_description"
-                        android:hint="Phone Number"
+                        android:hint="Phone Number *"
                         android:inputType="phone"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurface" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Profile Details Card (Optional) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            android:background="?attr/cardBackgroundSecondary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile Details"
+                    style="@style/Text.H5"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Bio (Optional) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="@color/surface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Bio (optional)"
+                        android:inputType="textMultiLine"
+                        android:minLines="2"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurface" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Company (Optional) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="@color/surface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCompany"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Company (optional)"
+                        android:inputType="text"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurface" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Title (Optional) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="@color/surface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Job Title (optional)"
+                        android:inputType="text"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textColorHint="?attr/colorOnSurface" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- ✅ Deactivation Reason (Optional - for admin use) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:boxBackgroundColor="@color/surface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etDeactivationReason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_description"
+                        android:hint="Deactivation Reason (optional)"
+                        android:inputType="textMultiLine"
+                        android:minLines="2"
                         android:textColor="?attr/colorOnSurface"
                         android:textColorHint="?attr/colorOnSurface" />
 
@@ -132,7 +264,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundSecondary">
+            android:background="?attr/cardBackgroundAccent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -166,7 +298,7 @@
                         android:id="@+id/etRole"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Select Role"
+                        android:hint="Select Role *"
                         android:inputType="none"
                         android:textColor="?attr/colorOnSurface"
                         android:textColorHint="?attr/colorOnSurface" />
@@ -317,7 +449,7 @@
                             android:id="@+id/etEmail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Email Address"
+                            android:hint="Email Address *"
                             android:inputType="textEmailAddress"
                             android:textColor="?attr/colorOnSurface"
                             android:textColorHint="?attr/colorOnSurface" />
@@ -340,7 +472,7 @@
                             android:id="@+id/etPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Password"
+                            android:hint="Password *"
                             android:inputType="textPassword"
                             android:textColor="?attr/colorOnSurface"
                             android:textColorHint="?attr/colorOnSurface" />
