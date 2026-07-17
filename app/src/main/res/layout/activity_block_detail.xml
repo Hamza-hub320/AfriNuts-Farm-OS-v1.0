@@ -259,6 +259,214 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Harvest Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/harvestSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Harvest Information"
+                        style="@style/Text.H5"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Harvest Stats Grid -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="3"
+                        android:layout_marginBottom="12dp">
+
+                        <!-- Total Harvest -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total Harvest"
+                                style="@style/Text.Caption.Small"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/tvTotalHarvest"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 kg"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Harvest Count -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Harvests"
+                                style="@style/Text.Caption.Small"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/tvHarvestCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Last Harvest Date -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Last Harvest"
+                                style="@style/Text.Caption.Small"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/tvLastHarvestDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="—"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Last Harvest Quantity -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp"
+                            android:background="?attr/cardBackgroundSecondary"
+                            app:cornerRadius="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Last Quantity"
+                                style="@style/Text.Caption.Small"
+                                android:textColor="?attr/colorOnSurface"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/tvLastHarvestQuantity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="—"
+                                style="@style/Text.H6"
+                                android:textColor="?attr/colorPrimary" />
+
+                        </LinearLayout>
+
+                    </GridLayout>
+
+                    <!-- Yield per Hectare -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?attr/cardBackgroundSecondary"
+                        android:padding="12dp"
+                        app:cornerRadius="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_grain"
+                            app:tint="?attr/colorSecondary"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Yield per Hectare"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/tvYieldPerHectare"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            style="@style/Text.H6"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Record Harvest Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRecordHarvest"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Record Harvest"
+                        style="@style/Widget.AfriNuts.Button"
+                        app:icon="@drawable/ic_add"
+                        app:iconGravity="textStart"
+                        app:iconTint="@android:color/white" />
+
+                    <!-- Harvest History -->
+                    <LinearLayout
+                        android:id="@+id/harvestHistoryContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="12dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
             <!-- Photo Gallery Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

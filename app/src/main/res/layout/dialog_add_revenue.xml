@@ -11,14 +11,13 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header with Icon -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp"
-            android:background="?attr/cardBackgroundPrimary">
+            android:layout_marginBottom="24dp">
 
             <FrameLayout
                 android:layout_width="56dp"
@@ -26,31 +25,11 @@
                 android:background="?attr/iconBackgroundGlass"
                 android:layout_marginEnd="16dp">
 
-                <!-- Edge Effect (3D border) -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
-
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="?attr/iconBackgroundGlass"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
-
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_add"
+                    android:src="@drawable/ic_attach_money"
                     app:tint="?attr/colorPrimary" />
 
             </FrameLayout>
@@ -59,13 +38,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Add Harvest Revenue"
+                android:text="Processing Revenue"
                 style="@style/Text.H2"
                 android:textColor="?attr/colorPrimary" />
 
         </LinearLayout>
 
-        <!-- Revenue Scope Card -->
+        <!-- Procurement Section -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -73,27 +52,7 @@
             style="@style/Widget.AfriNuts.CardView"
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundAccent">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
+            android:background="?attr/cardBackgroundPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,59 +64,44 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Revenue Scope"
+                    android:text="Procurement Details"
                     style="@style/Text.H5"
                     android:textColor="?attr/colorSecondary"
                     android:layout_marginBottom="16dp" />
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/toggleRevenueType"
+                <!-- Supplier Selector -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutSupplierSelector"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    app:singleSelection="true">
-
-                    <Button
-                        android:id="@+id/btnPerBlock"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Per Block"
-                        style="@style/Widget.AfriNuts.Button.Outlined"
-                        app:iconGravity="textStart" />
-
-                    <Button
-                        android:id="@+id/btnProcessingCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Processing"
-                        style="@style/Widget.AfriNuts.Button.Outlined"
-                        app:iconGravity="textStart" />
-
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                <!-- Block Selector (visible only when "Per Block" is selected) -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layoutBlockSelector"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="visible"
                     style="@style/Widget.AfriNuts.EditText"
-                    android:hint="Select Block"
                     app:endIconMode="dropdown_menu"
-                    app:endIconDrawable="@drawable/ic_arrow_drop_down"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorSecondary">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/etBlock"
+                        android:id="@+id/etSupplier"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="Select Supplier *"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Batch Selector -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutBatchSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:endIconMode="dropdown_menu"
+                    app:boxBackgroundColor="?attr/colorSurface">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/etBatch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Select Batch *"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -165,63 +109,6 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
-
-        <!-- Procurement Section (visible when "Processing" is selected) -->
-        <LinearLayout
-            android:id="@+id/layoutProcurementSection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Procurement Details"
-                style="@style/Text.H5"
-                android:textColor="?attr/colorSecondary"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Supplier Selector (Select supplier first) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutSupplierSelector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                style="@style/Widget.AfriNuts.EditText"
-                app:endIconMode="dropdown_menu"
-                app:boxBackgroundColor="?attr/colorSurface">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/etSupplier"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Select Supplier"
-                    android:inputType="none" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Batch Selector (Filtered by supplier) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutBatchSelector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                style="@style/Widget.AfriNuts.EditText"
-                app:endIconMode="dropdown_menu"
-                app:boxBackgroundColor="?attr/colorSurface">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/etBatch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Select Batch"
-                    android:inputType="none" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </LinearLayout>
 
         <!-- Quantity Card -->
         <androidx.cardview.widget.CardView
@@ -233,26 +120,6 @@
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
 
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -263,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Harvest Details"
+                    android:text="Sale Details"
                     style="@style/Text.H5"
                     android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="16dp" />
@@ -273,18 +140,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimary">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etQuantity"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Quantity (kg)"
+                        android:hint="Quantity (kg) *"
                         android:inputType="numberDecimal" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -293,18 +155,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimary">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPricePerKg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Price per kg (XAF)"
+                        android:hint="Price per kg (XAF) *"
                         android:inputType="numberDecimal" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -322,26 +179,6 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -362,20 +199,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    android:hint="Select Quality"
                     app:endIconMode="dropdown_menu"
-                    app:endIconDrawable="@drawable/ic_arrow_drop_down"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimary">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etQuality"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="Select Quality *"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -394,26 +225,6 @@
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
 
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -424,7 +235,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date"
+                    android:text="Sale Date"
                     style="@style/Text.H5"
                     android:textColor="?attr/colorPrimaryVariant"
                     android:layout_marginBottom="16dp" />
@@ -436,18 +247,13 @@
                     app:endIconMode="custom"
                     app:endIconDrawable="@drawable/ic_today"
                     app:endIconTint="?attr/colorPrimaryVariant"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimaryVariant">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etHarvestDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Select Harvest Date"
+                        android:hint="Select Date *"
                         android:focusable="false"
                         android:clickable="true" />
 
@@ -457,7 +263,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Additional Info Card (Buyer + Notes) -->
+        <!-- Additional Info Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -466,26 +272,6 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundSecondary">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -502,19 +288,12 @@
                     android:textColor="?attr/colorPrimaryVariant"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Buyer -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:endIconMode="clear_text"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimaryVariant">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etBuyer"
@@ -524,17 +303,11 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Notes -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:boxBackgroundColor="?attr/colorSurface"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="?attr/colorPrimaryVariant">
+                    app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNotes"
@@ -560,26 +333,6 @@
             app:cardElevation="2dp"
             android:background="?attr/cardBackgroundAccent">
 
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -593,26 +346,6 @@
                     android:layout_height="40dp"
                     android:background="?attr/iconBackgroundGlass"
                     android:layout_marginEnd="12dp">
-
-                    <!-- Edge Effect (3D border) -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_edge_effect"
-                        android:alpha="0.3" />
-
-                    <!-- Glassy Overlay -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/iconBackgroundGlass"
-                        android:alpha="0.4" />
-
-                    <!-- Inner Shadow -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_inner_shadow" />
 
                     <ImageView
                         android:layout_width="24dp"

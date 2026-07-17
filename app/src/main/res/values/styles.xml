@@ -83,6 +83,16 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <!-- Body Text Bold -->
+    <style name="Text.Body.Bold" parent="Text.Body">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Body Text Small Bold -->
+    <style name="Text.Body.Small.Bold" parent="Text.Body.Small">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <!-- ======================================== -->
     <!-- TYPOGRAPHY SCALE (Modular Scale) -->
     <!-- ======================================== -->

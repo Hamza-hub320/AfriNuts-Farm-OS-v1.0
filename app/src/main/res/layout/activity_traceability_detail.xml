@@ -103,33 +103,6 @@
                             android:textColor="@android:color/white" />
 
                     </LinearLayout>
-                    <!-- Verification Code -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Verification Code"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvVerificationCode"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="VER-A3F8K2M9"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorSecondary"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
 
                     <!-- Grade -->
                     <TextView
@@ -722,6 +695,228 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Processing Details Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutProcessingDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_factory"
+                                app:tint="?attr/colorPrimary" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Processing Details"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Raw Weight -->
+                    <LinearLayout
+                        android:id="@+id/layoutRawWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Raw Input"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvRawWeight"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="45,000 kg"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Kernel Weight -->
+                    <LinearLayout
+                        android:id="@+id/layoutKernelWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Kernel Output"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvKernelWeight"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="11,250 kg"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Yield Percentage -->
+                    <LinearLayout
+                        android:id="@+id/layoutYield"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Yield"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvYieldPercentage"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="25.0%"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorSecondary"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Processing Method -->
+                    <LinearLayout
+                        android:id="@+id/layoutProcessingMethod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Method"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvProcessingMethod"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Steam roasting"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Processing Facility -->
+                    <LinearLayout
+                        android:id="@+id/layoutProcessingFacility"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Facility"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvProcessingFacility"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="AfriNuts NDC"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Processing Location -->
+                    <LinearLayout
+                        android:id="@+id/layoutProcessingLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Location"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvProcessingLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Odienné, Côte d'Ivoire"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
             <!-- Generate Documents Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGenerateDocuments"
@@ -1190,6 +1385,163 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Digital Signature Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutSignature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_shield"
+                                app:tint="?attr/colorPrimary" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Digital Signature"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/tvVerificationStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="Verified"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:background="@drawable/status_background" />
+
+                    </LinearLayout>
+
+                    <!-- Verification Code -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Verification Code"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvVerificationCode"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="FOS-ABC123DEF456"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorPrimary"
+                            android:textStyle="bold"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                        <ImageView
+                            android:id="@+id/ivCopyCode"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_copy"
+                            app:tint="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                    </LinearLayout>
+
+                    <!-- Digital Signature -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Signature"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvDigitalSignature"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="FOS-SIG-abc123def456-20260710120000"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="10sp"
+                            android:fontFamily="monospace" />
+
+                    </LinearLayout>
+
+                    <!-- Signed Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Signed Date"
+                            style="@style/Text.Label"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/tvSignedDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jul 10, 2026 12:00:00"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 

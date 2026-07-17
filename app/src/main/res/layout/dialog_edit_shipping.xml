@@ -1,168 +1,365 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Shipping Details"
-        style="@style/Text.H5"
-        android:textColor="?attr/colorPrimary"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Export Date -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_today"
-        app:endIconTint="?attr/colorSecondary"
-        app:boxBackgroundColor="?attr/colorSurface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorSecondary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etExportDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Export Date"
-            android:focusable="false"
-            android:clickable="true"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- ✅ Buyer (NEW) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:boxBackgroundColor="?attr/colorSurface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorPrimary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etBuyer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Buyer"
-            android:inputType="text"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Destination -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:boxBackgroundColor="?attr/colorSurface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorPrimary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etDestination"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Destination"
-            android:inputType="text"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- ✅ Harvest Year (NEW) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:boxBackgroundColor="?attr/colorSurface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorPrimary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etHarvestYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Harvest Year"
-            android:inputType="number"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- ✅ Certifications (NEW) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        style="@style/Widget.AfriNuts.EditText"
-        app:boxBackgroundColor="?attr/colorSurface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorPrimary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etCertifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Certifications (comma separated)"
-            android:inputType="text"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnCancel"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
-            style="@style/Widget.AfriNuts.Button.Outlined"
-            android:layout_marginEnd="8dp" />
+            android:text="Shipping Details"
+            style="@style/Text.H5"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/btnSave"
+        <!-- Export Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:endIconTint="?attr/colorSecondary"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etExportDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Export Date"
+                android:focusable="false"
+                android:clickable="true"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buyer -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBuyer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Buyer"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Destination -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDestination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Destination"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Harvest Year -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etHarvestYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Harvest Year"
+                android:inputType="number"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Certifications -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCertifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Certifications (comma separated)"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- ======================================== -->
+        <!-- ✅ PROCESSING DETAILS SECTION            -->
+        <!-- ======================================== -->
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
-            style="@style/Widget.AfriNuts.Button"
-            app:icon="@drawable/ic_save"
-            app:iconGravity="textStart"
-            app:iconTint="@android:color/white" />
+            android:text="Processing Details"
+            style="@style/Text.H5"
+            android:textColor="?attr/colorSecondary"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Processing Location (Auto-populated) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etProcessingLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Processing Location"
+                android:inputType="text"
+                android:text="Odienné, Côte d'Ivoire"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Processing Facility (Auto-populated) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etProcessingFacility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Processing Facility"
+                android:inputType="text"
+                android:text="AfriNuts NDC (Nuts Distribution Center)"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Processing Method (Auto-populated) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etProcessingMethod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Processing Method"
+                android:inputType="text"
+                android:text="Steam roasting (100% chemical-free)"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Kernel Weight -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etKernelWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Kernel Weight (kg)"
+                android:inputType="numberDecimal"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Shelling Method -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etShellingMethod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Shelling Method"
+                android:inputType="text"
+                android:text="Semi-automated"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Grading Method -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etGradingMethod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Grading Method"
+                android:inputType="text"
+                android:text="Manual inspection + electronic sorting"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Yield Percentage (Auto-calculated) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.AfriNuts.EditText"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etYieldPercentage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Yield Percentage (auto-calculated)"
+                android:enabled="false"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                style="@style/Widget.AfriNuts.Button.Outlined"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                style="@style/Widget.AfriNuts.Button"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                app:iconTint="@android:color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
