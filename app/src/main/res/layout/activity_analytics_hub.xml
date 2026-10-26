@@ -58,7 +58,6 @@
             android:contentDescription="Action"
             app:backgroundTint="?attr/colorSecondary"
             app:tint="@android:color/white"
-            android:visibility="gone"
             app:fabSize="normal"
             app:elevation="4dp"
             app:rippleColor="#80FFFFFF" />
@@ -81,11 +80,10 @@
         android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="32dp"
-        app:cardElevation="18dp"
+        app:cardElevation="8dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,7 +92,7 @@
             android:gravity="center_vertical"
             android:paddingVertical="8dp"
             android:paddingHorizontal="8dp"
-            android:weightSum="4"
+            android:weightSum="5"
             android:background="?attr/navbarBackground"
             android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
 
@@ -120,7 +118,8 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_home"
-                        app:tint="?attr/colorSurface" />
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor"  />
 
                     <!-- Active indicator dot -->
                     <View
@@ -140,7 +139,8 @@
                     android:layout_height="wrap_content"
                     android:text="Home"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
@@ -169,7 +169,8 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_tractor"
-                        app:tint="?attr/colorSurface" />
+                        android:textStyle="bold"
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -188,8 +189,9 @@
                     android:layout_height="wrap_content"
                     android:text="Farm"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
+                    android:textStyle="bold"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
 
@@ -216,8 +218,9 @@
                         android:id="@+id/navFinanceIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_attach_money"
-                        app:tint="?attr/colorSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -236,7 +239,8 @@
                     android:layout_height="wrap_content"
                     android:text="Finance"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textColor="?attr/navbarTextColor"
+                    android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
@@ -264,8 +268,9 @@
                         android:id="@+id/navAnalyticsIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:textStyle="bold"
                         android:src="@drawable/ic_finance_analytics"
-                        app:tint="?attr/colorSurface" />
+                        app:tint="?attr/navbarIconColor" />
 
                     <View
                         android:layout_width="8dp"
@@ -284,10 +289,50 @@
                     android:layout_height="wrap_content"
                     android:text="Analytics"
                     android:textSize="11sp"
-                    android:textColor="?attr/colorSurface"
+                    android:textStyle="bold"
+                    android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+            <!-- Compliance (NEW) -->
+            <LinearLayout
+                android:id="@+id/navCompliance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp">
+
+                <ImageView
+                    android:id="@+id/navComplianceIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_certified"
+                    app:tint="?attr/navbarIconColor" />
+
+                <TextView
+                    android:id="@+id/navComplianceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Compliance"
+                    android:textSize="10sp"
+                    android:textColor="?attr/navbarIconColor"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/circle_green"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="-2dp"
+                    android:layout_marginEnd="-4dp"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

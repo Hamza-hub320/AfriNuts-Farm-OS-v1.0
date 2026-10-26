@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,14 +28,14 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
-import com.afrinuts.farmos.ui.BaseHubActivity;
+import com.afrinuts.farmos.ui.BaseActivity;   // ← was BaseHubActivity
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class SettingsActivity extends BaseHubActivity {
+public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not BaseHubActivity
 
     private CardView cardChangePassword;
     private CardView cardChangePin;
@@ -56,30 +55,36 @@ public class SettingsActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Everyone can view settings charts
         return true;
     }
 
     @Override
-    protected int getLayoutResourceId() {
-        return R.layout.activity_settings;
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);   // ← set layout here
 
-    @Override
-    protected int getCurrentNavItem() {
-        return -1;
-    }
-
-    @Override
-    protected void onHubCreate(Bundle savedInstanceState) {
         database = AppDatabase.getInstance(this);
         syncManager = SyncManager.getInstance(this);
         firebaseManager = FirebaseManager.getInstance();
 
+        setupToolbar();
         initViews();
         setupClickListeners();
         loadSettings();
         setupDarkModeToggle();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
+                getSupportActionBar().setTitle("Settings");
+            }
+        }
     }
 
     private void initViews() {
@@ -106,53 +111,38 @@ public class SettingsActivity extends BaseHubActivity {
         }
     }
 
-    // Add this method for dark mode
     private void setupDarkModeToggle() {
         if (darkModeSwitch == null) return;
 
-        // Get current mode
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         boolean isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
         darkModeSwitch.setChecked(isDarkMode);
 
         darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                // Enable dark mode
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                // Disable dark mode
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            }
+            AppCompatDelegate.setDefaultNightMode(
+                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
-            // Save preference
             getSharedPreferences("settings", MODE_PRIVATE)
                     .edit()
                     .putBoolean("dark_mode", isChecked)
                     .apply();
 
-            // Show message before recreating
             Toast.makeText(this,
                     "Theme changed. App will restart to apply changes.",
                     Toast.LENGTH_SHORT).show();
 
-            // Recreate activity to apply changes
             recreate();
         });
     }
 
-    // Add this method to load dark mode preference on startup
     private void loadDarkModePreference() {
         boolean darkModeEnabled = getSharedPreferences("settings", MODE_PRIVATE)
                 .getBoolean("dark_mode", false);
 
-        if (darkModeEnabled) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        AppCompatDelegate.setDefaultNightMode(darkModeEnabled
+                ? AppCompatDelegate.MODE_NIGHT_YES
+                : AppCompatDelegate.MODE_NIGHT_NO);
     }
-
-
 
     private void setupClickListeners() {
         cardChangePassword.setOnClickListener(v -> showChangePasswordDialog());
@@ -161,20 +151,14 @@ public class SettingsActivity extends BaseHubActivity {
         cardUnits.setOnClickListener(v -> showUnitsDialog());
 
         cardSync.setOnClickListener(v -> {
-            // Animate the card when clicked
             animateCardClick(cardSync);
-
-            // Show visual feedback
             Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
-
-            // Start sync
             syncManager.forceSyncNow();
         });
 
         cardAbout.setOnClickListener(v -> showAboutDialog());
     }
 
-    // Add this method to animate the card click
     private void animateCardClick(CardView card) {
         card.animate()
                 .scaleX(0.95f)
@@ -215,7 +199,6 @@ public class SettingsActivity extends BaseHubActivity {
     }
 
     private void loadSettings() {
-
         String version = getAppVersion();
         tvVersion.setText("Version " + version);
 
@@ -235,12 +218,10 @@ public class SettingsActivity extends BaseHubActivity {
         TextInputEditText etNew = dialogView.findViewById(R.id.etNewPassword);
         TextInputEditText etConfirm = dialogView.findViewById(R.id.etConfirmPassword);
 
-        // Get strength indicator views
         ProgressBar passwordStrength = dialogView.findViewById(R.id.passwordStrength);
         TextView tvStrengthLabel = dialogView.findViewById(R.id.tvStrengthLabel);
         View layoutStrength = dialogView.findViewById(R.id.layoutStrength);
 
-        // Add listener to check password strength as user types
         etNew.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -269,7 +250,6 @@ public class SettingsActivity extends BaseHubActivity {
             public void afterTextChanged(android.text.Editable s) {}
         });
 
-
         new MaterialAlertDialogBuilder(this)
                 .setTitle("")
                 .setView(dialogView)
@@ -278,7 +258,6 @@ public class SettingsActivity extends BaseHubActivity {
                     String newPass = etNew.getText().toString();
                     String confirm = etConfirm.getText().toString();
 
-                    // Validate inputs
                     if (TextUtils.isEmpty(current)) {
                         Toast.makeText(this, "Current password required", Toast.LENGTH_SHORT).show();
                         return;
@@ -299,58 +278,48 @@ public class SettingsActivity extends BaseHubActivity {
                         return;
                     }
 
-                    // Show progress
                     Toast.makeText(this, "Verifying current password...", Toast.LENGTH_SHORT).show();
 
-                    // Get current Firebase user
                     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                     if (firebaseUser == null) {
                         Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Get user email
                     String email = firebaseUser.getEmail();
                     if (email == null) {
                         Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Re-authenticate with Firebase first
                     AuthCredential credential = EmailAuthProvider.getCredential(email, current);
                     firebaseUser.reauthenticate(credential)
                             .addOnSuccessListener(aVoid -> {
-                                // Current password is correct with Firebase
                                 Toast.makeText(this, "Password verified, updating...", Toast.LENGTH_SHORT).show();
 
-                                // Update Firebase password
                                 firebaseUser.updatePassword(newPass)
                                         .addOnSuccessListener(aVoid2 -> {
-                                            // Update local database
                                             new Thread(() -> {
                                                 UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
                                                 String newHash = AuthUtils.hash(newPass);
                                                 user.setPasswordHash(newHash);
                                                 database.userDao().update(user);
 
-                                                runOnUiThread(() -> {
-                                                    Toast.makeText(this,
-                                                            "Password updated successfully!",
-                                                            Toast.LENGTH_SHORT).show();
-                                                });
+                                                runOnUiThread(() ->
+                                                        Toast.makeText(this,
+                                                                "Password updated successfully!",
+                                                                Toast.LENGTH_SHORT).show());
                                             }).start();
                                         })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(this,
-                                                    "Failed to update password: " + e.getMessage(),
-                                                    Toast.LENGTH_LONG).show();
-                                        });
+                                        .addOnFailureListener(e ->
+                                                Toast.makeText(this,
+                                                        "Failed to update password: " + e.getMessage(),
+                                                        Toast.LENGTH_LONG).show());
                             })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(this,
-                                        "Current password is incorrect",
-                                        Toast.LENGTH_SHORT).show();
-                            });
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this,
+                                            "Current password is incorrect",
+                                            Toast.LENGTH_SHORT).show());
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -371,7 +340,6 @@ public class SettingsActivity extends BaseHubActivity {
                     String newPin = etNew.getText().toString();
                     String confirm = etConfirm.getText().toString();
 
-                    // Validate inputs
                     if (TextUtils.isEmpty(current)) {
                         Toast.makeText(this, "Current PIN required", Toast.LENGTH_SHORT).show();
                         return;
@@ -387,7 +355,6 @@ public class SettingsActivity extends BaseHubActivity {
                         return;
                     }
 
-                    // Verify current PIN
                     new Thread(() -> {
                         UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
 
@@ -397,7 +364,6 @@ public class SettingsActivity extends BaseHubActivity {
                             return;
                         }
 
-                        // Update local DB
                         String newHash = AuthUtils.hash(newPin);
                         user.setPinHash(newHash);
                         database.userDao().update(user);
@@ -423,15 +389,12 @@ public class SettingsActivity extends BaseHubActivity {
 
                     tvLanguage.setText(selected);
 
-                    // Save and apply language
                     LanguageHelper.setLocale(this, code);
 
-                    // Show restart message
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("Language Changed")
                             .setMessage("Language changed to " + selected + ". Please restart the app for changes to take effect.")
                             .setPositiveButton("Restart Now", (d, w) -> {
-                                // Restart app
                                 android.os.Process.killProcess(android.os.Process.myPid());
                                 System.exit(0);
                             })
@@ -456,7 +419,6 @@ public class SettingsActivity extends BaseHubActivity {
 
                     tvUnits.setText(selected);
 
-                    // Save preference
                     getSharedPreferences("settings", MODE_PRIVATE)
                             .edit()
                             .putString("units", code)
@@ -481,7 +443,6 @@ public class SettingsActivity extends BaseHubActivity {
 
         return Math.min(strength, 100);
     }
-
 
     private String getStrengthLabel(int strength) {
         if (strength < 30) return "Weak";

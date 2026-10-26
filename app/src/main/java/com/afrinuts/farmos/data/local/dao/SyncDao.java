@@ -39,4 +39,10 @@ public interface SyncDao {
 
     @Query("SELECT * FROM sync_queue WHERE id = :id")
     SyncEntity getSyncItemById(long id);
+
+    @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityStringId = :entityStringId LIMIT 1")
+    SyncEntity getSyncItemByStringId(String entityType, String entityStringId);
+
+    @Query("DELETE FROM sync_queue WHERE entityType = :entityType AND entityStringId = :entityStringId")
+    void deleteByStringId(String entityType, String entityStringId);
 }

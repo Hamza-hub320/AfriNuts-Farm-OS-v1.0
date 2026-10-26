@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="?attr/iconBackgroundGlass"
+                android:layout_marginEnd="16dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_edit"
+                    app:tint="?attr/colorPrimary" />
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Edit Certification"
+                style="@style/Text.H2"
+                android:textColor="?attr/colorPrimary" />
+
+        </LinearLayout>
+
+        <!-- Certification Name -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCertificationName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Certification Name"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Certification Body -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCertificationBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Certification Body"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Status -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down"
+            app:endIconTint="?attr/colorPrimary"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Status"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Scope -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etScope"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Scope"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Applicable Standards -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStandards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Applicable Standards (comma separated)"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Target Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:endIconTint="?attr/colorSecondary"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTargetDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Target Date"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Approval Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:endIconTint="?attr/colorSecondary"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etApprovalDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Approval Date"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Expiry Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:endIconTint="?attr/colorSecondary"
+            app:boxBackgroundColor="?attr/colorSurface">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etExpiryDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Expiry Date"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:text="Cancel"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                android:layout_marginEnd="12dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:text="Save"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

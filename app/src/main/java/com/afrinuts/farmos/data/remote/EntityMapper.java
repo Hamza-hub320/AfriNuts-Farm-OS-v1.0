@@ -4,9 +4,13 @@ import static com.afrinuts.farmos.data.remote.FirebaseManager.COLLECTION_FARMS;
 
 import android.util.Log;
 
+import com.afrinuts.farmos.data.local.entity.AuditEntity;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.CertificationEntity;
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -15,14 +19,18 @@ import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
+import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.common.reflect.TypeToken;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -1210,8 +1218,8 @@ public class EntityMapper {
     }
 
     // ========================================
-// MASTER BATCH TRACEABILITY OPERATIONS
-// ========================================
+    // MASTER BATCH TRACEABILITY OPERATIONS
+    // ========================================
 
     // In EntityMapper.java - add this method
 
@@ -1282,6 +1290,524 @@ public class EntityMapper {
 
         } catch (Exception e) {
             Log.e(TAG, "Error mapping master traceability", e);
+            return null;
+        }
+    }
+
+
+    // ========================================
+    // CERTIFICATION MAPPING
+    // ========================================
+
+    public static Map<String, Object> certificationToMap(CertificationEntity certification) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("certificationId", certification.getCertificationId());
+        map.put("farmId", certification.getFarmId());
+        map.put("certificationName", certification.getCertificationName());
+        map.put("certificationBody", certification.getCertificationBody());
+        map.put("status", certification.getStatus() != null ? certification.getStatus().name() : null);
+        map.put("scope", certification.getScope());
+        map.put("applicableStandardsJson", certification.getApplicableStandardsJson());
+        map.put("targetDate", certification.getTargetDate());
+        map.put("approvalDate", certification.getApprovalDate());
+        map.put("expiryDate", certification.getExpiryDate());
+        map.put("createdAt", certification.getCreatedAt());
+        map.put("updatedAt", certification.getUpdatedAt());
+        map.put("isSynced", certification.isSynced());
+        return map;
+    }
+
+    public static CertificationEntity mapToCertification(DocumentSnapshot doc) {
+        try {
+            String certificationId = doc.getId();
+            Long farmId = doc.getLong("farmId");
+
+            if (farmId == null) {
+                Log.e(TAG, "Certification missing farmId, skipping");
+                return null;
+            }
+
+            String certificationName = doc.getString("certificationName");
+            String certificationBody = doc.getString("certificationBody");
+            String statusStr = doc.getString("status");
+            String scope = doc.getString("scope");
+            String applicableStandardsJson = doc.getString("applicableStandardsJson");
+            Long targetDate = doc.getLong("targetDate");
+            Long approvalDate = doc.getLong("approvalDate");
+            Long expiryDate = doc.getLong("expiryDate");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+            Boolean isSynced = doc.getBoolean("isSynced");
+
+            // Parse status
+            CertificationEntity.CertificationStatus status = CertificationEntity.CertificationStatus.NOT_STARTED;
+            if (statusStr != null) {
+                try {
+                    status = CertificationEntity.CertificationStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown certification status: " + statusStr);
+                }
+            }
+
+            // Parse standards from JSON
+            List<String> applicableStandards = new ArrayList<>();
+            if (applicableStandardsJson != null) {
+                try {
+                    Type listType = new TypeToken<List<String>>(){}.getType();
+                    applicableStandards = new Gson().fromJson(applicableStandardsJson, listType);
+                } catch (Exception e) {
+                    Log.w(TAG, "Error parsing applicable standards", e);
+                }
+            }
+
+            CertificationEntity certification = new CertificationEntity(
+                    farmId,
+                    certificationName,
+                    certificationBody,
+                    status,
+                    scope,
+                    applicableStandards,
+                    targetDate != null ? targetDate : 0,
+                    approvalDate != null ? approvalDate : 0,
+                    expiryDate != null ? expiryDate : 0
+            );
+
+            certification.setCertificationId(certificationId);
+            certification.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
+            certification.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
+            certification.setSynced(isSynced != null && isSynced);
+
+            return certification;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping certification", e);
+            return null;
+        }
+    }
+
+    public static CertificationEntity fromFirestoreCertification(DocumentSnapshot doc) {
+        return mapToCertification(doc);
+    }
+
+    // ========================================
+    // AUDIT MAPPING
+    // ========================================
+
+    public static Map<String, Object> auditToMap(AuditEntity audit) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("auditId", audit.getAuditId());
+        map.put("certificationId", audit.getCertificationId());
+        map.put("farmId", audit.getFarmId());
+        map.put("auditType", audit.getAuditType() != null ? audit.getAuditType().name() : null);
+        map.put("auditDate", audit.getAuditDate());
+        map.put("auditorName", audit.getAuditorName());
+        map.put("auditorBody", audit.getAuditorBody());
+        map.put("scope", audit.getScope());
+        map.put("findingsJson", audit.getFindingsJson());
+        map.put("status", audit.getStatus() != null ? audit.getStatus().name() : null);
+        map.put("reportUrl", audit.getReportUrl());
+        map.put("createdAt", audit.getCreatedAt());
+        map.put("updatedAt", audit.getUpdatedAt());
+        map.put("isSynced", audit.isSynced());
+        return map;
+    }
+
+    public static AuditEntity mapToAudit(DocumentSnapshot doc) {
+        try {
+            String auditId = doc.getId();
+            String certificationId = doc.getString("certificationId");
+            Long farmId = doc.getLong("farmId");
+
+            if (certificationId == null || farmId == null) {
+                Log.e(TAG, "Audit missing certificationId or farmId, skipping");
+                return null;
+            }
+
+            String auditTypeStr = doc.getString("auditType");
+            Long auditDate = doc.getLong("auditDate");
+            String auditorName = doc.getString("auditorName");
+            String auditorBody = doc.getString("auditorBody");
+            String scope = doc.getString("scope");
+            String findingsJson = doc.getString("findingsJson");
+            String statusStr = doc.getString("status");
+            String reportUrl = doc.getString("reportUrl");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+            Boolean isSynced = doc.getBoolean("isSynced");
+
+            // Parse audit type
+            AuditEntity.AuditType auditType = AuditEntity.AuditType.EXTERNAL;
+            if (auditTypeStr != null) {
+                try {
+                    auditType = AuditEntity.AuditType.valueOf(auditTypeStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown audit type: " + auditTypeStr);
+                }
+            }
+
+            // Parse status
+            AuditEntity.AuditStatus status = AuditEntity.AuditStatus.PASS;
+            if (statusStr != null) {
+                try {
+                    status = AuditEntity.AuditStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown audit status: " + statusStr);
+                }
+            }
+
+            // Parse findings
+            List<AuditEntity.Finding> findings = new ArrayList<>();
+            if (findingsJson != null) {
+                try {
+                    Type listType = new TypeToken<List<AuditEntity.Finding>>(){}.getType();
+                    findings = new Gson().fromJson(findingsJson, listType);
+                } catch (Exception e) {
+                    Log.w(TAG, "Error parsing findings", e);
+                }
+            }
+
+            AuditEntity audit = new AuditEntity(
+                    certificationId,
+                    farmId,
+                    auditType,
+                    auditDate != null ? auditDate : 0,
+                    auditorName,
+                    auditorBody,
+                    scope,
+                    findings,
+                    status,
+                    reportUrl
+            );
+            audit.setAuditId(auditId);
+            audit.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
+            audit.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
+            audit.setSynced(isSynced != null && isSynced);
+
+            return audit;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping audit", e);
+            return null;
+        }
+    }
+
+    // ========================================
+    // INSPECTION MAPPING
+    // ========================================
+
+    public static Map<String, Object> inspectionToMap(InspectionEntity inspection) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("inspectionId", inspection.getInspectionId());
+        map.put("certificationId", inspection.getCertificationId());
+        map.put("certificationName", inspection.getCertificationName());
+        map.put("farmId", inspection.getFarmId());
+        map.put("requirementCategory", inspection.getRequirementCategory() != null ?
+                inspection.getRequirementCategory().name() : null);
+        map.put("inspectionType", inspection.getInspectionType() != null ?
+                inspection.getInspectionType().name() : null);
+        map.put("inspectionDate", inspection.getInspectionDate());
+        map.put("inspectorName", inspection.getInspectorName());
+        map.put("inspectorBody", inspection.getInspectorBody());
+        map.put("status", inspection.getStatus() != null ? inspection.getStatus().name() : null);
+        map.put("remarks", inspection.getRemarks());
+        map.put("correctiveActionsJson", inspection.getCorrectiveActionsJson());
+        map.put("photosJson", inspection.getPhotosJson());
+        map.put("reportUrl", inspection.getReportUrl());
+        map.put("createdAt", inspection.getCreatedAt());
+        map.put("updatedAt", inspection.getUpdatedAt());
+        map.put("isSynced", inspection.isSynced());
+        return map;
+    }
+
+    public static InspectionEntity mapToInspection(DocumentSnapshot doc) {
+        try {
+            String inspectionId = doc.getId();
+            String certificationId = doc.getString("certificationId");
+            String certificationName = doc.getString("certificationName");
+            Long farmId = doc.getLong("farmId");
+
+            if (certificationId == null || farmId == null) {
+                Log.e(TAG, "Inspection missing certificationId or farmId, skipping");
+                return null;
+            }
+
+            String requirementCategoryStr = doc.getString("requirementCategory");
+            String inspectionTypeStr = doc.getString("inspectionType");
+            Long inspectionDate = doc.getLong("inspectionDate");
+            String inspectorName = doc.getString("inspectorName");
+            String inspectorBody = doc.getString("inspectorBody");
+            String statusStr = doc.getString("status");
+            String remarks = doc.getString("remarks");
+            String correctiveActionsJson = doc.getString("correctiveActionsJson");
+            String photosJson = doc.getString("photosJson");
+            String reportUrl = doc.getString("reportUrl");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+            Boolean isSynced = doc.getBoolean("isSynced");
+
+            // Parse requirement category
+            InspectionEntity.RequirementCategory requirementCategory =
+                    InspectionEntity.RequirementCategory.FIELD;
+            if (requirementCategoryStr != null) {
+                try {
+                    requirementCategory = InspectionEntity.RequirementCategory.valueOf(requirementCategoryStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown requirement category: " + requirementCategoryStr);
+                }
+            }
+
+            // Parse inspection type
+            InspectionEntity.InspectionType inspectionType =
+                    InspectionEntity.InspectionType.EXTERNAL;
+            if (inspectionTypeStr != null) {
+                try {
+                    inspectionType = InspectionEntity.InspectionType.valueOf(inspectionTypeStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown inspection type: " + inspectionTypeStr);
+                }
+            }
+
+            // Parse status
+            InspectionEntity.InspectionStatus status =
+                    InspectionEntity.InspectionStatus.PASS;
+            if (statusStr != null) {
+                try {
+                    status = InspectionEntity.InspectionStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown inspection status: " + statusStr);
+                }
+            }
+
+            // Parse corrective actions
+            List<InspectionEntity.CorrectiveAction> correctiveActions = new ArrayList<>();
+            if (correctiveActionsJson != null) {
+                try {
+                    Type listType = new TypeToken<List<InspectionEntity.CorrectiveAction>>(){}.getType();
+                    correctiveActions = new Gson().fromJson(correctiveActionsJson, listType);
+                } catch (Exception e) {
+                    Log.w(TAG, "Error parsing corrective actions", e);
+                }
+            }
+
+            // Parse photos
+            List<String> photos = new ArrayList<>();
+            if (photosJson != null) {
+                try {
+                    Type listType = new TypeToken<List<String>>(){}.getType();
+                    photos = new Gson().fromJson(photosJson, listType);
+                } catch (Exception e) {
+                    Log.w(TAG, "Error parsing photos", e);
+                }
+            }
+
+            InspectionEntity inspection = new InspectionEntity(
+                    certificationId,
+                    certificationName,
+                    farmId,
+                    requirementCategory,
+                    inspectionType,
+                    inspectionDate != null ? inspectionDate : 0,
+                    inspectorName,
+                    inspectorBody,
+                    status,
+                    remarks,
+                    correctiveActions,
+                    photos,
+                    reportUrl
+            );
+            inspection.setInspectionId(inspectionId);
+            inspection.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
+            inspection.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
+            inspection.setSynced(isSynced != null && isSynced);
+
+            return inspection;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping inspection", e);
+            return null;
+        }
+    }
+
+    // ========================================
+// VERIFICATION MAPPING
+// ========================================
+
+    public static Map<String, Object> verificationToMap(VerificationEntity verification) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("verificationId", verification.getVerificationId());
+        map.put("certificationId", verification.getCertificationId());
+        map.put("farmId", verification.getFarmId());
+        map.put("verificationType", verification.getVerificationType() != null ?
+                verification.getVerificationType().name() : null);
+        map.put("verificationDate", verification.getVerificationDate());
+        map.put("verifiedBy", verification.getVerifiedBy());
+        map.put("status", verification.getStatus() != null ?
+                verification.getStatus().name() : null);
+        map.put("evidenceJson", verification.getEvidenceJson());
+        map.put("comment", verification.getComment());
+        map.put("createdAt", verification.getCreatedAt());
+        map.put("updatedAt", verification.getUpdatedAt());
+        map.put("isSynced", verification.isSynced());
+        return map;
+    }
+
+    public static VerificationEntity mapToVerification(DocumentSnapshot doc) {
+        try {
+            String verificationId = doc.getId();
+            String certificationId = doc.getString("certificationId");
+            Long farmId = doc.getLong("farmId");
+
+            if (certificationId == null || farmId == null) {
+                Log.e(TAG, "Verification missing certificationId or farmId, skipping");
+                return null;
+            }
+
+            String verificationTypeStr = doc.getString("verificationType");
+            Long verificationDate = doc.getLong("verificationDate");
+            String verifiedBy = doc.getString("verifiedBy");
+            String statusStr = doc.getString("status");
+            String evidenceJson = doc.getString("evidenceJson");
+            String comment = doc.getString("comment");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+            Boolean isSynced = doc.getBoolean("isSynced");
+
+            // Parse verification type
+            VerificationEntity.VerificationType verificationType =
+                    VerificationEntity.VerificationType.DOCUMENTATION;
+            if (verificationTypeStr != null) {
+                try {
+                    verificationType = VerificationEntity.VerificationType.valueOf(verificationTypeStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown verification type: " + verificationTypeStr);
+                }
+            }
+
+            // Parse status
+            VerificationEntity.VerificationStatus status =
+                    VerificationEntity.VerificationStatus.PENDING;
+            if (statusStr != null) {
+                try {
+                    status = VerificationEntity.VerificationStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown verification status: " + statusStr);
+                }
+            }
+
+            // Parse evidence
+            List<String> evidence = new ArrayList<>();
+            if (evidenceJson != null) {
+                try {
+                    Type listType = new TypeToken<List<String>>(){}.getType();
+                    evidence = new Gson().fromJson(evidenceJson, listType);
+                } catch (Exception e) {
+                    Log.w(TAG, "Error parsing evidence", e);
+                }
+            }
+
+            VerificationEntity verification = new VerificationEntity(
+                    certificationId,
+                    farmId,
+                    verificationType,
+                    verificationDate != null ? verificationDate : 0,
+                    verifiedBy,
+                    status,
+                    evidence,
+                    comment
+            );
+            verification.setVerificationId(verificationId);
+            verification.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
+            verification.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
+            verification.setSynced(isSynced != null && isSynced);
+
+            return verification;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping verification", e);
+            return null;
+        }
+    }
+
+    // ========================================
+// DOCUMENT MAPPING
+// ========================================
+
+    public static Map<String, Object> documentToMap(DocumentEntity document) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("documentId", document.getDocumentId());
+        map.put("certificationId", document.getCertificationId());
+        map.put("farmId", document.getFarmId());
+        map.put("documentType", document.getDocumentType() != null ?
+                document.getDocumentType().name() : null);
+        map.put("documentName", document.getDocumentName());
+        map.put("issueDate", document.getIssueDate());
+        map.put("expiryDate", document.getExpiryDate());
+        map.put("fileUrl", document.getFileUrl());
+        map.put("status", document.getStatus() != null ?
+                document.getStatus().name() : null);
+        map.put("createdAt", document.getCreatedAt());
+        map.put("updatedAt", document.getUpdatedAt());
+        map.put("isSynced", document.isSynced());
+        return map;
+    }
+
+    public static DocumentEntity mapToDocument(DocumentSnapshot doc) {
+        try {
+            String documentId = doc.getId();
+            String certificationId = doc.getString("certificationId");
+            Long farmId = doc.getLong("farmId");
+
+            if (certificationId == null || farmId == null) {
+                Log.e(TAG, "Document missing certificationId or farmId, skipping");
+                return null;
+            }
+
+            String documentTypeStr = doc.getString("documentType");
+            String documentName = doc.getString("documentName");
+            Long issueDate = doc.getLong("issueDate");
+            Long expiryDate = doc.getLong("expiryDate");
+            String fileUrl = doc.getString("fileUrl");
+            String statusStr = doc.getString("status");
+            Long createdAt = doc.getLong("createdAt");
+            Long updatedAt = doc.getLong("updatedAt");
+            Boolean isSynced = doc.getBoolean("isSynced");
+
+            // Parse document type
+            DocumentEntity.DocumentType documentType =
+                    DocumentEntity.DocumentType.CERTIFICATE;
+            if (documentTypeStr != null) {
+                try {
+                    documentType = DocumentEntity.DocumentType.valueOf(documentTypeStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown document type: " + documentTypeStr);
+                }
+            }
+
+            // Parse status
+            DocumentEntity.DocumentStatus status =
+                    DocumentEntity.DocumentStatus.DRAFT;
+            if (statusStr != null) {
+                try {
+                    status = DocumentEntity.DocumentStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Unknown document status: " + statusStr);
+                }
+            }
+
+            DocumentEntity document = new DocumentEntity(
+                    certificationId,
+                    farmId,
+                    documentType,
+                    documentName,
+                    issueDate != null ? issueDate : 0,
+                    expiryDate != null ? expiryDate : 0,
+                    fileUrl,
+                    status
+            );
+            document.setDocumentId(documentId);
+            document.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
+            document.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
+            document.setSynced(isSynced != null && isSynced);
+
+            return document;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping document", e);
             return null;
         }
     }

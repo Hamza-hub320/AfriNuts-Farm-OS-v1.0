@@ -9,7 +9,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.AuditEntity;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.CertificationEntity;
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
+import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 
@@ -22,6 +26,7 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -58,6 +63,11 @@ public class FirestoreSyncManager {
     private ListenerRegistration suppliersListener;
     private ListenerRegistration batchTraceabilityListener;
     private ListenerRegistration masterTraceabilityListener;
+    private ListenerRegistration certificationsListener;
+    private ListenerRegistration auditsListener;
+    private ListenerRegistration inspectionsListener;
+    private ListenerRegistration verificationsListener;
+    private ListenerRegistration documentsListener;
     private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
 
 
@@ -92,6 +102,11 @@ public class FirestoreSyncManager {
         listenToSuppliers();
         listenToMasterTraceability();
         listenToBatchTraceability();
+        listenToCertifications();
+        listenToAudits();
+        listenToInspections();
+        listenToVerifications();
+        listenToDocuments();
     }
 
     /**
@@ -109,6 +124,11 @@ public class FirestoreSyncManager {
         if (suppliersListener != null) suppliersListener.remove();
         if (batchTraceabilityListener != null) batchTraceabilityListener.remove();
         if (masterTraceabilityListener != null) masterTraceabilityListener.remove();
+        if (certificationsListener != null) certificationsListener.remove();
+        if (auditsListener != null) auditsListener.remove();
+        if (inspectionsListener != null) inspectionsListener.remove();
+        if (verificationsListener != null) verificationsListener.remove();
+        if (documentsListener != null) documentsListener.remove();
 
 
         Log.d(TAG, "All Firestore listeners stopped");
@@ -923,6 +943,377 @@ public class FirestoreSyncManager {
                     });
                 });
         Log.d(TAG, "👂 Master traceability listener registered");
+    }
+
+
+    // Add certification listener method
+    // In FirestoreSyncManager.java - update listenToCertifications()
+
+    private void listenToCertifications() {
+        certificationsListener = db.collection("farms")
+                .document(farmId)
+                .collection("certifications")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Certifications listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            // ✅ Use the correct method name: mapToCertification
+                            CertificationEntity remoteCert =
+                                    EntityMapper.mapToCertification(dc.getDocument());
+                            if (remoteCert == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    CertificationEntity localCert =
+                                            database.certificationDao()
+                                                    .getCertificationById(remoteCert.getCertificationId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localCert == null) {
+                                        database.certificationDao().insert(remoteCert);
+                                        Log.d(TAG, "➕ New certification: " + remoteCert.getCertificationName());
+                                    } else {
+                                        if (remoteCert.getUpdatedAt() > localCert.getUpdatedAt()) {
+                                            database.certificationDao().update(remoteCert);
+                                            Log.d(TAG, "📥 Updated certification: " + remoteCert.getCertificationName());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped certification (local newer): " +
+                                                    remoteCert.getCertificationName());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    // ✅ CASCADE DELETE: Delete all related records
+                                    String certId = remoteCert.getCertificationId();
+                                    Log.d(TAG, "🗑️ Certification removed from Firestore: " + certId);
+
+                                    try {
+                                        // 1. Delete all related records
+                                        List<AuditEntity> audits = database.auditDao()
+                                                .getAuditsByCertificationId(certId);
+                                        for (AuditEntity audit : audits) {
+                                            database.auditDao().delete(audit);
+                                            Log.d(TAG, "🗑️ Deleted audit: " + audit.getAuditId());
+                                        }
+
+                                        List<InspectionEntity> inspections = database.inspectionDao()
+                                                .getInspectionsByCertificationId(certId);
+                                        for (InspectionEntity inspection : inspections) {
+                                            database.inspectionDao().delete(inspection);
+                                            Log.d(TAG, "🗑️ Deleted inspection: " + inspection.getInspectionId());
+                                        }
+
+                                        List<VerificationEntity> verifications = database.verificationDao()
+                                                .getVerificationsByCertificationId(certId);
+                                        for (VerificationEntity verification : verifications) {
+                                            database.verificationDao().delete(verification);
+                                            Log.d(TAG, "🗑️ Deleted verification: " + verification.getVerificationId());
+                                        }
+
+                                        List<DocumentEntity> documents = database.documentDao()
+                                                .getDocumentsByCertificationId(certId);
+                                        for (DocumentEntity document : documents) {
+                                            database.documentDao().delete(document);
+                                            Log.d(TAG, "🗑️ Deleted document: " + document.getDocumentId());
+                                        }
+
+                                        // 2. Delete the certification itself
+                                        database.certificationDao().delete(remoteCert);
+                                        Log.d(TAG, "✅ Certification and all related records deleted: " + certId);
+
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error during cascade delete for certification: " + certId, e);
+                                    }
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Certifications listener registered");
+    }
+
+    // Add listener method
+    private void listenToInspections() {
+        inspectionsListener = db.collection("farms")
+                .document(farmId)
+                .collection("inspections")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Inspections listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            InspectionEntity remoteInspection =
+                                    EntityMapper.mapToInspection(dc.getDocument());
+                            if (remoteInspection == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // ✅ Check if certification exists
+                                    if (remoteInspection.getCertificationId() != null) {
+                                        CertificationEntity certification = database.certificationDao()
+                                                .getCertificationById(remoteInspection.getCertificationId());
+
+                                        if (certification == null) {
+                                            Log.w(TAG, "⚠️ Skipping inspection " + remoteInspection.getInspectionId() +
+                                                    " - certification " + remoteInspection.getCertificationId() +
+                                                    " not found in local DB");
+                                            continue;
+                                        }
+                                    }
+
+                                    InspectionEntity localInspection =
+                                            database.inspectionDao()
+                                                    .getInspectionById(remoteInspection.getInspectionId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localInspection == null) {
+                                        database.inspectionDao().insert(remoteInspection);
+                                        Log.d(TAG, "➕ New inspection: " + remoteInspection.getInspectionId());
+                                    } else {
+                                        if (remoteInspection.getUpdatedAt() > localInspection.getUpdatedAt()) {
+                                            database.inspectionDao().update(remoteInspection);
+                                            Log.d(TAG, "📥 Updated inspection: " + remoteInspection.getInspectionId());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped inspection (local newer): " +
+                                                    remoteInspection.getInspectionId());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.inspectionDao().delete(remoteInspection);
+                                    Log.d(TAG, "❌ Inspection deleted: " + remoteInspection.getInspectionId());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Inspections listener registered");
+    }
+
+
+    // In FirestoreSyncManager.java - update listenToAudits()
+
+    private void listenToAudits() {
+        auditsListener = db.collection("farms")
+                .document(farmId)
+                .collection("audits")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Audits listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            AuditEntity remoteAudit =
+                                    EntityMapper.mapToAudit(dc.getDocument());
+                            if (remoteAudit == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // ✅ CRITICAL: Check if certification exists before inserting audit
+                                    if (remoteAudit.getCertificationId() != null) {
+                                        CertificationEntity certification = database.certificationDao()
+                                                .getCertificationById(remoteAudit.getCertificationId());
+
+                                        if (certification == null) {
+                                            Log.w(TAG, "⚠️ Skipping audit " + remoteAudit.getAuditId() +
+                                                    " - certification " + remoteAudit.getCertificationId() +
+                                                    " not found in local DB. Will sync later.");
+                                            // Don't insert the audit yet - it will be synced when certification arrives
+                                            continue;
+                                        }
+                                    }
+
+                                    AuditEntity localAudit =
+                                            database.auditDao()
+                                                    .getAuditById(remoteAudit.getAuditId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localAudit == null) {
+                                        database.auditDao().insert(remoteAudit);
+                                        Log.d(TAG, "➕ New audit: " + remoteAudit.getAuditId());
+                                    } else {
+                                        if (remoteAudit.getUpdatedAt() > localAudit.getUpdatedAt()) {
+                                            database.auditDao().update(remoteAudit);
+                                            Log.d(TAG, "📥 Updated audit: " + remoteAudit.getAuditId());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped audit (local newer): " +
+                                                    remoteAudit.getAuditId());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.auditDao().delete(remoteAudit);
+                                    Log.d(TAG, "❌ Audit deleted: " + remoteAudit.getAuditId());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Audits listener registered");
+    }
+
+    private void listenToVerifications() {
+        verificationsListener = db.collection("farms")
+                .document(farmId)
+                .collection("verifications")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Verifications listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            VerificationEntity remoteVerification =
+                                    EntityMapper.mapToVerification(dc.getDocument());
+                            if (remoteVerification == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // ✅ Check if certification exists
+                                    if (remoteVerification.getCertificationId() != null) {
+                                        CertificationEntity certification = database.certificationDao()
+                                                .getCertificationById(remoteVerification.getCertificationId());
+
+                                        if (certification == null) {
+                                            Log.w(TAG, "⚠️ Skipping verification " + remoteVerification.getVerificationId() +
+                                                    " - certification " + remoteVerification.getCertificationId() +
+                                                    " not found in local DB");
+                                            continue;
+                                        }
+                                    }
+
+                                    VerificationEntity localVerification =
+                                            database.verificationDao()
+                                                    .getVerificationById(remoteVerification.getVerificationId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localVerification == null) {
+                                        database.verificationDao().insert(remoteVerification);
+                                        Log.d(TAG, "➕ New verification: " + remoteVerification.getVerificationId());
+                                    } else {
+                                        if (remoteVerification.getUpdatedAt() > localVerification.getUpdatedAt()) {
+                                            database.verificationDao().update(remoteVerification);
+                                            Log.d(TAG, "📥 Updated verification: " + remoteVerification.getVerificationId());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped verification (local newer): " +
+                                                    remoteVerification.getVerificationId());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.verificationDao().delete(remoteVerification);
+                                    Log.d(TAG, "❌ Verification deleted: " + remoteVerification.getVerificationId());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Verifications listener registered");
+    }
+
+    private void listenToDocuments() {
+        documentsListener = db.collection("farms")
+                .document(farmId)
+                .collection("documents")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Documents listener failed", error);
+                        return;
+                    }
+
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            DocumentEntity remoteDocument =
+                                    EntityMapper.mapToDocument(dc.getDocument());
+                            if (remoteDocument == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    // ✅ Check if certification exists
+                                    if (remoteDocument.getCertificationId() != null) {
+                                        CertificationEntity certification = database.certificationDao()
+                                                .getCertificationById(remoteDocument.getCertificationId());
+
+                                        if (certification == null) {
+                                            Log.w(TAG, "⚠️ Skipping document " + remoteDocument.getDocumentId() +
+                                                    " - certification " + remoteDocument.getCertificationId() +
+                                                    " not found in local DB");
+                                            continue;
+                                        }
+                                    }
+
+                                    DocumentEntity localDocument =
+                                            database.documentDao()
+                                                    .getDocumentById(remoteDocument.getDocumentId());
+
+                                    isApplyingRemoteUpdate = true;
+
+                                    if (localDocument == null) {
+                                        database.documentDao().insert(remoteDocument);
+                                        Log.d(TAG, "➕ New document: " + remoteDocument.getDocumentId());
+                                    } else {
+                                        if (remoteDocument.getUpdatedAt() > localDocument.getUpdatedAt()) {
+                                            database.documentDao().update(remoteDocument);
+                                            Log.d(TAG, "📥 Updated document: " + remoteDocument.getDocumentId());
+                                        } else {
+                                            Log.d(TAG, "⏭️ Skipped document (local newer): " +
+                                                    remoteDocument.getDocumentId());
+                                        }
+                                    }
+
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+
+                                case REMOVED:
+                                    database.documentDao().delete(remoteDocument);
+                                    Log.d(TAG, "❌ Document deleted: " + remoteDocument.getDocumentId());
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Documents listener registered");
     }
 
     // ========================================

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Top Row: Verification ID + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvVerificationId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="VER-ORG-2026-012"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.5" />
+
+            <!-- ✅ Status with Icon -->
+            <LinearLayout
+                android:id="@+id/statusContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_certified"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:minHeight="24dp"
+                app:cornerRadius="12dp">
+
+                <ImageView
+                    android:id="@+id/ivStatusIcon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:contentDescription="Status icon" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Verified"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Verification Type with Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/ivTypeIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_description"
+                android:contentDescription="Type icon"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/tvVerificationType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Documentation"
+                style="@style/Text.H6"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- Verified By -->
+        <TextView
+            android:id="@+id/tvVerifiedBy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ECOCERT"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="28dp" />
+
+        <!-- Date + Evidence -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="28dp">
+
+            <TextView
+                android:id="@+id/tvVerificationDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Jul 14, 2026"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6" />
+
+            <TextView
+                android:id="@+id/tvEvidenceCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 evidence"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorPrimary"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

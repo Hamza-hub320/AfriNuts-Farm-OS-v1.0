@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Glass - 40% opacity dark grey -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#999E9E9E" /> <!-- 40% opacity -->
+        </shape>
+    </item>
+
+    <!-- Glass Reflection -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <gradient
+                android:startColor="#15FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Subtle Border -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <stroke
+                android:width="0.5dp"
+                android:color="#40FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Certification ID -->
+        <TextView
+            android:id="@+id/tvCertificationId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CERT-ORG-2026-001"
+            style="@style/Text.Caption.Small"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.5"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Top Row: Name + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvCertificationName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Organic (ECOCERT)"
+                style="@style/Text.H6"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/ivStatusIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="Certified"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_status_certified" />
+
+        </LinearLayout>
+
+        <!-- Certification Body -->
+        <TextView
+            android:id="@+id/tvCertificationBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Issued by: ECOCERT"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.6"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Scope -->
+        <TextView
+            android:id="@+id/tvScope"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Farm operations, processing facility"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Dates -->
+        <TextView
+            android:id="@+id/tvDates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Target: Jun 30, 2027 | Expires: Jul 14, 2028"
+            style="@style/Text.Caption.Small"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.5"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Standards -->
+        <TextView
+            android:id="@+id/tvStandards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Standards: EU Organic Regulation 2018/848, ECOCERT Standard"
+            style="@style/Text.Caption.Small"
+            android:textColor="?attr/colorPrimary"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

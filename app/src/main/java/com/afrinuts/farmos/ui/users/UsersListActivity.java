@@ -9,13 +9,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.ui.BaseHubActivity;
+import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,7 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersListActivity extends BaseHubActivity {
+public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not BaseHubActivity
 
     private RecyclerView recyclerView;
     private UserAdapter adapter;
@@ -47,22 +48,39 @@ public class UsersListActivity extends BaseHubActivity {
     }
 
     @Override
-    protected int getLayoutResourceId() {
-        return R.layout.activity_users_list;
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_users_list);   // ← set layout here
 
-    @Override
-    protected int getCurrentNavItem() {
-        return -1;
-    }
-
-    @Override
-    protected void onHubCreate(Bundle savedInstanceState) {
         database = AppDatabase.getInstance(this);
+
+        setupToolbar();
         initViews();
         setupFilters();
         setupFab();
         loadData();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
+                getSupportActionBar().setTitle("Team Members");
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initViews() {
@@ -75,15 +93,6 @@ public class UsersListActivity extends BaseHubActivity {
         filterChipGroup = findViewById(R.id.filterChipGroup);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void setupFilters() {

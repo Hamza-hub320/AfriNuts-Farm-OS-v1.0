@@ -94,11 +94,9 @@ public class AnalyticsHubActivity extends BaseHubActivity {
             }
         });
 
-        // ✅ Get references to fragments - FIXED: Use correct positions
         qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(0);
-        // Reports fragment doesn't need a reference
-        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(2);  // Position 2
-        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(3);  // Position 3
+        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(2);
+        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(3);
     }
 
     private void updateFabForTab(int position) {
@@ -128,7 +126,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     private void showCreateMasterDialog() {
         CreateMasterTraceabilityDialog dialog = CreateMasterTraceabilityDialog.newInstance();
         dialog.setOnMasterTraceabilityCreatedListener(master -> {
-            Toast.makeText(this, "✅ Master created: " + master.getMasterBatchNumber(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Master created: " + master.getMasterBatchNumber(), Toast.LENGTH_LONG).show();
             if (masterTraceabilityFragment != null) {
                 // Refresh the master list
                 // You'll need to add a refreshData() method to MasterTraceabilityFragment

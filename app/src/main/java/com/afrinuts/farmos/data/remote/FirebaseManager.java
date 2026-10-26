@@ -6,10 +6,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.afrinuts.farmos.data.local.entity.AuditEntity;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.CertificationEntity;
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
@@ -18,6 +22,7 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -747,6 +752,205 @@ public class FirebaseManager {
                 .get();
     }
 
+
+// In FirebaseManager.java - Add certification methods
+
+// ========================================
+// CERTIFICATION OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_CERTIFICATIONS = "certifications";
+
+    public void saveCertification(CertificationEntity certification, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.certificationToMap(certification);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_CERTIFICATIONS)
+                    .document(certification.getCertificationId())
+                    .set(data));
+            Log.d(TAG, "✅ Certification saved to Firestore: " + certification.getCertificationId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving certification", e);
+            throw new Exception("Failed to save certification to Firestore", e);
+        }
+    }
+
+    public void deleteCertification(String farmId, String certificationId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_CERTIFICATIONS)
+                    .document(certificationId)
+                    .delete());
+            Log.d(TAG, "✅ Certification deleted from Firestore: " + certificationId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting certification", e);
+            throw new Exception("Failed to delete certification from Firestore", e);
+        }
+    }
+
+    public Task<QuerySnapshot> getCertificationsForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_CERTIFICATIONS)
+                .get();
+    }
+
+    // ========================================
+// AUDIT OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_AUDITS = "audits";
+
+    public void saveAudit(AuditEntity audit, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.auditToMap(audit);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_AUDITS)
+                    .document(audit.getAuditId())
+                    .set(data));
+            Log.d(TAG, "✅ Audit saved to Firestore: " + audit.getAuditId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving audit", e);
+            throw new Exception("Failed to save audit to Firestore", e);
+        }
+    }
+
+    // In FirebaseManager.java - add these methods if missing
+
+    public void deleteAudit(String farmId, String auditId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection("audits")
+                    .document(auditId)
+                    .delete());
+            Log.d(TAG, "Audit deleted from Firestore: " + auditId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting audit", e);
+            throw new Exception("Failed to delete audit from Firestore", e);
+        }
+    }
+
+    public Task<QuerySnapshot> getAuditsForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_AUDITS)
+                .get();
+    }
+
+    // ========================================
+// INSPECTION OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_INSPECTIONS = "inspections";
+
+    public void saveInspection(InspectionEntity inspection, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.inspectionToMap(inspection);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_INSPECTIONS)
+                    .document(inspection.getInspectionId())
+                    .set(data));
+            Log.d(TAG, "Inspection saved to Firestore: " + inspection.getInspectionId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving inspection", e);
+            throw new Exception("Failed to save inspection to Firestore", e);
+        }
+    }
+
+    public void deleteInspection(String farmId, String inspectionId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_INSPECTIONS)
+                    .document(inspectionId)
+                    .delete());
+            Log.d(TAG, "Inspection deleted from Firestore: " + inspectionId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting inspection", e);
+            throw new Exception("Failed to delete inspection from Firestore", e);
+        }
+    }
+
+    // ========================================
+// VERIFICATION OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_VERIFICATIONS = "verifications";
+
+    public void saveVerification(VerificationEntity verification, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.verificationToMap(verification);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_VERIFICATIONS)
+                    .document(verification.getVerificationId())
+                    .set(data));
+            Log.d(TAG, "Verification saved to Firestore: " + verification.getVerificationId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving verification", e);
+            throw new Exception("Failed to save verification to Firestore", e);
+        }
+    }
+
+    public void deleteVerification(String farmId, String verificationId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_VERIFICATIONS)
+                    .document(verificationId)
+                    .delete());
+            Log.d(TAG, "Verification deleted from Firestore: " + verificationId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting verification", e);
+            throw new Exception("Failed to delete verification from Firestore", e);
+        }
+    }
+
+
+    // ========================================
+// DOCUMENT OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_DOCUMENTS = "documents";
+
+    public void saveDocument(DocumentEntity document, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.documentToMap(document);
+
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_DOCUMENTS)
+                    .document(document.getDocumentId())
+                    .set(data));
+            Log.d(TAG, "✅ Document saved to Firestore: " + document.getDocumentId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving document", e);
+            throw new Exception("Failed to save document to Firestore", e);
+        }
+    }
+
+    public void deleteDocument(String farmId, String documentId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_DOCUMENTS)
+                    .document(documentId)
+                    .delete());
+            Log.d(TAG, "✅ Document deleted from Firestore: " + documentId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting document", e);
+            throw new Exception("Failed to delete document from Firestore", e);
+        }
+    }
     // ========================================
     // DELETE OPERATIONS - UPDATED to use subcollections
     // ========================================

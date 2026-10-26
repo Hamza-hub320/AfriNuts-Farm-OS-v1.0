@@ -11,10 +11,14 @@ import androidx.room.TypeConverters;
 
 import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.data.local.converter.Converters;
+import com.afrinuts.farmos.data.local.dao.AuditDao;
 import com.afrinuts.farmos.data.local.dao.BatchTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.BlockDao;
+import com.afrinuts.farmos.data.local.dao.CertificationDao;
+import com.afrinuts.farmos.data.local.dao.DocumentDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
+import com.afrinuts.farmos.data.local.dao.InspectionDao;
 import com.afrinuts.farmos.data.local.dao.MasterTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
@@ -24,11 +28,16 @@ import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
 import com.afrinuts.farmos.data.local.dao.UserDao;
+import com.afrinuts.farmos.data.local.dao.VerificationDao;
 import com.afrinuts.farmos.data.local.dao.WeatherDao;
+import com.afrinuts.farmos.data.local.entity.AuditEntity;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.CertificationEntity;
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
@@ -38,6 +47,7 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
 
 /**
@@ -58,9 +68,21 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 QualityBatchEntity.class,
                 SupplierEntity.class,
                 BatchTraceabilityEntity.class,
-                MasterBatchTraceabilityEntity.class
+                MasterBatchTraceabilityEntity.class,
+                CertificationEntity.class,
+                AuditEntity.class,
+                InspectionEntity.class,
+                VerificationEntity.class,
+                DocumentEntity.class,
+                // OrganicInputEntity.class,  // Add when implemented
+                // HalalInputEntity.class,  // Add when implemented
+                // HACCPPlanEntity.class,  // Add when implemented
+                // PRPEntity.class,  // Add when implemented
+                // CCPMonitoringEntity.class,  // Add when implemented
+                // PremiumDistributionEntity.class,  // Add when implemented
+                // CooperativeMemberEntity.class  // Add when implemented
         },
-        version = 25,
+        version = 30,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -92,6 +114,11 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SupplierDao supplierDao();
     public abstract BatchTraceabilityDao batchTraceabilityDao();
     public abstract MasterTraceabilityDao masterTraceabilityDao();
+    public abstract CertificationDao certificationDao();
+    public abstract AuditDao auditDao();
+    public abstract InspectionDao inspectionDao();
+    public abstract VerificationDao verificationDao();
+    public abstract DocumentDao documentDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -128,8 +155,12 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration21To22(),
                                     new Migration22To23(),
                                     new Migration23To24(),
-                                    new Migration24To25()
-
+                                    new Migration24To25(),
+                                    new Migration25To26(),
+                                    new Migration26To27(),
+                                    new Migration27To28(),
+                                    new Migration28To29(),
+                                    new Migration29To30()
 
                             )
                             .build();

@@ -115,6 +115,14 @@
             android:name=".ui.analytics.AnalyticsHubActivity"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.compliance.ComplianceHubActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.compliance.CertificationDetailActivity"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Photos -->
         <activity
             android:name=".ui.photos.PhotoGalleryActivity"
@@ -209,6 +217,22 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary" />
+
+        <activity
+            android:name=".ui.compliance.AuditDetailActivity"
+            android:parentActivityName=".ui.compliance.ComplianceHubActivity" />
+
+        <activity
+            android:name=".ui.compliance.InspectionDetailActivity"
+            android:parentActivityName=".ui.compliance.ComplianceHubActivity" />
+
+        <activity
+            android:name=".ui.compliance.VerificationDetailActivity"
+            android:parentActivityName=".ui.compliance.ComplianceHubActivity" />
+
+        <activity
+            android:name=".ui.compliance.DocumentDetailActivity"
+            android:parentActivityName=".ui.compliance.ComplianceHubActivity" />
 
     </application>
 

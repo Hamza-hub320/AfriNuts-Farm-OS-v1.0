@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
+import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
 
@@ -31,14 +32,20 @@ public abstract class BaseHubActivity extends BaseActivity {
     private LinearLayout navFarm;
     private LinearLayout navFinance;
     private LinearLayout navAnalytics;
+    private LinearLayout navCompliance;
+
     private ImageView navHomeIcon;
     private ImageView navFarmIcon;
     private ImageView navFinanceIcon;
     private ImageView navAnalyticsIcon;
+    private ImageView navComplianceIcon;
+
     private TextView navHomeText;
     private TextView navFarmText;
     private TextView navFinanceText;
     private TextView navAnalyticsText;
+    private TextView navComplianceText;
+
     private CardView bottomNavCard;
 
     // Scroll tracking
@@ -162,14 +169,19 @@ public abstract class BaseHubActivity extends BaseActivity {
         navFarm = findViewById(R.id.navFarm);
         navFinance = findViewById(R.id.navFinance);
         navAnalytics = findViewById(R.id.navAnalytics);
+        navCompliance = findViewById(R.id.navCompliance);
+
         navHomeIcon = findViewById(R.id.navHomeIcon);
         navFarmIcon = findViewById(R.id.navFarmIcon);
         navFinanceIcon = findViewById(R.id.navFinanceIcon);
         navAnalyticsIcon = findViewById(R.id.navAnalyticsIcon);
+        navComplianceIcon = findViewById(R.id.navComplianceIcon);
+
         navHomeText = findViewById(R.id.navHomeText);
         navFarmText = findViewById(R.id.navFarmText);
         navFinanceText = findViewById(R.id.navFinanceText);
         navAnalyticsText = findViewById(R.id.navAnalyticsText);
+        navComplianceText = findViewById(R.id.navComplianceText);
 
         // Initially visible
         bottomNavCard.setVisibility(View.VISIBLE);
@@ -186,6 +198,7 @@ public abstract class BaseHubActivity extends BaseActivity {
         navFarm.setOnClickListener(v -> navigateTo(FarmHubActivity.class, 1));
         navFinance.setOnClickListener(v -> navigateTo(FinanceHubActivity.class, 2));
         navAnalytics.setOnClickListener(v -> navigateTo(AnalyticsHubActivity.class, 3));
+        navCompliance.setOnClickListener(v -> navigateTo(ComplianceHubActivity.class, 4));
     }
 
     private void navigateTo(Class<?> targetActivity, int targetNavItem) {
@@ -207,11 +220,13 @@ public abstract class BaseHubActivity extends BaseActivity {
         navFarmIcon.setColorFilter(inactiveColor);
         navFinanceIcon.setColorFilter(inactiveColor);
         navAnalyticsIcon.setColorFilter(inactiveColor);
+        navComplianceIcon.setColorFilter(inactiveColor);
 
         navHomeText.setTextColor(inactiveColor);
         navFarmText.setTextColor(inactiveColor);
         navFinanceText.setTextColor(inactiveColor);
         navAnalyticsText.setTextColor(inactiveColor);
+        navComplianceText.setTextColor(inactiveColor);
 
         // Set selected item
         switch (selectedPosition) {
@@ -230,6 +245,10 @@ public abstract class BaseHubActivity extends BaseActivity {
             case 3:
                 navAnalyticsIcon.setColorFilter(activeColor);
                 navAnalyticsText.setTextColor(activeColor);
+                break;
+            case 4:
+                navComplianceIcon.setColorFilter(activeColor);
+                navComplianceText.setTextColor(activeColor);
                 break;
         }
     }

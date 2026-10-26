@@ -11,9 +11,13 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
+import com.afrinuts.farmos.data.local.entity.AuditEntity;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.CertificationEntity;
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -22,6 +26,7 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
+import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.google.android.gms.tasks.Tasks;
@@ -118,7 +123,7 @@ public class AutoSyncWorker extends Worker {
 
         try {
             Log.d(TAG, "EntityType received: " + syncItem.getEntityType());
-            switch (syncItem.getEntityType()) {
+                switch (syncItem.getEntityType()) {
                 case "block":
                 case "blocks":
                     syncBlock(syncItem);
@@ -158,6 +163,26 @@ public class AutoSyncWorker extends Worker {
                 case "master_traceability":
                     syncMasterTraceability(syncItem);
                     break;
+                case "certification":
+                case "certifications":
+                    syncCertification(syncItem);
+                    break;
+                    case "audit":
+                    case "audits":
+                        syncAudit(syncItem);
+                        break;
+                    case "inspection":
+                    case "inspections":
+                        syncInspection(syncItem);
+                        break;
+                    case "verification":
+                    case "verifications":
+                        syncVerification(syncItem);
+                        break;
+                    case "document":
+                    case "documents":
+                        syncDocument(syncItem);
+                        break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
                     throw new RuntimeException("Unknown entity type: " + syncItem.getEntityType());
@@ -176,6 +201,166 @@ public class AutoSyncWorker extends Worker {
             syncItem.setAttemptCount(syncItem.getAttemptCount() + 1);
             database.syncDao().update(syncItem);
             return false;
+        }
+    }
+
+    private void syncDocument(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncDocument called: ID=" + syncItem.getEntityStringId() + " action=" + syncItem.getAction());
+
+        String documentId = syncItem.getEntityStringId();
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                DocumentEntity document = database.documentDao().getDocumentById(documentId);
+                if (document == null) {
+                    Log.e(TAG, "Document not found in local DB: " + documentId);
+                    return;
+                }
+                firebaseManager.saveDocument(document, farmId);
+                Log.d(TAG, "Document saved to Firestore: " + document.getDocumentId());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting document from Firestore: ID=" + documentId);
+                try {
+                    firebaseManager.deleteDocument(farmId, documentId);
+                    Log.d(TAG, "Document deleted from Firestore: ID=" + documentId);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete document from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    private void syncVerification(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncVerification called: ID=" + syncItem.getEntityStringId() + " action=" + syncItem.getAction());
+
+        String verificationId = syncItem.getEntityStringId();
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                VerificationEntity verification = database.verificationDao()
+                        .getVerificationById(verificationId);
+                if (verification == null) {
+                    Log.e(TAG, "Verification not found in local DB: " + verificationId);
+                    return;
+                }
+                firebaseManager.saveVerification(verification, farmId);
+                Log.d(TAG, "Verification saved to Firestore: " + verification.getVerificationId());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting verification from Firestore: ID=" + verificationId);
+                try {
+                    firebaseManager.deleteVerification(farmId, verificationId);
+                    Log.d(TAG, "Verification deleted from Firestore: ID=" + verificationId);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete verification from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    private void syncInspection(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncInspection called: ID=" + syncItem.getEntityStringId() + " action=" + syncItem.getAction());
+
+        String inspectionId = syncItem.getEntityStringId();
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                InspectionEntity inspection = database.inspectionDao().getInspectionById(inspectionId);
+                if (inspection == null) {
+                    Log.e(TAG, "Inspection not found in local DB: " + inspectionId);
+                    return;
+                }
+                firebaseManager.saveInspection(inspection, farmId);
+                Log.d(TAG, "Inspection saved to Firestore: " + inspection.getInspectionId());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting inspection from Firestore: ID=" + inspectionId);
+                try {
+                    firebaseManager.deleteInspection(farmId, inspectionId);
+                    Log.d(TAG, "Inspection deleted from Firestore: ID=" + inspectionId);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete inspection from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    // Add audit sync method
+    private void syncAudit(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncAudit called: ID=" + syncItem.getEntityStringId() + " action=" + syncItem.getAction());
+
+        String auditId = syncItem.getEntityStringId();
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                AuditEntity audit = database.auditDao().getAuditById(auditId);
+                if (audit == null) {
+                    Log.e(TAG, "Audit not found in local DB: " + auditId);
+                    return;
+                }
+                firebaseManager.saveAudit(audit, farmId);
+                Log.d(TAG, "Audit saved to Firestore: " + audit.getAuditId());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting audit from Firestore: ID=" + auditId);
+                try {
+                    firebaseManager.deleteAudit(farmId, auditId);
+                    Log.d(TAG, "Audit deleted from Firestore: ID=" + auditId);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete audit from Firestore", e);
+                    throw e;
+                }
+                break;
+        }
+    }
+
+    private void syncCertification(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncCertification called: ID=" + syncItem.getEntityStringId() + " action=" + syncItem.getAction());
+
+        // ✅ Use the string ID directly
+        String certificationId = syncItem.getEntityStringId();
+
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                CertificationEntity certification = database.certificationDao()
+                        .getCertificationById(certificationId);
+                if (certification == null) {
+                    Log.e(TAG, "Certification not found in local DB: " + certificationId);
+                    // Try to get by numeric ID as fallback
+                    certification = database.certificationDao()
+                            .getCertificationById(String.valueOf(syncItem.getEntityId()));
+                    if (certification == null) {
+                        Log.e(TAG, "Certification not found by numeric ID either: " + syncItem.getEntityId());
+                        return;
+                    }
+                }
+                firebaseManager.saveCertification(certification, farmId);
+                Log.d(TAG, "Certification saved to Firestore: " + certification.getCertificationId());
+                break;
+
+            case DELETE:
+                Log.d(TAG, "Deleting certification from Firestore: ID=" + certificationId);
+                try {
+                    firebaseManager.deleteCertification(farmId, certificationId);
+                    Log.d(TAG, "Certification deleted from Firestore: ID=" + certificationId);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to delete certification from Firestore", e);
+                    throw e;
+                }
+                break;
         }
     }
     private void syncBatchTraceability(SyncEntity syncItem) throws Exception {

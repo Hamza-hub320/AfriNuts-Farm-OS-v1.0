@@ -62,7 +62,7 @@ public class FarmHubActivity extends BaseHubActivity {
             visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS));
             visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
             visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS));
-            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS)); // Add Suppliers
+            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS));
         }
         // Workers only see Tasks tab
         else if (sessionManager.isWorker()) {

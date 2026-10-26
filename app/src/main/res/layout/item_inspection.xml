@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Top Row: Inspection ID + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvInspectionId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="INSP-ORG-2026-078"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.5" />
+
+            <!-- ✅ Status with Icon -->
+            <LinearLayout
+                android:id="@+id/statusContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_certified"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:minHeight="24dp"
+                app:cornerRadius="12dp">
+
+                <ImageView
+                    android:id="@+id/ivStatusIcon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:contentDescription="Status icon" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pass"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Requirement Category with Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/ivCategoryIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_grass"
+                android:contentDescription="Category icon"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/tvRequirementCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Field Inspection"
+                style="@style/Text.H6"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- Inspector -->
+        <TextView
+            android:id="@+id/tvInspectorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Jean Kouadio - ECOCERT"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="28dp" />
+
+        <!-- Date + Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="28dp">
+
+            <TextView
+                android:id="@+id/tvInspectionDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Jul 12, 2026"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6" />
+
+            <TextView
+                android:id="@+id/tvActionsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 actions (1 open)"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorSecondary"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -81,20 +81,19 @@
         android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="32dp"
-        app:cardElevation="18dp"
+        app:cardElevation="8dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true">
 
-
-    <LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingVertical="8dp"
             android:paddingHorizontal="8dp"
-            android:weightSum="4"
+            android:weightSum="5"
             android:background="?attr/navbarBackground"
             android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
 
@@ -296,6 +295,45 @@
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
                     android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+            <!-- Compliance (NEW) -->
+            <LinearLayout
+                android:id="@+id/navCompliance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp">
+
+                <ImageView
+                    android:id="@+id/navComplianceIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_certified"
+                    app:tint="?attr/navbarIconColor" />
+
+                <TextView
+                    android:id="@+id/navComplianceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Compliance"
+                    android:textSize="10sp"
+                    android:textColor="?attr/navbarIconColor"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/circle_green"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="-2dp"
+                    android:layout_marginEnd="-4dp"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

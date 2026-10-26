@@ -5,6 +5,7 @@ import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.blocks.BlocksActivity;
+import com.afrinuts.farmos.ui.compliance.ComplianceHubFragment;
 import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -113,6 +115,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView navFarmText;
     private TextView navFinanceText;
     private TextView navAnalyticsText;
+    private LinearLayout navCompliance;
+    private ImageView navComplianceIcon;
+    private TextView navComplianceText;
 
     // UI Elements - Toolbar
     private ImageButton btnProfile;
@@ -195,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
     private ListenerRegistration tasksListener;
 
     // Navigation state
-    private int currentNavItem = 0; // 0=Home, 1=Farm, 2=Finance, 3=Analytics
+    // Change from 3 to 4
+    private int currentNavItem = 0; // 0=Home, 1=Farm, 2=Finance, 3=Analytics, 4=Compliance
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -316,14 +322,19 @@ public class MainActivity extends AppCompatActivity {
         navFarm = findViewById(R.id.navFarm);
         navFinance = findViewById(R.id.navFinance);
         navAnalytics = findViewById(R.id.navAnalytics);
+        navCompliance = findViewById(R.id.navCompliance);
         navHomeIcon = findViewById(R.id.navHomeIcon);
         navFarmIcon = findViewById(R.id.navFarmIcon);
         navFinanceIcon = findViewById(R.id.navFinanceIcon);
         navAnalyticsIcon = findViewById(R.id.navAnalyticsIcon);
+        navComplianceIcon = findViewById(R.id.navComplianceIcon);
         navHomeText = findViewById(R.id.navHomeText);
         navFarmText = findViewById(R.id.navFarmText);
         navFinanceText = findViewById(R.id.navFinanceText);
         navAnalyticsText = findViewById(R.id.navAnalyticsText);
+        navComplianceText = findViewById(R.id.navComplianceText);
+
+
 
         // Toolbar
         btnToolbarSync = findViewById(R.id.btnToolbarSync);
@@ -422,9 +433,20 @@ public class MainActivity extends AppCompatActivity {
         navFarm.setOnClickListener(v -> navigateToFarm());
         navFinance.setOnClickListener(v -> navigateToFinance());
         navAnalytics.setOnClickListener(v -> navigateToAnalytics());
+        navCompliance.setOnClickListener(v -> navigateToCompliance());
 
         // Set default selected state
         setNavItemSelected(0);
+    }
+
+    private void navigateToCompliance() {
+        if (currentNavItem == 4) return;
+        currentNavItem = 4;
+        setNavItemSelected(4);
+
+        Intent intent = new Intent(MainActivity.this, ComplianceHubActivity.class);
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void navigateToHome() {
@@ -473,12 +495,14 @@ public class MainActivity extends AppCompatActivity {
         navFarmIcon.setColorFilter(inactiveColor);
         navFinanceIcon.setColorFilter(inactiveColor);
         navAnalyticsIcon.setColorFilter(inactiveColor);
+        navComplianceIcon.setColorFilter(inactiveColor);
 
         // Reset all text colors
         navHomeText.setTextColor(inactiveColor);
         navFarmText.setTextColor(inactiveColor);
         navFinanceText.setTextColor(inactiveColor);
         navAnalyticsText.setTextColor(inactiveColor);
+        navComplianceText.setTextColor(inactiveColor);
 
         // Set selected item
         switch (position) {
@@ -497,6 +521,10 @@ public class MainActivity extends AppCompatActivity {
             case 3:
                 navAnalyticsIcon.setColorFilter(activeColor);
                 navAnalyticsText.setTextColor(activeColor);
+                break;
+            case 4:
+                navComplianceIcon.setColorFilter(activeColor);
+                navComplianceText.setTextColor(activeColor);
                 break;
         }
     }

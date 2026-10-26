@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.utils.BatchNumberGenerator;
+import com.afrinuts.farmos.utils.DigitalSignatureGenerator;
 
 import java.util.List;
 
@@ -295,6 +296,9 @@ public class BatchTraceabilityRepository extends BaseRepository {
     public void updateTraceability(BatchTraceabilityEntity traceability, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
+                // ✅ Regenerate signature before update
+                regenerateSignature(traceability);
+
                 database.batchTraceabilityDao().update(traceability);
                 Log.d(TAG, "Traceability updated: " + traceability.getBatchNumber());
 
@@ -303,11 +307,8 @@ public class BatchTraceabilityRepository extends BaseRepository {
                     syncManager.triggerAutoSync();
                 }
 
-                // ✅ Check if callback is null before calling
                 if (callback != null) {
                     mainHandler.post(() -> callback.onSuccess(true));
-                } else {
-                    Log.d(TAG, "Update successful, no callback provided");
                 }
 
             } catch (Exception e) {
@@ -317,6 +318,43 @@ public class BatchTraceabilityRepository extends BaseRepository {
                 }
             }
         });
+    }
+
+    // ✅ Add this method to regenerate signature
+    private void regenerateSignature(BatchTraceabilityEntity traceability) {
+        if (traceability == null) return;
+
+        try {
+            // Build data map from traceability fields
+            java.util.Map<String, Object> dataMap = new java.util.HashMap<>();
+            dataMap.put("batchNumber", traceability.getBatchNumber());
+            dataMap.put("weightKg", traceability.getWeightKg());
+            dataMap.put("supplierId", traceability.getSupplierId());
+            dataMap.put("qualityGrade", traceability.getQualityGrade());
+            dataMap.put("processingDate", traceability.getProcessingDate());
+            dataMap.put("buyer", traceability.getBuyer() != null ? traceability.getBuyer() : "");
+            dataMap.put("destination", traceability.getDestination() != null ? traceability.getDestination() : "");
+            dataMap.put("farmId", traceability.getFarmId());
+
+            // Generate signature
+            String signature = DigitalSignatureGenerator.generateSignature(
+                    traceability.getBatchNumber(), dataMap);
+            String verificationCode = DigitalSignatureGenerator.generateVerificationCode(
+                    traceability.getBatchNumber());
+            String verificationUrl = DigitalSignatureGenerator.getVerificationUrl(
+                    traceability.getBatchNumber(), signature);
+
+            // Set signature fields
+            traceability.setDigitalSignature(signature);
+            traceability.setVerificationCode(verificationCode);
+            traceability.setVerificationUrl(verificationUrl);
+            traceability.setSignedAt(System.currentTimeMillis());
+
+            Log.d(TAG, "✅ Regenerated signature for: " + traceability.getBatchNumber());
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error regenerating signature", e);
+        }
     }
 
 
@@ -359,8 +397,14 @@ public class BatchTraceabilityRepository extends BaseRepository {
         return database.batchTraceabilityDao().getTotalWeight(farmId);
     }
 
-    public boolean verifyBatch(String batchNumber, String source, String type, String date) {
-        return BatchNumberGenerator.verifyBatchNumber(batchNumber, source, type, date);
+    public boolean matchesExpectedFormat(String batchNumber, String expectedSource,
+                                         String expectedType, String expectedDate) {
+        BatchNumberGenerator.BatchParts parts = BatchNumberGenerator.parseBatchNumber(batchNumber);
+        if (parts == null) return false;
+
+        return expectedSource.equals(parts.source)
+                && expectedType.equals(parts.type)
+                && expectedDate.equals(parts.date);
     }
 
     // ========================================

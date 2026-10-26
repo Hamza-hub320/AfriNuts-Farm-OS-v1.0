@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    style="@style/Widget.AfriNuts.CardView"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Top Row: Audit ID + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:id="@+id/tvAuditId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AUDIT-ORG-2026-001"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.5"
+                android:textSize="11sp" />
+
+            <!-- ✅ Status with Icon -->
+            <LinearLayout
+                android:id="@+id/statusContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_certified"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                app:cornerRadius="12dp">
+
+                <ImageView
+                    android:id="@+id/ivStatusIcon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:contentDescription="Status icon" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pass"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Audit Type -->
+        <TextView
+            android:id="@+id/tvAuditType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="External Audit"
+            style="@style/Text.H6"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Auditor -->
+        <TextView
+            android:id="@+id/tvAuditorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Jean Kouadio"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Date + Findings -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvAuditDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Jul 15, 2026"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvFindingsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 findings (0 open)"
+                style="@style/Text.Caption.Small"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:visibility="gone"
+                android:background="@drawable/bg_status_certified" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

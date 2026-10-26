@@ -123,6 +123,10 @@ public class SyncManager {
             return;
         }
 
+        if ("certifications".equals(entityType) || "certification".equals(entityType)) {
+            Log.w(TAG, "Certification sync should use String ID, not Long. Please use the String version.");
+        }
+
         new Thread(() -> {
             SyncEntity existing = database.syncDao().getSyncItem(entityType, entityId);
 
@@ -141,6 +145,38 @@ public class SyncManager {
                 );
                 database.syncDao().insert(syncItem);
                 Log.d(TAG, "Created new sync item for entityType: " + entityType + ", entityId: " + entityId);
+            }
+
+            if (NetworkUtils.isConnected(context)) {
+                debouncedTriggerSync();
+            }
+        }).start();
+    }
+
+    // In SyncManager.java - add new method
+
+    public void queueForSync(String entityType, String entityStringId, SyncEntity.SyncAction action) {
+        if (currentFarmId <= 0) {
+            Log.e(TAG, "No farm ID set, cannot queue sync");
+            return;
+        }
+
+        new Thread(() -> {
+            // Check if already queued
+            SyncEntity existing = database.syncDao().getSyncItemByStringId(entityType, entityStringId);
+
+            if (existing != null) {
+                // Update existing
+                existing.setAction(action);
+                existing.setStatus(SyncEntity.SyncStatus.PENDING);
+                existing.setAttemptCount(0);
+                database.syncDao().update(existing);
+                Log.d(TAG, "Updated sync item for entityType: " + entityType + ", entityStringId: " + entityStringId);
+            } else {
+                // Create new with string ID
+                SyncEntity syncItem = new SyncEntity(entityType, entityStringId, String.valueOf(currentFarmId), action);
+                database.syncDao().insert(syncItem);
+                Log.d(TAG, "Created new sync item for entityType: " + entityType + ", entityStringId: " + entityStringId);
             }
 
             if (NetworkUtils.isConnected(context)) {

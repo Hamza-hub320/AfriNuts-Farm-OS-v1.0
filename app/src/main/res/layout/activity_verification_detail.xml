@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/colorBackground">
+
+    <!-- Modern Glass Morphism Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/cardBackgroundPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:elevation="0dp"
+        android:translationZ="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_afrinuts_foreground"
+                android:alpha="0.95"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verification Details"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.01" />
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Verification ID -->
+            <TextView
+                android:id="@+id/tvVerificationId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VER-ORG-2026-012"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.5"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Verification Type -->
+            <TextView
+                android:id="@+id/tvVerificationType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Documentation"
+                style="@style/Text.H3"
+                android:textColor="?attr/colorPrimary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Status Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="Verified"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Verification Details"
+                        style="@style/Text.H5"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Certification -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Certification"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:id="@+id/tvCertification"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Organic (ECOCERT)"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorPrimary" />
+
+                    </LinearLayout>
+
+                    <!-- Verification Date -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Verification Date"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:id="@+id/tvVerificationDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jul 14, 2026"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Verified By -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Verified By"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:id="@+id/tvVerifiedBy"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ECOCERT"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <!-- Evidence -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Evidence"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:id="@+id/tvEvidence"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="https://.../lab-results.pdf"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorPrimary"
+                            android:autoLink="web" />
+
+                    </LinearLayout>
+
+                    <!-- Comment -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Comment"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6" />
+
+                        <TextView
+                            android:id="@+id/tvComment"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="All inputs approved"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOnSurface"
+                        android:alpha="0.1"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Timestamps -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Created"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                        <TextView
+                            android:id="@+id/tvCreatedAt"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jul 18, 2026"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Last Updated"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                        <TextView
+                            android:id="@+id/tvUpdatedAt"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jul 18, 2026"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:text="Edit Verification"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    app:icon="@drawable/ic_edit"
+                    app:iconGravity="textStart"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:text="Delete Verification"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

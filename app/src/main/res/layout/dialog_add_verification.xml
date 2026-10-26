@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="?attr/iconBackgroundGlass"
+                android:layout_marginEnd="16dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_verified"
+                    app:tint="?attr/colorPrimary" />
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Add Verification"
+                style="@style/Text.H2"
+                android:textColor="?attr/colorPrimary" />
+
+        </LinearLayout>
+
+        <!-- Select Certification -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="dropdown_menu"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etCertification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Select Certification"
+                android:inputType="none"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Verification Type -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="dropdown_menu"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etVerificationType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Verification Type"
+                android:inputType="none"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Verification Date -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_today"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etVerificationDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Verification Date"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Verified By -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etVerifiedBy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Verified By"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Status -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:endIconMode="dropdown_menu"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Verification Status"
+                android:inputType="none"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Evidence Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Evidence"
+            style="@style/Text.H5"
+            android:textColor="?attr/colorSecondary"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:id="@+id/evidenceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnAddEvidence"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:text="Add Evidence URL"
+            style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+            android:layout_marginBottom="16dp"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart" />
+
+        <!-- Comment -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Comment / Notes"
+                android:inputType="textMultiLine"
+                android:minLines="2"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:text="Cancel"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                android:layout_marginEnd="12dp"
+                android:minWidth="100dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp" />
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:text="Add Verification"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                android:minWidth="100dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
