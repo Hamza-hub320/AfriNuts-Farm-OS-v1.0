@@ -934,8 +934,8 @@ public class EntityMapper {
         map.put("hasLocation", supplier.hasLocation());
         map.put("registrationNumber", supplier.getRegistrationNumber());
         map.put("taxId", supplier.getTaxId());
-        map.put("annualVolumeKg", supplier.getAnnualVolumeKg());
-        map.put("averageQualityScore", supplier.getAverageQualityScore());
+        map.put("annualVolumeKg", supplier.getAnnualVolumeKg() > 0 ? supplier.getAnnualVolumeKg() : null);
+        map.put("averageQualityScore", supplier.getAverageQualityScore() > 0 ? supplier.getAverageQualityScore() : null);
         map.put("rating", supplier.getRating());
         map.put("certificationType", supplier.getCertificationType());
         map.put("certificationNumber", supplier.getCertificationNumber());
@@ -954,6 +954,19 @@ public class EntityMapper {
         map.put("firebreakProtection", supplier.isFirebreakProtection());
         map.put("sustainableHarvesting", supplier.isSustainableHarvesting());
         map.put("noChildLabor", supplier.isNoChildLabor());
+
+        map.put("cooperativeName", supplier.getCooperativeName());
+        map.put("cooperativeId", supplier.getCooperativeId());
+        map.put("farmerIdNumber", supplier.getFarmerIdNumber());
+
+        map.put("dataConsentGiven", supplier.isDataConsentGiven());
+        map.put("dataConsentDate", supplier.getDataConsentDate());
+        map.put("dataConsentScope", supplier.getDataConsentScopes());  // Firestore array
+        map.put("dataConsentSignedBy", supplier.getDataConsentSignedBy());
+        map.put("dataConsentVersion", supplier.getDataConsentVersion());
+        map.put("dataConsentText", supplier.getDataConsentText());
+        map.put("dataConsentWithdrawnDate", supplier.getDataConsentWithdrawnDate());
+        map.put("dataConsentWithdrawnReason", supplier.getDataConsentWithdrawnReason());
 
         map.put("createdAt", supplier.getCreatedAt());
         map.put("updatedAt", supplier.getUpdatedAt());
@@ -975,7 +988,8 @@ public class EntityMapper {
             String country = getStringSafe(doc, "country");
             String registrationNumber = getStringSafe(doc, "registrationNumber");
             String taxId = getStringSafe(doc, "taxId");
-            double annualVolumeKg = getDoubleSafe(doc, "annualVolumeKg");
+            Double annualVolumeKgObj = doc.getDouble("annualVolumeKg");
+            double annualVolumeKg = annualVolumeKgObj != null ? annualVolumeKgObj : 0;
             double averageQualityScore = getDoubleSafe(doc, "averageQualityScore");
             Long ratingLong = getLongSafe(doc, "rating");
             int rating = ratingLong != null ? ratingLong.intValue() : 3;
@@ -987,7 +1001,7 @@ public class EntityMapper {
             boolean isActive = getBooleanSafe(doc, "isActive");
             String notes = getStringSafe(doc, "notes");
 
-            // ✅ ADD FARMER PROFILE FIELDS
+            // ✅ Farmer profile fields
             String photoUrl = doc.getString("photoUrl");
             Long yearsFarmingLong = getLongSafe(doc, "yearsFarming");
             int yearsFarming = yearsFarmingLong != null ? yearsFarmingLong.intValue() : 0;
@@ -998,10 +1012,16 @@ public class EntityMapper {
             Boolean sustainableHarvesting = doc.getBoolean("sustainableHarvesting");
             Boolean noChildLabor = doc.getBoolean("noChildLabor");
 
+            // ✅ Cooperative linkage + farmer ID
+            String cooperativeName = doc.getString("cooperativeName");
+            String cooperativeId = doc.getString("cooperativeId");
+            String farmerIdNumber = doc.getString("farmerIdNumber");
+
             long createdAt = getLongSafe(doc, "createdAt");
             long updatedAt = getLongSafe(doc, "updatedAt");
             boolean isSynced = getBooleanSafe(doc, "isSynced");
 
+            // ✅ Construct supplier FIRST (fixes NPE on consent setters)
             SupplierEntity supplier = new SupplierEntity(
                     farmId, name, SupplierEntity.SupplierType.valueOf(typeStr),
                     contactPerson, phone, location, registrationNumber
@@ -1023,7 +1043,7 @@ public class EntityMapper {
             supplier.setActive(isActive);
             supplier.setNotes(notes);
 
-            // ✅ SET FARMER PROFILE FIELDS
+            // ✅ Farmer profile fields
             supplier.setPhotoUrl(photoUrl);
             supplier.setYearsFarming(yearsFarming);
             supplier.setBio(bio);
@@ -1032,6 +1052,40 @@ public class EntityMapper {
             supplier.setFirebreakProtection(firebreakProtection != null && firebreakProtection);
             supplier.setSustainableHarvesting(sustainableHarvesting != null && sustainableHarvesting);
             supplier.setNoChildLabor(noChildLabor != null && noChildLabor);
+
+            // ✅ Consent fields — applied AFTER construction
+            Boolean consentGiven = doc.getBoolean("dataConsentGiven");
+            supplier.setDataConsentGiven(consentGiven != null && consentGiven);
+
+            // ✅ Cooperative linkage + farmer ID
+            supplier.setCooperativeName(cooperativeName);
+            supplier.setCooperativeId(cooperativeId);
+            supplier.setFarmerIdNumber(farmerIdNumber);
+
+            Long consentDate = getNullableLong(doc, "dataConsentDate");
+            if (consentDate != null) supplier.setDataConsentDate(consentDate);
+
+            List<String> consentScopes = new ArrayList<>();
+            Object rawScope = doc.get("dataConsentScope");
+            if (rawScope instanceof List) {
+                for (Object o : (List<?>) rawScope) {
+                    if (o instanceof String) consentScopes.add((String) o);
+                }
+            } else if (rawScope instanceof String) {
+                // fallback for hand-edited JSON strings
+                try {
+                    Type t = new com.google.gson.reflect.TypeToken<List<String>>() {}.getType();
+                    consentScopes = new com.google.gson.Gson().fromJson((String) rawScope, t);
+                } catch (Exception ignored) {
+                }
+            }
+            supplier.setDataConsentScopes(consentScopes);
+
+            supplier.setDataConsentSignedBy(doc.getString("dataConsentSignedBy"));
+            supplier.setDataConsentVersion(doc.getString("dataConsentVersion"));
+            supplier.setDataConsentText(doc.getString("dataConsentText"));
+            supplier.setDataConsentWithdrawnDate(doc.getString("dataConsentWithdrawnDate"));
+            supplier.setDataConsentWithdrawnReason(doc.getString("dataConsentWithdrawnReason"));
 
             supplier.setCreatedAt(createdAt);
             supplier.setUpdatedAt(updatedAt);

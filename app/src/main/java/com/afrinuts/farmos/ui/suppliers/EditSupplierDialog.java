@@ -7,6 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +19,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.data.local.entity.ConsentScope;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -23,6 +27,9 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,13 +37,14 @@ import java.util.concurrent.Executors;
 public class EditSupplierDialog extends DialogFragment {
 
     private static final String ARG_SUPPLIER_ID = "supplier_id";
+    private static final String CONSENT_VERSION = "1.0";
 
     private long supplierId;
     private SupplierEntity supplier;
     private SupplierRepository repository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    // UI Elements - Basic Info
+    // Basic Info
     private TextInputEditText etName;
     private TextInputEditText etContactPerson;
     private TextInputEditText etPhone;
@@ -46,7 +54,7 @@ public class EditSupplierDialog extends DialogFragment {
     private TextInputEditText etNotes;
     private MaterialAutoCompleteTextView etType;
 
-    // ✅ Farmer Profile Fields
+    // Farmer Profile Fields
     private TextInputEditText etYearsFarming;
     private TextInputEditText etFarmSize;
     private TextInputEditText etQuote;
@@ -54,6 +62,19 @@ public class EditSupplierDialog extends DialogFragment {
     private SwitchCompat switchFirebreak;
     private SwitchCompat switchSustainable;
     private SwitchCompat switchChildLabor;
+
+    // ✅ Consent UI
+    private TextInputEditText etCooperativeName;
+    private TextInputEditText etCooperativeId;
+    private TextInputEditText etFarmerIdNumber;
+
+    private CheckBox cbConsentIdentity;
+    private CheckBox cbConsentLocation;
+    private CheckBox cbConsentPhoto;
+    private LinearLayout layoutConsentMeta;
+    private TextView tvConsentSignedBy;
+    private TextView tvConsentDate;
+    private TextView tvConsentWithdrawn;
 
     public interface OnSupplierUpdatedListener {
         void onSupplierUpdated();
@@ -81,16 +102,15 @@ public class EditSupplierDialog extends DialogFragment {
             supplierId = getArguments().getLong(ARG_SUPPLIER_ID);
         }
 
-        long farmId = 1; // TODO: Get from current farm context
+        long farmId = 1;
         repository = new SupplierRepository(requireContext(), farmId);
 
-        // Load supplier data
         executor.execute(() -> {
             supplier = repository.getSupplierByIdSync(supplierId);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (supplier != null) {
-                        // Populate UI when view is created
+                        populateFields();
                     } else {
                         Toast.makeText(getContext(), "Supplier not found", Toast.LENGTH_SHORT).show();
                         dismiss();
@@ -121,7 +141,6 @@ public class EditSupplierDialog extends DialogFragment {
             btnSave.setVisibility(View.GONE);
             btnCancel.setVisibility(View.GONE);
 
-            // Use custom buttons from layout
             view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
             view.findViewById(R.id.btnSave).setOnClickListener(v -> saveSupplier());
         });
@@ -130,7 +149,6 @@ public class EditSupplierDialog extends DialogFragment {
     }
 
     private void initViews(View view) {
-        // Basic Info
         etName = view.findViewById(R.id.etName);
         etType = view.findViewById(R.id.etType);
         etContactPerson = view.findViewById(R.id.etContactPerson);
@@ -140,7 +158,6 @@ public class EditSupplierDialog extends DialogFragment {
         etRegistrationNumber = view.findViewById(R.id.etRegistrationNumber);
         etNotes = view.findViewById(R.id.etNotes);
 
-        // ✅ Farmer Profile Fields
         etYearsFarming = view.findViewById(R.id.etYearsFarming);
         etFarmSize = view.findViewById(R.id.etFarmSize);
         etQuote = view.findViewById(R.id.etQuote);
@@ -148,12 +165,26 @@ public class EditSupplierDialog extends DialogFragment {
         switchFirebreak = view.findViewById(R.id.switchFirebreak);
         switchSustainable = view.findViewById(R.id.switchSustainable);
         switchChildLabor = view.findViewById(R.id.switchChildLabor);
+
+        // ✅ Consent UI
+        cbConsentIdentity = view.findViewById(R.id.cbConsentIdentity);
+        cbConsentLocation = view.findViewById(R.id.cbConsentLocation);
+        cbConsentPhoto    = view.findViewById(R.id.cbConsentPhoto);
+        layoutConsentMeta = view.findViewById(R.id.layoutConsentMeta);
+        tvConsentSignedBy = view.findViewById(R.id.tvConsentSignedBy);
+        tvConsentDate     = view.findViewById(R.id.tvConsentDate);
+        tvConsentWithdrawn = view.findViewById(R.id.tvConsentWithdrawn);
+        etCooperativeName.setText(supplier.getCooperativeName());
+        etCooperativeId.setText(supplier.getCooperativeId());
+        etFarmerIdNumber.setText(supplier.getFarmerIdNumber());
+        etCooperativeName = view.findViewById(R.id.etCooperativeName);
+        etCooperativeId   = view.findViewById(R.id.etCooperativeId);
+        etFarmerIdNumber  = view.findViewById(R.id.etFarmerIdNumber);
     }
 
     private void setupTypeDropdown() {
         SupplierEntity.SupplierType[] types = SupplierEntity.SupplierType.values();
         String[] typeNames = new String[types.length];
-
         for (int i = 0; i < types.length; i++) {
             typeNames[i] = types[i].getDisplayName();
         }
@@ -163,17 +194,14 @@ public class EditSupplierDialog extends DialogFragment {
                 android.R.layout.simple_dropdown_item_1line,
                 typeNames
         );
-
         etType.setAdapter(adapter);
     }
 
     private void populateFields() {
         if (supplier == null) return;
 
-        // Basic Info
         etName.setText(supplier.getName());
-        String typeDisplay = supplier.getType().getDisplayName();
-        etType.setText(typeDisplay, false);
+        etType.setText(supplier.getType().getDisplayName(), false);
         etContactPerson.setText(supplier.getContactPerson());
         etPhone.setText(supplier.getPhone());
         etEmail.setText(supplier.getEmail());
@@ -181,7 +209,6 @@ public class EditSupplierDialog extends DialogFragment {
         etRegistrationNumber.setText(supplier.getRegistrationNumber());
         etNotes.setText(supplier.getNotes());
 
-        // ✅ Farmer Profile Fields
         if (supplier.getYearsFarming() > 0) {
             etYearsFarming.setText(String.valueOf(supplier.getYearsFarming()));
         }
@@ -191,10 +218,50 @@ public class EditSupplierDialog extends DialogFragment {
         etQuote.setText(supplier.getQuote());
         etBio.setText(supplier.getBio());
 
-        // Switches
         switchFirebreak.setChecked(supplier.isFirebreakProtection());
         switchSustainable.setChecked(supplier.isSustainableHarvesting());
         switchChildLabor.setChecked(supplier.isNoChildLabor());
+
+        // ✅ Consent checkboxes
+        etCooperativeName.setText(supplier.getCooperativeName());
+        etCooperativeId.setText(supplier.getCooperativeId());
+        etFarmerIdNumber.setText(supplier.getFarmerIdNumber());
+
+        List<String> scopes = supplier.getDataConsentScopes();
+        cbConsentIdentity.setChecked(scopes.contains(ConsentScope.IDENTITY));
+        cbConsentLocation.setChecked(scopes.contains(ConsentScope.LOCATION));
+        cbConsentPhoto.setChecked(scopes.contains(ConsentScope.PHOTO));
+
+        boolean hasConsentRecord = supplier.isDataConsentGiven() || supplier.getDataConsentDate() > 0;
+        if (hasConsentRecord) {
+            layoutConsentMeta.setVisibility(View.VISIBLE);
+
+            String signedBy = supplier.getDataConsentSignedBy();
+            tvConsentSignedBy.setText("Signed by: " +
+                    (TextUtils.isEmpty(signedBy) ? supplier.getName() : signedBy) +
+                    " (v" + (supplier.getDataConsentVersion() != null
+                    ? supplier.getDataConsentVersion() : "—") + ")");
+
+            if (supplier.getDataConsentDate() > 0) {
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+                tvConsentDate.setText("Recorded on: " + sdf.format(new Date(supplier.getDataConsentDate())));
+            } else {
+                tvConsentDate.setText("Recorded: —");
+            }
+
+            boolean withdrawn = supplier.getDataConsentWithdrawnDate() != null
+                    && !supplier.getDataConsentWithdrawnDate().isEmpty();
+            if (withdrawn) {
+                tvConsentWithdrawn.setVisibility(View.VISIBLE);
+                String reason = supplier.getDataConsentWithdrawnReason();
+                tvConsentWithdrawn.setText("Withdrawn on " + supplier.getDataConsentWithdrawnDate() +
+                        (TextUtils.isEmpty(reason) ? "" : " — " + reason));
+            } else {
+                tvConsentWithdrawn.setVisibility(View.GONE);
+            }
+        } else {
+            layoutConsentMeta.setVisibility(View.GONE);
+        }
     }
 
     private void saveSupplier() {
@@ -208,29 +275,26 @@ public class EditSupplierDialog extends DialogFragment {
         String location = etLocation.getText().toString().trim();
         String registrationNumber = etRegistrationNumber.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
+        String cooperativeName = etCooperativeName.getText().toString().trim();
+        String cooperativeId   = etCooperativeId.getText().toString().trim();
+        String farmerIdNumber  = etFarmerIdNumber.getText().toString().trim();
 
-        // Get supplier type from display
+        supplier.setCooperativeName(cooperativeName.isEmpty() ? null : cooperativeName);
+        supplier.setCooperativeId(cooperativeId.isEmpty() ? null : cooperativeId);
+        supplier.setFarmerIdNumber(farmerIdNumber.isEmpty() ? null : farmerIdNumber);
+
         SupplierEntity.SupplierType type = getTypeFromDisplay(typeStr);
 
-        // ✅ Get farmer profile fields
         int yearsFarming = 0;
         String yearsStr = etYearsFarming.getText().toString().trim();
         if (!TextUtils.isEmpty(yearsStr)) {
-            try {
-                yearsFarming = Integer.parseInt(yearsStr);
-            } catch (NumberFormatException e) {
-                // Ignore, keep as 0
-            }
+            try { yearsFarming = Integer.parseInt(yearsStr); } catch (NumberFormatException ignored) {}
         }
 
         double farmSize = 0;
         String farmSizeStr = etFarmSize.getText().toString().trim();
         if (!TextUtils.isEmpty(farmSizeStr)) {
-            try {
-                farmSize = Double.parseDouble(farmSizeStr);
-            } catch (NumberFormatException e) {
-                // Ignore, keep as 0
-            }
+            try { farmSize = Double.parseDouble(farmSizeStr); } catch (NumberFormatException ignored) {}
         }
 
         String quote = etQuote.getText().toString().trim();
@@ -240,7 +304,42 @@ public class EditSupplierDialog extends DialogFragment {
         boolean sustainableHarvesting = switchSustainable.isChecked();
         boolean noChildLabor = switchChildLabor.isChecked();
 
-        // Update supplier
+        List<String> newScopes = new ArrayList<>();
+        if (cbConsentIdentity.isChecked()) newScopes.add(ConsentScope.IDENTITY);
+        if (cbConsentLocation.isChecked()) newScopes.add(ConsentScope.LOCATION);
+        if (cbConsentPhoto.isChecked())    newScopes.add(ConsentScope.PHOTO);
+
+        boolean consentWasGiven = supplier.isDataConsentGiven();
+        boolean consentNowGiven = !newScopes.isEmpty();
+
+        String farmerName = !TextUtils.isEmpty(supplier.getContactPerson())
+                ? supplier.getContactPerson() : supplier.getName();
+
+        if (consentNowGiven) {
+            supplier.setDataConsentScopes(newScopes);
+            supplier.setDataConsentGiven(true);
+
+            if (!consentWasGiven) {
+                supplier.setDataConsentDate(System.currentTimeMillis());
+                supplier.setDataConsentSignedBy(farmerName);
+                supplier.setDataConsentVersion(CONSENT_VERSION);
+            }
+            supplier.setDataConsentText(
+                    ConsentScope.buildConsentText(farmerName, newScopes, CONSENT_VERSION));
+
+            supplier.setDataConsentWithdrawnDate(null);
+            supplier.setDataConsentWithdrawnReason(null);
+
+        } else if (consentWasGiven) {
+            supplier.setDataConsentGiven(false);
+            supplier.setDataConsentScopes(new ArrayList<>());
+            supplier.setDataConsentWithdrawnDate(
+                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+                            .format(new Date()));
+            supplier.setDataConsentWithdrawnReason("Withdrawn by farmer");
+        }
+
+        // Update common fields
         supplier.setName(name);
         supplier.setType(type);
         supplier.setContactPerson(contactPerson);
@@ -250,7 +349,6 @@ public class EditSupplierDialog extends DialogFragment {
         supplier.setRegistrationNumber(registrationNumber);
         supplier.setNotes(notes);
 
-        // ✅ Set farmer profile fields
         supplier.setYearsFarming(yearsFarming);
         supplier.setFarmSize(farmSize);
         supplier.setQuote(quote);
@@ -258,6 +356,42 @@ public class EditSupplierDialog extends DialogFragment {
         supplier.setFirebreakProtection(firebreakProtection);
         supplier.setSustainableHarvesting(sustainableHarvesting);
         supplier.setNoChildLabor(noChildLabor);
+
+        // ✅ Apply consent changes
+        if (consentNowGiven) {
+            // (Re-)recording consent
+            supplier.setDataConsentScopes(newScopes);
+            supplier.setDataConsentGiven(true);
+
+            if (!consentWasGiven) {
+                // First consent → stamp date & text
+                supplier.setDataConsentDate(System.currentTimeMillis());
+                supplier.setDataConsentSignedBy(name);
+                supplier.setDataConsentVersion(CONSENT_VERSION);
+                supplier.setDataConsentText(
+                        ConsentScope.buildConsentText(name, newScopes, CONSENT_VERSION));
+            } else {
+                // Consent already existed → only update the clause text if scope changed
+                supplier.setDataConsentText(
+                        ConsentScope.buildConsentText(name, newScopes, CONSENT_VERSION));
+            }
+
+            // If a withdrawn record existed, clear it (fresh consent supersedes withdrawal)
+            supplier.setDataConsentWithdrawnDate(null);
+            supplier.setDataConsentWithdrawnReason(null);
+
+        } else if (consentWasGiven) {
+            // ✅ Farmer has withdrawn ALL consent
+            supplier.setDataConsentGiven(false);
+            supplier.setDataConsentScopes(new ArrayList<>());
+            supplier.setDataConsentWithdrawnDate(
+                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+                            .format(new Date()));
+            supplier.setDataConsentWithdrawnReason("Withdrawn by farmer");
+            // Keep old dataConsentDate, dataConsentSignedBy, dataConsentVersion and
+            // dataConsentText as the immutable audit record.
+        }
+        // else: never had consent and still has none → nothing to do.
 
         supplier.setUpdatedAt(System.currentTimeMillis());
 
@@ -277,9 +411,8 @@ public class EditSupplierDialog extends DialogFragment {
                 @Override
                 public void onError(String error) {
                     if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
-                        });
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show());
                     }
                 }
             });
@@ -310,9 +443,7 @@ public class EditSupplierDialog extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (repository != null) {
-            repository.shutdown();
-        }
+        if (repository != null) repository.shutdown();
         executor.shutdown();
     }
 }

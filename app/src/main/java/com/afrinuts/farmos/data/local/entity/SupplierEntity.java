@@ -4,6 +4,14 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+// imports
+import androidx.room.Ignore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
 import java.util.Locale;
 
 @Entity(tableName = "suppliers",
@@ -66,8 +74,25 @@ public class SupplierEntity {
     private long createdAt;
     private long updatedAt;
 
+    private String cooperativeName;
+    private String cooperativeId;
+    private String farmerIdNumber;
+
     // Sync support
     private boolean isSynced;
+
+    // ========================================
+// ✅ Farmer Data Consent (granular, per farmer)
+// ========================================
+    private boolean dataConsentGiven;
+    private long dataConsentDate;              // 0 = not given
+    private String dataConsentScope;           // JSON array string, e.g. ["identity","location"]
+    private String dataConsentSignedBy;        // farmer name (or cooperative rep if no name)
+    private String dataConsentVersion;         // "1.0"
+    private String dataConsentText;            // full clause, immutable audit record
+    // Optional audit fields kept for the portal
+    private String dataConsentWithdrawnDate;   // null or ISO-8601
+    private String dataConsentWithdrawnReason;
 
     public enum SupplierType {
         OWN_FARM("Own Farm",  "AfriNuts-owned farm, organic certified"),
@@ -191,6 +216,78 @@ public class SupplierEntity {
     }
 
     // Getters and Setters
+    public boolean isDataConsentGiven() { return dataConsentGiven; }
+    public void setDataConsentGiven(boolean v) { this.dataConsentGiven = v; this.updatedAt = System.currentTimeMillis(); }
+
+    public long getDataConsentDate() { return dataConsentDate; }
+    public void setDataConsentDate(long v) { this.dataConsentDate = v; this.updatedAt = System.currentTimeMillis(); }
+
+    public String getDataConsentSignedBy() { return dataConsentSignedBy; }
+    public void setDataConsentSignedBy(String v) { this.dataConsentSignedBy = v; this.updatedAt = System.currentTimeMillis(); }
+
+    public String getDataConsentVersion() { return dataConsentVersion; }
+    public void setDataConsentVersion(String v) { this.dataConsentVersion = v; }
+
+    public String getDataConsentText() { return dataConsentText; }
+    public void setDataConsentText(String v) { this.dataConsentText = v; }
+
+    public String getDataConsentWithdrawnDate() { return dataConsentWithdrawnDate; }
+    public void setDataConsentWithdrawnDate(String v) { this.dataConsentWithdrawnDate = v; }
+
+    public String getDataConsentWithdrawnReason() { return dataConsentWithdrawnReason; }
+    public void setDataConsentWithdrawnReason(String v) { this.dataConsentWithdrawnReason = v; }
+
+    /** Raw JSON string. Room persists this. */
+    public String getDataConsentScope() { return dataConsentScope; }
+    public void setDataConsentScope(String scopeJson) {
+        this.dataConsentScope = scopeJson;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    /** Ergonomic accessor — not persisted. */
+    @Ignore
+    public List<String> getDataConsentScopes() {
+        if (dataConsentScope == null || dataConsentScope.isEmpty()) return new ArrayList<>();
+        try {
+            Type t = new TypeToken<List<String>>(){}.getType();
+            List<String> parsed = new Gson().fromJson(dataConsentScope, t);
+            return ConsentScope.normalize(parsed);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /** Ergonomic setter — serializes to JSON. */
+    @Ignore
+    public void setDataConsentScopes(List<String> scopes) {
+        this.dataConsentScope = new Gson().toJson(ConsentScope.normalize(scopes));
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    /** Convenience: is this specific scope granted? */
+    @Ignore
+    public boolean hasConsent(String scopeKey) {
+        return isDataConsentGiven() && getDataConsentScopes().contains(scopeKey.toLowerCase(java.util.Locale.ROOT));
+    }
+
+    public String getCooperativeName() { return cooperativeName; }
+    public void setCooperativeName(String v) {
+        this.cooperativeName = v;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getCooperativeId() { return cooperativeId; }
+    public void setCooperativeId(String v) {
+        this.cooperativeId = v;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getFarmerIdNumber() { return farmerIdNumber; }
+    public void setFarmerIdNumber(String v) {
+        this.farmerIdNumber = v;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 

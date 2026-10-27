@@ -343,6 +343,94 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnSurface"
+            android:alpha="0.1"
+            android:layout_marginVertical="12dp" />
+
+        <!-- ✅ Cooperative linkage -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cooperative (optional)"
+            style="@style/Text.H5"
+            android:textColor="?attr/colorSecondary"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCooperativeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Cooperative name"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCooperativeId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Cooperative ID / registration"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- ✅ Farmer ID -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.AfriNuts.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:boxBackgroundColor="?attr/colorSurface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFarmerIdNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Farmer ID (national / member ID)"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Certification Section -->
         <TextView
             android:layout_width="wrap_content"
@@ -662,6 +750,115 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false" />
+
+        </LinearLayout>
+
+        <!-- ✅ Farmer Data Consent (granular) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Farmer Data Consent"
+            style="@style/Text.H5"
+            android:textColor="?attr/colorSecondary"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A farmer can give consent to one, two, or all three. Unticked items are withheld from the Buyer Portal."
+            style="@style/Text.Caption.Small"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="?attr/cardBackgroundSecondary"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            app:cornerRadius="12dp">
+
+            <!-- Identity -->
+            <CheckBox
+                android:id="@+id/cbConsentIdentity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textOff=""
+                android:textOn=""
+                android:buttonTint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My identity — my name may be shown to verified buyers in the Buyer Portal."
+                style="@style/Text.Body"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mon identité — mon nom peut être montré aux acheteurs vérifiés dans le portail acheteur."
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.75"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Precise location -->
+            <CheckBox
+                android:id="@+id/cbConsentLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My precise location — the GPS coordinates of my farm may be shown to verified buyers in the Buyer Portal."
+                style="@style/Text.Body"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ma localisation précise — les coordonnées GPS de ma ferme peuvent être montrées aux acheteurs vérifiés dans le portail acheteur."
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.75"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Photo -->
+            <CheckBox
+                android:id="@+id/cbConsentPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My photo — my photo may be shown to verified buyers in the Buyer Portal."
+                style="@style/Text.Body"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ma photo — ma photo peut être montrée aux acheteurs vérifiés dans le portail acheteur."
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.75"
+                android:layout_marginStart="4dp" />
 
         </LinearLayout>
 
