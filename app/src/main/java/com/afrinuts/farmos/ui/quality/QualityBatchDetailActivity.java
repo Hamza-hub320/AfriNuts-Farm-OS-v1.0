@@ -99,6 +99,18 @@ public class QualityBatchDetailActivity extends BaseActivity {
     private MaterialButton btnGenerateTraceability;
     private MaterialButton btnExportQR;
     private MaterialButton btnShare;
+    private CardView cardKernelMetrics;
+    private CardView cardRcnMetrics;
+    private TextView tvKorValue;
+    private TextView tvRcnMoistureValue;
+    private TextView tvRcnNutCountValue;
+    private TextView tvMouldyRate;
+    private TextView tvImmatureRate;
+    private TextView tvInsectDamagedRate;
+    private TextView tvShrivelledRate;
+    private TextView tvTotalDefective;
+    private TextView tvForeignMatter;
+    private TextView tvDryingMethod;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -168,6 +180,20 @@ public class QualityBatchDetailActivity extends BaseActivity {
         // Notes
         tvNotesValue = findViewById(R.id.tvNotesValue);
         cardNotes = findViewById(R.id.cardNotes);
+
+        cardKernelMetrics = findViewById(R.id.cardKernelMetrics);
+        cardRcnMetrics = findViewById(R.id.cardRcnMetrics);
+        tvKorValue = findViewById(R.id.tvKorValue);
+        tvRcnMoistureValue = findViewById(R.id.tvRcnMoistureValue);
+        tvRcnNutCountValue = findViewById(R.id.tvRcnNutCountValue);
+        tvMouldyRate = findViewById(R.id.tvMouldyRate);
+        tvImmatureRate = findViewById(R.id.tvImmatureRate);
+        tvInsectDamagedRate = findViewById(R.id.tvInsectDamagedRate);
+        tvShrivelledRate = findViewById(R.id.tvShrivelledRate);
+        tvTotalDefective = findViewById(R.id.tvTotalDefective);
+        tvForeignMatter = findViewById(R.id.tvForeignMatter);
+        tvDryingMethod = findViewById(R.id.tvDryingMethod);
+
 
         // Buttons
         btnEdit = findViewById(R.id.btnEdit);
@@ -242,21 +268,46 @@ public class QualityBatchDetailActivity extends BaseActivity {
     private void displayBatchData() {
         // Header
         tvBatchNumber.setText("#" + batch.getBatchNumber());
-        tvBatchDate.setText(dateFormat.format(batch.getProcessingDate()));
+        long displayDate = batch.getRelevantDate();
+        if (displayDate > 0) {
+            tvBatchDate.setText(dateFormat.format(displayDate));
+        } else {
+            tvBatchDate.setText("—");
+        }
         tvGrade.setText(batch.getQualityGrade().getDisplayName());
 
-        // Quality Score
-        int score = (int) batch.getQualityScore();
-        tvQualityScore.setText(String.valueOf(score));
-        qualityProgress.setProgress(score);
+        int gradeColor;
+        int gradeIcon;
+        switch (batch.getQualityGrade()) {
+            case PREMIUM:
+                gradeColor = getColor(R.color.accent);
+                gradeIcon = R.drawable.ic_star;
+                break;
+            case STANDARD:
+                gradeColor = getColor(R.color.primary);
+                gradeIcon = R.drawable.ic_check_circle;
+                break;
+            case REJECT:
+            default:
+                gradeColor = getColor(android.R.color.holo_red_dark);
+                gradeIcon = R.drawable.ic_cancel;
+                break;
+        }
+        tvGrade.setTextColor(gradeColor);
+        qualityProgress.setIndicatorColor(gradeColor);
+
+        double score = batch.isKernel()
+                ? batch.getKernelQualityScore()
+                : batch.getRcnQualityScore();
+        int scoreInt = (int) Math.round(score);
+        tvQualityScore.setText(scoreInt + "%");
+        qualityProgress.setProgress(scoreInt);
         qualityProgress.setMax(100);
 
-        // Source Info
+        // Source
         if (batch.getSourceType() != null) {
             tvSourceType.setText(batch.getSourceType().getDisplayName());
         }
-
-        // Supplier Name (if external)
         if (supplier != null && batch.getSupplierId() != null) {
             tvSupplierName.setText(supplier.getName());
             tvSupplierName.setVisibility(View.VISIBLE);
@@ -265,41 +316,73 @@ public class QualityBatchDetailActivity extends BaseActivity {
             tvSupplierName.setVisibility(View.GONE);
             btnViewSupplier.setVisibility(View.GONE);
         }
-
-        // Batch Type (Organic/Conventional)
-        String batchNumber = batch.getBatchNumber();
-        if (batchNumber.contains("-ORG-")) {
-            tvBatchType.setText("Organic");
-        } else if (batchNumber.contains("-CONV-")) {
-            tvBatchType.setText("Conventional");
+        if (batch.isRcn() && batch.getInspectedBy() != null
+                && !batch.getInspectedBy().isEmpty()) {
+            tvBatchDate.setText(dateFormat.format(displayDate) + " · " + batch.getInspectedBy());
+        } else if (displayDate > 0) {
+            tvBatchDate.setText(dateFormat.format(displayDate));
         } else {
-            tvBatchType.setText("—");
+            tvBatchDate.setText("—");
         }
 
-        // Metrics
-        tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
-        tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
-        tvNutCountValue.setText(String.valueOf(batch.getNutCountPerKg()));
-        tvKernelValue.setText(String.format(Locale.getDefault(), "%.0f%%", batch.getKernelRatio()));
+        // ✅ SOP §4.5 + §4.6: disable ship/sale actions for non-saleable batches
+        if (btnGenerateTraceability != null) {
+            boolean canSell = batch.isSaleable();
+            btnGenerateTraceability.setEnabled(canSell);
+            btnGenerateTraceability.setAlpha(canSell ? 1f : 0.4f);
+            btnGenerateTraceability.setText(canSell
+                    ? "Generate Traceability"
+                    : (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.REJECT
+                    ? "Cannot ship — rejected"
+                    : "Cannot ship — not inspected"));
+        }
+
+        if (btnExportQR != null) {
+            boolean canSell = batch.isSaleable();
+            btnExportQR.setEnabled(canSell);
+            btnExportQR.setAlpha(canSell ? 1f : 0.4f);
+        }
+
+        if (btnShare != null) {
+            boolean canSell = batch.isSaleable();
+            btnShare.setEnabled(canSell);
+            btnShare.setAlpha(canSell ? 1f : 0.4f);
+        }
+
+        String bn = batch.getBatchNumber();
+        if (bn.contains("-ORG-")) tvBatchType.setText("Organic");
+        else if (bn.contains("-CONV-")) tvBatchType.setText("Conventional");
+        else if (bn.contains("-RCN-")) tvBatchType.setText("RCN");
+        else tvBatchType.setText("—");
+
         tvWeightValue.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
-        // Test Results
-        QualityBatchEntity.TestResults results =
-                QualityBatchEntity.TestResults.fromJson(batch.getTestResults());
 
-        if (results.hasResults()) {
-            cardTestResults.setVisibility(View.VISIBLE);
-            tvAflatoxinValue.setText(String.format(Locale.getDefault(), "%.2f", results.getAflatoxin()));
-            tvPesticideValue.setText(String.format(Locale.getDefault(), "%.2f", results.getPesticideResidue()));
-            tvHeavyMetalsValue.setText(String.format(Locale.getDefault(), "%.2f", results.getHeavyMetals()));
+
+        // ✅ Three-state branch
+        boolean isKernel = batch.isKernel();
+        boolean isRcn = batch.isRcn();
+        boolean hasRcnData = batch.getKorPercent() > 0;
+
+        if (isKernel) {
+            // Phase Two: Kernel batch
+            cardKernelMetrics.setVisibility(View.VISIBLE);
+            cardRcnMetrics.setVisibility(View.GONE);
+            displayKernelMetrics();
+        } else if (isRcn || hasRcnData) {
+            // Phase One: RCN batch (or legacy batch with RCN data)
+            cardKernelMetrics.setVisibility(View.GONE);
+            cardRcnMetrics.setVisibility(View.VISIBLE);
+            displayRcnMetrics();
         } else {
-            cardTestResults.setVisibility(View.GONE);
+            // Unclassified (No quality check done yet) -> Default to RCN view
+            cardKernelMetrics.setVisibility(View.GONE);
+            cardRcnMetrics.setVisibility(View.VISIBLE);
+            showEmptyRcnMetrics();
         }
 
-        // ✅ Display Sustainability Data
         displaySustainabilityData();
 
-        // Notes
         if (batch.getNotes() != null && !batch.getNotes().isEmpty()) {
             cardNotes.setVisibility(View.VISIBLE);
             tvNotesValue.setText(batch.getNotes());
@@ -307,11 +390,87 @@ public class QualityBatchDetailActivity extends BaseActivity {
             cardNotes.setVisibility(View.GONE);
         }
 
-        // Role-based UI
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
         }
+
+        // Guard against mixed records
+        if (hasRcnData && batch.getKernelQualityScore() > 0) {
+            Log.w(TAG, "⚠️ Mixed record: batch " + batch.getBatchNumber()
+                    + " has both RCN and kernel quality scores");
+        }
+    }
+
+    private void showEmptyRcnMetrics() {
+        tvKorValue.setText("—");
+        tvRcnMoistureValue.setText("—");
+        tvRcnNutCountValue.setText("—");
+        tvMouldyRate.setText("—");
+        tvImmatureRate.setText("—");
+        tvInsectDamagedRate.setText("—");
+        tvShrivelledRate.setText("—");
+        tvTotalDefective.setText("—");
+        tvForeignMatter.setText("—");
+        tvDryingMethod.setText("—");
+        cardTestResults.setVisibility(View.GONE);
+    }
+
+    private void displayKernelMetrics() {
+        tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
+        tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
+        tvNutCountValue.setText(String.valueOf(batch.getNutCountPerKg()));
+        tvKernelValue.setText(String.format(Locale.getDefault(), "%.0f%%", batch.getKernelRatio()));
+        // Weight is already set above
+
+        // Test results: prefer the promoted ppb fields, fall back to legacy JSON
+        if (batch.getAflatoxinPpb() > 0
+                || batch.getHeavyMetalsPpb() > 0
+                || batch.getPesticideResiduePpb() > 0) {
+            cardTestResults.setVisibility(View.VISIBLE);
+            tvAflatoxinValue.setText(String.format(Locale.getDefault(), "%.2f", batch.getAflatoxinPpb()));
+            tvPesticideValue.setText(String.format(Locale.getDefault(), "%.2f", batch.getPesticideResiduePpb()));
+            tvHeavyMetalsValue.setText(String.format(Locale.getDefault(), "%.2f", batch.getHeavyMetalsPpb()));
+        } else {
+            QualityBatchEntity.TestResults legacy =
+                    QualityBatchEntity.TestResults.fromJson(batch.getTestResults());
+            if (legacy.hasResults()) {
+                cardTestResults.setVisibility(View.VISIBLE);
+                tvAflatoxinValue.setText(String.format(Locale.getDefault(), "%.2f", legacy.getAflatoxin()));
+                tvPesticideValue.setText(String.format(Locale.getDefault(), "%.2f", legacy.getPesticideResidue()));
+                tvHeavyMetalsValue.setText(String.format(Locale.getDefault(), "%.2f", legacy.getHeavyMetals()));
+            } else {
+                cardTestResults.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void displayRcnMetrics() {
+        tvKorValue.setText(String.format(Locale.getDefault(), "%.0f g/kg", batch.getKorGPerKg()));
+        tvRcnMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
+        tvRcnNutCountValue.setText(batch.getNutCountPerKg() + "/kg");
+
+        tvMouldyRate.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getMouldyRate()));
+        tvImmatureRate.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getImmatureRate()));
+        tvInsectDamagedRate.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getInsectDamagedRate()));
+        tvShrivelledRate.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getShrivelledRate()));
+        tvTotalDefective.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getDefectiveRate()));
+        tvForeignMatter.setText(String.format(Locale.getDefault(), "%.2f%%", batch.getForeignMatter()));
+        tvDryingMethod.setText(batch.getDryingMethod() != null ? batch.getDryingMethod() : "—");
+
+        TextView tvKorAudit = findViewById(R.id.tvKorAudit);
+        View layoutKorAudit = findViewById(R.id.layoutKorAudit);
+
+        if (batch.getKorSampleGrams() > 0 && batch.getKorKernelGrams() > 0) {
+            layoutKorAudit.setVisibility(View.VISIBLE);
+            tvKorAudit.setText(String.format(Locale.getDefault(),
+                    "%.0f g → %.0f g", batch.getKorSampleGrams(), batch.getKorKernelGrams()));
+        } else {
+            layoutKorAudit.setVisibility(View.GONE);
+        }
+
+        // RCN batches have no lab results, so hide that card
+        cardTestResults.setVisibility(View.GONE);
     }
 
     private void displaySustainabilityData() {
@@ -426,6 +585,16 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
     // ✅ Generate Traceability
     private void generateTraceability() {
+        if (batch == null) {
+            Toast.makeText(this, "No batch to generate traceability for", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✅ SOP §4.5 + §4.6 guard
+        if (!batch.isSaleable()) {
+            Toast.makeText(this, batch.getSaleBlockReason(), Toast.LENGTH_LONG).show();
+            return;
+        }
         if (batch == null) {
             Toast.makeText(this, "No batch to generate traceability for", Toast.LENGTH_SHORT).show();
             return;
@@ -568,12 +737,23 @@ public class QualityBatchDetailActivity extends BaseActivity {
     }
 
     private void showEditDialog() {
-        QualityBatchDialog dialog = QualityBatchDialog.newEditInstance(farmId, batchId);
-        dialog.setOnBatchAddedListener(() -> {
-            loadBatchData();
-            Toast.makeText(this, "Batch updated!", Toast.LENGTH_SHORT).show();
-        });
-        dialog.show(getSupportFragmentManager(), "EditQualityBatchDialog");
+        if (batch == null) return;
+
+        if (batch.isRcn() || batch.getKorPercent() > 0) {
+            RcnEditDialog d = RcnEditDialog.newInstance(farmId, batchId);
+            d.setOnUpdatedListener(() -> {
+                loadBatchData();
+                Toast.makeText(this, "RCN intake updated!", Toast.LENGTH_SHORT).show();
+            });
+            d.show(getSupportFragmentManager(), "RcnEditDialog");
+        } else {
+            QualityBatchDialog d = QualityBatchDialog.newEditInstance(farmId, batchId);
+            d.setOnBatchAddedListener(() -> {
+                loadBatchData();
+                Toast.makeText(this, "Batch updated!", Toast.LENGTH_SHORT).show();
+            });
+            d.show(getSupportFragmentManager(), "EditQualityBatchDialog");
+        }
     }
 
     private void confirmDelete() {

@@ -21,6 +21,30 @@
         android:padding="12dp"
         android:background="?attr/cardBackgroundPrimary">
 
+        <LinearLayout
+            android:id="@+id/layoutProductType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/cardBackgroundSecondary"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:layout_marginEnd="6dp"
+            app:cornerRadius="12dp">
+
+            <TextView
+                android:id="@+id/tvProductType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KERNEL"
+                style="@style/Text.Caption.Small"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorSecondary" />
+
+        </LinearLayout>
+
         <!-- Top Row: Supplier Name + Source Type -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -244,14 +268,14 @@
                 android:gravity="center">
 
                 <ImageView
+                    android:id="@+id/ivThirdMetricIcon"
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_grain"
                     app:tint="?attr/colorOnSurface"
                     android:alpha="0.6" />
-
                 <TextView
-                    android:id="@+id/tvKernelRatio"
+                    android:id="@+id/tvThirdMetricValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="88%"

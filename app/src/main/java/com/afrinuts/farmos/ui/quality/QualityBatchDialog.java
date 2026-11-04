@@ -135,6 +135,15 @@ public class QualityBatchDialog extends DialogFragment {
         if (isEditMode && batchId != -1) {
             executor.execute(() -> {
                 existingBatch = qualityBatchRepository.getBatchByIdSync(batchId);
+                if (existingBatch != null && existingBatch.getKorPercent() > 0) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(),
+                                "This batch already has RCN quality data. Use the RCN edit dialog.",
+                                Toast.LENGTH_LONG).show();
+                        dismiss();
+                    });
+                    return;
+                }
                 if (existingBatch != null) {
                     selectedDate.setTimeInMillis(existingBatch.getProcessingDate());
                 }
@@ -550,6 +559,7 @@ public class QualityBatchDialog extends DialogFragment {
                     etNotes.getText().toString().trim()
             );
             updatedBatch.setId(batchId);
+            updatedBatch.setProductType("KERNEL");
             updatedBatch.setTestResults(results.toJson());
 
             // ✅ Preserve sustainability fields from existing batch

@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,10 +21,8 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
-import com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +52,7 @@ public class QualityMetricsFragment extends Fragment {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // Store farmId for use by parent activity
-    private long farmId = -1;
+    private volatile long farmId = -1;
 
     private List<QualityBatchEntity> allBatches = new ArrayList<>();
     private List<QualityBatchEntity> filteredBatches = new ArrayList<>();
@@ -116,7 +113,7 @@ public class QualityMetricsFragment extends Fragment {
         Chip chipAll = getView().findViewById(R.id.chipAll);
         Chip chipPremium = getView().findViewById(R.id.chipPremium);
         Chip chipStandard = getView().findViewById(R.id.chipStandard);
-        Chip chipProcessing = getView().findViewById(R.id.chipProcessing);
+        Chip chipReject = getView().findViewById(R.id.chipReject);
 
         if (chipAll != null) {
             chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -145,14 +142,33 @@ public class QualityMetricsFragment extends Fragment {
             });
         }
 
-        if (chipProcessing != null) {
-            chipProcessing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        if (chipReject != null) {
+            chipReject.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    currentFilter = "PROCESSING";
+                    currentFilter = "REJECT";
                     applyFilter();
                 }
             });
         }
+    }
+
+    // add after refreshData()
+    private void showRcnIntakeDialog() {
+        if (farmId <= 0) {
+            Toast.makeText(getContext(), "Loading farm data...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        RcnIntakeDialog d = RcnIntakeDialog.newInstance(farmId);
+        d.setOnBatchCreatedListener(id -> {
+            loadBatches();
+            Toast.makeText(requireContext(),
+                    "RCN batch created — id " + id, Toast.LENGTH_SHORT).show();
+        });
+        d.show(getParentFragmentManager(), "RcnIntakeDialog");
+    }
+
+    public void openRcnIntakeDialog() {
+        showRcnIntakeDialog();
     }
 
     // Method for parent activity to get farmId
@@ -269,8 +285,8 @@ public class QualityMetricsFragment extends Fragment {
                         filteredBatches.add(batch);
                     }
                     break;
-                case "PROCESSING":
-                    if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.PROCESSING) {
+                case "REJECT":
+                    if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.REJECT) {
                         filteredBatches.add(batch);
                     }
                     break;

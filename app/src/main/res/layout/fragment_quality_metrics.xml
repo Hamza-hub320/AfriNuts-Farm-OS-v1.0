@@ -380,13 +380,13 @@
                 app:chipIconTint="?attr/colorSecondary" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipProcessing"
+                android:id="@+id/chipReject"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Processing"
+                android:text="Reject"
                 android:textSize="12sp"
-                app:chipIcon="@drawable/ic_construction"
+                app:chipIcon="@drawable/ic_cancel"
                 app:chipIconTint="?attr/colorOnSurface" />
 
         </com.google.android.material.chip.ChipGroup>
