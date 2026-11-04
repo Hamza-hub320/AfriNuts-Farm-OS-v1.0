@@ -100,22 +100,51 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     }
 
     private void updateFabForTab(int position) {
-        if (position == 2) {
-            // Traceability tab - show FAB with QR icon
+        if (position == 0) {
+            // Quality tab — kernel batch on tap, RCN intake on long-press
+            fabAction.show();
+            fabAction.setImageResource(R.drawable.ic_add);
+
+            fabAction.setOnClickListener(v -> {
+                if (qualityMetricsFragment != null && qualityMetricsFragment.getFarmId() > 0) {
+                    QualityBatchDialog dialog = QualityBatchDialog.newInstance(
+                            qualityMetricsFragment.getFarmId());
+                    dialog.setOnBatchAddedListener(() -> {
+                        if (qualityMetricsFragment != null) {
+                            qualityMetricsFragment.refreshData();
+                        }
+                    });
+                    dialog.show(getSupportFragmentManager(), "AddQualityBatch");
+                } else {
+                    Toast.makeText(this, "Loading farm data...", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            fabAction.setOnLongClickListener(v -> {
+                if (qualityMetricsFragment != null) {
+                    qualityMetricsFragment.openRcnIntakeDialog();
+                }
+                return true;
+            });
+
+        } else if (position == 2) {
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_qr_code);
+            fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> {
                 if (traceabilityFragment != null) {
                     traceabilityFragment.showTraceabilityOptions();
                 }
             });
         } else if (position == 3) {
-            // Bulk/Master Traceability tab - show FAB with add icon
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_add);
+            fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> showCreateMasterDialog());
         } else {
             fabAction.hide();
+            fabAction.setOnClickListener(null);
+            fabAction.setOnLongClickListener(null);
         }
     }
 
