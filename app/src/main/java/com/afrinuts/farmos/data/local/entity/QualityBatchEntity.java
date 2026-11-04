@@ -88,6 +88,33 @@ public class QualityBatchEntity {
     private long updatedAt;
     private boolean isSynced;
 
+    // "RCN" or "KERNEL". Defaults to "KERNEL" for legacy rows (see migration).
+    private String productType;
+
+    // ✅ Step 1: RCN-only fields (null/0 for KERNEL batches)
+    private double mouldyRate;           // %
+    private double immatureRate;         // %
+    private double insectDamagedRate;    // %
+    private double shrivelledRate;       // %
+    private double foreignMatter;        // %
+    private String dryingMethod;         // "SUN" / "MECHANICAL" / "UNKNOWN"
+    private double rcnQualityScore;      // %  (computed in Step 2; stays 0 for now)
+
+    // ✅ Step 1: Kernel-only fields (0 for RCN batches)
+    private double brokenKernels;        // %
+    private double aflatoxinPpb;         // ppb
+    private double heavyMetalsPpb;       // ppb
+    private double pesticideResiduePpb;  // ppb
+    private double kernelQualityScore;   // %  (computed in Step 2; stays 0 for now)
+    // Typical Ivorian RCN: 249–278 g/kg. Convert to lbs/bag (÷ 5.67) for display only.
+    private double korGPerKg;
+    // If the sample is exactly 1000 g, these are redundant with korGPerKg.
+    // If the sample is 950 g, korGPerKg = korKernelGrams / korSampleGrams * 1000.
+    private double korSampleGrams;
+    private double korKernelGrams;
+    private long inspectionDate;        // ✅ RCN inspection timestamp (Phase One)
+    private String inspectedBy;         // ✅ RCN inspector name
+
     public enum SourceType {
         OWN_FARM("Own Farm", "AfriNuts-owned farm, organic certified"),
         COOPERATIVE("Cooperative", "Cooperative farmer network"),
@@ -118,7 +145,7 @@ public class QualityBatchEntity {
     public enum QualityGrade {
         PREMIUM("Premium", "Best quality, low defect rate"),
         STANDARD("Standard", "Good quality, acceptable defects"),
-        PROCESSING("Processing", "For processing, higher defects");
+        REJECT("Reject", "Below acceptable thresholds — excluded from sale");
 
         private final String displayName;
         private final String description;
@@ -197,7 +224,7 @@ public class QualityBatchEntity {
         this.qualityGrade = qualityGrade;
         this.notes = notes;
         this.isSynced = false;
-        this.qualityScore = calculateQualityScore();
+        this.qualityScore = 0;
 
         long now = System.currentTimeMillis();
         this.createdAt = now;
@@ -219,13 +246,68 @@ public class QualityBatchEntity {
         switch (qualityGrade) {
             case PREMIUM: score += 5; break;
             case STANDARD: score += 0; break;
-            case PROCESSING: score -= 10; break;
+            case REJECT: score -= 10; break;
         }
 
         return Math.max(0, Math.min(100, score));
     }
 
     // Getters and Setters
+    public String getProductType() { return productType; }
+    public void setProductType(String productType) {
+        this.productType = productType;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public long getInspectionDate() { return inspectionDate; }
+    public void setInspectionDate(long inspectionDate) { this.inspectionDate = inspectionDate; }
+
+    public String getInspectedBy() { return inspectedBy; }
+    public void setInspectedBy(String inspectedBy) { this.inspectedBy = inspectedBy; }
+
+    public double getMouldyRate() { return mouldyRate; }
+    public void setMouldyRate(double mouldyRate) { this.mouldyRate = mouldyRate; }
+
+    public double getImmatureRate() { return immatureRate; }
+    public void setImmatureRate(double immatureRate) { this.immatureRate = immatureRate; }
+
+    public double getInsectDamagedRate() { return insectDamagedRate; }
+    public void setInsectDamagedRate(double insectDamagedRate) { this.insectDamagedRate = insectDamagedRate; }
+
+    public double getShrivelledRate() { return shrivelledRate; }
+    public void setShrivelledRate(double shrivelledRate) { this.shrivelledRate = shrivelledRate; }
+
+    public double getForeignMatter() { return foreignMatter; }
+    public void setForeignMatter(double foreignMatter) { this.foreignMatter = foreignMatter; }
+
+    public String getDryingMethod() { return dryingMethod; }
+    public void setDryingMethod(String dryingMethod) { this.dryingMethod = dryingMethod; }
+
+    public double getRcnQualityScore() { return rcnQualityScore; }
+    public void setRcnQualityScore(double rcnQualityScore) { this.rcnQualityScore = rcnQualityScore; }
+
+    public double getBrokenKernels() { return brokenKernels; }
+    public void setBrokenKernels(double brokenKernels) { this.brokenKernels = brokenKernels; }
+
+    public double getAflatoxinPpb() { return aflatoxinPpb; }
+    public void setAflatoxinPpb(double aflatoxinPpb) { this.aflatoxinPpb = aflatoxinPpb; }
+
+    public double getHeavyMetalsPpb() { return heavyMetalsPpb; }
+    public void setHeavyMetalsPpb(double heavyMetalsPpb) { this.heavyMetalsPpb = heavyMetalsPpb; }
+
+    public double getPesticideResiduePpb() { return pesticideResiduePpb; }
+    public void setPesticideResiduePpb(double pesticideResiduePpb) { this.pesticideResiduePpb = pesticideResiduePpb; }
+
+    public double getKernelQualityScore() { return kernelQualityScore; }
+    public void setKernelQualityScore(double kernelQualityScore) { this.kernelQualityScore = kernelQualityScore; }
+
+    /** The most relevant date for this batch: inspection date for RCN, processing date for kernel. */
+    public long getRelevantDate() {
+        if (isRcn()) return inspectionDate > 0 ? inspectionDate : processingDate;
+        return processingDate;
+    }
+
+
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 
@@ -267,9 +349,69 @@ public class QualityBatchEntity {
     public long getVerifiedAt() { return verifiedAt; }
     public void setVerifiedAt(long verifiedAt) { this.verifiedAt = verifiedAt; }
 
+    public double getKorGPerKg() { return korGPerKg; }
+    public void setKorGPerKg(double korGPerKg) { this.korGPerKg = korGPerKg; }
+
+    public double getKorSampleGrams() { return korSampleGrams; }
+    public void setKorSampleGrams(double korSampleGrams) { this.korSampleGrams = korSampleGrams; }
+
+    public double getKorKernelGrams() { return korKernelGrams; }
+    public void setKorKernelGrams(double korKernelGrams) { this.korKernelGrams = korKernelGrams; }
+
+    // ✅ Derived displays — never stored
+    public double getKorLbsPerBag() {
+        return korGPerKg / 5.67;  // 1 lb = 453.6 g, 80 kg bag = 80,000 g, so 80,000/453.6 = 176.37 kernels per lb; but 1 lb per bag convention: kg per 80kg = g/kg * 0.08; in lbs = g/kg * 0.08 * 2.205 = g/kg / 5.67
+    }
+    public double getKorAsPercent() {
+        return korGPerKg / 10.0;  // g/kg ÷ 10 = percent (since 1 kg = 1000 g, % = g/kg ÷ 10)
+    }
+
+    // ✅ Backward-compat alias — returns g/kg, not the old lbs value
+    public double getKorPercent() { return korGPerKg; }  // deprecated
+
+    public double getKor() {
+        return isRcn() ? korGPerKg : kernelRatio;
+    }
+
     // Helper method
+// ✅ UI-facing alias: kernelRatio is the KOR. No new stored field, no dual-write.
+    public boolean isRcn() { return "RCN".equalsIgnoreCase(productType); }
+
+    public boolean isKernel() { return "KERNEL".equalsIgnoreCase(productType); }
+
     public boolean isVerified() {
         return verifiedAt > 0;
+    }
+
+    /**
+     * True when the batch has a real inspection: a KOR measurement and an
+     * inspection timestamp. Placeholder grades (STANDARD with no measurements)
+     * are NOT inspected.
+     */
+    public boolean isInspected() {
+        return inspectionDate > 0 && korGPerKg > 0;
+    }
+
+    /**
+     * SOP §4.5 + §4.6: only inspected, non-rejected batches may be sold or shipped.
+     * A fresh delivery (STANDARD placeholder, no measurements) is not saleable.
+     * A REJECT is not saleable.
+     */
+    public boolean isSaleable() {
+        if (!isInspected()) return false;
+        if (qualityGrade == QualityBatchEntity.QualityGrade.REJECT) return false;
+        return true;
+    }
+
+    /** Human-readable reason why the batch cannot be sold, or null if it can. */
+    public String getSaleBlockReason() {
+        if (!isInspected()) {
+            return "Batch has not been inspected. Record an RCN quality check first (SOP §4.5).";
+        }
+        if (qualityGrade == QualityBatchEntity.QualityGrade.REJECT) {
+            return "Batch is REJECTED — excluded from sale (SOP §4.6).";
+        }
+        return null;
     }
 
     public String getFormattedVerifiedDate() {
@@ -286,37 +428,22 @@ public class QualityBatchEntity {
         if (sustainableHarvesting) score += 25;
         return score;
     }
-    public void setMoistureContent(double moistureContent) {
-        this.moistureContent = moistureContent;
-        this.qualityScore = calculateQualityScore();
-    }
+    public void setMoistureContent(double moistureContent) { this.moistureContent = moistureContent; }
 
     public int getNutCountPerKg() { return nutCountPerKg; }
-    public void setNutCountPerKg(int nutCountPerKg) {
-        this.nutCountPerKg = nutCountPerKg;
-        this.qualityScore = calculateQualityScore();
-    }
+    public void setNutCountPerKg(int nutCountPerKg) { this.nutCountPerKg = nutCountPerKg; }
 
     public double getDefectiveRate() { return defectiveRate; }
-    public void setDefectiveRate(double defectiveRate) {
-        this.defectiveRate = defectiveRate;
-        this.qualityScore = calculateQualityScore();
-    }
+    public void setDefectiveRate(double defectiveRate) { this.defectiveRate = defectiveRate; }
 
     public double getKernelRatio() { return kernelRatio; }
-    public void setKernelRatio(double kernelRatio) {
-        this.kernelRatio = kernelRatio;
-        this.qualityScore = calculateQualityScore();
-    }
+    public void setKernelRatio(double kernelRatio) { this.kernelRatio = kernelRatio; }
 
     public double getWeightKg() { return weightKg; }
     public void setWeightKg(double weightKg) { this.weightKg = weightKg; }
 
     public QualityGrade getQualityGrade() { return qualityGrade; }
-    public void setQualityGrade(QualityGrade qualityGrade) {
-        this.qualityGrade = qualityGrade;
-        this.qualityScore = calculateQualityScore();
-    }
+    public void setQualityGrade(QualityGrade qualityGrade) { this.qualityGrade = qualityGrade; }
 
     public String getTestResults() { return testResults; }
     public void setTestResults(String testResults) { this.testResults = testResults; }

@@ -82,7 +82,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 // PremiumDistributionEntity.class,  // Add when implemented
                 // CooperativeMemberEntity.class  // Add when implemented
         },
-        version = 32,
+        version = 36,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -162,7 +162,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration28To29(),
                                     new Migration29To30(),
                                     new Migration30To31(),
-                                    new Migration31To32()
+                                    new Migration31To32(),
+                                    new Migration32To33(),
+                                    new Migration33To34(),
+                                    new Migration34To35(),
+                                    new Migration35To36()
 
                             )
                             .build();
