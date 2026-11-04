@@ -12,7 +12,19 @@ import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
  * data before locking them in — change any value in the Thresholds class below
  * and every caller picks it up.
  */
+
+/** Map to the stored entity enum. REJECT maps to PROCESSING in Step 2. */
 public final class QualityGradeCalculator {
+
+    /** Map to the stored entity enum. REJECT maps to PROCESSING in Step 2. */
+    public static QualityBatchEntity.QualityGrade toEntityGrade(Grade g) {
+        switch (g) {
+            case PREMIUM:  return QualityBatchEntity.QualityGrade.PREMIUM;
+            case STANDARD: return QualityBatchEntity.QualityGrade.STANDARD;
+            case REJECT:
+            default:       return QualityBatchEntity.QualityGrade.REJECT;      // ← new
+        }
+    }
 
     public enum Grade { PREMIUM, STANDARD, REJECT }
 
@@ -20,8 +32,12 @@ public final class QualityGradeCalculator {
     public static final class Thresholds {
         // --- RCN ---
         // KOR at purchase (%)
-        public static final double RCN_KOR_PREMIUM_MIN  = 48.0;
-        public static final double RCN_KOR_REJECT_BELOW = 44.0;
+
+        // --- RCN: KOR in g/kg ---
+        // Premium ≥ 272 g/kg; Standard 249–271; Reject < 249.
+        // (Equivalents: 272 g/kg ≈ 48 lbs/bag; 249 g/kg ≈ 44 lbs/bag.)
+        public static final double RCN_KOR_PREMIUM_MIN  = 272.0;
+        public static final double RCN_KOR_REJECT_BELOW = 249.0;
         // Moisture (%)
         public static final double RCN_MOISTURE_PREMIUM_MAX = 8.0;
         public static final double RCN_MOISTURE_REJECT_ABOVE = 10.0;
@@ -67,7 +83,7 @@ public final class QualityGradeCalculator {
     // ========================================
 
     private static Grade gradeRcn(QualityBatchEntity b) {
-        double kor       = b.getKorPercent();
+        double kor = b.getKorGPerKg();
         double moisture  = b.getMoistureContent();
         int    nutCount  = b.getNutCountPerKg();
         double defective = b.getDefectiveRate();
@@ -138,9 +154,9 @@ public final class QualityGradeCalculator {
 
         double score = 100.0;
 
-        // KOR: full marks at ≥48, linear penalty down to 44 (REJECT).
-        if (b.getKorPercent() < Thresholds.RCN_KOR_PREMIUM_MIN) {
-            double gap = Thresholds.RCN_KOR_PREMIUM_MIN - b.getKorPercent();
+        // KOR: full marks at ≥ 272 g/kg, linear penalty down to 249 (REJECT).
+        if (b.getKorGPerKg() < Thresholds.RCN_KOR_PREMIUM_MIN) {
+            double gap = Thresholds.RCN_KOR_PREMIUM_MIN - b.getKorGPerKg();
             double maxGap = Thresholds.RCN_KOR_PREMIUM_MIN - Thresholds.RCN_KOR_REJECT_BELOW;
             score -= (gap / maxGap) * 30.0;   // up to −30
         }
@@ -207,7 +223,7 @@ public final class QualityGradeCalculator {
     }
 
     private static double clamp(double v) {
-        return Math.max(0.0, Math.min(100.0, v));
+        return Math.max(1.0, Math.min(100.0, v));
     }
 
     // ========================================
