@@ -323,7 +323,7 @@ public class EditRecordDeliveryDialog extends DialogFragment {
     private QualityBatchEntity.QualityGrade getGradeFromDisplay(String display) {
         if (display.contains("Premium")) return QualityBatchEntity.QualityGrade.PREMIUM;
         if (display.contains("Standard")) return QualityBatchEntity.QualityGrade.STANDARD;
-        if (display.contains("Processing")) return QualityBatchEntity.QualityGrade.PROCESSING;
+        if (display.contains("Reject")) return QualityBatchEntity.QualityGrade.REJECT;
         return QualityBatchEntity.QualityGrade.STANDARD;
     }
 

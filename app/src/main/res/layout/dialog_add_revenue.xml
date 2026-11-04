@@ -199,15 +199,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/Widget.AfriNuts.EditText"
-                    app:endIconMode="dropdown_menu"
+                    app:endIconMode="none"
+                    app:helperText="Grade is set by the RCN quality check"
                     app:boxBackgroundColor="?attr/colorSurface">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etQuality"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Select Quality *"
-                        android:inputType="none" />
+                        android:hint="Quality Grade (from inspection)"
+                        android:inputType="none"
+                        android:clickable="false"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 

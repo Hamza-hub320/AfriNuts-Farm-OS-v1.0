@@ -200,7 +200,6 @@ public class AddRevenueDialog extends DialogFragment {
         loadSuppliersForDropdown();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add Processing Revenue")
                 .setView(view)
                 .setCancelable(false);
 
@@ -317,25 +316,10 @@ public class AddRevenueDialog extends DialogFragment {
     }
 
     private void setupQualityDropdown() {
-        RevenueEntity.QualityGrade[] grades = RevenueEntity.QualityGrade.values();
-        List<RevenueEntity.QualityGrade> gradeList = new ArrayList<>();
-        for (RevenueEntity.QualityGrade grade : grades) {
-            gradeList.add(grade);
-        }
-
-        QualityGradeAdapter adapter = new QualityGradeAdapter(requireContext(), gradeList);
-        etQuality.setAdapter(adapter);
-
-        etQuality.setOnItemClickListener((parent, view, position, id) -> {
-            selectedQuality = gradeList.get(position);
-        });
-
-        if (isEditMode && existingRevenue != null) {
-            selectedQuality = existingRevenue.getQuality();
-            etQuality.setText(selectedQuality.getDisplayName() + " Grade", false);
-        } else {
-            etQuality.setText(gradeList.get(0).getDisplayName() + " Grade", false);
-        }
+        // ✅ Grade is not user-selectable — it comes from the batch's quality inspection
+        etQuality.setEnabled(false);
+        etQuality.setClickable(false);
+        etQuality.setText("", false);
     }
 
     private void setupDatePicker() {
@@ -423,6 +407,24 @@ public class AddRevenueDialog extends DialogFragment {
             for (QualityBatchEntity batch : supplierBatches) {
                 boolean isSold = soldBatchIds.contains(batch.getId());
 
+                // ✅ Skip non-saleable batches (uninspected or rejected) — SOP §4.5/§4.6
+                // Except when editing an existing revenue that's already tied to this batch.
+                boolean isCurrentBatchInEdit = isEditMode && existingRevenue != null
+                        && existingRevenue.getBatchId() != null
+                        && existingRevenue.getBatchId() == batch.getId();
+
+                if (!isCurrentBatchInEdit && !batch.isSaleable()) {
+                    Log.d(TAG, "Batch " + batch.getBatchNumber()
+                            + " is not saleable, excluding: " + batch.getSaleBlockReason());
+                    continue;
+                }
+
+                if (isCurrentBatchInEdit) {
+                    availableBatches.add(batch);
+                } else if (!isSold) {
+                    availableBatches.add(batch);
+                }
+
                 // If editing, allow the current batch even if it's sold
                 if (isEditMode && existingRevenue != null &&
                         existingRevenue.getBatchId() != null &&
@@ -469,7 +471,24 @@ public class AddRevenueDialog extends DialogFragment {
                             selectedBatchNumber = selectedBatch.getBatchNumber();
                             selectedBatch = selectedBatch;
 
-                            Log.d(TAG, "Selected batch: " + selectedBatchNumber + " (ID: " + selectedBatchId + ")");
+                            // ✅ SOP §4.5 + §4.6: refuse non-saleable batches
+                            if (!selectedBatch.isSaleable()) {
+                                new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle("Cannot sell this batch")
+                                        .setMessage(selectedBatch.getSaleBlockReason())
+                                        .setPositiveButton("OK", null)
+                                        .show();
+                                etBatch.setText("", false);
+                                selectedBatchId = null;
+                                selectedBatchNumber = null;
+                                selectedBatch = null;
+                                etQuality.setText("", false);
+                                return;
+                            }
+
+                            applyBatchGradeToUi(selectedBatch);
+
+                                Log.d(TAG, "Selected batch: " + selectedBatchNumber + " (ID: " + selectedBatchId + ")");
                         });
 
                         // Pre-fill if editing
@@ -477,6 +496,7 @@ public class AddRevenueDialog extends DialogFragment {
                             for (int i = 0; i < availableBatches.size(); i++) {
                                 if (availableBatches.get(i).getId() == selectedBatchId) {
                                     etBatch.setText(batchDisplayNames.get(i), false);
+                                    applyBatchGradeToUi(availableBatches.get(i));   // ✅ pull the grade
                                     break;
                                 }
                             }
@@ -487,12 +507,36 @@ public class AddRevenueDialog extends DialogFragment {
                             selectedBatchNumber = firstBatch.getBatchNumber();
                             selectedBatch = firstBatch;
                             etBatch.setText(batchDisplayNames.get(0), false);
+                            applyBatchGradeToUi(firstBatch);
                             Log.d(TAG, "Auto-selected first available batch: " + firstBatch.getBatchNumber());
                         }
                     }
                 });
             }
         });
+    }
+
+    // ✅ Add this helper below loadBatchesForSupplier()
+    private void applyBatchGradeToUi(QualityBatchEntity batch) {
+        if (batch == null || batch.getQualityGrade() == null) {
+            etQuality.setText("", false);
+            selectedQuality = null;
+            return;
+        }
+
+        // Map the entity's QualityGrade to RevenueEntity's QualityGrade
+        // (they may have diverged — verify enum names match)
+        try {
+            selectedQuality = RevenueEntity.QualityGrade.valueOf(
+                    batch.getQualityGrade().name());
+            etQuality.setText(selectedQuality.getDisplayName() + " Grade", false);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Cannot map batch grade to revenue grade: "
+                    + batch.getQualityGrade(), e);
+            // Fallback: show the batch's display name but keep selectedQuality null
+            etQuality.setText(batch.getQualityGrade().getDisplayName(), false);
+            selectedQuality = null;
+        }
     }
 
     private void setupTotalCalculation() {
@@ -593,7 +637,9 @@ public class AddRevenueDialog extends DialogFragment {
         }
 
         if (selectedQuality == null) {
-            Toast.makeText(getContext(), "Please select a quality grade", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),
+                    "Batch has no quality grade. Run the RCN inspection first.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -627,7 +673,13 @@ public class AddRevenueDialog extends DialogFragment {
         revenue.setHarvestYear(selectedYear);
         revenue.setHarvestSeason(0);
         revenue.setHarvestCycleId("PROCESSING_CENTER_" + selectedYear + "_" + System.currentTimeMillis());
-
+        // ✅ SOP §4.5 + §4.6: final pre-submit check
+        if (selectedBatch != null && !selectedBatch.isSaleable()) {
+            btnSave.setEnabled(true);
+            btnSave.setText("Add Revenue");
+            Toast.makeText(getContext(), selectedBatch.getSaleBlockReason(), Toast.LENGTH_LONG).show();
+            return;
+        }
         revenueRepository.insertRevenue(revenue, new BaseRepository.InsertCallback() {
             @Override
             public void onSuccess(long id) {

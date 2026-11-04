@@ -246,32 +246,14 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Grade -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.AfriNuts.EditText"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:endIconMode="dropdown_menu"
-            app:endIconDrawable="@drawable/ic_arrow_drop_down"
-            app:endIconTint="?attr/colorSecondary"
-            app:boxBackgroundColor="?attr/colorSurface"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxStrokeColor="?attr/colorSecondary">
-
-            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/etGrade"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Quality Grade"
-                android:inputType="none"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/colorOnSurface" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:text="Quality grade will be assigned during RCN inspection"
+            style="@style/Text.Caption.Small"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.6"
+            android:layout_marginBottom="12dp" />
 
         <!-- Divider -->
         <View

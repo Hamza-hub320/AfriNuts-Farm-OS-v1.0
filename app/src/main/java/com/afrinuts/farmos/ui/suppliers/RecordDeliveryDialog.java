@@ -53,7 +53,6 @@ public class RecordDeliveryDialog extends DialogFragment {
     private TextInputEditText etDeliveryDate;
     private TextInputEditText etQuantity;
     private TextInputEditText etPricePerKg;
-    private MaterialAutoCompleteTextView etGrade;
     private MaterialAutoCompleteTextView etSourceType;  // Added
     private MaterialAutoCompleteTextView etBatchType;
     private TextInputEditText etNotes;
@@ -119,7 +118,6 @@ public class RecordDeliveryDialog extends DialogFragment {
 
         initViews(view);
         setupDatePicker();
-        setupGradeDropdown();
         setupSourceTypeDropdown();  // Added
         setupBatchTypeDropdown();
 
@@ -145,7 +143,6 @@ public class RecordDeliveryDialog extends DialogFragment {
         etDeliveryDate = view.findViewById(R.id.etDeliveryDate);
         etQuantity = view.findViewById(R.id.etQuantity);
         etPricePerKg = view.findViewById(R.id.etPricePerKg);
-        etGrade = view.findViewById(R.id.etGrade);
         etSourceType = view.findViewById(R.id.etSourceType);  // Added
         etBatchType = view.findViewById(R.id.etBatchType);
         etNotes = view.findViewById(R.id.etNotes);
@@ -282,24 +279,6 @@ public class RecordDeliveryDialog extends DialogFragment {
         etDeliveryDate.setText(sdf.format(selectedDate.getTime()));
     }
 
-    private void setupGradeDropdown() {
-        String[] grades = {"Premium", "Standard", "Processing"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                grades
-        );
-        etGrade.setAdapter(adapter);
-        etGrade.setText(grades[0], false);
-    }
-
-    private QualityBatchEntity.QualityGrade getGradeFromDisplay(String display) {
-        if (display.contains("Premium")) return QualityBatchEntity.QualityGrade.PREMIUM;
-        if (display.contains("Standard")) return QualityBatchEntity.QualityGrade.STANDARD;
-        if (display.contains("Processing")) return QualityBatchEntity.QualityGrade.PROCESSING;
-        return QualityBatchEntity.QualityGrade.STANDARD;
-    }
-
     private void recordDelivery() {
         String batchNumber = etBatchNumber.getText().toString().trim();
         if (TextUtils.isEmpty(batchNumber)) {
@@ -322,7 +301,6 @@ public class RecordDeliveryDialog extends DialogFragment {
         try {
             double quantity = Double.parseDouble(quantityStr);
             double price = Double.parseDouble(priceStr);
-            String gradeStr = etGrade.getText().toString().trim();
             String notes = etNotes.getText().toString().trim();
 
             if (quantity <= 0) {
@@ -334,8 +312,6 @@ public class RecordDeliveryDialog extends DialogFragment {
                 etPricePerKg.setError("Price must be positive");
                 return;
             }
-
-            QualityBatchEntity.QualityGrade grade = getGradeFromDisplay(gradeStr);
 
             // Get SourceType from dropdown
             String sourceTypeStr = etSourceType.getText().toString().trim();
@@ -364,7 +340,7 @@ public class RecordDeliveryDialog extends DialogFragment {
                     0, // defectiveRate - will be filled during quality processing
                     0, // kernelRatio - will be filled during quality processing
                     quantity, // weightKg
-                    grade,
+                    QualityBatchEntity.QualityGrade.STANDARD,
                     notes
             );
 

@@ -176,8 +176,8 @@ public class SelectBatchToEditDialog extends DialogFragment {
                         ivGradeIcon.setImageResource(R.drawable.ic_check_circle);
                         ivGradeIcon.setColorFilter(view.getContext().getColor(R.color.primary));
                         break;
-                    case PROCESSING:
-                        tvBatchGrade.setText("Processing");
+                    case REJECT:
+                        tvBatchGrade.setText("Reject");
                         tvBatchGrade.setTextColor(view.getContext().getColor(R.color.navy));
                         ivGradeIcon.setImageResource(R.drawable.ic_factory);
                         ivGradeIcon.setColorFilter(view.getContext().getColor(R.color.navy));

@@ -127,7 +127,6 @@ public class EditSupplierDialog extends DialogFragment {
 
         initViews(view);
         setupTypeDropdown();
-        populateFields();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -166,6 +165,11 @@ public class EditSupplierDialog extends DialogFragment {
         switchSustainable = view.findViewById(R.id.switchSustainable);
         switchChildLabor = view.findViewById(R.id.switchChildLabor);
 
+        // ✅ Cooperative linkage
+        etCooperativeName = view.findViewById(R.id.etCooperativeName);
+        etCooperativeId   = view.findViewById(R.id.etCooperativeId);
+        etFarmerIdNumber  = view.findViewById(R.id.etFarmerIdNumber);
+
         // ✅ Consent UI
         cbConsentIdentity = view.findViewById(R.id.cbConsentIdentity);
         cbConsentLocation = view.findViewById(R.id.cbConsentLocation);
@@ -174,12 +178,6 @@ public class EditSupplierDialog extends DialogFragment {
         tvConsentSignedBy = view.findViewById(R.id.tvConsentSignedBy);
         tvConsentDate     = view.findViewById(R.id.tvConsentDate);
         tvConsentWithdrawn = view.findViewById(R.id.tvConsentWithdrawn);
-        etCooperativeName.setText(supplier.getCooperativeName());
-        etCooperativeId.setText(supplier.getCooperativeId());
-        etFarmerIdNumber.setText(supplier.getFarmerIdNumber());
-        etCooperativeName = view.findViewById(R.id.etCooperativeName);
-        etCooperativeId   = view.findViewById(R.id.etCooperativeId);
-        etFarmerIdNumber  = view.findViewById(R.id.etFarmerIdNumber);
     }
 
     private void setupTypeDropdown() {
@@ -304,6 +302,24 @@ public class EditSupplierDialog extends DialogFragment {
         boolean sustainableHarvesting = switchSustainable.isChecked();
         boolean noChildLabor = switchChildLabor.isChecked();
 
+        // Update common fields
+        supplier.setName(name);
+        supplier.setType(type);
+        supplier.setContactPerson(contactPerson);
+        supplier.setPhone(phone);
+        supplier.setEmail(email);
+        supplier.setLocation(location);
+        supplier.setRegistrationNumber(registrationNumber);
+        supplier.setNotes(notes);
+
+        supplier.setYearsFarming(yearsFarming);
+        supplier.setFarmSize(farmSize);
+        supplier.setQuote(quote);
+        supplier.setBio(bio);
+        supplier.setFirebreakProtection(firebreakProtection);
+        supplier.setSustainableHarvesting(sustainableHarvesting);
+        supplier.setNoChildLabor(noChildLabor);
+
         List<String> newScopes = new ArrayList<>();
         if (cbConsentIdentity.isChecked()) newScopes.add(ConsentScope.IDENTITY);
         if (cbConsentLocation.isChecked()) newScopes.add(ConsentScope.LOCATION);
@@ -312,8 +328,7 @@ public class EditSupplierDialog extends DialogFragment {
         boolean consentWasGiven = supplier.isDataConsentGiven();
         boolean consentNowGiven = !newScopes.isEmpty();
 
-        String farmerName = !TextUtils.isEmpty(supplier.getContactPerson())
-                ? supplier.getContactPerson() : supplier.getName();
+        String farmerName = !TextUtils.isEmpty(contactPerson) ? contactPerson : name;
 
         if (consentNowGiven) {
             supplier.setDataConsentScopes(newScopes);
@@ -338,60 +353,6 @@ public class EditSupplierDialog extends DialogFragment {
                             .format(new Date()));
             supplier.setDataConsentWithdrawnReason("Withdrawn by farmer");
         }
-
-        // Update common fields
-        supplier.setName(name);
-        supplier.setType(type);
-        supplier.setContactPerson(contactPerson);
-        supplier.setPhone(phone);
-        supplier.setEmail(email);
-        supplier.setLocation(location);
-        supplier.setRegistrationNumber(registrationNumber);
-        supplier.setNotes(notes);
-
-        supplier.setYearsFarming(yearsFarming);
-        supplier.setFarmSize(farmSize);
-        supplier.setQuote(quote);
-        supplier.setBio(bio);
-        supplier.setFirebreakProtection(firebreakProtection);
-        supplier.setSustainableHarvesting(sustainableHarvesting);
-        supplier.setNoChildLabor(noChildLabor);
-
-        // ✅ Apply consent changes
-        if (consentNowGiven) {
-            // (Re-)recording consent
-            supplier.setDataConsentScopes(newScopes);
-            supplier.setDataConsentGiven(true);
-
-            if (!consentWasGiven) {
-                // First consent → stamp date & text
-                supplier.setDataConsentDate(System.currentTimeMillis());
-                supplier.setDataConsentSignedBy(name);
-                supplier.setDataConsentVersion(CONSENT_VERSION);
-                supplier.setDataConsentText(
-                        ConsentScope.buildConsentText(name, newScopes, CONSENT_VERSION));
-            } else {
-                // Consent already existed → only update the clause text if scope changed
-                supplier.setDataConsentText(
-                        ConsentScope.buildConsentText(name, newScopes, CONSENT_VERSION));
-            }
-
-            // If a withdrawn record existed, clear it (fresh consent supersedes withdrawal)
-            supplier.setDataConsentWithdrawnDate(null);
-            supplier.setDataConsentWithdrawnReason(null);
-
-        } else if (consentWasGiven) {
-            // ✅ Farmer has withdrawn ALL consent
-            supplier.setDataConsentGiven(false);
-            supplier.setDataConsentScopes(new ArrayList<>());
-            supplier.setDataConsentWithdrawnDate(
-                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-                            .format(new Date()));
-            supplier.setDataConsentWithdrawnReason("Withdrawn by farmer");
-            // Keep old dataConsentDate, dataConsentSignedBy, dataConsentVersion and
-            // dataConsentText as the immutable audit record.
-        }
-        // else: never had consent and still has none → nothing to do.
 
         supplier.setUpdatedAt(System.currentTimeMillis());
 

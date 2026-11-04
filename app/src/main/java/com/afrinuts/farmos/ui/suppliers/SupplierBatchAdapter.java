@@ -108,7 +108,7 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
                         ivGradeIcon.setImageResource(R.drawable.ic_check_circle);
                         ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.primary));
                         break;
-                    case PROCESSING:
+                    case REJECT:
                         ivGradeIcon.setImageResource(R.drawable.ic_factory);
                         ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.navy));
                         break;
