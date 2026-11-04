@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
@@ -32,6 +33,27 @@ public class RevenueRepository extends BaseRepository {
     public void insertRevenue(RevenueEntity revenue, InsertCallback callback) {
         executor.execute(() -> {
             try {
+
+                // ✅ SOP §4.5 + §4.6 guard
+                if (revenue.getBatchId() != null) {
+                    QualityBatchEntity batch = database.qualityBatchDao()
+                            .getBatchById(revenue.getBatchId());
+
+                    if (batch == null) {
+                        mainHandler.post(() -> callback.onError(
+                                "Batch not found — cannot record revenue against a missing batch"));
+                        return;
+                    }
+
+                    if (!batch.isSaleable()) {
+                        String reason = batch.getSaleBlockReason();
+                        Log.w(TAG, "Blocked revenue insert for batch "
+                                + batch.getBatchNumber() + ": " + reason);
+                        mainHandler.post(() -> callback.onError(reason));
+                        return;
+                    }
+                }
+
                 // 1. Save locally FIRST
                 long id = database.revenueDao().insert(revenue);
                 revenue.setId(id);
@@ -73,6 +95,15 @@ public class RevenueRepository extends BaseRepository {
     public void updateRevenue(RevenueEntity revenue, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
+                if (revenue.getBatchId() != null) {
+                    QualityBatchEntity batch = database.qualityBatchDao()
+                            .getBatchById(revenue.getBatchId());
+                    if (batch != null && !batch.isSaleable()) {
+                        String reason = batch.getSaleBlockReason();
+                        mainHandler.post(() -> callback.onError(reason));
+                        return;
+                    }
+                }
                 database.revenueDao().update(revenue);
                 Log.d(TAG, "Revenue updated locally: " + revenue.getId());
 

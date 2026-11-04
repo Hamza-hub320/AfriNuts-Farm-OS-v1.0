@@ -828,6 +828,24 @@ public class EntityMapper {
         map.put("firebreakProtection", batch.isFirebreakProtection());
         map.put("sustainableHarvesting", batch.isSustainableHarvesting());
         map.put("verifiedAt", batch.getVerifiedAt());
+        map.put("productType", batch.getProductType());
+        map.put("mouldyRate", batch.getMouldyRate());
+        map.put("immatureRate", batch.getImmatureRate());
+        map.put("insectDamagedRate", batch.getInsectDamagedRate());
+        map.put("shrivelledRate", batch.getShrivelledRate());
+        map.put("foreignMatter", batch.getForeignMatter());
+        map.put("dryingMethod", batch.getDryingMethod());
+        map.put("rcnQualityScore", batch.getRcnQualityScore());
+        map.put("brokenKernels", batch.getBrokenKernels());
+        map.put("aflatoxinPpb", batch.getAflatoxinPpb());
+        map.put("heavyMetalsPpb", batch.getHeavyMetalsPpb());
+        map.put("pesticideResiduePpb", batch.getPesticideResiduePpb());
+        map.put("kernelQualityScore", batch.getKernelQualityScore());
+        map.put("korGPerKg", batch.getKorGPerKg());
+        map.put("korSampleGrams", batch.getKorSampleGrams());
+        map.put("korKernelGrams", batch.getKorKernelGrams());
+        map.put("inspectionDate", batch.getInspectionDate());
+        map.put("inspectedBy", batch.getInspectedBy());
         return map;
     }
 
@@ -872,6 +890,18 @@ public class EntityMapper {
                 }
             }
 
+            if ("PROCESSING".equalsIgnoreCase(gradeStr)) {
+                gradeStr = "REJECT";
+            }
+
+            QualityBatchEntity.QualityGrade grade;
+            try {
+                grade = QualityBatchEntity.QualityGrade.valueOf(gradeStr);
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Unknown qualityGrade in doc, defaulting to STANDARD: " + gradeStr);
+                grade = QualityBatchEntity.QualityGrade.STANDARD;
+            }
+
             // FIXED: Use the correct constructor with 14 arguments
             QualityBatchEntity batch = new QualityBatchEntity(
                     farmId,
@@ -901,6 +931,31 @@ public class EntityMapper {
             batch.setFirebreakProtection(firebreakProtection);
             batch.setSustainableHarvesting(sustainableHarvesting);
             batch.setVerifiedAt(verifiedAt);
+
+            // ✅ Step 1: RCN/kernel split fields
+            String productType = doc.getString("productType");
+            if (productType == null || productType.isEmpty()) {
+                batch.setProductType(doc.getString("productType"));
+            }
+            batch.setProductType(productType);
+
+            batch.setMouldyRate(getDoubleSafe(doc, "mouldyRate"));
+            batch.setImmatureRate(getDoubleSafe(doc, "immatureRate"));
+            batch.setInsectDamagedRate(getDoubleSafe(doc, "insectDamagedRate"));
+            batch.setShrivelledRate(getDoubleSafe(doc, "shrivelledRate"));
+            batch.setForeignMatter(getDoubleSafe(doc, "foreignMatter"));
+            batch.setDryingMethod(doc.getString("dryingMethod"));
+            batch.setRcnQualityScore(getDoubleSafe(doc, "rcnQualityScore"));
+            batch.setBrokenKernels(getDoubleSafe(doc, "brokenKernels"));
+            batch.setAflatoxinPpb(getDoubleSafe(doc, "aflatoxinPpb"));
+            batch.setHeavyMetalsPpb(getDoubleSafe(doc, "heavyMetalsPpb"));
+            batch.setPesticideResiduePpb(getDoubleSafe(doc, "pesticideResiduePpb"));
+            batch.setKernelQualityScore(getDoubleSafe(doc, "kernelQualityScore"));
+            batch.setKorGPerKg(getDoubleSafe(doc, "korGPerKg"));
+            batch.setKorSampleGrams(getDoubleSafe(doc, "korSampleGrams"));
+            batch.setKorKernelGrams(getDoubleSafe(doc, "korKernelGrams"));
+            batch.setInspectionDate(getLongSafe(doc, "inspectionDate"));
+            batch.setInspectedBy(doc.getString("inspectedBy"));
 
             return batch;
         } catch (Exception e) {

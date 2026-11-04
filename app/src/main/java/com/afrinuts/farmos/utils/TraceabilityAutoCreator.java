@@ -49,6 +49,12 @@ public class TraceabilityAutoCreator {
 
                 int created = 0;
                 for (QualityBatchEntity batch : batches) {
+                    // ✅ SOP §4.5 + §4.6: skip uninspected and rejected batches
+                    if (!batch.isSaleable()) {
+                        Log.d(TAG, "Skipping traceability for " + batch.getBatchNumber()
+                                + ": " + batch.getSaleBlockReason());
+                        continue;
+                    }
                     // Check if batch is complete
                     if (isBatchComplete(batch)) {
                         // Check if traceability already exists
@@ -79,6 +85,13 @@ public class TraceabilityAutoCreator {
                 QualityBatchEntity batch = database.qualityBatchDao().getBatchById(batchId);
                 if (batch == null) {
                     Log.e(TAG, "Batch not found with ID: " + batchId);
+                    return;
+                }
+
+                // ✅ SOP §4.5 + §4.6
+                if (!batch.isSaleable()) {
+                    Log.d(TAG, "Cannot create traceability for " + batch.getBatchNumber()
+                            + ": " + batch.getSaleBlockReason());
                     return;
                 }
 
@@ -124,6 +137,13 @@ public class TraceabilityAutoCreator {
 
     private void createTraceability(QualityBatchEntity batch) {
         try {
+
+            if (!batch.isSaleable()) {
+                Log.w(TAG, "createTraceability called on non-saleable batch "
+                        + batch.getBatchNumber() + ": " + batch.getSaleBlockReason());
+                return;
+            }
+
             Log.d(TAG, "Creating traceability for batch: " + batch.getBatchNumber());
 
             // 1. Get supplier data

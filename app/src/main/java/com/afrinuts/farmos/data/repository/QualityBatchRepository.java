@@ -10,11 +10,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
+import com.afrinuts.farmos.utils.QualityGradeCalculator;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
@@ -60,9 +62,14 @@ public class QualityBatchRepository {
     public void insertBatch(QualityBatchEntity batch, InsertCallback callback) {
         executor.execute(() -> {
             try {
+
                 long id = database.qualityBatchDao().insert(batch);
                 batch.setId(id);
-                Log.d(TAG, "Quality batch saved locally with ID: " + id);
+                Log.d(TAG, "Quality batch saved locally with ID: " + id
+                        + " productType=" + batch.getProductType()
+                        + " grade=" + batch.getQualityGrade()
+                        + " rcnScore=" + batch.getRcnQualityScore()
+                        + " kernelScore=" + batch.getKernelQualityScore());
 
                 if (batch.getSupplierId() != null && batch.getSupplierId() > 0) {
                     createDeliveryFromBatch(batch);
@@ -71,11 +78,14 @@ public class QualityBatchRepository {
                 if (!firestoreSyncManager.isRemoteUpdate()) {
                     syncManager.queueForSync("quality_batch", id, SyncEntity.SyncAction.CREATE);
                     syncManager.triggerAutoSync();
-                    Log.d(TAG, "Queued quality batch for sync");
                 }
 
                 mainHandler.post(() -> callback.onSuccess(id));
 
+            } catch (IllegalArgumentException e) {
+                // Defect-sum inconsistency — surface to UI, don't save
+                Log.w(TAG, "Batch held for re-inspection: " + e.getMessage());
+                mainHandler.post(() -> callback.onError(e.getMessage()));
             } catch (Exception e) {
                 Log.e(TAG, "Error inserting quality batch", e);
                 mainHandler.post(() -> callback.onError(e.getMessage()));
@@ -187,8 +197,13 @@ public class QualityBatchRepository {
     public void updateBatch(QualityBatchEntity batch, RepositoryCallback<Boolean> callback) {
         executor.execute(() -> {
             try {
+                // ✅ Step 2: recompute grade before persisting
+                applyComputedGrade(batch);
+
                 database.qualityBatchDao().update(batch);
-                Log.d(TAG, "Quality batch updated locally: " + batch.getId());
+                Log.d(TAG, "Quality batch updated locally: " + batch.getId()
+                        + " productType=" + batch.getProductType()
+                        + " grade=" + batch.getQualityGrade());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {
                     syncManager.queueForSync("quality_batch", batch.getId(), SyncEntity.SyncAction.UPDATE);
@@ -197,12 +212,48 @@ public class QualityBatchRepository {
 
                 mainHandler.post(() -> callback.onSuccess(true));
 
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Batch held for re-inspection: " + e.getMessage());
+                mainHandler.post(() -> callback.onError(e.getMessage()));
             } catch (Exception e) {
                 Log.e(TAG, "Error updating quality batch", e);
                 mainHandler.post(() -> callback.onError(e.getMessage()));
             }
         });
     }
+
+
+    private void applyComputedGrade(QualityBatchEntity batch) {
+        // Existing grade + score computation
+        batch.setQualityGrade(
+                QualityGradeCalculator.toEntityGrade(QualityGradeCalculator.grade(batch))
+        );
+
+        if (batch.isKernel()) {
+            batch.setKernelQualityScore(QualityGradeCalculator.kernelScore(batch));
+            batch.setRcnQualityScore(0);
+            batch.setQualityScore(batch.getKernelQualityScore());
+        } else {
+            batch.setRcnQualityScore(QualityGradeCalculator.rcnScore(batch));
+            batch.setKernelQualityScore(0);
+            batch.setQualityScore(batch.getRcnQualityScore());
+
+            // ✅ Derive kernelRatio for RCN from korGPerKg so the field is never
+            // a stale zero sitting next to a real KOR. 280 g/kg → 0.28 ratio.
+            if (batch.getKorGPerKg() > 0) {
+                batch.setKernelRatio(batch.getKorGPerKg() / 1000.0);
+            } else {
+                batch.setKernelRatio(0);
+            }
+        }
+
+        if (!QualityGradeCalculator.defectsConsistent(batch)) {
+            throw new IllegalArgumentException(
+                    "Defect sum (mouldy+immature+insectDamaged+shrivelled) does not " +
+                            "equal defectiveRate within ±0.5%. Hold for re-inspection.");
+        }
+    }
+
 
     // ========================================
     // DELETE
@@ -238,6 +289,11 @@ public class QualityBatchRepository {
     public CompletableFuture<Double> getAverageMoisture() {
         return CompletableFuture.supplyAsync(() ->
                 database.qualityBatchDao().getAverageMoisture(farmId), executor);
+    }
+
+    // In QualityBatchRepository.java
+    public List<RevenueEntity> getRevenuesByBatchIdSync(long batchId) {
+        return database.revenueDao().getRevenuesByBatchId(batchId);
     }
 
     public CompletableFuture<Double> getAverageDefectiveRate() {
