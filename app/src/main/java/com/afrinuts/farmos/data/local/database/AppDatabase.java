@@ -23,7 +23,9 @@ import com.afrinuts.farmos.data.local.dao.MasterTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
+import com.afrinuts.farmos.data.local.dao.SupplierCommitmentDao;
 import com.afrinuts.farmos.data.local.dao.SupplierDao;
+import com.afrinuts.farmos.data.local.dao.SupplierInspectionDao;
 import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
 import com.afrinuts.farmos.data.local.dao.TaskDao;
@@ -42,7 +44,9 @@ import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -81,8 +85,10 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 // CCPMonitoringEntity.class,  // Add when implemented
                 // PremiumDistributionEntity.class,  // Add when implemented
                 // CooperativeMemberEntity.class  // Add when implemented
+                SupplierCommitmentEntity.class,
+                SupplierInspectionEntity.class,
         },
-        version = 36,
+        version = 38,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -119,6 +125,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract InspectionDao inspectionDao();
     public abstract VerificationDao verificationDao();
     public abstract DocumentDao documentDao();
+    public abstract SupplierCommitmentDao supplierCommitmentDao();
+    public abstract SupplierInspectionDao supplierInspectionDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -166,7 +174,9 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration32To33(),
                                     new Migration33To34(),
                                     new Migration34To35(),
-                                    new Migration35To36()
+                                    new Migration35To36(),
+                                    new Migration36To37(),
+                                    new Migration37To38()
 
                             )
                             .build();

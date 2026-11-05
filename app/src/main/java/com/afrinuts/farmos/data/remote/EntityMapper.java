@@ -14,7 +14,9 @@ import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -1151,6 +1153,198 @@ public class EntityMapper {
             Log.e(TAG, "Error mapping supplier", e);
             return null;
         }
+    }
+
+// ========================================
+// SUPPLIER COMMITMENT MAPPING
+// ========================================
+
+    public static Map<String, Object> commitmentToMap(SupplierCommitmentEntity c) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", c.getId());
+        map.put("supplierId", c.getSupplierId());
+        map.put("farmId", c.getFarmId());
+        map.put("contractId", c.getContractId());
+        map.put("season", c.getSeason());
+        map.put("productType", c.getProductType() != null ? c.getProductType().name() : null);
+        map.put("committedKg", c.getCommittedKg());
+        map.put("committedDate", c.getCommittedDate());
+        map.put("linkedBatchIds", c.getLinkedBatchIds());   // JSON string, Firestore-symmetric
+        map.put("status", c.getStatus() != null ? c.getStatus().name() : null);
+        map.put("delayReason", c.getDelayReason());
+        map.put("buyerRequestedChange", c.isBuyerRequestedChange());
+        map.put("revisions", c.getRevisions());              // JSON string
+        map.put("isSynced", c.isSynced());
+        map.put("validatedAt", c.getValidatedAt());
+        map.put("validatedBy", c.getValidatedBy());
+        map.put("createdBy", c.getCreatedBy());
+        map.put("updatedBy", c.getUpdatedBy());
+        map.put("createdAt", c.getCreatedAt());
+        map.put("updatedAt", System.currentTimeMillis());
+        return map;
+    }
+
+    public static SupplierCommitmentEntity mapToCommitment(DocumentSnapshot doc) {
+        try {
+            long id = getLongSafe(doc, "id");
+            long supplierId = getLongSafe(doc, "supplierId");
+            long farmId = getLongSafe(doc, "farmId");
+            String contractId = getStringSafe(doc, "contractId");
+            String season = getStringSafe(doc, "season");
+            double committedKg = getDoubleSafe(doc, "committedKg");
+            long committedDate = getLongSafe(doc, "committedDate");
+
+            SupplierCommitmentEntity c = new SupplierCommitmentEntity(
+                    supplierId, farmId, contractId, season,
+                    parseProductType(doc.getString("productType")),
+                    committedKg, committedDate
+            );
+            c.setId(id);
+
+            // JSON fields — string passthrough (Firestore stores them as strings,
+            // same as Room; no array conversion needed at the mapper layer)
+            String linked = doc.getString("linkedBatchIds");
+            c.setLinkedBatchIds(linked != null ? linked : "[]");
+            String revisions = doc.getString("revisions");
+            c.setRevisions(revisions != null ? revisions : "[]");
+
+            String status = doc.getString("status");
+            if (status != null && !status.isEmpty()) {
+                try { c.setStatus(SupplierCommitmentEntity.CommitmentStatus.valueOf(status)); }
+                catch (IllegalArgumentException ignored) { }
+            }
+
+            c.setDelayReason(doc.getString("delayReason"));
+
+            Boolean buyerChange = doc.getBoolean("buyerRequestedChange");
+            c.setBuyerRequestedChange(buyerChange != null && buyerChange);
+
+            Boolean isSynced = doc.getBoolean("isSynced");
+            c.setSynced(isSynced != null && isSynced);
+
+            Long validatedAt = getNullableLong(doc, "validatedAt");
+            if (validatedAt != null) c.setValidatedAt(validatedAt);
+
+            c.setValidatedBy(doc.getString("validatedBy"));
+            c.setCreatedBy(doc.getString("createdBy"));
+            c.setUpdatedBy(doc.getString("updatedBy"));
+
+            Long createdAt = getNullableLong(doc, "createdAt");
+            if (createdAt != null) c.setCreatedAt(createdAt);
+            Long updatedAt = getNullableLong(doc, "updatedAt");
+            if (updatedAt != null) c.setUpdatedAt(updatedAt);
+
+            return c;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping commitment document", e);
+            return null;
+        }
+    }
+
+    private static SupplierCommitmentEntity.ProductType parseProductType(String s) {
+        if (s == null || s.isEmpty()) return SupplierCommitmentEntity.ProductType.RCN;
+        try { return SupplierCommitmentEntity.ProductType.valueOf(s); }
+        catch (IllegalArgumentException e) { return SupplierCommitmentEntity.ProductType.RCN; }
+    }
+
+    // ========================================
+// SUPPLIER INSPECTION MAPPING
+// ========================================
+
+    public static Map<String, Object> inspectionToMap(SupplierInspectionEntity i) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", i.getId());
+        map.put("supplierId", i.getSupplierId());
+        map.put("farmId", i.getFarmId());
+        map.put("inspectionType", i.getInspectionType() != null ? i.getInspectionType().name() : null);
+        map.put("inspectionDate", i.getInspectionDate());
+        map.put("outcome", i.getOutcome() != null ? i.getOutcome().name() : null);
+        map.put("severity", i.getSeverity());
+        map.put("findings", i.getFindings());
+        map.put("correctiveAction", i.getCorrectiveAction());
+        map.put("closedDate", i.getClosedDate());
+        map.put("status", i.getStatus() != null ? i.getStatus().name() : null);
+        map.put("inspector", i.getInspector());
+        map.put("evidenceUrls", i.getEvidenceUrls());
+        map.put("linkedBatchIds", i.getLinkedBatchIds());
+        map.put("isSynced", i.isSynced());
+        map.put("validatedAt", i.getValidatedAt());
+        map.put("validatedBy", i.getValidatedBy());
+        map.put("createdBy", i.getCreatedBy());
+        map.put("updatedBy", i.getUpdatedBy());
+        map.put("createdAt", i.getCreatedAt());
+        map.put("updatedAt", System.currentTimeMillis());
+        return map;
+    }
+
+    public static SupplierInspectionEntity mapToSupplierInspection(DocumentSnapshot doc) {
+        try {
+            long id = getLongSafe(doc, "id");
+            long supplierId = getLongSafe(doc, "supplierId");
+            long farmId = getLongSafe(doc, "farmId");
+            long inspectionDate = getLongSafe(doc, "inspectionDate");
+            String findings = doc.getString("findings");
+            String inspector = doc.getString("inspector");
+
+            SupplierInspectionEntity i = new SupplierInspectionEntity(
+                    supplierId, farmId,
+                    parseInspectionType(doc.getString("inspectionType")),
+                    inspectionDate,
+                    parseOutcome(doc.getString("outcome")),
+                    findings, inspector
+            );
+            i.setId(id);
+
+            String severity = doc.getString("severity");
+            if (severity != null && !severity.isEmpty()) i.setSeverity(severity);
+
+            i.setCorrectiveAction(doc.getString("correctiveAction"));
+            Long closedDate = getNullableLong(doc, "closedDate");
+            if (closedDate != null) i.setClosedDate(closedDate);
+
+            String status = doc.getString("status");
+            if (status != null && !status.isEmpty()) {
+                try { i.setStatus(SupplierInspectionEntity.InspectionStatus.valueOf(status)); }
+                catch (IllegalArgumentException ignored) { }
+            }
+
+            String evidence = doc.getString("evidenceUrls");
+            i.setEvidenceUrls(evidence != null ? evidence : "[]");
+            String linked = doc.getString("linkedBatchIds");
+            i.setLinkedBatchIds(linked != null ? linked : "[]");
+
+            Boolean isSynced = doc.getBoolean("isSynced");
+            i.setSynced(isSynced != null && isSynced);
+
+            Long validatedAt = getNullableLong(doc, "validatedAt");
+            if (validatedAt != null) i.setValidatedAt(validatedAt);
+
+            i.setValidatedBy(doc.getString("validatedBy"));
+            i.setCreatedBy(doc.getString("createdBy"));
+            i.setUpdatedBy(doc.getString("updatedBy"));
+
+            Long createdAt = getNullableLong(doc, "createdAt");
+            if (createdAt != null) i.setCreatedAt(createdAt);
+            Long updatedAt = getNullableLong(doc, "updatedAt");
+            if (updatedAt != null) i.setUpdatedAt(updatedAt);
+
+            return i;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping inspection document", e);
+            return null;
+        }
+    }
+
+    private static SupplierInspectionEntity.InspectionType parseInspectionType(String s) {
+        if (s == null || s.isEmpty()) return SupplierInspectionEntity.InspectionType.OTHER;
+        try { return SupplierInspectionEntity.InspectionType.valueOf(s); }
+        catch (IllegalArgumentException e) { return SupplierInspectionEntity.InspectionType.OTHER; }
+    }
+
+    private static SupplierInspectionEntity.Outcome parseOutcome(String s) {
+        if (s == null || s.isEmpty()) return SupplierInspectionEntity.Outcome.PASS;
+        try { return SupplierInspectionEntity.Outcome.valueOf(s); }
+        catch (IllegalArgumentException e) { return SupplierInspectionEntity.Outcome.PASS; }
     }
 
 // ========================================
