@@ -15,6 +15,7 @@ import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -1345,6 +1346,125 @@ public class EntityMapper {
         if (s == null || s.isEmpty()) return SupplierInspectionEntity.Outcome.PASS;
         try { return SupplierInspectionEntity.Outcome.valueOf(s); }
         catch (IllegalArgumentException e) { return SupplierInspectionEntity.Outcome.PASS; }
+    }
+
+
+    // ========================================
+// SUPPLIER DISPUTE MAPPING
+// ========================================
+
+    public static Map<String, Object> supplierDisputeToMap(SupplierDisputeEntity d) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", d.getId());
+        map.put("supplierId", d.getSupplierId());
+        map.put("farmId", d.getFarmId());
+        map.put("targetEntity", d.getTargetEntity() != null ? d.getTargetEntity().name() : null);
+        // Firestore receives targetId as a number here; the SCORE-portal path writes it
+        // as a string on the portal side and never materialises in Room, so no conflict.
+        map.put("targetId", d.getTargetId());
+        map.put("reason", d.getReason());
+        map.put("evidenceUrls", d.getEvidenceUrls());
+        map.put("submittedBy", d.getSubmittedBy());
+        map.put("submittedDate", d.getSubmittedDate());
+        map.put("reviewStatus", d.getReviewStatus() != null ? d.getReviewStatus().name() : null);
+        map.put("decision", d.getDecision());
+        map.put("reviewedBy", d.getReviewedBy());
+        map.put("resolvedDate", d.getResolvedDate());
+        map.put("correctionApplied", d.isCorrectionApplied());
+        map.put("originalValue", d.getOriginalValue());
+        map.put("correctedValue", d.getCorrectedValue());
+        map.put("recalculatedSnapshotId", d.getRecalculatedSnapshotId());
+        map.put("isSynced", d.isSynced());
+        map.put("createdBy", d.getCreatedBy());
+        map.put("updatedBy", d.getUpdatedBy());
+        map.put("createdAt", d.getCreatedAt());
+        map.put("updatedAt", System.currentTimeMillis());
+        return map;
+    }
+
+    public static SupplierDisputeEntity mapToDispute(DocumentSnapshot doc) {
+        try {
+            long id = getLongSafe(doc, "id");
+            long supplierId = getLongSafe(doc, "supplierId");
+            long farmId = getLongSafe(doc, "farmId");
+
+            Object rawTarget = doc.get("targetId");
+            long targetId;
+            if (rawTarget instanceof Number) {
+                targetId = ((Number) rawTarget).longValue();
+            } else if (rawTarget instanceof String) {
+                try {
+                    targetId = Long.parseLong((String) rawTarget);
+                } catch (NumberFormatException e) {
+                    Log.w(TAG, "Non-numeric targetId for dispute " + doc.getId()
+                            + " — skipping (portal SCORE dispute, not materialised in Room)");
+                    return null;
+                }
+            } else {
+                Log.w(TAG, "Missing targetId for dispute " + doc.getId());
+                return null;
+            }
+
+            String reason = doc.getString("reason");
+            String submittedBy = doc.getString("submittedBy");
+
+            SupplierDisputeEntity d = new SupplierDisputeEntity(
+                    supplierId, farmId,
+                    parseTargetEntity(doc.getString("targetEntity")),
+                    targetId,
+                    reason, submittedBy
+            );
+            d.setId(id);
+
+            String evidence = doc.getString("evidenceUrls");
+            d.setEvidenceUrls(evidence != null ? evidence : "[]");
+
+            Long submittedDate = getNullableLong(doc, "submittedDate");
+            if (submittedDate != null) d.setSubmittedDate(submittedDate);
+
+            String status = doc.getString("reviewStatus");
+            if (status != null && !status.isEmpty()) {
+                try { d.setReviewStatus(SupplierDisputeEntity.ReviewStatus.valueOf(status)); }
+                catch (IllegalArgumentException ignored) { }
+            }
+
+            d.setDecision(doc.getString("decision"));
+            d.setReviewedBy(doc.getString("reviewedBy"));
+
+            Long resolvedDate = getNullableLong(doc, "resolvedDate");
+            if (resolvedDate != null) d.setResolvedDate(resolvedDate);
+
+            Boolean correctionApplied = doc.getBoolean("correctionApplied");
+            d.setCorrectionApplied(correctionApplied != null && correctionApplied);
+
+            d.setOriginalValue(doc.getString("originalValue"));
+            d.setCorrectedValue(doc.getString("correctedValue"));
+
+            Long snapshotId = getNullableLong(doc, "recalculatedSnapshotId");
+            if (snapshotId != null) d.setRecalculatedSnapshotId(snapshotId);
+
+            Boolean isSynced = doc.getBoolean("isSynced");
+            d.setSynced(isSynced != null && isSynced);
+
+            d.setCreatedBy(doc.getString("createdBy"));
+            d.setUpdatedBy(doc.getString("updatedBy"));
+
+            Long createdAt = getNullableLong(doc, "createdAt");
+            if (createdAt != null) d.setCreatedAt(createdAt);
+            Long updatedAt = getNullableLong(doc, "updatedAt");
+            if (updatedAt != null) d.setUpdatedAt(updatedAt);
+
+            return d;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping dispute document", e);
+            return null;
+        }
+    }
+
+    private static SupplierDisputeEntity.TargetEntity parseTargetEntity(String s) {
+        if (s == null || s.isEmpty()) return SupplierDisputeEntity.TargetEntity.COMMITMENT;
+        try { return SupplierDisputeEntity.TargetEntity.valueOf(s); }
+        catch (IllegalArgumentException e) { return SupplierDisputeEntity.TargetEntity.COMMITMENT; }
     }
 
 // ========================================

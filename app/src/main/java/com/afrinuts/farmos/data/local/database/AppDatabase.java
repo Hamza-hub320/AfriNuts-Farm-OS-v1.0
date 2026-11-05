@@ -25,6 +25,7 @@ import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
 import com.afrinuts.farmos.data.local.dao.RevenueDao;
 import com.afrinuts.farmos.data.local.dao.SupplierCommitmentDao;
 import com.afrinuts.farmos.data.local.dao.SupplierDao;
+import com.afrinuts.farmos.data.local.dao.SupplierDisputeDao;
 import com.afrinuts.farmos.data.local.dao.SupplierInspectionDao;
 import com.afrinuts.farmos.data.local.dao.SyncDao;
 import com.afrinuts.farmos.data.local.dao.TaskAssignmentDao;
@@ -45,6 +46,7 @@ import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
@@ -87,8 +89,10 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 // CooperativeMemberEntity.class  // Add when implemented
                 SupplierCommitmentEntity.class,
                 SupplierInspectionEntity.class,
+                SupplierDisputeEntity.class,
+
         },
-        version = 38,
+        version = 39,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -127,6 +131,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract DocumentDao documentDao();
     public abstract SupplierCommitmentDao supplierCommitmentDao();
     public abstract SupplierInspectionDao supplierInspectionDao();
+    public abstract SupplierDisputeDao supplierDisputeDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -176,7 +181,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration34To35(),
                                     new Migration35To36(),
                                     new Migration36To37(),
-                                    new Migration37To38()
+                                    new Migration37To38(),
+                                    new Migration38To39()
 
                             )
                             .build();
