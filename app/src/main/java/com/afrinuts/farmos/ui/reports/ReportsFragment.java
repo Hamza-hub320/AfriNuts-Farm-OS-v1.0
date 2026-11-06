@@ -298,7 +298,7 @@ public class ReportsFragment extends Fragment {
         long endTime = endCalendar.getTimeInMillis();
 
         for (RevenueEntity revenue : allRevenues) {
-            if (revenue.getHarvestDate() >= startTime && revenue.getHarvestDate() <= endTime) {
+            if (revenue.getCreatedAt() >= startTime && revenue.getCreatedAt() <= endTime) {
                 filtered.add(revenue);
             }
         }

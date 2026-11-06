@@ -150,8 +150,8 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
             }
 
             // Date
-            if (revenue.getHarvestDate() > 0) {
-                tvDate.setText(dateFormat.format(revenue.getHarvestDate()));
+            if (revenue.getCreatedAt() > 0) {
+                tvDate.setText(dateFormat.format(revenue.getCreatedAt()));
             } else {
                 tvDate.setText("Date not set");
             }

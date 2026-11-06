@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,7 +20,6 @@ import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
-import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -31,7 +29,6 @@ import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.blocks.EditHarvestDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -55,7 +52,6 @@ public class RevenueDetailActivity extends BaseActivity {
     private long revenueId;
     private RevenueEntity revenue;
     private FarmEntity currentFarm;
-    private List<BlockEntity> allBlocks;
     private List<QualityBatchEntity> allBatches;
     private List<SupplierEntity> allSuppliers;
     private QualityBatchEntity batch;
@@ -74,20 +70,20 @@ public class RevenueDetailActivity extends BaseActivity {
     private TextView tvQuantity;
     private TextView tvPricePerKg;
     private TextView tvTotalAmount;
-    private TextView tvHarvestDate;
+    private TextView tvSaleDate;
     private TextView tvBuyer;
     private TextView tvNotes;
     private LinearLayout notesLayout;
 
-    // ✅ UI Elements - Edit
+    // UI Elements - Edit
     private TextInputEditText etQuantity;
     private TextInputEditText etPricePerKg;
-    private TextInputEditText etHarvestDate;
+    private TextInputEditText etSaleDate;
     private TextInputEditText etBuyer;
     private TextInputEditText etNotes;
     private MaterialAutoCompleteTextView etQuality;
 
-    // ✅ Procurement UI Elements - Display
+    // Procurement UI Elements - Display
     private LinearLayout layoutProcurementInfo;
     private TextView tvBatchNumber;
     private TextView tvSupplierName;
@@ -95,7 +91,7 @@ public class RevenueDetailActivity extends BaseActivity {
     private MaterialButton btnViewBatch;
     private MaterialButton btnViewSupplier;
 
-    // ✅ Procurement UI Elements - Edit
+    // Procurement UI Elements - Edit
     private LinearLayout layoutProcurementSection;
     private TextInputLayout layoutSupplierSelector;
     private MaterialAutoCompleteTextView etSupplier;
@@ -111,7 +107,6 @@ public class RevenueDetailActivity extends BaseActivity {
     private Calendar selectedDate = Calendar.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
-    // ✅ Procurement tracking fields
     private Long selectedSupplierId = null;
     private Long selectedBatchId = null;
     private String selectedSupplierName = null;
@@ -157,27 +152,29 @@ public class RevenueDetailActivity extends BaseActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Display views
+        // Display views — the layout may still use R.id.tvHarvestDate /
+        // R.id.etHarvestDate; the field names in code are now sale-date
+        // semantic, but the view IDs are unchanged to avoid a layout diff.
         tvQualityIcon = findViewById(R.id.tvQualityIcon);
         tvQualityGrade = findViewById(R.id.tvQualityGrade);
         tvSource = findViewById(R.id.tvSource);
         tvQuantity = findViewById(R.id.tvQuantity);
         tvPricePerKg = findViewById(R.id.tvPricePerKg);
         tvTotalAmount = findViewById(R.id.tvTotalAmount);
-        tvHarvestDate = findViewById(R.id.tvHarvestDate);
+        tvSaleDate = findViewById(R.id.tvHarvestDate);
         tvBuyer = findViewById(R.id.tvBuyer);
         tvNotes = findViewById(R.id.tvNotes);
         notesLayout = findViewById(R.id.notesLayout);
 
-        // ✅ Edit mode fields
+        // Edit-mode fields
         etQuantity = findViewById(R.id.etQuantity);
         etPricePerKg = findViewById(R.id.etPricePerKg);
-        etHarvestDate = findViewById(R.id.etHarvestDate);
+        etSaleDate = findViewById(R.id.etHarvestDate);
         etBuyer = findViewById(R.id.etBuyer);
         etNotes = findViewById(R.id.etNotes);
         etQuality = findViewById(R.id.etQuality);
 
-        // ✅ Procurement display
+        // Procurement display
         layoutProcurementInfo = findViewById(R.id.layoutProcurementInfo);
         tvBatchNumber = findViewById(R.id.tvBatchNumber);
         tvSupplierName = findViewById(R.id.tvSupplierName);
@@ -185,7 +182,7 @@ public class RevenueDetailActivity extends BaseActivity {
         btnViewBatch = findViewById(R.id.btnViewBatch);
         btnViewSupplier = findViewById(R.id.btnViewSupplier);
 
-        // ✅ Procurement edit
+        // Procurement edit
         layoutProcurementSection = findViewById(R.id.layoutProcurementSection);
         layoutSupplierSelector = findViewById(R.id.layoutSupplierSelector);
         etSupplier = findViewById(R.id.etSupplier);
@@ -207,7 +204,6 @@ public class RevenueDetailActivity extends BaseActivity {
             btnSave.setOnClickListener(v -> saveChanges());
         }
 
-        // ✅ Set click listeners for procurement navigation
         if (btnViewBatch != null) {
             btnViewBatch.setOnClickListener(v -> viewBatch());
         }
@@ -216,7 +212,6 @@ public class RevenueDetailActivity extends BaseActivity {
             btnViewSupplier.setOnClickListener(v -> viewSupplier());
         }
 
-        // ✅ Supplier selection listener
         if (etSupplier != null) {
             etSupplier.setOnItemClickListener((parent, view, position, id) -> {
                 if (allSuppliers != null && position < allSuppliers.size()) {
@@ -228,7 +223,6 @@ public class RevenueDetailActivity extends BaseActivity {
             });
         }
 
-        // ✅ Batch selection listener
         if (etBatch != null) {
             etBatch.setOnItemClickListener((parent, view, position, id) -> {
                 if (allBatches != null && position < allBatches.size()) {
@@ -239,10 +233,8 @@ public class RevenueDetailActivity extends BaseActivity {
             });
         }
 
-        // Setup date picker
         setupDatePicker();
 
-        // Initially not editable
         setFieldsEditable(false);
         setEditModeVisibility(false);
     }
@@ -286,9 +278,9 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setupDatePicker() {
-        if (etHarvestDate != null) {
-            etHarvestDate.setOnClickListener(v -> showDatePicker());
-            etHarvestDate.setOnFocusChangeListener((v, hasFocus) -> {
+        if (etSaleDate != null) {
+            etSaleDate.setOnClickListener(v -> showDatePicker());
+            etSaleDate.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
                     showDatePicker();
                 }
@@ -313,8 +305,8 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void updateDateLabel() {
-        if (etHarvestDate != null) {
-            etHarvestDate.setText(dateFormat.format(selectedDate.getTime()));
+        if (etSaleDate != null) {
+            etSaleDate.setText(dateFormat.format(selectedDate.getTime()));
         }
     }
 
@@ -355,14 +347,10 @@ public class RevenueDetailActivity extends BaseActivity {
                 supplierRepository = new SupplierRepository(RevenueDetailActivity.this, farmId);
 
                 currentFarm = database.farmDao().getFirstFarm();
-                allBlocks = database.blockDao().getBlocksByFarmId(currentFarm != null ?
-                        currentFarm.getId() : 1L);
 
-                // ✅ Load all suppliers and batches for dropdowns
                 allSuppliers = supplierRepository.getSuppliersSync();
                 allBatches = batchRepository.getAllBatchesSync();
 
-                // ✅ Load specific batch and supplier if linked
                 if (revenue.getBatchId() != null && revenue.getBatchId() > 0) {
                     batch = database.qualityBatchDao().getBatchById(revenue.getBatchId());
                     if (batch != null) {
@@ -431,7 +419,6 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setupProcurementDropdowns() {
-        // Setup supplier dropdown
         if (allSuppliers != null && etSupplier != null) {
             List<String> supplierNames = new ArrayList<>();
             for (SupplierEntity supplier : allSuppliers) {
@@ -445,7 +432,6 @@ public class RevenueDetailActivity extends BaseActivity {
             etSupplier.setAdapter(supplierAdapter);
         }
 
-        // Setup batch dropdown
         if (allBatches != null && etBatch != null) {
             List<String> batchDisplayNames = new ArrayList<>();
             for (QualityBatchEntity batch : allBatches) {
@@ -504,24 +490,27 @@ public class RevenueDetailActivity extends BaseActivity {
         tvQualityGrade.setText(revenue.getQuality().getDisplayName() + " Grade");
         selectedQuality = revenue.getQuality();
 
-        // Source (Block or Processing Center)
-        if (revenue.getBlockId() != null) {
-            String blockName = getBlockName(revenue.getBlockId());
-            tvSource.setText("Block " + blockName);
-        } else {
-            tvSource.setText("Processing Center");
+        // Source — no block attribution in the revenue model. The label
+        // shows the batch when there is one, else the generic processing
+        // center tag. If the layout still has tvSource, keep it in sync.
+        if (tvSource != null) {
+            if (revenue.getBatchNumber() != null && !revenue.getBatchNumber().isEmpty()) {
+                tvSource.setText("Batch " + revenue.getBatchNumber());
+            } else {
+                tvSource.setText("Processing Center");
+            }
         }
 
-        // Financial details - display values
+        // Financial details
         tvQuantity.setText(String.format(Locale.getDefault(), "%.1f kg", revenue.getQuantityKg()));
         tvPricePerKg.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getPricePerKg()));
         tvTotalAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount()));
-        tvHarvestDate.setText(dateFormat.format(revenue.getHarvestDate()));
+        tvSaleDate.setText(dateFormat.format(revenue.getCreatedAt()));
 
-        // Set edit fields
+        // Edit fields
         etQuantity.setText(String.valueOf(revenue.getQuantityKg()));
         etPricePerKg.setText(String.valueOf(revenue.getPricePerKg()));
-        selectedDate.setTimeInMillis(revenue.getHarvestDate());
+        selectedDate.setTimeInMillis(revenue.getCreatedAt());
         updateDateLabel();
         etQuality.setText(revenue.getQuality().getDisplayName() + " Grade", false);
 
@@ -544,60 +533,44 @@ public class RevenueDetailActivity extends BaseActivity {
             etNotes.setText("");
         }
 
-        // ✅ Display procurement info if linked
+        // Procurement info
         if (revenue.isProcurementRelated()) {
             layoutProcurementInfo.setVisibility(View.VISIBLE);
 
-            // Batch number
             if (revenue.getBatchNumber() != null && !revenue.getBatchNumber().isEmpty()) {
                 tvBatchNumber.setText("#" + revenue.getBatchNumber());
                 tvBatchNumber.setVisibility(View.VISIBLE);
                 btnViewBatch.setVisibility(View.VISIBLE);
-                // Set in edit field
                 etBatch.setText(revenue.getBatchNumber(), false);
             } else {
                 tvBatchNumber.setVisibility(View.GONE);
                 btnViewBatch.setVisibility(View.GONE);
             }
 
-            // Supplier name
             if (revenue.getSupplierName() != null && !revenue.getSupplierName().isEmpty()) {
                 tvSupplierName.setText(revenue.getSupplierName());
                 tvSupplierName.setVisibility(View.VISIBLE);
                 btnViewSupplier.setVisibility(View.VISIBLE);
-                // Set in edit field
                 etSupplier.setText(revenue.getSupplierName(), false);
             } else {
                 tvSupplierName.setVisibility(View.GONE);
                 btnViewSupplier.setVisibility(View.GONE);
             }
 
-            // Combined procurement info
             tvProcurementInfo.setText(revenue.getProcurementInfo());
         } else {
             layoutProcurementInfo.setVisibility(View.GONE);
         }
     }
 
-    private String getBlockName(Long blockId) {
-        if (blockId == null || allBlocks == null) return null;
-        for (BlockEntity block : allBlocks) {
-            if (block.getId() == blockId) {
-                return block.getBlockName();
-            }
-        }
-        return null;
-    }
-
     private void setFieldsEditable(boolean editable) {
         if (etQuantity != null) etQuantity.setEnabled(editable);
         if (etPricePerKg != null) etPricePerKg.setEnabled(editable);
-        if (etHarvestDate != null) etHarvestDate.setEnabled(editable);
+        if (etSaleDate != null) etSaleDate.setEnabled(editable);
         if (etBuyer != null) etBuyer.setEnabled(editable);
         if (etNotes != null) etNotes.setEnabled(editable);
         if (etQuality != null) etQuality.setEnabled(editable);
 
-        // ✅ Enable procurement fields if revenue is procurement-related
         if (revenue != null && revenue.isProcurementRelated()) {
             if (etSupplier != null) etSupplier.setEnabled(editable);
             if (etBatch != null) etBatch.setEnabled(editable);
@@ -605,30 +578,26 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setEditModeVisibility(boolean visible) {
-        // Display views (hide in edit mode)
         int displayVisibility = visible ? View.GONE : View.VISIBLE;
         tvQuantity.setVisibility(displayVisibility);
         tvPricePerKg.setVisibility(displayVisibility);
         tvTotalAmount.setVisibility(displayVisibility);
-        tvHarvestDate.setVisibility(displayVisibility);
+        tvSaleDate.setVisibility(displayVisibility);
         tvBuyer.setVisibility(displayVisibility);
 
-        // ✅ Edit fields layout (show in edit mode)
         CardView layoutEditFields = findViewById(R.id.layoutEditFields);
         if (layoutEditFields != null) {
             layoutEditFields.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
 
-        // Edit views (enable/disable)
         int editVisibility = visible ? View.VISIBLE : View.GONE;
         if (etQuantity != null) etQuantity.setVisibility(editVisibility);
         if (etPricePerKg != null) etPricePerKg.setVisibility(editVisibility);
-        if (etHarvestDate != null) etHarvestDate.setVisibility(editVisibility);
+        if (etSaleDate != null) etSaleDate.setVisibility(editVisibility);
         if (etBuyer != null) etBuyer.setVisibility(editVisibility);
         if (etNotes != null) etNotes.setVisibility(editVisibility);
         if (etQuality != null) etQuality.setVisibility(editVisibility);
 
-        // Show/hide procurement section in edit mode
         if (revenue != null && revenue.isProcurementRelated()) {
             if (layoutProcurementSection != null) {
                 layoutProcurementSection.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -641,7 +610,6 @@ public class RevenueDetailActivity extends BaseActivity {
             }
         }
 
-        // Notes layout
         if (visible) {
             if (notesLayout != null) notesLayout.setVisibility(View.VISIBLE);
         } else {
@@ -662,7 +630,6 @@ public class RevenueDetailActivity extends BaseActivity {
 
         isEditMode = enable;
 
-        // Toggle button visibility
         if (btnEdit != null) {
             btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
         }
@@ -678,12 +645,10 @@ public class RevenueDetailActivity extends BaseActivity {
                     "Edit mode enabled. Make your changes and save.",
                     Snackbar.LENGTH_LONG).show();
         } else {
-            // Refresh display
             displayRevenueData();
         }
     }
 
-    // ✅ View batch detail
     private void viewBatch() {
         if (batch == null) {
             Toast.makeText(this, "Batch not found", Toast.LENGTH_SHORT).show();
@@ -695,7 +660,6 @@ public class RevenueDetailActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    // ✅ View supplier detail
     private void viewSupplier() {
         if (supplier == null) {
             Toast.makeText(this, "Supplier not found", Toast.LENGTH_SHORT).show();
@@ -710,7 +674,6 @@ public class RevenueDetailActivity extends BaseActivity {
     private void saveChanges() {
         if (revenue == null || revenueRepository == null) return;
 
-        // Validate quantity
         String quantityStr = etQuantity.getText().toString().trim();
         if (TextUtils.isEmpty(quantityStr)) {
             etQuantity.setError("Quantity is required");
@@ -729,7 +692,6 @@ public class RevenueDetailActivity extends BaseActivity {
             return;
         }
 
-        // Validate price
         String priceStr = etPricePerKg.getText().toString().trim();
         if (TextUtils.isEmpty(priceStr)) {
             etPricePerKg.setError("Price is required");
@@ -748,9 +710,7 @@ public class RevenueDetailActivity extends BaseActivity {
             return;
         }
 
-        // ✅ Update procurement fields if procurement-related
         if (revenue.isProcurementRelated()) {
-            // Get supplier from dropdown
             String supplierStr = etSupplier.getText().toString().trim();
             if (!TextUtils.isEmpty(supplierStr) && allSuppliers != null) {
                 for (SupplierEntity supplier : allSuppliers) {
@@ -763,7 +723,6 @@ public class RevenueDetailActivity extends BaseActivity {
                 }
             }
 
-            // Get batch from dropdown
             String batchStr = etBatch.getText().toString().trim();
             if (!TextUtils.isEmpty(batchStr) && allBatches != null) {
                 for (QualityBatchEntity batch : allBatches) {
@@ -778,15 +737,13 @@ public class RevenueDetailActivity extends BaseActivity {
             }
         }
 
-        // Update revenue object
         revenue.setQuantityKg(quantity);
         revenue.setPricePerKg(price);
-        revenue.setHarvestDate(selectedDate.getTimeInMillis());
+        revenue.setCreatedAt(selectedDate.getTimeInMillis());
         revenue.setQuality(selectedQuality);
         revenue.setBuyer(etBuyer.getText().toString().trim());
         revenue.setNotes(etNotes.getText().toString().trim());
 
-        // ✅ Update procurement fields
         if (revenue.isProcurementRelated()) {
             revenue.setBatchId(selectedBatchId);
             revenue.setSupplierId(selectedSupplierId);

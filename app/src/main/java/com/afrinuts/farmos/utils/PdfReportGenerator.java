@@ -217,7 +217,7 @@ public class PdfReportGenerator {
         table.addHeaderCell(new Cell().add(new Paragraph("Amount").setBold()).setBackgroundColor(GREY_COLOR));
 
         for (RevenueEntity revenue : reportData.getRevenues()) {
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getHarvestDate())))));
+            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getCreatedAt())))));
             table.addCell(new Cell().add(new Paragraph(revenue.getQuality().getDisplayName())));
             table.addCell(new Cell().add(new Paragraph(String.format("%.1f kg", revenue.getQuantityKg()))));
             table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", revenue.getTotalAmount()))));
@@ -274,7 +274,7 @@ public class PdfReportGenerator {
         int count = 0;
         for (RevenueEntity revenue : reportData.getRevenues()) {
             if (count++ >= 10) break;
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getHarvestDate())))));
+            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getCreatedAt())))));
             table.addCell(new Cell().add(new Paragraph("Revenue")));
             table.addCell(new Cell().add(new Paragraph(revenue.getQuality().getDisplayName())));
             table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", revenue.getTotalAmount()))));

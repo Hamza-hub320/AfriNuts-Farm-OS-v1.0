@@ -152,7 +152,7 @@ public class AddRevenueDialog extends DialogFragment {
             if (isEditMode && revenueId != -1) {
                 existingRevenue = database.revenueDao().getRevenueById(revenueId);
                 if (existingRevenue != null) {
-                    selectedDate.setTimeInMillis(existingRevenue.getHarvestDate());
+                    selectedDate.setTimeInMillis(existingRevenue.getCreatedAt());
                     selectedQuality = existingRevenue.getQuality();
 
                     // Pre-fill procurement fields if available
@@ -645,7 +645,7 @@ public class AddRevenueDialog extends DialogFragment {
 
         String buyer = etBuyer.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
-        long harvestDate = selectedDate.getTimeInMillis();
+        long saleDate = selectedDate.getTimeInMillis();
         int selectedYear = selectedDate.get(Calendar.YEAR);
 
         btnSave.setEnabled(false);
@@ -654,10 +654,9 @@ public class AddRevenueDialog extends DialogFragment {
         // ✅ Create revenue with procurement data (NO BLOCK ID)
         RevenueEntity revenue = new RevenueEntity(
                 farmId,
-                null,  // No block ID for processing center revenue
-                selectedBatchId,
-                selectedSupplierId,
-                harvestDate,
+                selectedBatchId,          // batchId
+                selectedSupplierId,       // supplierId
+                saleDate,
                 quantity,
                 price,
                 buyer.isEmpty() ? null : buyer,
@@ -669,10 +668,7 @@ public class AddRevenueDialog extends DialogFragment {
         revenue.setBatchNumber(selectedBatchNumber);
         revenue.setSupplierName(selectedSupplierName);
 
-        // Set harvest cycle info
-        revenue.setHarvestYear(selectedYear);
-        revenue.setHarvestSeason(0);
-        revenue.setHarvestCycleId("PROCESSING_CENTER_" + selectedYear + "_" + System.currentTimeMillis());
+
         // ✅ SOP §4.5 + §4.6: final pre-submit check
         if (selectedBatch != null && !selectedBatch.isSaleable()) {
             btnSave.setEnabled(true);
@@ -785,8 +781,7 @@ public class AddRevenueDialog extends DialogFragment {
 
         existingRevenue.setQuantityKg(quantity);
         existingRevenue.setPricePerKg(price);
-        existingRevenue.setHarvestDate(harvestDate);
-        existingRevenue.setBlockId(null);  // ✅ Ensure no block ID
+        existingRevenue.setCreatedAt(harvestDate);
         existingRevenue.setBatchId(selectedBatchId);
         existingRevenue.setSupplierId(selectedSupplierId);
         existingRevenue.setBatchNumber(selectedBatchNumber);
