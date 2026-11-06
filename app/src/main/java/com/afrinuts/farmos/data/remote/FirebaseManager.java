@@ -318,6 +318,13 @@ public class FirebaseManager {
             throw new Exception("Failed to save revenue to Firestore", e);
         }
     }
+
+    public Task<QuerySnapshot> getRevenuesForFarm(String farmId) {
+        return db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection(SUBCOLLECTION_REVENUES)
+                .get();
+    }
     // ========================================
     // TASK OPERATIONS - UPDATED to use subcollections
     // ========================================
