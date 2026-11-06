@@ -18,6 +18,7 @@ import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -1465,6 +1466,83 @@ public class EntityMapper {
         if (s == null || s.isEmpty()) return SupplierDisputeEntity.TargetEntity.COMMITMENT;
         try { return SupplierDisputeEntity.TargetEntity.valueOf(s); }
         catch (IllegalArgumentException e) { return SupplierDisputeEntity.TargetEntity.COMMITMENT; }
+    }
+
+    // ========================================
+// SUPPLIER SCORE SNAPSHOT MAPPING
+// ========================================
+
+    public static Map<String, Object> supplierScoreSnapshotToMap(SupplierScoreSnapshotEntity s) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", s.getId());
+        map.put("supplierId", s.getSupplierId());
+        map.put("farmId", s.getFarmId());
+        map.put("overall", s.getOverall());                 // may be null — intentional
+        map.put("quality", s.getQuality());
+        map.put("delivery", s.getDelivery());
+        map.put("traceability", s.getTraceability());
+        map.put("compliance", s.getCompliance());
+        map.put("sustainability", s.getSustainability());
+        map.put("cooperation", s.getCooperation());
+        map.put("confidence", s.getConfidence() != null ? s.getConfidence().name() : null);
+        map.put("verifiedTransactions", s.getVerifiedTransactions());
+        map.put("scoringVersion", s.getScoringVersion());
+        map.put("weightsUsed", s.getWeightsUsed());
+        map.put("calculatedAt", s.getCalculatedAt());
+        map.put("calculatedBy", s.getCalculatedBy());
+        map.put("evidenceRefs", s.getEvidenceRefs());
+        map.put("createdAt", s.getCreatedAt());
+        return map;
+    }
+
+    public static SupplierScoreSnapshotEntity mapToSnapshot(DocumentSnapshot doc) {
+        try {
+            long id = getLongSafe(doc, "id");
+            long supplierId = getLongSafe(doc, "supplierId");
+            long farmId = getLongSafe(doc, "farmId");
+            String scoringVersion = doc.getString("scoringVersion");
+            String calculatedBy = doc.getString("calculatedBy");
+
+            SupplierScoreSnapshotEntity s = new SupplierScoreSnapshotEntity(
+                    supplierId, farmId, scoringVersion, calculatedBy);
+            s.setId(id);
+
+            // Nullable doubles — preserve null (means "no evidence for this dimension")
+            Double overall = doc.getDouble("overall");
+            s.setOverall(overall);
+            s.setQuality(doc.getDouble("quality"));
+            s.setDelivery(doc.getDouble("delivery"));
+            s.setTraceability(doc.getDouble("traceability"));
+            s.setCompliance(doc.getDouble("compliance"));
+            s.setSustainability(doc.getDouble("sustainability"));
+            s.setCooperation(doc.getDouble("cooperation"));
+
+            String confidence = doc.getString("confidence");
+            if (confidence != null && !confidence.isEmpty()) {
+                try { s.setConfidence(SupplierScoreSnapshotEntity.Confidence.valueOf(confidence)); }
+                catch (IllegalArgumentException ignored) { }
+            }
+
+            Long verifiedLong = getNullableLong(doc, "verifiedTransactions");
+            if (verifiedLong != null) s.setVerifiedTransactions(verifiedLong.intValue());
+
+            String weights = doc.getString("weightsUsed");
+            s.setWeightsUsed(weights != null ? weights : "{}");
+
+            Long calculatedAt = getNullableLong(doc, "calculatedAt");
+            if (calculatedAt != null) s.setCalculatedAt(calculatedAt);
+
+            String evidenceRefs = doc.getString("evidenceRefs");
+            s.setEvidenceRefs(evidenceRefs != null ? evidenceRefs : "[]");
+
+            Long createdAt = getNullableLong(doc, "createdAt");
+            if (createdAt != null) s.setCreatedAt(createdAt);
+
+            return s;
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping snapshot document", e);
+            return null;
+        }
     }
 
 // ========================================
