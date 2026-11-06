@@ -341,10 +341,12 @@ public class RcnEditDialog extends DialogFragment {
 
     private QualityBatchEntity buildEntity() {
         QualityBatchEntity b = new QualityBatchEntity(
-                farmId, existing.getBlockId(), existing.getHarvestCycleId(),
-                existing.getSupplierId(), existing.getSourceType(),
+                farmId,
+                existing.getBlockId(),
+                existing.getSupplierId(),
+                existing.getSourceType(),
                 existing.getBatchNumber(),
-                existing.getProcessingDate(),        // ✅ preserve processingDate
+                existing.getProcessingDate(),
                 d(etMoisture), i(etNutCount),
                 d(etMouldy) + d(etImmature) + d(etInsectDamaged) + d(etShrivelled),
                 0, existing.getWeightKg(),

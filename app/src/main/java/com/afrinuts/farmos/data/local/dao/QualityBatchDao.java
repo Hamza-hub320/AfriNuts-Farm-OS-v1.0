@@ -54,10 +54,6 @@ public interface QualityBatchDao {
     @Query("SELECT * FROM quality_batches WHERE blockId = :blockId ORDER BY processingDate DESC")
     LiveData<List<QualityBatchEntity>> getBatchesByBlockIdLiveData(long blockId);
 
-    // Harvest cycle queries
-    @Query("SELECT * FROM quality_batches WHERE harvestCycleId = :harvestCycleId")
-    List<QualityBatchEntity> getBatchesByHarvestCycle(long harvestCycleId);
-
     // Quality grade queries
     @Query("SELECT * FROM quality_batches WHERE qualityGrade = :grade ORDER BY processingDate DESC")
     List<QualityBatchEntity> getBatchesByGrade(QualityBatchEntity.QualityGrade grade);

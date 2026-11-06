@@ -784,7 +784,6 @@ public class EntityMapper {
         map.put("id", batch.getId());
         map.put("farmId", batch.getFarmId());
         map.put("blockId", batch.getBlockId());
-        map.put("harvestCycleId", batch.getHarvestCycleId());
         map.put("verificationCode", batch.getVerificationCode());
         map.put("supplierId", batch.getSupplierId());
         map.put("sourceType", batch.getSourceType() != null ? batch.getSourceType().name() : null);
@@ -881,11 +880,9 @@ public class EntityMapper {
                 grade = QualityBatchEntity.QualityGrade.STANDARD;
             }
 
-            // FIXED: Use the correct constructor with 14 arguments
             QualityBatchEntity batch = new QualityBatchEntity(
                     farmId,
                     blockId,
-                    harvestCycleId,
                     supplierId,
                     sourceType,
                     batchNumber,

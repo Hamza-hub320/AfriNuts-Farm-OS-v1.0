@@ -51,7 +51,6 @@ public class QualityBatchEntity {
 
     // Source tracking
     private Long blockId;
-    private Long harvestCycleId;
     private Long supplierId;
 
     private String verificationCode;
@@ -204,14 +203,14 @@ public class QualityBatchEntity {
     }
 
     // Constructor
-    public QualityBatchEntity(long farmId, Long blockId, Long harvestCycleId, Long supplierId,
-                              SourceType sourceType, String batchNumber, long processingDate,
-                              double moistureContent, int nutCountPerKg, double defectiveRate,
-                              double kernelRatio, double weightKg, QualityGrade qualityGrade,
-                              String notes) {
+    public QualityBatchEntity(long farmId, Long blockId, Long supplierId,
+                              SourceType sourceType, String batchNumber,
+                              long processingDate, double moistureContent,
+                              int nutCountPerKg, double defectiveRate,
+                              double kernelRatio, double weightKg,
+                              QualityGrade qualityGrade, String notes) {
         this.farmId = farmId;
         this.blockId = blockId;
-        this.harvestCycleId = harvestCycleId;
         this.supplierId = supplierId;
         this.sourceType = sourceType;
         this.batchNumber = batchNumber;
@@ -316,9 +315,6 @@ public class QualityBatchEntity {
 
     public Long getBlockId() { return blockId; }
     public void setBlockId(Long blockId) { this.blockId = blockId; }
-
-    public Long getHarvestCycleId() { return harvestCycleId; }
-    public void setHarvestCycleId(Long harvestCycleId) { this.harvestCycleId = harvestCycleId; }
 
     public Long getSupplierId() { return supplierId; }
     public void setSupplierId(Long supplierId) { this.supplierId = supplierId; }

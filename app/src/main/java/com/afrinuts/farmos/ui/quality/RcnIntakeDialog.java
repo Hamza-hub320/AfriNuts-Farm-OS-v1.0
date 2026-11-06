@@ -377,11 +377,10 @@ public class RcnIntakeDialog extends DialogFragment {
         QualityBatchEntity b = new QualityBatchEntity(
                 farmId,
                 selectedBatch.getBlockId(),
-                selectedBatch.getHarvestCycleId(),
                 selectedBatch.getSupplierId(),
                 selectedBatch.getSourceType(),
                 selectedBatch.getBatchNumber(),
-                selectedBatch.getProcessingDate(),   // ✅ preserve processingDate
+                selectedBatch.getProcessingDate(),
                 d(etMoisture),
                 i(etNutCount),
                 d(etMouldy) + d(etImmature) + d(etInsectDamaged) + d(etShrivelled),
