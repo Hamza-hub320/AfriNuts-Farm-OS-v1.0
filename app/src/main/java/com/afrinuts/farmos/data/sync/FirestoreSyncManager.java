@@ -23,6 +23,10 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -68,6 +72,10 @@ public class FirestoreSyncManager {
     private ListenerRegistration inspectionsListener;
     private ListenerRegistration verificationsListener;
     private ListenerRegistration documentsListener;
+    private ListenerRegistration supplierCommitmentsListener;
+    private ListenerRegistration supplierInspectionsListener;
+    private ListenerRegistration supplierDisputesListener;
+    private ListenerRegistration scoreHistoryListener;
     private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
 
 
@@ -107,6 +115,10 @@ public class FirestoreSyncManager {
         listenToInspections();
         listenToVerifications();
         listenToDocuments();
+        listenToSupplierCommitments();
+        listenToSupplierInspections();
+        listenToSupplierDisputes();
+        listenToScoreHistory();
     }
 
     /**
@@ -129,6 +141,10 @@ public class FirestoreSyncManager {
         if (inspectionsListener != null) inspectionsListener.remove();
         if (verificationsListener != null) verificationsListener.remove();
         if (documentsListener != null) documentsListener.remove();
+        if (supplierCommitmentsListener != null) supplierCommitmentsListener.remove();
+        if (supplierInspectionsListener != null) supplierInspectionsListener.remove();
+        if (supplierDisputesListener != null)     supplierDisputesListener.remove();
+        if (scoreHistoryListener != null)         scoreHistoryListener.remove();
 
 
         Log.d(TAG, "All Firestore listeners stopped");
@@ -725,8 +741,192 @@ public class FirestoreSyncManager {
     }
 
     // ========================================
-// QUALITY BATCHES LISTENER with Supplier Check
+// SUPPLIER COMMITMENTS LISTENER
 // ========================================
+
+    private void listenToSupplierCommitments() {
+        supplierCommitmentsListener = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("supplier_commitments")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Commitments listener failed", error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            SupplierCommitmentEntity remote =
+                                    EntityMapper.mapToCommitment(dc.getDocument());
+                            if (remote == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    SupplierCommitmentEntity local =
+                                            database.supplierCommitmentDao().getById(remote.getId());
+                                    isApplyingRemoteUpdate = true;
+                                    if (local == null) {
+                                        database.supplierCommitmentDao().insert(remote);
+                                        Log.d(TAG, "➕ Commitment: " + remote.getId());
+                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                        database.supplierCommitmentDao().update(remote);
+                                        Log.d(TAG, "📥 Updated commitment: " + remote.getId());
+                                    }
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+                                case REMOVED:
+                                    Log.d(TAG, "❌ Commitment removed remotely: " + remote.getId()
+                                            + " (local record kept — audit trail)");
+                                    // Deliberately no local delete: evidence history is
+                                    // never removed, only superseded.
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Supplier commitments listener registered");
+    }
+
+// ========================================
+// SUPPLIER INSPECTIONS LISTENER
+// ========================================
+
+    private void listenToSupplierInspections() {
+        supplierInspectionsListener = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("supplier_inspections")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Supplier inspections listener failed", error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            SupplierInspectionEntity remote =
+                                    EntityMapper.mapToSupplierInspection(dc.getDocument());
+                            if (remote == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    SupplierInspectionEntity local =
+                                            database.supplierInspectionDao().getById(remote.getId());
+                                    isApplyingRemoteUpdate = true;
+                                    if (local == null) {
+                                        database.supplierInspectionDao().insert(remote);
+                                        Log.d(TAG, "➕ Inspection: " + remote.getId());
+                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                        database.supplierInspectionDao().update(remote);
+                                        Log.d(TAG, "📥 Updated inspection: " + remote.getId());
+                                    }
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+                                case REMOVED:
+                                    Log.d(TAG, "❌ Inspection removed remotely: " + remote.getId()
+                                            + " (local record kept — audit trail)");
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Supplier inspections listener registered");
+    }
+
+// ========================================
+// SUPPLIER DISPUTES LISTENER
+// ========================================
+
+    private void listenToSupplierDisputes() {
+        supplierDisputesListener = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("supplier_disputes")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Supplier disputes listener failed", error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            SupplierDisputeEntity remote =
+                                    EntityMapper.mapToDispute(dc.getDocument());
+                            if (remote == null) continue;
+
+                            switch (dc.getType()) {
+                                case ADDED:
+                                case MODIFIED:
+                                    SupplierDisputeEntity local =
+                                            database.supplierDisputeDao().getById(remote.getId());
+                                    isApplyingRemoteUpdate = true;
+                                    if (local == null) {
+                                        database.supplierDisputeDao().insert(remote);
+                                        Log.d(TAG, "➕ Dispute: " + remote.getId());
+                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                        database.supplierDisputeDao().update(remote);
+                                        Log.d(TAG, "📥 Updated dispute: " + remote.getId());
+                                    }
+                                    isApplyingRemoteUpdate = false;
+                                    break;
+                                case REMOVED:
+                                    Log.d(TAG, "❌ Dispute removed remotely: " + remote.getId()
+                                            + " (local record kept — audit trail)");
+                                    break;
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Supplier disputes listener registered");
+    }
+
+// ========================================
+// SCORE HISTORY LISTENER (Firestore → Room only)
+// ========================================
+
+    private void listenToScoreHistory() {
+        scoreHistoryListener = db.collection(COLLECTION_FARMS)
+                .document(farmId)
+                .collection("supplier_score_history")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Score history listener failed", error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+
+                    executor.execute(() -> {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            SupplierScoreSnapshotEntity remote =
+                                    EntityMapper.mapToSnapshot(dc.getDocument());
+                            if (remote == null) continue;
+
+                            // Snapshots are append-only. Insert if absent; never
+                            // overwrite. Remote removals are ignored (snapshots
+                            // are history).
+                            if (dc.getType() == DocumentChange.Type.ADDED
+                                    || dc.getType() == DocumentChange.Type.MODIFIED) {
+                                SupplierScoreSnapshotEntity local =
+                                        database.supplierScoreSnapshotDao().getById(remote.getId());
+                                if (local == null) {
+                                    database.supplierScoreSnapshotDao().insert(remote);
+                                    Log.d(TAG, "➕ Snapshot: " + remote.getId()
+                                            + " for supplier " + remote.getSupplierId());
+                                }
+                                // else: immutable; do nothing
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "👂 Score history listener registered");
+    }
+
+    // ========================================
+    // QUALITY BATCHES LISTENER with Supplier Check
+    // ========================================
 
     private void listenToQualityBatches() {
         qualityBatchesListener = db.collection("farms")

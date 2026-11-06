@@ -18,7 +18,11 @@ import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -709,7 +713,181 @@ public class FirebaseManager {
     }
 
 
-    // In FirebaseManager.java - add these methods if they don't exist
+// ========================================
+// SUPPLIER COMMITMENT OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_SUPPLIER_COMMITMENTS = "supplier_commitments";
+
+    public void saveSupplierCommitment(SupplierCommitmentEntity c, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.commitmentToMap(c);
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_COMMITMENTS)
+                    .document(String.valueOf(c.getId()))
+                    .set(data));
+            Log.d(TAG, "Commitment saved: " + c.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving commitment: " + c.getId(), e);
+            throw new Exception("Failed to save commitment to Firestore", e);
+        }
+    }
+
+    public void deleteSupplierCommitment(String farmId, long commitmentId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_COMMITMENTS)
+                    .document(String.valueOf(commitmentId))
+                    .delete());
+            Log.d(TAG, "Commitment deleted: " + commitmentId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting commitment", e);
+            throw new Exception("Failed to delete commitment from Firestore", e);
+        }
+    }
+
+// ========================================
+// SUPPLIER INSPECTION OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_SUPPLIER_INSPECTIONS = "supplier_inspections";
+
+    public void saveSupplierInspection(SupplierInspectionEntity i, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.supplierInspectionToMap(i);
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_INSPECTIONS)
+                    .document(String.valueOf(i.getId()))
+                    .set(data));
+            Log.d(TAG, "Inspection saved: " + i.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving inspection: " + i.getId(), e);
+            throw new Exception("Failed to save inspection to Firestore", e);
+        }
+    }
+
+    public void deleteSupplierInspection(String farmId, long inspectionId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_INSPECTIONS)
+                    .document(String.valueOf(inspectionId))
+                    .delete());
+            Log.d(TAG, "Inspection deleted: " + inspectionId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting inspection", e);
+            throw new Exception("Failed to delete inspection from Firestore", e);
+        }
+    }
+
+// ========================================
+// SUPPLIER DISPUTE OPERATIONS
+// ========================================
+
+    private static final String SUBCOLLECTION_SUPPLIER_DISPUTES = "supplier_disputes";
+
+    public void saveSupplierDispute(SupplierDisputeEntity d, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.supplierDisputeToMap(d);
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_DISPUTES)
+                    .document(String.valueOf(d.getId()))
+                    .set(data));
+            Log.d(TAG, "Dispute saved: " + d.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving dispute: " + d.getId(), e);
+            throw new Exception("Failed to save dispute to Firestore", e);
+        }
+    }
+
+    public void deleteSupplierDispute(String farmId, long disputeId) throws Exception {
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SUPPLIER_DISPUTES)
+                    .document(String.valueOf(disputeId))
+                    .delete());
+            Log.d(TAG, "Dispute deleted: " + disputeId);
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error deleting dispute", e);
+            throw new Exception("Failed to delete dispute from Firestore", e);
+        }
+    }
+
+// ========================================
+// SNAPSHOTS (write-through for tests; the
+// engine writes these portal-side in production)
+// ========================================
+
+    private static final String SUBCOLLECTION_SCORE_HISTORY = "supplier_score_history";
+
+    public void saveScoreSnapshot(SupplierScoreSnapshotEntity s, String farmId) throws Exception {
+        Map<String, Object> data = EntityMapper.supplierScoreSnapshotToMap(s);
+        try {
+            Tasks.await(db.collection(COLLECTION_FARMS)
+                    .document(farmId)
+                    .collection(SUBCOLLECTION_SCORE_HISTORY)
+                    .document(String.valueOf(s.getId()))
+                    .set(data));
+            Log.d(TAG, "Snapshot saved: " + s.getId());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error saving snapshot: " + s.getId(), e);
+            throw new Exception("Failed to save snapshot to Firestore", e);
+        }
+    }
+
+// ========================================
+// AD-HOC EVIDENCE PHOTO UPLOAD
+// ========================================
+// Mirrors PhotoRepository.uploadToFirebaseStorage's mechanics, but is not
+// tied to PhotoEntity: file → Storage → download URL. Nothing is written
+// back to Room from here; the caller rewrites the evidenceUrls array on its
+// own record. The point of having one method is so that upload ordering
+// lives in exactly one place.
+
+    public interface EvidenceUploadCallback {
+        void onSuccess(String downloadUrl);
+        void onError(String error);
+    }
+
+    /**
+     * Uploads one evidence file to Storage under the given record path and
+     * returns the download URL. The path is structured so the portal can find
+     * evidence by (farmId, entityType, entityId, filename).
+     *
+     * Example path:
+     *   farms/1/supplier_inspections/42/evidence/1730000000_a.jpg
+     */
+    public void uploadEvidenceFile(File file,
+                                   String farmId,
+                                   String entityType,
+                                   long entityId,
+                                   String evidenceFileName,
+                                   EvidenceUploadCallback callback) {
+        String path = "farms/" + farmId
+                + "/" + entityType
+                + "/" + entityId
+                + "/evidence/" + evidenceFileName;
+
+        StorageReference ref = storage.getReference().child(path);
+        Log.d(TAG, "Uploading evidence to: " + path);
+
+        ref.putFile(Uri.fromFile(file))
+                .addOnSuccessListener(snapshot -> ref.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            Log.d(TAG, "Evidence uploaded: " + uri);
+                            callback.onSuccess(uri.toString());
+                        })
+                        .addOnFailureListener(e -> callback.onError(e.getMessage())))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Evidence upload failed", e);
+                    callback.onError(e.getMessage());
+                });
+    }
 
 // ========================================
 // MASTER TRACEABILITY OPERATIONS

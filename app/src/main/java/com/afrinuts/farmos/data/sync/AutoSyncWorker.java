@@ -21,7 +21,10 @@ import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
@@ -182,6 +185,15 @@ public class AutoSyncWorker extends Worker {
                     case "document":
                     case "documents":
                         syncDocument(syncItem);
+                        break;
+                    case "supplier_commitments":
+                        syncSupplierCommitment(syncItem);
+                        break;
+                    case "supplier_inspections":
+                        syncSupplierInspection(syncItem);
+                        break;
+                    case "supplier_disputes":
+                        syncSupplierDispute(syncItem);
                         break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
@@ -648,6 +660,102 @@ public class AutoSyncWorker extends Worker {
                     Log.e(TAG, "Failed to delete supplier from Firestore", e);
                     throw e;
                 }
+                break;
+        }
+    }
+
+    // ========================================
+// SUPPLIER TRUST SYNC — 6b
+// ========================================
+
+    private void syncSupplierCommitment(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncSupplierCommitment id=" + syncItem.getEntityId()
+                + " action=" + syncItem.getAction());
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                SupplierCommitmentEntity c =
+                        database.supplierCommitmentDao().getById(syncItem.getEntityId());
+                if (c == null) {
+                    Log.e(TAG, "Commitment not in DB: " + syncItem.getEntityId());
+                    return;
+                }
+                // Commitments carry no evidence files — no uploader pass.
+                firebaseManager.saveSupplierCommitment(c, farmId);
+                break;
+            case DELETE:
+                firebaseManager.deleteSupplierCommitment(farmId, syncItem.getEntityId());
+                break;
+        }
+    }
+
+    private void syncSupplierInspection(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncSupplierInspection id=" + syncItem.getEntityId()
+                + " action=" + syncItem.getAction());
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                SupplierInspectionEntity i =
+                        database.supplierInspectionDao().getById(syncItem.getEntityId());
+                if (i == null) {
+                    Log.e(TAG, "Inspection not in DB: " + syncItem.getEntityId());
+                    return;
+                }
+
+                // ── ordering rule: upload evidence → rewrite URLs → save record ──
+                EvidencePhotoUploader uploader =
+                        new EvidencePhotoUploader(firebaseManager, farmId);
+                i = uploader.prepareInspection(i);
+
+                if (!uploader.allEvidenceIsRemote(i.getEvidenceUrlList())) {
+                    Log.w(TAG, "Inspection " + i.getId()
+                            + " has unresolved file:// evidence; re-queuing instead of pushing");
+                    throw new IllegalStateException("Evidence upload incomplete");
+                }
+
+                // Persist the rewritten URLs in Room too, so a crash after upload
+                // doesn't re-upload the same files next pass.
+                database.supplierInspectionDao().update(i);
+
+                firebaseManager.saveSupplierInspection(i, farmId);
+                break;
+
+            case DELETE:
+                firebaseManager.deleteSupplierInspection(farmId, syncItem.getEntityId());
+                break;
+        }
+    }
+
+    private void syncSupplierDispute(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncSupplierDispute id=" + syncItem.getEntityId()
+                + " action=" + syncItem.getAction());
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                SupplierDisputeEntity d =
+                        database.supplierDisputeDao().getById(syncItem.getEntityId());
+                if (d == null) {
+                    Log.e(TAG, "Dispute not in DB: " + syncItem.getEntityId());
+                    return;
+                }
+
+                EvidencePhotoUploader uploader =
+                        new EvidencePhotoUploader(firebaseManager, farmId);
+                d = uploader.prepareDispute(d);
+
+                if (!uploader.allEvidenceIsRemote(d.getEvidenceUrlList())) {
+                    Log.w(TAG, "Dispute " + d.getId()
+                            + " has unresolved file:// evidence; re-queuing");
+                    throw new IllegalStateException("Evidence upload incomplete");
+                }
+
+                database.supplierDisputeDao().update(d);
+
+                firebaseManager.saveSupplierDispute(d, farmId);
+                break;
+
+            case DELETE:
+                firebaseManager.deleteSupplierDispute(farmId, syncItem.getEntityId());
                 break;
         }
     }

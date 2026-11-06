@@ -1253,7 +1253,7 @@ public class EntityMapper {
 // SUPPLIER INSPECTION MAPPING
 // ========================================
 
-    public static Map<String, Object> inspectionToMap(SupplierInspectionEntity i) {
+    public static Map<String, Object> supplierInspectionToMap(SupplierInspectionEntity i) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", i.getId());
         map.put("supplierId", i.getSupplierId());
