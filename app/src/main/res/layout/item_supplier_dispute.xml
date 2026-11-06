@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    android:background="?attr/cardBackgroundPrimary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Row 1: Target + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvTarget"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Target: COMMITMENT #0"
+                style="@style/Text.Caption"
+                android:textColor="?attr/colorPrimaryVariant"
+                android:textStyle="bold" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPEN"
+                style="@style/Widget.AfriNuts.Chip"
+                android:textColor="?attr/colorSecondary"
+                android:textStyle="bold"
+                android:clickable="false"
+                android:checkable="false"
+                app:chipBackgroundColor="@android:color/transparent"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorSecondary" />
+        </LinearLayout>
+
+        <!-- Row 2: Reason -->
+        <TextView
+            android:id="@+id/tvReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reason for dispute"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.85"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Row 3: Submitted date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_today"
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.6"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="Submitted date" />
+
+            <TextView
+                android:id="@+id/tvDisputeDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jan 01, 2026"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

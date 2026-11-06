@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    style="@style/Widget.AfriNuts.CardView"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    android:background="?attr/cardBackgroundPrimary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/cardBackgroundPrimary">
+
+        <!-- Row 1: Contract + Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvContract"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="CNT-2026-014"
+                style="@style/Text.H6"
+                android:textColor="?attr/colorPrimary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PENDING"
+                style="@style/Widget.AfriNuts.Chip"
+                android:textColor="?attr/colorSecondary"
+                android:textStyle="bold"
+                android:clickable="false"
+                android:checkable="false"
+                app:chipBackgroundColor="@android:color/transparent"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorSecondary" />
+        </LinearLayout>
+
+        <!-- Row 2: Season -->
+        <TextView
+            android:id="@+id/tvSeason"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Season 2026A"
+            style="@style/Text.Caption"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Row 3: Committed / Delivered -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/cardBackgroundAccent"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvCommitted"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Committed: 0 kg"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/tvDelivered"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="Delivered: 0 kg"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorSecondary"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Row 4: Date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_today"
+                app:tint="?attr/colorOnSurface"
+                android:alpha="0.6"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="Date" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jan 01, 2026"
+                style="@style/Text.Caption.Small"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.6" />
+        </LinearLayout>
+
+        <!-- Row 5: Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAppendRevision"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:text="Revise"
+                style="@style/Widget.AfriNuts.Button.Small"
+                android:backgroundTint="?attr/colorPrimaryVariant"
+                android:textSize="11sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="6dp"
+                app:cornerRadius="17dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLinkBatches"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:text="Batches"
+                style="@style/Widget.AfriNuts.Button.Small"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textSize="11sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="6dp"
+                app:cornerRadius="17dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCloseCommitment"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:text="Close"
+                style="@style/Widget.AfriNuts.Button.Small"
+                android:backgroundTint="?attr/colorSecondary"
+                android:textSize="11sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="6dp"
+                app:cornerRadius="17dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDisputeCommitment"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:text="Dispute"
+                style="@style/Widget.AfriNuts.Button.Small"
+                android:backgroundTint="?attr/colorPrimaryVariant"
+                android:textSize="11sp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:cornerRadius="17dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -641,6 +641,356 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- ============================================================ -->
+            <!-- COMMITMENTS SECTION                                          -->
+            <!-- ============================================================ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCommitments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_assignment"
+                                app:tint="?attr/colorPrimary" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Commitments"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorPrimary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddCommitment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Add"
+                            style="@style/Widget.AfriNuts.Button.Small"
+                            android:backgroundTint="?attr/colorPrimary"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconSize="16dp"
+                            app:cornerRadius="18dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/containerCommitments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/tvCommitmentsEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No commitments recorded yet."
+                        style="@style/Text.Caption"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
+                        android:gravity="center"
+                        android:paddingVertical="12dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ============================================================ -->
+            <!-- INSPECTIONS SECTION                                          -->
+            <!-- ============================================================ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardInspections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check_circle"
+                                app:tint="?attr/colorSecondary" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Inspections"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorSecondary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddInspection"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Add"
+                            style="@style/Widget.AfriNuts.Button.Small"
+                            android:backgroundTint="?attr/colorSecondary"
+                            app:icon="@drawable/ic_add"
+                            app:iconGravity="textStart"
+                            app:iconSize="16dp"
+                            app:cornerRadius="18dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/containerInspections"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/tvInspectionsEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No inspections recorded yet."
+                        style="@style/Text.Caption"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
+                        android:gravity="center"
+                        android:paddingVertical="12dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ============================================================ -->
+            <!-- DISPUTES SECTION                                             -->
+            <!-- ============================================================ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardDisputes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_info"
+                                app:tint="?attr/colorPrimaryVariant" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Disputes"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorPrimaryVariant" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/containerDisputes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/tvDisputesEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No disputes."
+                        style="@style/Text.Caption"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
+                        android:gravity="center"
+                        android:paddingVertical="12dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ============================================================ -->
+            <!-- LATEST SCORE SNAPSHOT (display-only, engine-computed)         -->
+            <!-- ============================================================ -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardScoreSnapshot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:background="?attr/cardBackgroundAccent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="?attr/cardBackgroundPrimary">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <FrameLayout
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/iconBackgroundGlass"
+                            android:layout_marginEnd="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_star"
+                                app:tint="?attr/colorSecondary" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Latest Trust Score"
+                            style="@style/Text.H4"
+                            android:textColor="?attr/colorSecondary" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/tvOverallScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            style="@style/Text.Stat"
+                            android:textSize="28sp"
+                            android:textColor="?attr/colorSecondary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" / 100"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.6"
+                            android:layout_marginStart="4dp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/tvConfidence"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            style="@style/Text.Caption"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.7" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvScoreBreakdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        style="@style/Text.Caption.Small"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvScoreMeta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        style="@style/Text.Caption.Small"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.5" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Batches Section -->
             <TextView
                 android:layout_width="wrap_content"

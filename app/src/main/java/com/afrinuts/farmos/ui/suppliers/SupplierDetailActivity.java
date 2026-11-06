@@ -29,7 +29,6 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,6 +39,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+// --- new imports (add at the top of the file) ---
+import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
+import com.afrinuts.farmos.data.repository.SupplierCommitmentRepository;
+import com.afrinuts.farmos.data.repository.SupplierDisputeRepository;
+import com.afrinuts.farmos.data.repository.SupplierInspectionRepository;
+import com.afrinuts.farmos.data.repository.SupplierScoreSnapshotRepository;
+
+import java.util.Date;
+
 
 public class SupplierDetailActivity extends BaseActivity {
 
@@ -84,6 +96,18 @@ public class SupplierDetailActivity extends BaseActivity {
     private ImageView ivStatusIcon;
 
     private List<QualityBatchEntity> batches = new ArrayList<>();
+
+    private CardView cardCommitments, cardInspections, cardDisputes, cardScoreSnapshot;
+    private LinearLayout containerCommitments, containerInspections, containerDisputes;
+    private TextView tvCommitmentsEmpty, tvInspectionsEmpty, tvDisputesEmpty;
+    private TextView tvOverallScore, tvConfidence, tvScoreBreakdown, tvScoreMeta;
+    private com.google.android.material.button.MaterialButton btnAddCommitment, btnAddInspection;
+
+    private SupplierCommitmentRepository commitmentRepository;
+    private SupplierInspectionRepository inspectionRepository;
+    private SupplierDisputeRepository disputeRepository;
+    private SupplierScoreSnapshotRepository snapshotRepository;
+    private SimpleDateFormat shortDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     @Override
     protected boolean checkRoleAccess() {
@@ -151,6 +175,23 @@ public class SupplierDetailActivity extends BaseActivity {
         });
         batchesRecyclerView.setAdapter(batchAdapter);
 
+        cardCommitments      = findViewById(R.id.cardCommitments);
+        cardInspections      = findViewById(R.id.cardInspections);
+        cardDisputes         = findViewById(R.id.cardDisputes);
+        cardScoreSnapshot    = findViewById(R.id.cardScoreSnapshot);
+        containerCommitments = findViewById(R.id.containerCommitments);
+        containerInspections = findViewById(R.id.containerInspections);
+        containerDisputes    = findViewById(R.id.containerDisputes);
+        tvCommitmentsEmpty   = findViewById(R.id.tvCommitmentsEmpty);
+        tvInspectionsEmpty   = findViewById(R.id.tvInspectionsEmpty);
+        tvDisputesEmpty      = findViewById(R.id.tvDisputesEmpty);
+        tvOverallScore       = findViewById(R.id.tvOverallScore);
+        tvConfidence         = findViewById(R.id.tvConfidence);
+        tvScoreBreakdown     = findViewById(R.id.tvScoreBreakdown);
+        tvScoreMeta          = findViewById(R.id.tvScoreMeta);
+        btnAddCommitment     = findViewById(R.id.btnAddCommitment);
+        btnAddInspection     = findViewById(R.id.btnAddInspection);
+
         // Buttons
         btnShowMap.setOnClickListener(v -> openMap());
         btnRecordDelivery.setOnClickListener(v -> showRecordDeliveryDialog());
@@ -195,6 +236,7 @@ public class SupplierDetailActivity extends BaseActivity {
             if (supplier != null) {
                 this.supplier = supplier;
                 displaySupplierData();
+                loadTrustSections();
             } else {
                 Toast.makeText(this, "Supplier not found", Toast.LENGTH_SHORT).show();
                 finish();
@@ -542,15 +584,261 @@ public class SupplierDetailActivity extends BaseActivity {
         dialog.show(getSupportFragmentManager(), "RecordDeliveryDialog");
     }
 
+    // ============================================================
+// TRUST SECTIONS — 6a
+// ============================================================
+
+    private void loadTrustSections() {
+        if (supplier == null) return;
+
+        // (Re)build repositories against the currently loaded farm
+        if (commitmentRepository == null) {
+            commitmentRepository = new SupplierCommitmentRepository(this, farmId);
+            inspectionRepository = new SupplierInspectionRepository(this, farmId);
+            disputeRepository    = new SupplierDisputeRepository(this, farmId);
+            snapshotRepository   = new SupplierScoreSnapshotRepository(this, farmId);
+        }
+
+        loadCommitments();
+        loadInspections();
+        loadDisputes();
+        loadScoreSnapshot();
+        wireSectionActions();
+    }
+
+    private void wireSectionActions() {
+        btnAddCommitment.setOnClickListener(v -> {
+            if (supplier == null) return;
+            RecordCommitmentDialog d = RecordCommitmentDialog.newInstance(supplier.getId(), farmId);
+            d.setOnCommitmentCreatedListener(id -> loadCommitments());
+            d.show(getSupportFragmentManager(), "RecordCommitmentDialog");
+        });
+
+        btnAddInspection.setOnClickListener(v -> {
+            if (supplier == null) return;
+            RecordInspectionDialog d = RecordInspectionDialog.newInstance(supplier.getId(), farmId);
+            d.setOnInspectionCreatedListener(id -> loadInspections());
+            d.show(getSupportFragmentManager(), "RecordInspectionDialog");
+        });
+    }
+
+// ---------- Commitments ----------
+
+    private void loadCommitments() {
+        if (supplier == null) return;
+        commitmentRepository.getBySupplierId(supplier.getId())
+                .thenAccept(list -> runOnUiThread(() -> renderCommitments(list)));
+    }
+
+    private void renderCommitments(List<SupplierCommitmentEntity> list) {
+        cardCommitments.setVisibility(View.VISIBLE);
+        containerCommitments.removeAllViews();
+
+        if (list == null || list.isEmpty()) {
+            tvCommitmentsEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+        tvCommitmentsEmpty.setVisibility(View.GONE);
+
+        for (SupplierCommitmentEntity c : list) {
+            View row = getLayoutInflater().inflate(R.layout.item_commitment, containerCommitments, false);
+            bindCommitmentRow(row, c);
+            containerCommitments.addView(row);
+        }
+    }
+
+    private void bindCommitmentRow(View row, SupplierCommitmentEntity c) {
+        TextView tvContract = row.findViewById(R.id.tvContract);
+        TextView tvSeason   = row.findViewById(R.id.tvSeason);
+        TextView tvCommitted = row.findViewById(R.id.tvCommitted);
+        TextView tvDelivered = row.findViewById(R.id.tvDelivered);
+        TextView tvStatus   = row.findViewById(R.id.tvStatus);
+        TextView tvDate     = row.findViewById(R.id.tvDate);
+        View btnRev         = row.findViewById(R.id.btnAppendRevision);
+        View btnLink        = row.findViewById(R.id.btnLinkBatches);
+        View btnClose       = row.findViewById(R.id.btnCloseCommitment);
+        View btnDispute     = row.findViewById(R.id.btnDisputeCommitment);
+
+        String contract = (c.getContractId() == null || c.getContractId().isEmpty())
+                ? "No contract" : c.getContractId();
+        tvContract.setText(contract);
+        tvSeason.setText("Season " + c.getSeason());
+        tvCommitted.setText(String.format(Locale.getDefault(), "Committed: %,.0f kg", c.getCommittedKg()));
+        tvDate.setText(shortDate.format(new Date(c.getCommittedDate())));
+        tvStatus.setText(c.getStatus() != null ? c.getStatus().name() : "—");
+
+        // Derived delivered kg — only shown once the repository answers
+        commitmentRepository.getDeliveredKg(c.getId()).thenAccept(kg ->
+                runOnUiThread(() -> tvDelivered.setText(
+                        String.format(Locale.getDefault(), "Delivered: %,.0f kg", kg))));
+
+        btnRev.setOnClickListener(v -> {
+            AppendRevisionDialog d = AppendRevisionDialog.newInstance(c.getId(), farmId);
+            d.setOnRevisionAppendedListener(this::loadCommitments);
+            d.show(getSupportFragmentManager(), "AppendRevisionDialog");
+        });
+
+        btnLink.setOnClickListener(v -> {
+            LinkBatchesDialog d = LinkBatchesDialog.newInstance(c.getId(), supplier.getId(), farmId);
+            d.setOnBatchesLinkedListener(this::loadCommitments);
+            d.show(getSupportFragmentManager(), "LinkBatchesDialog");
+        });
+
+        btnClose.setOnClickListener(v -> {
+            CloseCommitmentDialog d = CloseCommitmentDialog.newInstance(c.getId(), farmId);
+            d.setOnClosedListener(this::loadCommitments);
+            d.show(getSupportFragmentManager(), "CloseCommitmentDialog");
+        });
+
+        btnDispute.setOnClickListener(v -> openDisputeDialog(
+                SupplierDisputeEntity.TargetEntity.COMMITMENT, c.getId()));
+    }
+
+// ---------- Inspections ----------
+
+    private void loadInspections() {
+        if (supplier == null) return;
+        inspectionRepository.getBySupplierId(supplier.getId())
+                .thenAccept(list -> runOnUiThread(() -> renderInspections(list)));
+    }
+
+    private void renderInspections(List<SupplierInspectionEntity> list) {
+        cardInspections.setVisibility(View.VISIBLE);
+        containerInspections.removeAllViews();
+
+        if (list == null || list.isEmpty()) {
+            tvInspectionsEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+        tvInspectionsEmpty.setVisibility(View.GONE);
+
+        for (SupplierInspectionEntity i : list) {
+            View row = getLayoutInflater().inflate(R.layout.item_supplier_inspection, containerInspections, false);
+            bindInspectionRow(row, i);
+            containerInspections.addView(row);
+        }
+    }
+
+    private void bindInspectionRow(View row, SupplierInspectionEntity i) {
+        TextView tvType     = row.findViewById(R.id.tvInspectionType);
+        TextView tvOutcome  = row.findViewById(R.id.tvOutcome);
+        TextView tvFindings = row.findViewById(R.id.tvFindings);
+        TextView tvDate     = row.findViewById(R.id.tvDate);
+        TextView tvInspector = row.findViewById(R.id.tvInspector);
+        View btnDispute     = row.findViewById(R.id.btnDisputeInspection);
+
+        tvType.setText(i.getInspectionType() != null ? i.getInspectionType().name() : "—");
+        tvOutcome.setText(i.getOutcome() != null ? i.getOutcome().name() : "—");
+        tvFindings.setText(i.getFindings() != null ? i.getFindings() : "");
+        tvDate.setText(shortDate.format(new Date(i.getInspectionDate())));
+        tvInspector.setText(i.getInspector() != null ? i.getInspector() : "");
+
+        btnDispute.setOnClickListener(v -> openDisputeDialog(
+                SupplierDisputeEntity.TargetEntity.INSPECTION, i.getId()));
+    }
+
+// ---------- Disputes ----------
+
+    private void loadDisputes() {
+        if (supplier == null) return;
+        disputeRepository.getBySupplierId(supplier.getId())
+                .thenAccept(list -> runOnUiThread(() -> renderDisputes(list)));
+    }
+
+    private void renderDisputes(List<SupplierDisputeEntity> list) {
+        cardDisputes.setVisibility(View.VISIBLE);
+        containerDisputes.removeAllViews();
+
+        if (list == null || list.isEmpty()) {
+            tvDisputesEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+        tvDisputesEmpty.setVisibility(View.GONE);
+
+        for (SupplierDisputeEntity d : list) {
+            View row = getLayoutInflater().inflate(R.layout.item_supplier_dispute, containerDisputes, false);
+            bindDisputeRow(row, d);
+            containerDisputes.addView(row);
+        }
+    }
+
+    private void bindDisputeRow(View row, SupplierDisputeEntity d) {
+        TextView tvTarget = row.findViewById(R.id.tvTarget);
+        TextView tvStatus = row.findViewById(R.id.tvStatus);
+        TextView tvReason = row.findViewById(R.id.tvReason);
+        TextView tvDate   = row.findViewById(R.id.tvDisputeDate);
+
+        tvTarget.setText("Target: " + d.getTargetEntity().name() + " #" + d.getTargetId());
+        tvStatus.setText(d.getReviewStatus() != null ? d.getReviewStatus().name() : "OPEN");
+        tvReason.setText(d.getReason() != null ? d.getReason() : "");
+        tvDate.setText(shortDate.format(new Date(d.getSubmittedDate())));
+    }
+
+    private void openDisputeDialog(SupplierDisputeEntity.TargetEntity entity, long targetId) {
+        if (supplier == null) return;
+        RaiseDisputeDialog d = RaiseDisputeDialog.newInstance(
+                supplier.getId(), farmId, entity, targetId);
+        d.setOnDisputeRaisedListener(id -> loadDisputes());
+        d.show(getSupportFragmentManager(), "RaiseDisputeDialog");
+    }
+
+// ---------- Latest snapshot (read-only) ----------
+
+    private void loadScoreSnapshot() {
+        if (supplier == null) return;
+        snapshotRepository.getLatestLive(supplier.getId())
+                .observe(this, this::renderSnapshot);
+    }
+
+    private void renderSnapshot(SupplierScoreSnapshotEntity s) {
+        cardScoreSnapshot.setVisibility(View.VISIBLE);
+
+        if (s == null) {
+            tvOverallScore.setText("—");
+            tvConfidence.setText("No score yet");
+            tvScoreBreakdown.setText("");
+            tvScoreMeta.setText("Scores are computed on the portal from validated evidence.");
+            return;
+        }
+
+        if (s.getOverall() == null) {
+            tvOverallScore.setText("—");
+        } else {
+            tvOverallScore.setText(String.format(Locale.getDefault(), "%.0f", s.getOverall()));
+        }
+        tvConfidence.setText(s.getConfidence() != null ? s.getConfidence().name() : "—");
+
+        StringBuilder b = new StringBuilder();
+        appendDim(b, "Quality",       s.getQuality());
+        appendDim(b, "Delivery",      s.getDelivery());
+        appendDim(b, "Traceability",  s.getTraceability());
+        appendDim(b, "Compliance",    s.getCompliance());
+        appendDim(b, "Sustainability", s.getSustainability());
+        appendDim(b, "Cooperation",   s.getCooperation());
+        tvScoreBreakdown.setText(b.toString().trim());
+
+        String meta = "v" + (s.getScoringVersion() != null ? s.getScoringVersion() : "?")
+                + " · " + shortDate.format(new Date(s.getCalculatedAt()))
+                + " · " + s.getVerifiedTransactions() + " verified transactions";
+        tvScoreMeta.setText(meta);
+    }
+
+    private void appendDim(StringBuilder b, String name, Double value) {
+        if (value == null) return;
+        b.append(name).append(": ")
+                .append(String.format(Locale.getDefault(), "%.0f", value))
+                .append("   ");
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (supplierRepository != null) {
-            supplierRepository.shutdown();
-        }
-        if (qualityBatchRepository != null) {
-            qualityBatchRepository.shutdown();
-        }
+        if (commitmentRepository != null) commitmentRepository.shutdown();
+        if (inspectionRepository != null) inspectionRepository.shutdown();
+        if (disputeRepository != null)    disputeRepository.shutdown();
+        if (snapshotRepository != null)   snapshotRepository.shutdown();
+        if (supplierRepository != null)   supplierRepository.shutdown();
+        if (qualityBatchRepository != null) qualityBatchRepository.shutdown();
         executor.shutdown();
     }
 }
