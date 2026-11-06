@@ -694,14 +694,25 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddCommitment"
                             android:layout_width="wrap_content"
-                            android:layout_height="36dp"
+                            android:layout_height="32dp"
                             android:text="Add"
                             style="@style/Widget.AfriNuts.Button.Small"
                             android:backgroundTint="?attr/colorPrimary"
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp"
+                            android:textAllCaps="false"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="14dp"
+                            android:layout_gravity="center_vertical"
                             app:icon="@drawable/ic_add"
                             app:iconGravity="textStart"
-                            app:iconSize="16dp"
-                            app:cornerRadius="18dp" />
+                            app:iconSize="14dp"
+                            app:iconPadding="4dp"
+                            app:cornerRadius="16dp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -777,14 +788,25 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddInspection"
                             android:layout_width="wrap_content"
-                            android:layout_height="36dp"
+                            android:layout_height="32dp"
                             android:text="Add"
                             style="@style/Widget.AfriNuts.Button.Small"
                             android:backgroundTint="?attr/colorSecondary"
                             app:icon="@drawable/ic_add"
                             app:iconGravity="textStart"
-                            app:iconSize="16dp"
-                            app:cornerRadius="18dp" />
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp"
+                            android:textAllCaps="false"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="14dp"
+                            android:layout_gravity="center_vertical"
+                            app:iconSize="14dp"
+                            app:iconPadding="4dp"
+                            app:cornerRadius="16dp" />
                     </LinearLayout>
 
                     <LinearLayout

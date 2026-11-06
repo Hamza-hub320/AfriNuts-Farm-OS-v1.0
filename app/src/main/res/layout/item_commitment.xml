@@ -117,70 +117,88 @@
         </LinearLayout>
 
         <!-- Row 5: Action Buttons -->
+        <!-- Row 5: Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end">
+            android:gravity="end"
+            android:layout_marginTop="4dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAppendRevision"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="30dp"
                 android:text="Revise"
                 style="@style/Widget.AfriNuts.Button.Small"
                 android:backgroundTint="?attr/colorPrimaryVariant"
+                android:textColor="@android:color/white"
                 android:textSize="11sp"
+                android:textAllCaps="false"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:layout_marginEnd="6dp"
-                app:cornerRadius="17dp" />
+                android:layout_marginEnd="4dp"
+                app:cornerRadius="15dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLinkBatches"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="30dp"
                 android:text="Batches"
                 style="@style/Widget.AfriNuts.Button.Small"
                 android:backgroundTint="?attr/colorPrimary"
+                android:textColor="@android:color/white"
                 android:textSize="11sp"
+                android:textAllCaps="false"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:layout_marginEnd="6dp"
-                app:cornerRadius="17dp" />
+                android:layout_marginEnd="4dp"
+                app:cornerRadius="15dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCloseCommitment"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="30dp"
                 android:text="Close"
                 style="@style/Widget.AfriNuts.Button.Small"
                 android:backgroundTint="?attr/colorSecondary"
+                android:textColor="@android:color/white"
                 android:textSize="11sp"
+                android:textAllCaps="false"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:layout_marginEnd="6dp"
-                app:cornerRadius="17dp" />
+                android:layout_marginEnd="4dp"
+                app:cornerRadius="15dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDisputeCommitment"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="30dp"
                 android:text="Dispute"
                 style="@style/Widget.AfriNuts.Button.Small"
                 android:backgroundTint="?attr/colorPrimaryVariant"
+                android:textColor="@android:color/white"
                 android:textSize="11sp"
+                android:textAllCaps="false"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                app:cornerRadius="17dp" />
+                app:cornerRadius="15dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
