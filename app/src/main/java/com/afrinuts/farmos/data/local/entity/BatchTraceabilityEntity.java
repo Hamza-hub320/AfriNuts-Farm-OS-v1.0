@@ -35,7 +35,7 @@ import java.util.Locale;
                 @ForeignKey(
                         entity = RevenueEntity.class,
                         parentColumns = "id",
-                        childColumns = "harvestCycleId",
+                        childColumns = "revenueId",
                         onDelete = ForeignKey.SET_NULL
                 )
         })
@@ -48,9 +48,9 @@ public class BatchTraceabilityEntity {
     private String batchNumber;
     private long farmId;
 
-    private Long harvestCycleId;          // FK → RevenueEntity
-    private Long qualityBatchId;          // FK → QualityBatchEntity
-    private Long supplierId;              // FK → SupplierEntity
+    private Long revenueId;
+    private Long qualityBatchId;
+    private Long supplierId;
 
     // Denormalized fields for quick display
     private String supplierName;
@@ -320,8 +320,8 @@ public class BatchTraceabilityEntity {
     public long getFarmId() { return farmId; }
     public void setFarmId(long farmId) { this.farmId = farmId; }
 
-    public Long getHarvestCycleId() { return harvestCycleId; }
-    public void setHarvestCycleId(Long harvestCycleId) { this.harvestCycleId = harvestCycleId; }
+    public Long getRevenueId() { return revenueId; }
+    public void setRevenueId(Long revenueId) { this.revenueId = revenueId; }
 
     public Long getQualityBatchId() { return qualityBatchId; }
     public void setQualityBatchId(Long qualityBatchId) { this.qualityBatchId = qualityBatchId; }

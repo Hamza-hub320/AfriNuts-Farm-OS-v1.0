@@ -178,7 +178,7 @@ public class AddRevenueFromTraceabilityDialog extends DialogFragment {
                 BatchTraceabilityEntity traceability = traceRepo.getByQualityBatchId(batchId);
 
                 if (traceability != null) {
-                    traceability.setHarvestCycleId(revenue.getId());
+                    traceability.setRevenueId(revenue.getId());
                     traceability.setBuyer(revenue.getBuyer());
                     traceability.setPricePerKg(revenue.getPricePerKg());
                     traceability.setTotalAmount(revenue.getTotalAmount());
@@ -231,29 +231,26 @@ public class AddRevenueFromTraceabilityDialog extends DialogFragment {
             btnSave.setEnabled(false);
             btnSave.setText("Saving...");
 
-            // Create revenue
+            // Create revenue — A1: batchId/supplierId are constructor args now,
+            // saleDate lands in createdAt via the canonical constructor.
+            Long supplierIdForRevenue = (batch != null) ? batch.getSupplierId() : null;
+            String batchNumberForRevenue = (batch != null) ? batch.getBatchNumber() : null;
+
             RevenueEntity revenue = new RevenueEntity(
-                    1, // farmId
-                    null, // blockId
-                    selectedDate.getTimeInMillis(),
+                    1,                                          // farmId
+                    batchId,                                    // batchId
+                    supplierIdForRevenue,                       // supplierId
+                    selectedDate.getTimeInMillis(),             // saleDate → createdAt
                     quantity,
                     price,
                     buyer,
-                    RevenueEntity.QualityGrade.PREMIUM, // Default to premium
+                    RevenueEntity.QualityGrade.PREMIUM,         // Default to premium
                     etNotes.getText().toString().trim()
             );
 
-            // Link to batch
-            revenue.setBatchId(batchId);
-            if (batch != null) {
-                revenue.setBatchNumber(batch.getBatchNumber());
-                revenue.setSupplierId(batch.getSupplierId());
+            if (batchNumberForRevenue != null) {
+                revenue.setBatchNumber(batchNumberForRevenue);
             }
-
-            // Set harvest year
-            revenue.setHarvestYear(selectedDate.get(Calendar.YEAR));
-            revenue.setHarvestSeason(1);
-            revenue.setHarvestCycleId("BATCH_" + batchId + "_YEAR_" + selectedDate.get(Calendar.YEAR));
 
             revenueRepository.insertRevenue(revenue, new RevenueRepository.InsertCallback() {
                 @Override
@@ -265,7 +262,7 @@ public class AddRevenueFromTraceabilityDialog extends DialogFragment {
                             btnSave.setText("Save");
                             Toast.makeText(getContext(), "Revenue added! You can now generate the Commercial Invoice.", Toast.LENGTH_LONG).show();
 
-                            // ✅ Update traceability with revenue data
+                            // Update traceability with revenue data
                             updateTraceabilityWithRevenue(revenue);
 
                             if (listener != null) {

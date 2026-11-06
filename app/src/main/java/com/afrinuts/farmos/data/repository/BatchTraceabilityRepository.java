@@ -86,7 +86,7 @@ public class BatchTraceabilityRepository extends BaseRepository {
 
                 // If revenue exists, link it
                 if (revenue != null) {
-                    traceability.setHarvestCycleId(revenue.getId());
+                    traceability.setRevenueId(revenue.getId());
                     traceability.setBuyer(revenue.getBuyer());
                     traceability.setPricePerKg(revenue.getPricePerKg());
                     traceability.setTotalAmount(revenue.getTotalAmount());

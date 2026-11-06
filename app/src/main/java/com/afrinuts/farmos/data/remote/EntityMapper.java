@@ -533,33 +533,35 @@ public class EntityMapper {
     }
 
     // ========================================
-    // REVENUE MAPPING
-    // ========================================
+// REVENUE MAPPING
+// ========================================
 
     public static Map<String, Object> revenueToMap(RevenueEntity revenue) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", revenue.getId());
         map.put("farmId", revenue.getFarmId());
-        map.put("blockId", revenue.getBlockId());
 
-        // ✅ Add new fields for procurement tracking
+        // Batch / supplier — the substance of a revenue record.
         map.put("batchId", revenue.getBatchId());
         map.put("supplierId", revenue.getSupplierId());
         map.put("batchNumber", revenue.getBatchNumber());
         map.put("supplierName", revenue.getSupplierName());
 
-        map.put("harvestDate", revenue.getHarvestDate());
         map.put("quantityKg", revenue.getQuantityKg());
         map.put("pricePerKg", revenue.getPricePerKg());
         map.put("totalAmount", revenue.getTotalAmount());
         map.put("buyer", revenue.getBuyer());
         map.put("quality", revenue.getQuality().name());
         map.put("notes", revenue.getNotes());
+
+        // createdAt doubles as the sale date (A1: harvestDate collapsed into it).
         map.put("createdAt", revenue.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
-        map.put("harvestCycleId", revenue.getHarvestCycleId());
-        map.put("harvestYear", revenue.getHarvestYear());
-        map.put("harvestSeason", revenue.getHarvestSeason());
+
+        // Deliberately absent (migration 40→41, Part A1):
+        //   blockId, harvestDate, harvestCycleId, harvestYear, harvestSeason
+        // These were junk writes. Portal's per-block P&L (A6) reads block
+        // harvestHistory and allocates batch revenue by output share.
         return map;
     }
 
@@ -567,60 +569,32 @@ public class EntityMapper {
         try {
             long id = Long.parseLong(doc.getId());
             long farmId = getLongSafe(doc, "farmId");
-            Long blockId = getNullableLong(doc, "blockId");
 
-            // ✅ Get new fields for procurement tracking
             Long batchId = getNullableLong(doc, "batchId");
             Long supplierId = getNullableLong(doc, "supplierId");
             String batchNumber = doc.getString("batchNumber");
             String supplierName = doc.getString("supplierName");
 
-            long harvestDate = getLongSafe(doc, "harvestDate");
             double quantityKg = getDoubleSafe(doc, "quantityKg");
             double pricePerKg = getDoubleSafe(doc, "pricePerKg");
             String buyer = getStringSafe(doc, "buyer");
             String qualityStr = getStringSafe(doc, "quality");
             String notes = getStringSafe(doc, "notes");
+
             long createdAt = getLongSafe(doc, "createdAt");
             long updatedAt = getLongSafe(doc, "updatedAt");
-            String harvestCycleId = doc.getString("harvestCycleId");
 
-            // Handle harvestYear - could be stored as Long or Integer in Firestore
-            Object harvestYearObj = doc.get("harvestYear");
-            int harvestYear = 0;
-            if (harvestYearObj instanceof Long) {
-                harvestYear = ((Long) harvestYearObj).intValue();
-            } else if (harvestYearObj instanceof Integer) {
-                harvestYear = (Integer) harvestYearObj;
-            } else if (harvestYearObj instanceof String) {
-                try {
-                    harvestYear = Integer.parseInt((String) harvestYearObj);
-                } catch (NumberFormatException e) {
-                    harvestYear = 0;
-                }
-            }
-
-            // Handle harvestSeason similarly
-            Object harvestSeasonObj = doc.get("harvestSeason");
-            int harvestSeason = 1;
-            if (harvestSeasonObj instanceof Long) {
-                harvestSeason = ((Long) harvestSeasonObj).intValue();
-            } else if (harvestSeasonObj instanceof Integer) {
-                harvestSeason = (Integer) harvestSeasonObj;
-            } else if (harvestSeasonObj instanceof String) {
-                try {
-                    harvestSeason = Integer.parseInt((String) harvestSeasonObj);
-                } catch (NumberFormatException e) {
-                    harvestSeason = 1;
-                }
-            }
+            // Defensive: a legacy doc may carry harvestDate but not createdAt.
+            // We treat harvestDate as the sale date to preserve it (matches the
+            // migration's `harvestDate AS createdAt` mapping). New docs carry
+            // createdAt directly.
+            long saleDate = createdAt > 0 ? createdAt : getLongSafe(doc, "harvestDate");
 
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
-                    blockId,
                     batchId,
                     supplierId,
-                    harvestDate,
+                    saleDate,
                     quantityKg,
                     pricePerKg,
                     buyer,
@@ -628,13 +602,14 @@ public class EntityMapper {
                     notes
             );
             revenue.setId(id);
-            revenue.setCreatedAt(createdAt);
-            revenue.setUpdatedAt(updatedAt > 0 ? updatedAt : createdAt);
-            revenue.setHarvestCycleId(harvestCycleId);
-            revenue.setHarvestYear(harvestYear);
-            revenue.setHarvestSeason(harvestSeason);
+            // saleDate is already in createdAt via the constructor; only overwrite
+            // if it was 0 and we have an updatedAt fallback to keep the row valid.
+            if (revenue.getCreatedAt() == 0 && updatedAt > 0) {
+                revenue.setCreatedAt(updatedAt);
+            }
+            revenue.setUpdatedAt(updatedAt > 0 ? updatedAt : revenue.getCreatedAt());
 
-            // ✅ Set denormalized fields
+            // Denormalized for display
             revenue.setBatchNumber(batchNumber);
             revenue.setSupplierName(supplierName);
 
@@ -1554,7 +1529,7 @@ public class EntityMapper {
         map.put("id", traceability.getId());
         map.put("batchNumber", traceability.getBatchNumber());
         map.put("farmId", traceability.getFarmId());
-        map.put("harvestCycleId", traceability.getHarvestCycleId());
+        map.put("revenueId", traceability.getRevenueId());
         map.put("harvestYear", traceability.getHarvestYear());
         map.put("qualityBatchId", traceability.getQualityBatchId());
         map.put("supplierId", traceability.getSupplierId());
@@ -1656,7 +1631,7 @@ public class EntityMapper {
                     pricePerKg
             );
             traceability.setId(id);
-            traceability.setHarvestCycleId(harvestCycleId);
+            traceability.setRevenueId(harvestCycleId);
             traceability.setQualityBatchId(qualityBatchId);
             traceability.setSupplierId(supplierId);
             traceability.setHarvestYear(harvestYear);

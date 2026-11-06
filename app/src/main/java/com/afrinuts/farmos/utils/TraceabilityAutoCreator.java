@@ -241,7 +241,7 @@ public class TraceabilityAutoCreator {
                 Log.d(TAG, "Traceability already exists for batch: " + batch.getBatchNumber());
                 // ✅ Update existing with latest data
                 existing.setBuyer(buyer);
-                existing.setHarvestCycleId(harvestCycleId);
+                existing.setRevenueId(harvestCycleId);
                 existing.setWeightKg(traceabilityWeight);
                 existing.setRawWeightKg(batch.getWeightKg());
                 existing.setKernelWeightKg(revenueWeight);
@@ -267,7 +267,7 @@ public class TraceabilityAutoCreator {
             traceability.setSignedAt(System.currentTimeMillis());
 
             // ✅ Set revenue fields
-            traceability.setHarvestCycleId(harvestCycleId);
+            traceability.setRevenueId(harvestCycleId);
             traceability.setBuyer(buyer);
             traceability.setPricePerKg(pricePerKg);
             traceability.setTotalAmount(totalAmount);
@@ -367,7 +367,7 @@ public class TraceabilityAutoCreator {
                 traceability.setPricePerKg(pricePerKg);
                 traceability.setTotalAmount(totalAmount);
                 traceability.setBuyer(buyer);
-                traceability.setHarvestCycleId(harvestCycleId);
+                traceability.setRevenueId(harvestCycleId);
                 traceability.setUpdatedAt(System.currentTimeMillis());
 
                 database.batchTraceabilityDao().update(traceability);

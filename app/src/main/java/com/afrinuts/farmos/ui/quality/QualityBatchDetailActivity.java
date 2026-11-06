@@ -561,7 +561,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
                 // Update traceability with all data
                 traceability.setSupplierName(supplierName != null ? supplierName : "Unknown Supplier");
-                traceability.setHarvestCycleId(harvestCycleId);
+                traceability.setRevenueId(harvestCycleId);
                 traceability.setBuyer(buyer);
                 traceability.setPricePerKg(pricePerKg);
                 traceability.setTotalAmount(totalAmount);

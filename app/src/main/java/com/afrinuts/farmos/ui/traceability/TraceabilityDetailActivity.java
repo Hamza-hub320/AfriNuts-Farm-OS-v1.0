@@ -514,7 +514,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
             }
 
 
-        // Make verification code clickable to copy
+            // Make verification code clickable to copy
             tvVerificationCode.setOnClickListener(v -> {
                 if (traceability.getVerificationCode() != null) {
                     android.content.ClipboardManager clipboard =
@@ -1019,8 +1019,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 }
 
                 // ✅ Try to get revenue from harvestCycleId or directly from batch
-                if (traceability.getHarvestCycleId() != null) {
-                    revenue = database.revenueDao().getRevenueById(traceability.getHarvestCycleId());
+                if (traceability.getRevenueId() != null) {
+                    revenue = database.revenueDao().getRevenueById(traceability.getRevenueId());
                 }
 
                 // ✅ If no revenue found, try to get revenue linked to the quality batch
@@ -1043,7 +1043,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
                         runOnUiThread(() -> {
                             Toast.makeText(TraceabilityDetailActivity.this,
-                                     documentType + " generated and uploaded to cloud!", Toast.LENGTH_LONG).show();
+                                    documentType + " generated and uploaded to cloud!", Toast.LENGTH_LONG).show();
                             showDocumentPreviewDialog(documentType, downloadUrl);
                             loadData();
                         });
