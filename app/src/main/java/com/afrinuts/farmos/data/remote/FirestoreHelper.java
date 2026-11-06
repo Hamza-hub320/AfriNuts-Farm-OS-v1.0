@@ -20,7 +20,7 @@ public class FirestoreHelper {
     private static final String TAG = "FirestoreHelper";
 
     private final FirebaseFirestore db;
-    private final long farmId;  // change from String to long
+    private final long farmId;
 
     private static final String COLLECTION_FARMS = "farms";
     private static final String SUBCOLLECTION_BLOCKS = "blocks";
@@ -31,19 +31,18 @@ public class FirestoreHelper {
     private static final String STORAGE_BUCKET = "photos";
     private static final String SUBCOLLECTION_TASK_ASSIGNMENTS = "task_assignments";
 
-    // Updated constructor
     public FirestoreHelper(long farmId) {
         this.db = FirebaseFirestore.getInstance();
         this.farmId = farmId;
     }
 
     // ===============================
-    // Example: BLOCKS
+    // BLOCKS
     // ===============================
     public Task<Void> uploadBlock(BlockEntity block) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", block.getId());
-        data.put("farmId", farmId); // now a number
+        data.put("farmId", farmId);
         data.put("blockName", block.getBlockName());
         data.put("hectareSize", block.getHectareSize());
         data.put("status", block.getStatus().name());
@@ -57,7 +56,7 @@ public class FirestoreHelper {
         data.put("updatedAt", System.currentTimeMillis());
 
         return db.collection(COLLECTION_FARMS)
-                .document(String.valueOf(farmId)) // Firestore document ID must be string
+                .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_BLOCKS)
                 .document(String.valueOf(block.getId()))
                 .set(data)
@@ -269,11 +268,23 @@ public class FirestoreHelper {
                         Log.e(TAG, "Error deleting task", e));
     }
 
+    // ========================================
+    // PHOTOS
+    // ========================================
+
     public StorageReference getStorageReference() {
         return FirebaseStorage.getInstance().getReference();
     }
 
-    public com.google.android.gms.tasks.Task<Void> savePhotoMetadata(PhotoEntity photo, String downloadUrl) {
+    /**
+     * F3 (patch 11): flat path only. The parent association is carried on the
+     * record itself (blockId / taskId / expenseId + photoType). The sync
+     * listener watches farms/{farmId}/photos exclusively, and
+     * updatePhotoMetadata / deletePhotoMetadata touch the same flat path —
+     * writing here to a nested collection made photos upload but never
+     * download, and made them unfixable and undeletable through this helper.
+     */
+    public Task<Void> savePhotoMetadata(PhotoEntity photo, String downloadUrl) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", photo.getId());
         data.put("farmId", farmId);
@@ -289,48 +300,16 @@ public class FirestoreHelper {
         data.put("createdAt", photo.getCreatedAt());
         data.put("updatedAt", System.currentTimeMillis());
 
-        // Determine the correct Firestore path
-        String collectionPath;
         String docId = String.valueOf(photo.getId());
 
-        if (photo.getBlockId() != null && photo.getBlockId() > 0) {
-            // Photo belongs to a block - store under farms/{farmId}/blocks/{blockId}/photos/{photoId}
-            return db.collection(COLLECTION_FARMS)
-                    .document(String.valueOf(farmId))
-                    .collection("blocks")
-                    .document(String.valueOf(photo.getBlockId()))
-                    .collection("photos")
-                    .document(docId)
-                    .set(data);
-        } else if (photo.getTaskId() != null && photo.getTaskId() > 0) {
-            // Photo belongs to a task
-            return db.collection(COLLECTION_FARMS)
-                    .document(String.valueOf(farmId))
-                    .collection("tasks")
-                    .document(String.valueOf(photo.getTaskId()))
-                    .collection("photos")
-                    .document(docId)
-                    .set(data);
-        } else if (photo.getExpenseId() != null && photo.getExpenseId() > 0) {
-            // Photo belongs to an expense
-            return db.collection(COLLECTION_FARMS)
-                    .document(String.valueOf(farmId))
-                    .collection("expenses")
-                    .document(String.valueOf(photo.getExpenseId()))
-                    .collection("photos")
-                    .document(docId)
-                    .set(data);
-        } else {
-            // General farm photos
-            return db.collection(COLLECTION_FARMS)
-                    .document(String.valueOf(farmId))
-                    .collection("photos")
-                    .document(docId)
-                    .set(data);
-        }
+        return db.collection(COLLECTION_FARMS)
+                .document(String.valueOf(farmId))
+                .collection(SUBCOLLECTION_PHOTOS)
+                .document(docId)
+                .set(data);
     }
 
-    public com.google.android.gms.tasks.Task<Void> updatePhotoMetadata(PhotoEntity photo) {
+    public Task<Void> updatePhotoMetadata(PhotoEntity photo) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("caption", photo.getCaption());
         updates.put("updatedAt", System.currentTimeMillis());
@@ -346,7 +325,7 @@ public class FirestoreHelper {
                         Log.e(TAG, "Error updating photo metadata", e));
     }
 
-    public com.google.android.gms.tasks.Task<Void> deletePhotoMetadata(long photoId) {
+    public Task<Void> deletePhotoMetadata(long photoId) {
         return db.collection(COLLECTION_FARMS)
                 .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_PHOTOS)
@@ -358,7 +337,7 @@ public class FirestoreHelper {
                         Log.e(TAG, "Error deleting photo metadata", e));
     }
 
-    public com.google.android.gms.tasks.Task<Void> deleteFromStorage(String storagePath) {
+    public Task<Void> deleteFromStorage(String storagePath) {
         return FirebaseStorage.getInstance().getReference()
                 .child(storagePath)
                 .delete()
@@ -368,11 +347,15 @@ public class FirestoreHelper {
                         Log.e(TAG, "Error deleting file from storage", e));
     }
 
+    // ========================================
+    // TASK ASSIGNMENTS
+    // ========================================
+
     public Task<Void> uploadAssignment(TaskAssignmentHistoryEntity assignment) {
         Map<String, Object> data = EntityMapper.assignmentToMap(assignment);
 
         return db.collection(COLLECTION_FARMS)
-                .document(String.valueOf(farmId))   // <--- convert long to String
+                .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
                 .document(String.valueOf(assignment.getId()))
                 .set(data)
@@ -387,7 +370,7 @@ public class FirestoreHelper {
         updates.put("unassignedAt", assignment.getUnassignedAt());
 
         return db.collection(COLLECTION_FARMS)
-                .document(String.valueOf(farmId))   // <--- convert long to String
+                .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
                 .document(String.valueOf(assignment.getId()))
                 .update(updates)
@@ -399,7 +382,7 @@ public class FirestoreHelper {
 
     public Task<Void> deleteAssignment(long assignmentId) {
         return db.collection(COLLECTION_FARMS)
-                .document(String.valueOf(farmId))   // <--- convert long to String
+                .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_TASK_ASSIGNMENTS)
                 .document(String.valueOf(assignmentId))
                 .delete()
