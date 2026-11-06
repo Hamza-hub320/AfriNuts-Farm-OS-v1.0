@@ -2,7 +2,6 @@ package com.afrinuts.farmos.data.local.entity;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
@@ -10,6 +9,21 @@ import com.afrinuts.farmos.R;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+/**
+ * Revenue records the sale of a batch — nothing about harvest.
+ *
+ * Harvest attribution is owned by BlockEntity (harvestHistory, written by
+ * RecordHarvestDialog). Per-block P&L is a portal computation. Historical
+ * harvest* fields and blockId have been removed by migration 40→41, Part A1:
+ * they were junk writes populated by AddRevenueDialog and
+ * AddRevenueFromTraceabilityDialog, not genuine harvest attribution. There is
+ * no live non-harvest reader (the one candidate — ProfitAnalytics — was
+ * orphaned code and is deleted in the same commit, closing the escape hatch).
+ *
+ * `createdAt` now doubles as the user-picked sale date (previously stored in
+ * `harvestDate`). It is no longer "row insert time" — a semantic change that
+ * is a portal-contract item (A6).
+ */
 @Entity(tableName = "revenues",
         foreignKeys = {
                 @ForeignKey(
@@ -17,12 +31,6 @@ import java.util.Locale;
                         parentColumns = "id",
                         childColumns = "farmId",
                         onDelete = ForeignKey.CASCADE
-                ),
-                @ForeignKey(
-                        entity = BlockEntity.class,
-                        parentColumns = "id",
-                        childColumns = "blockId",
-                        onDelete = ForeignKey.SET_NULL
                 ),
                 @ForeignKey(
                         entity = QualityBatchEntity.class,
@@ -43,32 +51,34 @@ public class RevenueEntity {
     private long id;
 
     private long farmId;
-    private Long blockId;  // null for farm-wide revenue (e.g., processing center sales)
 
-    // ✅ New fields for batch/supplier tracking
-    private Long batchId;        // Link to quality batch
-    private Long supplierId;     // Link to supplier
+    /** Batch sold — the substance of a revenue record. */
+    private Long batchId;
 
-    private long harvestDate;
+    /** Supplier that supplied the batch — denormalized FK. */
+    private Long supplierId;
+
     private double quantityKg;
     private double pricePerKg;
-    private double totalAmount;  // quantityKg * pricePerKg
+    private double totalAmount;
 
     private String buyer;
-    private QualityGrade quality;  // PREMIUM, STANDARD, etc.
+    private QualityGrade quality;
     private String notes;
 
-    // ✅ Denormalized fields for quick display
+    /** Denormalized for display — no round-trip needed on list screens. */
     private String batchNumber;
     private String supplierName;
 
-    // Audit timestamps
+    /**
+     * For newly-created records this is the sale date the user picked in
+     * AddRevenueDialog (A1). For records migrated from v40 it is whatever
+     * createdAt previously held. Both are acceptable — createdAt is now the
+     * canonical revenue date.
+     */
     private long createdAt;
-    private long updatedAt;
 
-    private String harvestCycleId;
-    private int harvestYear = 0;
-    private int harvestSeason = 1;
+    private long updatedAt;
 
     public enum QualityGrade {
         PREMIUM("Premium", "Premium Grade", R.drawable.ic_star),
@@ -90,47 +100,40 @@ public class RevenueEntity {
         public int getIconResId() { return iconResId; }
     }
 
-    // ✅ Primary constructor with batch/supplier support
-    public RevenueEntity(long farmId, Long blockId, Long batchId, Long supplierId,
-                         long harvestDate, double quantityKg, double pricePerKg,
+    /**
+     * Canonical constructor. `createdAt` doubles as the user-picked sale date
+     * after A1 (previously stored in `harvestDate`). Pass 0 to default to the
+     * current time.
+     *
+     * Parameter is named `createdAt` — not `saleDate` — because Room matches
+     * @Entity constructor parameters to fields by name for the POJO check.
+     * The semantic (sale date) is preserved; only the parameter name is
+     * aligned to the field it populates.
+     */
+    public RevenueEntity(long farmId, Long batchId, Long supplierId,
+                         long createdAt,
+                         double quantityKg, double pricePerKg,
                          String buyer, QualityGrade quality, String notes) {
         this.farmId = farmId;
-        this.blockId = blockId;
         this.batchId = batchId;
         this.supplierId = supplierId;
-        this.harvestDate = harvestDate;
         this.quantityKg = quantityKg;
         this.pricePerKg = pricePerKg;
         this.totalAmount = quantityKg * pricePerKg;
         this.buyer = buyer;
         this.quality = quality;
         this.notes = notes;
-
-        long now = System.currentTimeMillis();
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.createdAt = createdAt > 0 ? createdAt : System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // ✅ Convenience constructor (backward compatible)
-    @Ignore
-    public RevenueEntity(long farmId, Long blockId, long harvestDate,
-                         double quantityKg, double pricePerKg,
-                         String buyer, QualityGrade quality, String notes) {
-        this(farmId, blockId, null, null, harvestDate, quantityKg, pricePerKg, buyer, quality, notes);
-    }
+    // Getters and setters
 
-    // Getters and Setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 
     public long getFarmId() { return farmId; }
     public void setFarmId(long farmId) { this.farmId = farmId; }
-
-    public Long getBlockId() { return blockId; }
-    public void setBlockId(Long blockId) {
-        this.blockId = blockId;
-        this.updatedAt = System.currentTimeMillis();
-    }
 
     public Long getBatchId() { return batchId; }
     public void setBatchId(Long batchId) {
@@ -141,12 +144,6 @@ public class RevenueEntity {
     public Long getSupplierId() { return supplierId; }
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
-        this.updatedAt = System.currentTimeMillis();
-    }
-
-    public long getHarvestDate() { return harvestDate; }
-    public void setHarvestDate(long harvestDate) {
-        this.harvestDate = harvestDate;
         this.updatedAt = System.currentTimeMillis();
     }
 
@@ -203,19 +200,7 @@ public class RevenueEntity {
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
-    public String getHarvestCycleId() { return harvestCycleId; }
-    public void setHarvestCycleId(String harvestCycleId) { this.harvestCycleId = harvestCycleId; }
-
-    public int getHarvestYear() { return harvestYear; }
-    public void setHarvestYear(int harvestYear) { this.harvestYear = harvestYear; }
-
-    public int getHarvestSeason() { return harvestSeason; }
-    public void setHarvestSeason(int harvestSeason) { this.harvestSeason = harvestSeason; }
-
     // Helper methods
-    public boolean isFarmWide() {
-        return blockId == null;
-    }
 
     public boolean isProcurementRelated() {
         return batchId != null || supplierId != null;
@@ -235,7 +220,7 @@ public class RevenueEntity {
 
     public String getFormattedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        return sdf.format(new java.util.Date(harvestDate));
+        return sdf.format(new java.util.Date(createdAt));
     }
 
     public String getProcurementInfo() {
@@ -247,9 +232,5 @@ public class RevenueEntity {
             return "🏢 Supplier: " + supplierName;
         }
         return "—";
-    }
-
-    public static String generateHarvestCycleId(long blockId, int year) {
-        return "BLOCK_" + blockId + "_YEAR_" + year;
     }
 }

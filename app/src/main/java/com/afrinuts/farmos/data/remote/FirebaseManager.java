@@ -305,30 +305,7 @@ public class FirebaseManager {
 // ========================================
 
     public void saveRevenue(RevenueEntity revenue, String farmId) throws Exception {
-        Map<String, Object> revenueMap = new HashMap<>();
-        revenueMap.put("id", revenue.getId());
-        revenueMap.put("farmId", farmId);
-        revenueMap.put("blockId", revenue.getBlockId());
-
-        // ✅ Add new fields for procurement tracking
-        revenueMap.put("batchId", revenue.getBatchId());
-        revenueMap.put("supplierId", revenue.getSupplierId());
-        revenueMap.put("batchNumber", revenue.getBatchNumber());
-        revenueMap.put("supplierName", revenue.getSupplierName());
-
-        revenueMap.put("harvestDate", revenue.getHarvestDate());
-        revenueMap.put("quantityKg", revenue.getQuantityKg());
-        revenueMap.put("pricePerKg", revenue.getPricePerKg());
-        revenueMap.put("totalAmount", revenue.getTotalAmount());
-        revenueMap.put("buyer", revenue.getBuyer());
-        revenueMap.put("quality", revenue.getQuality().name());
-        revenueMap.put("notes", revenue.getNotes());
-        revenueMap.put("createdAt", revenue.getCreatedAt());
-        revenueMap.put("updatedAt", System.currentTimeMillis());
-        revenueMap.put("harvestCycleId", revenue.getHarvestCycleId());
-        revenueMap.put("harvestYear", revenue.getHarvestYear());
-        revenueMap.put("harvestSeason", revenue.getHarvestSeason());
-
+        Map<String, Object> revenueMap = EntityMapper.revenueToMap(revenue);
         try {
             Tasks.await(db.collection(COLLECTION_FARMS)
                     .document(farmId)
@@ -340,13 +317,6 @@ public class FirebaseManager {
             Log.e(TAG, "Error saving revenue: " + revenue.getId(), e);
             throw new Exception("Failed to save revenue to Firestore", e);
         }
-    }
-
-    public Task<QuerySnapshot> getRevenuesForFarm(String farmId) {
-        return db.collection(COLLECTION_FARMS)
-                .document(farmId)
-                .collection(SUBCOLLECTION_REVENUES)
-                .get();
     }
     // ========================================
     // TASK OPERATIONS - UPDATED to use subcollections
@@ -577,7 +547,6 @@ public class FirebaseManager {
         // Add all data fetching tasks
         tasks.add(getBlocksForFarm(farmId));
         tasks.add(getExpensesForFarm(farmId));
-        tasks.add(getRevenuesForFarm(farmId));
         tasks.add(getTasksForFarm(farmId));
         tasks.add(getPhotosForFarm(farmId));
 

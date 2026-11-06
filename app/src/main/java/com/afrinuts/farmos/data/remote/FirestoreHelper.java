@@ -164,23 +164,7 @@ public class FirestoreHelper {
     // ========================================
 
     public Task<Void> uploadRevenue(RevenueEntity revenue) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", revenue.getId());
-        data.put("farmId", farmId);
-        data.put("blockId", revenue.getBlockId());
-        data.put("harvestDate", revenue.getHarvestDate());
-        data.put("quantityKg", revenue.getQuantityKg());
-        data.put("pricePerKg", revenue.getPricePerKg());
-        data.put("totalAmount", revenue.getTotalAmount());
-        data.put("buyer", revenue.getBuyer());
-        data.put("quality", revenue.getQuality().name());
-        data.put("notes", revenue.getNotes());
-        data.put("createdAt", revenue.getCreatedAt());
-        data.put("updatedAt", System.currentTimeMillis());
-        data.put("harvestCycleId", revenue.getHarvestCycleId());
-        data.put("harvestYear", revenue.getHarvestYear());
-        data.put("harvestSeason", revenue.getHarvestSeason());
-
+        Map<String, Object> data = EntityMapper.revenueToMap(revenue);
         return db.collection(COLLECTION_FARMS)
                 .document(String.valueOf(farmId))
                 .collection(SUBCOLLECTION_REVENUES)

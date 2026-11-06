@@ -36,20 +36,14 @@ public interface RevenueDao {
     @Query("SELECT * FROM revenues WHERE id = :id")
     LiveData<RevenueEntity> getRevenueByIdLiveData(long id);
 
-    @Query("SELECT * FROM revenues WHERE farmId = :farmId ORDER BY harvestDate DESC")
+    @Query("SELECT * FROM revenues WHERE farmId = :farmId ORDER BY createdAt DESC")
     List<RevenueEntity> getRevenuesByFarmId(long farmId);
 
-    @Query("SELECT * FROM revenues WHERE farmId = :farmId ORDER BY harvestDate DESC")
+    @Query("SELECT * FROM revenues WHERE farmId = :farmId ORDER BY createdAt DESC")
     LiveData<List<RevenueEntity>> getRevenuesByFarmIdLiveData(long farmId);
 
-    @Query("SELECT * FROM revenues ORDER BY harvestDate DESC")
+    @Query("SELECT * FROM revenues ORDER BY createdAt DESC")
     LiveData<List<RevenueEntity>> getAllRevenuesLiveData();
-
-    @Query("SELECT * FROM revenues WHERE blockId = :blockId ORDER BY harvestDate DESC")
-    List<RevenueEntity> getRevenuesByBlockId(long blockId);
-
-    @Query("SELECT * FROM revenues WHERE farmId = :farmId AND blockId IS NULL ORDER BY harvestDate DESC")
-    List<RevenueEntity> getFarmWideRevenues(long farmId);
 
     @Query("SELECT SUM(totalAmount) FROM revenues WHERE farmId = :farmId")
     double getTotalRevenue(long farmId);
@@ -60,36 +54,6 @@ public interface RevenueDao {
     @Query("SELECT AVG(pricePerKg) FROM revenues WHERE farmId = :farmId")
     double getAveragePricePerKg(long farmId);
 
-    @Query("SELECT blockId, SUM(quantityKg) as totalKg FROM revenues " +
-            "WHERE farmId = :farmId AND blockId IS NOT NULL " +
-            "GROUP BY blockId ORDER BY totalKg DESC")
-    List<BlockYield> getYieldsByBlock(long farmId);
-
-    @Query("SELECT strftime('%Y', harvestDate/1000, 'unixepoch') as year, " +
-            "SUM(quantityKg) as totalKg FROM revenues " +
-            "WHERE farmId = :farmId GROUP BY year ORDER BY year")
-    List<YearlyYield> getYearlyYields(long farmId);
-
-    @Query("SELECT * FROM revenues WHERE harvestYear = :year ORDER BY harvestDate DESC")
-    List<RevenueEntity> getRevenuesByYear(int year);
-
-    @Query("SELECT * FROM revenues WHERE blockId = :blockId AND harvestYear = :year ORDER BY harvestDate DESC")
-    List<RevenueEntity> getRevenuesByBlockIdAndYear(long blockId, int year);
-
-    @Query("SELECT * FROM revenues WHERE batchId = :batchId ORDER BY harvestDate DESC")
+    @Query("SELECT * FROM revenues WHERE batchId = :batchId ORDER BY createdAt DESC")
     List<RevenueEntity> getRevenuesByBatchId(long batchId);
-
-
-
-    // Inner class for block yield data
-    class BlockYield {
-        public long blockId;
-        public double totalKg;
-    }
-
-    // Inner class for yearly yield data
-    class YearlyYield {
-        public String year;
-        public double totalKg;
-    }
 }

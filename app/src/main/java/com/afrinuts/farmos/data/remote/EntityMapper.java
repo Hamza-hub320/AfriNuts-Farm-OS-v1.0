@@ -1570,7 +1570,7 @@ public class EntityMapper {
             long id = doc.getLong("id");
             long farmId = getLongSafe(doc, "farmId");
             String batchNumber = getStringSafe(doc, "batchNumber");
-            Long harvestCycleId = getNullableLong(doc, "harvestCycleId");
+
             Long qualityBatchId = getNullableLong(doc, "qualityBatchId");
             Long supplierId = getNullableLong(doc, "supplierId");
             String supplierName = doc.getString("supplierName");
@@ -1628,7 +1628,6 @@ public class EntityMapper {
                     pricePerKg
             );
             traceability.setId(id);
-            traceability.setRevenueId(harvestCycleId);
             traceability.setQualityBatchId(qualityBatchId);
             traceability.setSupplierId(supplierId);
             traceability.setHarvestYear(harvestYear);

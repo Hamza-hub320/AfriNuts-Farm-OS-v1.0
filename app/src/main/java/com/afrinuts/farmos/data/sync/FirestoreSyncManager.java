@@ -323,16 +323,6 @@ public class FirestoreSyncManager {
                                 continue;
                             }
 
-                            // ✅ If block-specific, ensure block exists
-                            if (remoteRevenue.getBlockId() != null) {
-                                BlockEntity block = database.blockDao().getBlockById(remoteRevenue.getBlockId());
-                                if (block == null) {
-                                    Log.w(TAG, "⚠️ Skipping revenue " + remoteRevenue.getId() +
-                                            " - block " + remoteRevenue.getBlockId() + " not found");
-                                    continue;
-                                }
-                            }
-
                             // ✅ Check if batch/supplier exists before inserting
                             if (remoteRevenue.getBatchId() != null && remoteRevenue.getBatchId() > 0) {
                                 QualityBatchEntity batch = database.qualityBatchDao()
