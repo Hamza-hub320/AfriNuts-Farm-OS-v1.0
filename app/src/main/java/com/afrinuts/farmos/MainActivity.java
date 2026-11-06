@@ -1,20 +1,12 @@
 package com.afrinuts.farmos;
 
-import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
-import com.afrinuts.farmos.ui.blocks.BlocksActivity;
-import com.afrinuts.farmos.ui.compliance.ComplianceHubFragment;
-import com.afrinuts.farmos.ui.expenses.ExpensesListActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
-import com.afrinuts.farmos.ui.profit.ProfitDashboardActivity;
-import com.afrinuts.farmos.ui.revenue.RevenuesListActivity;
-import com.afrinuts.farmos.ui.tasks.TasksListActivity;
 import com.afrinuts.farmos.ui.theme.CircularProgressView;
 import com.afrinuts.farmos.ui.weather.WeatherActivity;
-import com.afrinuts.farmos.data.local.entity.SyncEntity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
 import com.afrinuts.farmos.data.repository.WeatherRepository;
@@ -25,7 +17,6 @@ import com.afrinuts.farmos.data.repository.TaskRepository;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
@@ -44,11 +35,10 @@ import android.content.Intent;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.content.Context;
 
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import com.google.android.material.snackbar.Snackbar;
+
 import com.afrinuts.farmos.data.sync.SyncService;
 import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.ui.sync.SyncStatusReceiver;
@@ -73,8 +63,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
-import android.view.MenuItem;
-import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -391,41 +379,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupFinancialSnapshotClick() {
-        CardView financialCard = findViewById(R.id.financialCard);
-        if (financialCard != null) {
-            financialCard.setOnClickListener(v -> {
-                if (currentFarm != null) {
-                    startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
-                    // Optional: Add transition animation
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                } else {
-                    Toast.makeText(this, "Farm not configured", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            // Add hover effect for better UX
-            financialCard.setOnTouchListener((v, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.animate().scaleX(0.98f).scaleY(0.98f).setDuration(100).start();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
-                        break;
-                }
-                return false;
-            });
-        }
-
-        // Also handle the "View Details" text separately if needed
-        if (viewFinancialDetails != null) {
-            viewFinancialDetails.setOnClickListener(v -> {
-                if (currentFarm != null) {
-                    startActivity(new Intent(MainActivity.this, ProfitDashboardActivity.class));
-                }
-            });
-        }
+        // Listener intentionally removed — ProfitDashboardActivity is deleted (40→41).
+        // Card numbers are computed in MainActivity and remain visible.
     }
 
     private void setupBottomNavigation() {
@@ -1075,13 +1030,13 @@ public class MainActivity extends AppCompatActivity {
             // Calculate revenues
             List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
             for (RevenueEntity revenue : revenues) {
-                long harvestDate = revenue.getHarvestDate();
                 allTimeRevenue += revenue.getTotalAmount();
 
-                if (harvestDate >= startOfYear) {
+                long revenueDate = revenue.getCreatedAt();
+                if (revenueDate >= startOfYear) {
                     yearlyRevenue += revenue.getTotalAmount();
                 }
-                if (harvestDate >= startOfMonth) {
+                if (revenueDate >= startOfMonth) {
                     monthlyRevenue += revenue.getTotalAmount();
                 }
             }
@@ -1155,11 +1110,11 @@ public class MainActivity extends AppCompatActivity {
                 database.revenueDao().getRevenuesByFarmId(currentFarm.getId());
 
         for (RevenueEntity revenue : revenues) {
-            long harvestDate = revenue.getHarvestDate();
+            long revenueDate = revenue.getCreatedAt();
 
-            if (harvestDate >= lastYearStart && harvestDate < thisYearStart) {
+            if (revenueDate >= lastYearStart && revenueDate < thisYearStart) {
                 lastYearRevenue += revenue.getTotalAmount();
-            } else if (harvestDate >= thisYearStart) {
+            } else if (revenueDate >= thisYearStart) {
                 thisYearRevenue += revenue.getTotalAmount();
             }
         }
@@ -1252,13 +1207,16 @@ public class MainActivity extends AppCompatActivity {
                 for (RevenueEntity revenue : recentRevenues) {
                     if (count >= 3) break;
                     if (revenue.getUpdatedAt() >= oneWeekAgo) {
-                        String blockName = getBlockName(revenue.getBlockId());
-                        String subtitle = blockName != null ? "Block " + blockName : "Processing Center";
+                        String subtitle = (revenue.getBatchNumber() != null && !revenue.getBatchNumber().isEmpty())
+                                ? "Batch " + revenue.getBatchNumber()
+                                : "Batch sale";
 
                         addActivityItem(
-                                revenue.getQuality().getDisplayName() + " Grade",
+                                revenue.getQuality() != null
+                                        ? revenue.getQuality().getDisplayName() + " Grade"
+                                        : "Sale",
                                 subtitle + " • " + formatCurrency(revenue.getTotalAmount()),
-                                formatTimeAgo(revenue.getHarvestDate()),
+                                formatTimeAgo(revenue.getCreatedAt()),
                                 getRevenueIcon(revenue.getQuality()),
                                 true
                         );
@@ -1799,15 +1757,42 @@ public class MainActivity extends AppCompatActivity {
             long id = doc.getLong("id");
             String farmIdStr = doc.getString("farmId");
             long farmId = farmIdStr != null ? Long.parseLong(farmIdStr) : 1L;
-            Long blockId = doc.contains("blockId") ? doc.getLong("blockId") : null;
-            long harvestDate = doc.getLong("harvestDate");
-            double quantityKg = doc.getDouble("quantityKg");
-            double pricePerKg = doc.getDouble("pricePerKg");
+
+            Long batchId = doc.contains("batchId") ? doc.getLong("batchId") : null;
+            Long supplierId = doc.contains("supplierId") ? doc.getLong("supplierId") : null;
+
+            // 40→41: `harvestDate` was the user-picked sale date. Prefer it when
+            // present (v40 Firestore docs still carry it); fall back to createdAt
+            // for any doc already migrated or newly written.
+            Long harvestDateObj = doc.getLong("harvestDate");
+            Long createdAtObj = doc.getLong("createdAt");
+            long saleDate = harvestDateObj != null
+                    ? harvestDateObj
+                    : (createdAtObj != null ? createdAtObj : System.currentTimeMillis());
+
+            double quantityKg = doc.getDouble("quantityKg") != null ? doc.getDouble("quantityKg") : 0;
+            double pricePerKg = doc.getDouble("pricePerKg") != null ? doc.getDouble("pricePerKg") : 0;
             String buyer = doc.getString("buyer");
             String quality = doc.getString("quality");
             String notes = doc.getString("notes");
-            return new RevenueEntity(farmId, blockId, harvestDate, quantityKg,
-                    pricePerKg, buyer, RevenueEntity.QualityGrade.valueOf(quality), notes);
+
+            RevenueEntity.QualityGrade grade;
+            try {
+                grade = RevenueEntity.QualityGrade.valueOf(quality);
+            } catch (IllegalArgumentException | NullPointerException e) {
+                grade = RevenueEntity.QualityGrade.STANDARD;
+            }
+
+            RevenueEntity revenue = new RevenueEntity(
+                    farmId, batchId, supplierId, saleDate,
+                    quantityKg, pricePerKg, buyer, grade, notes);
+            revenue.setId(id);
+
+            // Preserve denormalized fields if the doc carries them
+            if (doc.contains("batchNumber")) revenue.setBatchNumber(doc.getString("batchNumber"));
+            if (doc.contains("supplierName")) revenue.setSupplierName(doc.getString("supplierName"));
+
+            return revenue;
         } catch (Exception e) {
             Log.e(TAG, "Error converting document to revenue", e);
             return null;

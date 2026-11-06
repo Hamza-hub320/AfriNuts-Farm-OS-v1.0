@@ -152,11 +152,6 @@
             android:name=".ui.weather.WeatherActivity"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Profit -->
-        <activity
-            android:name=".ui.profit.ProfitDashboardActivity"
-            android:parentActivityName=".MainActivity" />
-
         <!-- Quality -->
         <activity
             android:name=".ui.quality.QualityBatchDetailActivity"

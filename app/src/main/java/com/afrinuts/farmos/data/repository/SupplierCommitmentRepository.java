@@ -11,6 +11,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
+import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -256,7 +257,7 @@ public class SupplierCommitmentRepository {
     public void syncCommitmentFromFirestore(DocumentSnapshot doc) {
         executor.execute(() -> {
             try {
-                SupplierCommitmentEntity remote = EntityMapperSupplierCommitmentStub.map(doc);
+                SupplierCommitmentEntity remote = EntityMapper.mapToCommitment(doc);
                 if (remote == null) return;
 
                 SupplierCommitmentEntity local = commitmentDao.getById(remote.getId());
