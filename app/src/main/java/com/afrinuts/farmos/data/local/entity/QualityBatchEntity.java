@@ -24,12 +24,6 @@ import java.util.Locale;
                         onDelete = ForeignKey.SET_NULL
                 ),
                 @ForeignKey(
-                        entity = RevenueEntity.class,
-                        parentColumns = "id",
-                        childColumns = "harvestCycleId",
-                        onDelete = ForeignKey.SET_NULL
-                ),
-                @ForeignKey(
                         entity = SupplierEntity.class,
                         parentColumns = "id",
                         childColumns = "supplierId",
