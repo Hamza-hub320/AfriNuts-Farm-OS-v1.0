@@ -28,12 +28,6 @@ import java.util.Locale;
                         parentColumns = "id",
                         childColumns = "supplierId",
                         onDelete = ForeignKey.SET_NULL
-                ),
-                @ForeignKey(
-                        entity = SupplierEntity.class,
-                        parentColumns = "id",
-                        childColumns = "supplierId",
-                        onDelete = ForeignKey.CASCADE
                 )
         })
 public class QualityBatchEntity {

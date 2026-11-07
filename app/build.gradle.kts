@@ -1,3 +1,5 @@
+
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -20,7 +22,13 @@ android {
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
+        }
     }
+
 
     buildTypes {
         debug {

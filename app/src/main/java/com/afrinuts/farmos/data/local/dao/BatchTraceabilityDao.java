@@ -104,4 +104,8 @@ public interface BatchTraceabilityDao {
 
     @Query("UPDATE batch_traceability SET isSynced = 1 WHERE id = :id")
     void markAsSynced(long id);
+
+    @Query("SELECT * FROM batch_traceability WHERE masterBatchId = :masterBatchId " +
+            "ORDER BY createdAt ASC")
+    List<BatchTraceabilityEntity> getChildrenOfMaster(String masterBatchId);
 }

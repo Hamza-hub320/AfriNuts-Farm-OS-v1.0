@@ -9,11 +9,24 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 /**
  * Migration 40 → 41.
  *
- * Part A5 of the plan: four table rebuilds carrying A1 (revenue stops
- * modelling harvest), A2 (BatchTraceabilityEntity.harvestCycleId → revenueId),
- * A3 (QualityBatchEntity.harvestCycleId dropped), F2 (masterBatchId on
- * batch_traceability; farmId on master_batch_traceability), and R2
- * (QualityBatchEntity.supplierId keeps SET_NULL only — CASCADE removed).
+ * Four table rebuilds. CREATE TABLE statements are copied verbatim from the
+ * committed 41.json createSql for each table — that is the only way to
+ * guarantee Room's runtime schema validator accepts the post-migration
+ * structure. The INSERT ... SELECT lists are the shared columns between 40
+ * and 41; any column that exists only in 41 (masterBatchId) is set to NULL
+ * (or an explicit default) during the copy. Any column that exists only in
+ * 40 is dropped with the table.
+ *
+ * Data-preservation rules:
+ *   - revenues.createdAt takes harvestDate where harvestDate > 0, else its
+ *     existing createdAt. Preserves the picked sale date on historical rows.
+ *     (Explicitly retained, per the plan — it costs nothing and it's not
+ *     demo-data-sensitive; the instruction's "may stay or go" allows it
+ *     and keeping it is strictly safer.)
+ *   - batch_traceability.harvestCycleId → revenueId: values carried across
+ *     unchanged (they are revenue row ids; this is a rename, not a re-key).
+ *   - master_batch_traceability.farmId: backfilled from the single farms
+ *     row (single-farm deployment, all demo data).
  *
  * No fallbackToDestructiveMigration. Row counts preserved on all four tables.
  */
@@ -46,16 +59,14 @@ public class Migration40To41 extends Migration {
     // 1. revenues — drop blockId, harvestDate, harvestCycleId,
     //    harvestYear, harvestSeason.
     //
-    //    Data rule: createdAt takes the old harvestDate value where
-    //    harvestDate > 0. Rows without a picked date keep their
-    //    existing createdAt. updatedAt untouched.
-    //
-    //    FKs as the entity declares: farm CASCADE, batch SET_NULL,
-    //    supplier SET_NULL. No blockId FK (blockId column is gone).
+    //    CREATE TABLE copied verbatim from 41.json createSql.
+    //    Data rule: createdAt takes harvestDate where harvestDate > 0,
+    //    else existing createdAt. updatedAt untouched.
     // ============================================================
     private void rebuildRevenues(SupportSQLiteDatabase db) {
         Log.d(TAG, "  rebuilding revenues");
 
+        // Verbatim from 41.json
         db.execSQL("CREATE TABLE IF NOT EXISTS `revenues_new` (" +
                 "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "`farmId` INTEGER NOT NULL, " +
@@ -79,8 +90,7 @@ public class Migration40To41 extends Migration {
                 "ON UPDATE NO ACTION ON DELETE SET NULL" +
                 ")");
 
-        // Data rule: createdAt takes harvestDate where harvestDate > 0.
-        // Note that updatedAt is untouched — preserved from the old table.
+        // Copy shared columns; createdAt collapses harvestDate > 0 ? harvestDate : createdAt.
         db.execSQL(
                 "INSERT INTO `revenues_new` " +
                         "(`id`, `farmId`, `batchId`, `supplierId`, `quantityKg`, " +
@@ -98,21 +108,19 @@ public class Migration40To41 extends Migration {
 
         db.execSQL("DROP TABLE `revenues`");
         db.execSQL("ALTER TABLE `revenues_new` RENAME TO `revenues`");
-
-        // Indexes for the entity's declared indexes (if any) — recreate the
-        // ones we know about from other migrations. If the entity declares
-        // no extra indexes on revenues beyond the PK and FKs, this is a no-op.
-        // Add them below if you add @Index annotations in the future.
     }
 
     // ============================================================
     // 2. quality_batches — drop harvestCycleId.
-    //    Rebuilt table carries exactly one supplierId FK (SET_NULL).
-    //    No data mapping — the column simply goes.
+    //
+    //    CREATE TABLE copied verbatim from 41.json createSql.
+    //    Three FKs: farm CASCADE, block SET_NULL, supplier SET_NULL.
+    //    R2: exactly one supplierId FK, SET_NULL only.
     // ============================================================
     private void rebuildQualityBatches(SupportSQLiteDatabase db) {
         Log.d(TAG, "  rebuilding quality_batches");
 
+        // Verbatim from 41.json
         db.execSQL("CREATE TABLE IF NOT EXISTS `quality_batches_new` (" +
                 "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "`farmId` INTEGER NOT NULL, " +
@@ -159,11 +167,13 @@ public class Migration40To41 extends Migration {
                 "`inspectedBy` TEXT, " +
                 "FOREIGN KEY(`farmId`) REFERENCES `farms`(`id`) " +
                 "ON UPDATE NO ACTION ON DELETE CASCADE, " +
-                // R2: exactly one supplierId FK, SET_NULL only.
+                "FOREIGN KEY(`blockId`) REFERENCES `blocks`(`id`) " +
+                "ON UPDATE NO ACTION ON DELETE SET NULL, " +
                 "FOREIGN KEY(`supplierId`) REFERENCES `suppliers`(`id`) " +
                 "ON UPDATE NO ACTION ON DELETE SET NULL" +
                 ")");
 
+        // Copy shared columns; harvestCycleId simply drops (not in the SELECT).
         db.execSQL(
                 "INSERT INTO `quality_batches_new` " +
                         "(`id`, `farmId`, `blockId`, `supplierId`, `sourceType`, " +
@@ -194,21 +204,22 @@ public class Migration40To41 extends Migration {
 
         db.execSQL("DROP TABLE `quality_batches`");
         db.execSQL("ALTER TABLE `quality_batches_new` RENAME TO `quality_batches`");
-
-        // Indexes on quality_batches if the entity declares any (beyond FK
-        // implicit indexes). Preserve here if you have @Index annotations.
     }
 
     // ============================================================
     // 3. batch_traceability — rename harvestCycleId → revenueId.
-    //    Column rename only; values carried across unchanged (they are
-    //    revenue row ids). Add masterBatchId (nullable TEXT), null for
-    //    every existing row. harvestYear and every other column
-    //    untouched.
+    //    Add masterBatchId TEXT nullable, null for existing rows.
+    //    Four FKs: farm CASCADE, qualityBatchId CASCADE,
+    //    supplierId SET_NULL, revenueId SET_NULL.
+    //    All signature columns preserved: digitalSignature,
+    //    verificationHash, verificationCode, verificationUrl, signedAt.
+    //    harvestYear untouched.
+    //    CREATE TABLE copied verbatim from 41.json createSql.
     // ============================================================
     private void rebuildBatchTraceability(SupportSQLiteDatabase db) {
         Log.d(TAG, "  rebuilding batch_traceability");
 
+        // Verbatim from 41.json
         db.execSQL("CREATE TABLE IF NOT EXISTS `batch_traceability_new` (" +
                 "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "`farmId` INTEGER NOT NULL, " +
@@ -217,8 +228,8 @@ public class Migration40To41 extends Migration {
                 "`weightKg` REAL NOT NULL, " +
                 "`grade` TEXT, " +
                 "`pricePerKg` REAL NOT NULL, " +
-                "`revenueId` INTEGER, " +                  // renamed from harvestCycleId
-                "`masterBatchId` TEXT, " +                 // NEW (F2)
+                "`revenueId` INTEGER, " +
+                "`masterBatchId` TEXT, " +
                 "`qualityBatchId` INTEGER, " +
                 "`supplierId` INTEGER, " +
                 "`supplierName` TEXT, " +
@@ -226,7 +237,7 @@ public class Migration40To41 extends Migration {
                 "`certificationIds` TEXT, " +
                 "`verificationCode` TEXT, " +
                 "`sustainabilityMetrics` TEXT, " +
-                "`harvestYear` INTEGER NOT NULL DEFAULT 0, " +  // untouched
+                "`harvestYear` INTEGER NOT NULL DEFAULT 0, " +
                 "`exportDate` INTEGER, " +
                 "`buyer` TEXT, " +
                 "`destination` TEXT, " +
@@ -241,15 +252,26 @@ public class Migration40To41 extends Migration {
                 "`gradingMethod` TEXT, " +
                 "`documents` TEXT, " +
                 "`traceabilityUrl` TEXT, " +
+                "`digitalSignature` TEXT, " +
+                "`verificationHash` TEXT, " +
+                "`verificationUrl` TEXT, " +
+                "`signedAt` INTEGER NOT NULL DEFAULT 0, " +
                 "`createdAt` INTEGER NOT NULL, " +
                 "`updatedAt` INTEGER NOT NULL, " +
                 "`isSynced` INTEGER NOT NULL DEFAULT 0, " +
                 "FOREIGN KEY(`farmId`) REFERENCES `farms`(`id`) " +
                 "ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                "FOREIGN KEY(`qualityBatchId`) REFERENCES `quality_batches`(`id`) " +
+                "ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                "FOREIGN KEY(`supplierId`) REFERENCES `suppliers`(`id`) " +
+                "ON UPDATE NO ACTION ON DELETE SET NULL, " +
                 "FOREIGN KEY(`revenueId`) REFERENCES `revenues`(`id`) " +
                 "ON UPDATE NO ACTION ON DELETE SET NULL" +
                 ")");
 
+        // Copy shared columns. revenueId takes harvestCycleId.
+        // masterBatchId → NULL for every existing row.
+        // Signature columns carried across unchanged — no data loss.
         db.execSQL(
                 "INSERT INTO `batch_traceability_new` " +
                         "(`id`, `farmId`, `batchNumber`, `processingDate`, `weightKg`, " +
@@ -260,16 +282,18 @@ public class Migration40To41 extends Migration {
                         " `processingLocation`, `processingMethod`, `processingFacility`, " +
                         " `rawWeightKg`, `kernelWeightKg`, `yieldPercentage`, " +
                         " `shellingMethod`, `gradingMethod`, `documents`, `traceabilityUrl`, " +
+                        " `digitalSignature`, `verificationHash`, `verificationUrl`, `signedAt`, " +
                         " `createdAt`, `updatedAt`, `isSynced`) " +
                         "SELECT " +
                         "  `id`, `farmId`, `batchNumber`, `processingDate`, `weightKg`, " +
-                        "  `grade`, `pricePerKg`, `harvestCycleId`, NULL, " +  // rename + new column
+                        "  `grade`, `pricePerKg`, `harvestCycleId`, NULL, " +
                         "  `qualityBatchId`, `supplierId`, `supplierName`, `qualityGrade`, " +
                         "  `certificationIds`, `verificationCode`, `sustainabilityMetrics`, " +
                         "  `harvestYear`, `exportDate`, `buyer`, `destination`, `totalAmount`, " +
                         "  `processingLocation`, `processingMethod`, `processingFacility`, " +
                         "  `rawWeightKg`, `kernelWeightKg`, `yieldPercentage`, " +
                         "  `shellingMethod`, `gradingMethod`, `documents`, `traceabilityUrl`, " +
+                        "  `digitalSignature`, `verificationHash`, `verificationUrl`, `signedAt`, " +
                         "  `createdAt`, `updatedAt`, `isSynced` " +
                         "FROM `batch_traceability`"
         );
@@ -277,7 +301,7 @@ public class Migration40To41 extends Migration {
         db.execSQL("DROP TABLE `batch_traceability`");
         db.execSQL("ALTER TABLE `batch_traceability_new` RENAME TO `batch_traceability`");
 
-        // Index for the F2 DAO query
+        // Index for the F2 DAO query — matches the @Index on the entity.
         db.execSQL("CREATE INDEX IF NOT EXISTS " +
                 "`index_batch_traceability_masterBatchId` " +
                 "ON `batch_traceability` (`masterBatchId`)");
@@ -285,16 +309,19 @@ public class Migration40To41 extends Migration {
 
     // ============================================================
     // 4. master_batch_traceability — add farmId INTEGER NOT NULL.
-    //    Backfill: every existing master takes the id of the farm row
-    //    (single-farm deployment, all demo data). No master may be
-    //    left with a placeholder once the app next writes it.
+    //    Column names match the entity (batchNumbersJson,
+    //    batchTraceabilityIdsJson). exportDate INTEGER NOT NULL
+    //    (entity field is primitive long). verificationCode present.
+    //    Backfill farmId from the single farms row.
+    //    CREATE TABLE copied verbatim from 41.json createSql.
     // ============================================================
     private void rebuildMasterBatchTraceability(SupportSQLiteDatabase db) {
         Log.d(TAG, "  rebuilding master_batch_traceability");
 
+        // Verbatim from 41.json
         db.execSQL("CREATE TABLE IF NOT EXISTS `master_batch_traceability_new` (" +
                 "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "`farmId` INTEGER NOT NULL, " +            // NEW
+                "`farmId` INTEGER NOT NULL, " +
                 "`masterBatchNumber` TEXT, " +
                 "`shipmentName` TEXT, " +
                 "`shipmentId` TEXT, " +
@@ -302,32 +329,39 @@ public class Migration40To41 extends Migration {
                 "`totalBatches` INTEGER NOT NULL, " +
                 "`grades` TEXT, " +
                 "`certifications` TEXT, " +
-                "`batchNumbers` TEXT, " +
-                "`batchTraceabilityIds` TEXT, " +
+                "`batchNumbersJson` TEXT, " +
+                "`batchTraceabilityIdsJson` TEXT, " +
                 "`buyer` TEXT, " +
                 "`destination` TEXT, " +
-                "`exportDate` INTEGER, " +
+                "`exportDate` INTEGER NOT NULL, " +
+                "`verificationCode` TEXT, " +
                 "`traceabilityUrl` TEXT, " +
                 "`createdAt` INTEGER NOT NULL, " +
                 "`updatedAt` INTEGER NOT NULL, " +
                 "`isSynced` INTEGER NOT NULL DEFAULT 0" +
                 ")");
 
-        // Backfill farmId from the single farms row. Subquery used because
-        // master_batch_traceability currently has no farmId to join on.
+        // Backfill farmId from the single farms row. Column names in the
+        // 40 schema are batchNumbers / batchTraceabilityIds (matching the
+        // entity's pre-41 field names). exportDate is nullable in 40
+        // (entity was Integer); coerce to 0 where it was NULL, since 41
+        // requires NOT NULL.
         db.execSQL(
                 "INSERT INTO `master_batch_traceability_new` " +
                         "(`id`, `farmId`, `masterBatchNumber`, `shipmentName`, `shipmentId`, " +
                         " `totalWeightKg`, `totalBatches`, `grades`, `certifications`, " +
-                        " `batchNumbers`, `batchTraceabilityIds`, `buyer`, `destination`, " +
-                        " `exportDate`, `traceabilityUrl`, `createdAt`, `updatedAt`, `isSynced`) " +
+                        " `batchNumbersJson`, `batchTraceabilityIdsJson`, `buyer`, `destination`, " +
+                        " `exportDate`, `verificationCode`, `traceabilityUrl`, " +
+                        " `createdAt`, `updatedAt`, `isSynced`) " +
                         "SELECT " +
                         "  `id`, " +
-                        "  (SELECT `id` FROM `farms` LIMIT 1), " +   // backfill farmId
+                        "  (SELECT `id` FROM `farms` LIMIT 1), " +
                         "  `masterBatchNumber`, `shipmentName`, `shipmentId`, " +
                         "  `totalWeightKg`, `totalBatches`, `grades`, `certifications`, " +
                         "  `batchNumbers`, `batchTraceabilityIds`, `buyer`, `destination`, " +
-                        "  `exportDate`, `traceabilityUrl`, `createdAt`, `updatedAt`, `isSynced` " +
+                        "  COALESCE(`exportDate`, 0), " +
+                        "  `verificationCode`, `traceabilityUrl`, " +
+                        "  `createdAt`, `updatedAt`, `isSynced` " +
                         "FROM `master_batch_traceability`"
         );
 

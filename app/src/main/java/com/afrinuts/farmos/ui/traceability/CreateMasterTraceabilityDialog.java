@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
 import com.afrinuts.farmos.data.repository.MasterTraceabilityRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -266,8 +268,6 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
                 master.setTotalBatches(selectedBatches.size());
                 master.setGrades(String.join(", ", grades));
                 master.setCertifications(String.join(", ", certifications));
-                master.setBatchNumbers(batchNumbers);
-                master.setBatchTraceabilityIds(batchIds);
                 master.setBuyer(buyer);
                 master.setDestination(destination);
                 master.setExportDate(selectedDate.getTimeInMillis());
@@ -275,6 +275,8 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
                 // Save to database
                 long masterId = masterRepository.insertMasterTraceabilitySync(master);
                 master.setId(masterId);
+
+                masterRepository.addChildrenToMasterSync(masterBatchNumber, selectedBatchIds);
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {

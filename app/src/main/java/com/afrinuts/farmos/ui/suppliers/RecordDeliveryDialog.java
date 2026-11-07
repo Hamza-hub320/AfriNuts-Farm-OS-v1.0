@@ -330,7 +330,6 @@ public class RecordDeliveryDialog extends DialogFragment {
             QualityBatchEntity batch = new QualityBatchEntity(
                     1, // farmId
                     null, // blockId
-                    null, // harvestCycleId
                     supplierId,
                     sourceType,
                     batchNumber,

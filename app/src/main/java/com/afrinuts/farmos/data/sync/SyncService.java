@@ -467,17 +467,41 @@ public class SyncService extends Service {
                 grade = RevenueEntity.QualityGrade.STANDARD;
             }
 
+            // 40→41: blockId is gone from RevenueEntity. batchId / supplierId were
+// always in the doc; read them now that the constructor carries them.
+            Long batchId = doc.contains("batchId") ? doc.getLong("batchId") : null;
+            Long supplierId = doc.contains("supplierId") ? doc.getLong("supplierId") : null;
+
+// saleDate: prefer harvestDate (v40 picked sale date); fall back to
+// createdAt (v41 stores the picked date here). Mirrors MainActivity ~1764.
+            Long rawHarvestDate = doc.getLong("harvestDate");
+            Long rawCreatedAt = doc.getLong("createdAt");
+
+            long saleDate;
+            if (rawHarvestDate != null && rawHarvestDate > 0) {
+                saleDate = rawHarvestDate;
+            } else if (rawCreatedAt != null && rawCreatedAt > 0) {
+                saleDate = rawCreatedAt;
+            } else {
+                Log.w(TAG, "Revenue doc " + doc.getId()
+                        + " carries neither harvestDate nor createdAt; skipping");
+                return null;
+            }
+
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
-                    blockId,
-                    harvestDate,
+                    batchId,
+                    supplierId,
+                    saleDate,
                     quantityKg,
                     pricePerKg,
                     buyer,
-                    grade,
+                    RevenueEntity.QualityGrade.valueOf(doc.getString("quality")),
                     notes
             );
             revenue.setId(id);
+// No setCreatedAt() here — the constructor already set createdAt from
+// saleDate. A post-construction setter would overwrite the picked date.
             revenue.setCreatedAt(createdAt != null ? createdAt : 0);
 
             // totalAmount is calculated automatically, but we can set it if needed

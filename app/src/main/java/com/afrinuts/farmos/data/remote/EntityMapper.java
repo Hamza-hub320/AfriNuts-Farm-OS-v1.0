@@ -1698,6 +1698,7 @@ public class EntityMapper {
     public static Map<String, Object> masterTraceabilityToMap(MasterBatchTraceabilityEntity master) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", master.getId());
+        map.put("farmId", master.getFarmId());
         map.put("masterBatchNumber", master.getMasterBatchNumber());
         map.put("shipmentName", master.getShipmentName());
         map.put("shipmentId", master.getShipmentId());
@@ -1724,15 +1725,17 @@ public class EntityMapper {
             String masterBatchNumber = doc.getString("masterBatchNumber");
             String shipmentName = doc.getString("shipmentName");
 
-            MasterBatchTraceabilityEntity master = new MasterBatchTraceabilityEntity(masterBatchNumber, shipmentName);
+            MasterBatchTraceabilityEntity master =
+                    new MasterBatchTraceabilityEntity(masterBatchNumber, shipmentName);
 
             master.setId(id);
             master.setShipmentId(doc.getString("shipmentId"));
 
+            Long farmId = doc.getLong("farmId");
+            if (farmId != null) master.setFarmId(farmId);
+
             Double totalWeight = doc.getDouble("totalWeightKg");
             if (totalWeight != null) master.setTotalWeightKg(totalWeight);
-
-            String verificationCode = doc.getString("verificationCode");
 
             Long totalBatches = doc.getLong("totalBatches");
             if (totalBatches != null) master.setTotalBatches(totalBatches.intValue());
@@ -1759,7 +1762,6 @@ public class EntityMapper {
             if (isSynced != null) master.setSynced(isSynced);
 
             return master;
-
         } catch (Exception e) {
             Log.e(TAG, "Error mapping master traceability", e);
             return null;

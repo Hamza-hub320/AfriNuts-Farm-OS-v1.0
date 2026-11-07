@@ -7,11 +7,14 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MasterTraceabilityRepository extends BaseRepository {
@@ -31,7 +34,13 @@ public class MasterTraceabilityRepository extends BaseRepository {
     public void insertMasterTraceability(MasterBatchTraceabilityEntity master, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                long id = database.masterTraceabilityDao().insert(master);  // ✅ Now works
+                // F2 (migration 40→41): farmId is now a required column.
+                // Set it from the repository's farmId if the caller didn't.
+                if (master.getFarmId() <= 0) {
+                    master.setFarmId(farmId);
+                }
+
+                long id = database.masterTraceabilityDao().insert(master);
                 master.setId(id);
                 Log.d(TAG, "Master traceability saved locally with ID: " + id +
                         " Master: " + master.getMasterBatchNumber());
@@ -50,7 +59,10 @@ public class MasterTraceabilityRepository extends BaseRepository {
     }
 
     public long insertMasterTraceabilitySync(MasterBatchTraceabilityEntity master) {
-        long id = database.masterTraceabilityDao().insert(master);  // ✅ Now works
+        if (master.getFarmId() <= 0) {
+            master.setFarmId(farmId);
+        }
+        long id = database.masterTraceabilityDao().insert(master);
         master.setId(id);
         Log.d(TAG, "Master traceability saved sync with ID: " + id);
 
@@ -60,6 +72,168 @@ public class MasterTraceabilityRepository extends BaseRepository {
         }
 
         return id;
+    }
+
+    // ========================================
+    // F2 — membership wiring
+    // ========================================
+    //
+    // masterBatchId on BatchTraceabilityEntity is the source of truth for
+    // bulk membership. The two JSON columns on the master are derived views
+    // regenerated from getChildrenOfMaster(masterBatchId) after any change.
+    // Never write batchNumbersJson / batchTraceabilityIdsJson by hand.
+
+    /**
+     * Sets masterBatchId on each listed child traceability row, regenerates
+     * the master's JSON views, and queues the child updates for sync.
+     *
+     * @param masterBatchNumber the master's business key (stored on each child)
+     * @param childTraceabilityIds the traceability row ids to include
+     */
+    public void addChildrenToMaster(String masterBatchNumber,
+                                    List<Long> childTraceabilityIds,
+                                    RepositoryCallback<Boolean> callback) {
+        executor.execute(() -> {
+            try {
+                for (Long childId : childTraceabilityIds) {
+                    BatchTraceabilityEntity child =
+                            database.batchTraceabilityDao().getById(childId);
+                    if (child == null) {
+                        Log.w(TAG, "Child traceability not found: " + childId);
+                        continue;
+                    }
+                    child.setMasterBatchId(masterBatchNumber);
+                    database.batchTraceabilityDao().update(child);
+
+                    if (!firestoreSyncManager.isRemoteUpdate()) {
+                        syncManager.queueForSync("batch_traceability", childId,
+                                SyncEntity.SyncAction.UPDATE);
+                    }
+                }
+
+                regenerateMasterJson(masterBatchNumber);
+
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.triggerAutoSync();
+                }
+
+                mainHandler.post(() -> callback.onSuccess(true));
+            } catch (Exception e) {
+                Log.e(TAG, "Error adding children to master", e);
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
+    /**
+     * Clears masterBatchId on each listed child, regenerates the master's
+     * JSON views, and queues updates.
+     */
+    public void removeChildrenFromMaster(String masterBatchNumber,
+                                         List<Long> childTraceabilityIds,
+                                         RepositoryCallback<Boolean> callback) {
+        executor.execute(() -> {
+            try {
+                for (Long childId : childTraceabilityIds) {
+                    BatchTraceabilityEntity child =
+                            database.batchTraceabilityDao().getById(childId);
+                    if (child == null) continue;
+
+                    // Guard: only clear if this child actually belongs to
+                    // this master.
+                    if (masterBatchNumber.equals(child.getMasterBatchId())) {
+                        child.setMasterBatchId(null);
+                        database.batchTraceabilityDao().update(child);
+
+                        if (!firestoreSyncManager.isRemoteUpdate()) {
+                            syncManager.queueForSync("batch_traceability", childId,
+                                    SyncEntity.SyncAction.UPDATE);
+                        }
+                    }
+                }
+
+                regenerateMasterJson(masterBatchNumber);
+
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.triggerAutoSync();
+                }
+
+                mainHandler.post(() -> callback.onSuccess(true));
+            } catch (Exception e) {
+                Log.e(TAG, "Error removing children from master", e);
+                mainHandler.post(() -> callback.onError(e.getMessage()));
+            }
+        });
+    }
+
+    /**
+     * Synchronous variant of addChildrenToMaster, for callers already on a
+     * worker thread (e.g. CreateMasterTraceabilityDialog's create thread).
+     * Sets masterBatchId on each child, updates the child rows, then
+     * regenerates the master's JSON views. No sync queueing — the caller is
+     * responsible for triggering sync after this returns, or relies on the
+     * subsequent updateMasterTraceability path.
+     */
+    public void addChildrenToMasterSync(String masterBatchNumber, List<Long> childTraceabilityIds) {
+        try {
+            for (Long childId : childTraceabilityIds) {
+                BatchTraceabilityEntity child = database.batchTraceabilityDao().getById(childId);
+                if (child == null) {
+                    Log.w(TAG, "Child traceability not found: " + childId);
+                    continue;
+                }
+                child.setMasterBatchId(masterBatchNumber);
+                database.batchTraceabilityDao().update(child);
+
+                if (!firestoreSyncManager.isRemoteUpdate()) {
+                    syncManager.queueForSync("batch_traceability", childId,
+                            SyncEntity.SyncAction.UPDATE);
+                }
+            }
+            regenerateMasterJson(masterBatchNumber);
+            if (!firestoreSyncManager.isRemoteUpdate()) {
+                syncManager.triggerAutoSync();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in addChildrenToMasterSync", e);
+        }
+    }
+
+    /**
+     * Recomputes batchNumbersJson / batchTraceabilityIdsJson from the
+     * current getChildrenOfMaster(masterBatchNumber) set, and persists
+     * the master. This is the ONLY writer of the two JSON columns.
+     */
+    private void regenerateMasterJson(String masterBatchNumber) {
+        MasterBatchTraceabilityEntity master =
+                database.masterTraceabilityDao().getByMasterBatchNumber(masterBatchNumber);
+        if (master == null) {
+            Log.w(TAG, "Master not found for JSON regeneration: " + masterBatchNumber);
+            return;
+        }
+
+        List<BatchTraceabilityEntity> children =
+                database.batchTraceabilityDao().getChildrenOfMaster(masterBatchNumber);
+
+        List<String> batchNumbers = new ArrayList<>();
+        List<Long> traceabilityIds = new ArrayList<>();
+        for (BatchTraceabilityEntity c : children) {
+            batchNumbers.add(c.getBatchNumber());
+            traceabilityIds.add(c.getId());
+        }
+
+        master.setBatchNumbersJson(new Gson().toJson(batchNumbers));
+        master.setBatchTraceabilityIdsJson(new Gson().toJson(traceabilityIds));
+
+        database.masterTraceabilityDao().update(master);
+
+        if (!firestoreSyncManager.isRemoteUpdate()) {
+            syncManager.queueForSync("master_traceability", master.getId(),
+                    SyncEntity.SyncAction.UPDATE);
+        }
+
+        Log.d(TAG, "Regenerated master JSON: " + masterBatchNumber
+                + " → " + children.size() + " children");
     }
 
     // ========================================
@@ -88,6 +262,10 @@ public class MasterTraceabilityRepository extends BaseRepository {
 
     public List<MasterBatchTraceabilityEntity> getByBuyer(String buyer) {
         return database.masterTraceabilityDao().getByBuyer(buyer);
+    }
+
+    public List<BatchTraceabilityEntity> getChildrenOfMaster(String masterBatchNumber) {
+        return database.batchTraceabilityDao().getChildrenOfMaster(masterBatchNumber);
     }
 
     // ========================================

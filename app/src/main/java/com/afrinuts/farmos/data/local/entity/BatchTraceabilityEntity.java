@@ -2,6 +2,7 @@ package com.afrinuts.farmos.data.local.entity;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.google.gson.Gson;
@@ -38,6 +39,9 @@ import java.util.Locale;
                         childColumns = "revenueId",
                         onDelete = ForeignKey.SET_NULL
                 )
+        },
+        indices = {
+                @Index(value = {"masterBatchId"})
         })
 public class BatchTraceabilityEntity {
 

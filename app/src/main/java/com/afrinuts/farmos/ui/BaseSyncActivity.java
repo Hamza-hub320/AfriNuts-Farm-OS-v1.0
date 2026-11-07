@@ -280,10 +280,32 @@ public abstract class BaseSyncActivity extends BaseActivity {
             String buyer = doc.getString("buyer");
             String notes = doc.getString("notes");
 
+            // 40→41: blockId is gone from RevenueEntity. batchId / supplierId were
+// always in the doc; read them now that the constructor carries them.
+            Long batchId = doc.contains("batchId") ? doc.getLong("batchId") : null;
+            Long supplierId = doc.contains("supplierId") ? doc.getLong("supplierId") : null;
+
+// saleDate: prefer harvestDate (v40 picked sale date); fall back to
+// createdAt (v41 stores the picked date here). Mirrors MainActivity ~1764.
+            Long rawHarvestDate = doc.getLong("harvestDate");
+            Long rawCreatedAt = doc.getLong("createdAt");
+
+            long saleDate;
+            if (rawHarvestDate != null && rawHarvestDate > 0) {
+                saleDate = rawHarvestDate;
+            } else if (rawCreatedAt != null && rawCreatedAt > 0) {
+                saleDate = rawCreatedAt;
+            } else {
+                Log.w(TAG, "Revenue doc " + doc.getId()
+                        + " carries neither harvestDate nor createdAt; skipping");
+                return null;
+            }
+
             RevenueEntity revenue = new RevenueEntity(
                     farmId,
-                    blockId,
-                    doc.getLong("harvestDate"),
+                    batchId,
+                    supplierId,
+                    saleDate,
                     quantityKg,
                     pricePerKg,
                     buyer,
@@ -291,6 +313,9 @@ public abstract class BaseSyncActivity extends BaseActivity {
                     notes
             );
             revenue.setId(id);
+// No setCreatedAt() here — the constructor already set createdAt from
+// saleDate. A post-construction setter would overwrite the picked date.
+
             return revenue;
         } catch (Exception e) {
             Log.e(TAG, "Error converting revenue document", e);

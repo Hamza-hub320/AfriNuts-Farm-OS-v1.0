@@ -31,6 +31,8 @@ public class MasterBatchTraceabilityEntity {
     private String batchNumbersJson;      // JSON array of batch numbers
     private String batchTraceabilityIdsJson; // JSON array of traceability IDs
 
+    private long farmId;
+
     // Buyer information
     private String buyer;
     private String destination;
@@ -107,6 +109,9 @@ public class MasterBatchTraceabilityEntity {
 
     public boolean isSynced() { return isSynced; }
     public void setSynced(boolean synced) { isSynced = synced; }
+
+    public long getFarmId() { return farmId; }
+    public void setFarmId(long farmId) { this.farmId = farmId; }
 
     // Helper methods for batch numbers
     public List<String> getBatchNumbers() {

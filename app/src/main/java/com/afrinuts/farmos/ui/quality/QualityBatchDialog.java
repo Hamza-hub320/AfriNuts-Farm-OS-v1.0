@@ -544,9 +544,8 @@ public class QualityBatchDialog extends DialogFragment {
 
             QualityBatchEntity updatedBatch = new QualityBatchEntity(
                     farmId,
-                    null,
-                    null,
-                    existingBatch.getSupplierId(),
+                    null,                              // blockId
+                    existingBatch.getSupplierId(),     // supplierId — from the batch being edited
                     existingBatch.getSourceType(),
                     etBatchNumberDisplay.getText().toString().trim(),
                     selectedDate.getTimeInMillis(),
