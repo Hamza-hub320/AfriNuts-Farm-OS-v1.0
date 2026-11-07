@@ -930,7 +930,8 @@ public class EntityMapper {
             batch.setKorGPerKg(getDoubleSafe(doc, "korGPerKg"));
             batch.setKorSampleGrams(getDoubleSafe(doc, "korSampleGrams"));
             batch.setKorKernelGrams(getDoubleSafe(doc, "korKernelGrams"));
-            batch.setInspectionDate(getLongSafe(doc, "inspectionDate"));
+            Long inspectionDateLong = getLongSafe(doc, "inspectionDate");
+            batch.setInspectionDate(inspectionDateLong != null ? inspectionDateLong : 0L);
             batch.setInspectedBy(doc.getString("inspectedBy"));
 
             return batch;
