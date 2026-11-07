@@ -100,6 +100,15 @@ public class BatchTraceabilityEntity {
     private long updatedAt;
     private boolean isSynced;
 
+    /**
+     * F2 (migration 40→41): source of truth for bulk membership. Populated when
+     * this row is included in a master batch. Nullable — a standalone traceability
+     * record has no master. No FK: masters may be reassigned without cascading
+     * here; the field is authoritative and the JSON views on the master are
+     * derived from getChildrenOfMaster(masterBatchId) at write time.
+     */
+    private String masterBatchId;
+
     // ========================================
     // Sustainability Metrics Inner Class
     // ========================================
@@ -350,6 +359,9 @@ public class BatchTraceabilityEntity {
     public void setSustainabilityMetricsObject(SustainabilityMetrics metrics) {
         this.sustainabilityMetrics = metrics.toJson();
     }
+
+    public String getMasterBatchId() { return masterBatchId; }
+    public void setMasterBatchId(String masterBatchId) { this.masterBatchId = masterBatchId; }
 
     public long getProcessingDate() { return processingDate; }
     public void setProcessingDate(long processingDate) { this.processingDate = processingDate; }
