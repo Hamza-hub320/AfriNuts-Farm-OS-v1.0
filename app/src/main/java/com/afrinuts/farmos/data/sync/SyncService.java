@@ -441,21 +441,27 @@ public class SyncService extends Service {
     /**
      * Convert Firebase document to RevenueEntity
      */
+    /**
+     * Convert Firebase document to RevenueEntity.
+     *
+     * Guard policy (post-41): a revenue doc is acceptable if it resolves a sale
+     * date from EITHER harvestDate (v40) or createdAt (v41). Requiring harvestDate
+     * outright would reject every post-41 document on download — the bug patch
+     * 11.5 existed to kill. The saleDate resolution below is the guard; the raw
+     * document fields are read once, then never consulted directly.
+     */
     private RevenueEntity documentToRevenue(DocumentSnapshot doc) {
         try {
             Long id = doc.getLong("id");
             Long farmId = doc.getLong("farmId");
-            Long blockId = doc.getLong("blockId");
-            Long harvestDate = doc.getLong("harvestDate");
             Double quantityKg = doc.getDouble("quantityKg");
             Double pricePerKg = doc.getDouble("pricePerKg");
-            Double totalAmount = doc.getDouble("totalAmount");
             String buyer = doc.getString("buyer");
             String quality = doc.getString("quality");
             String notes = doc.getString("notes");
-            Long createdAt = doc.getLong("createdAt");
 
-            if (id == null || farmId == null || harvestDate == null ||
+            // Required identity / substance fields only. Dates are handled below.
+            if (id == null || farmId == null ||
                     quantityKg == null || pricePerKg == null || quality == null) {
                 return null;
             }
@@ -467,13 +473,13 @@ public class SyncService extends Service {
                 grade = RevenueEntity.QualityGrade.STANDARD;
             }
 
-            // 40→41: blockId is gone from RevenueEntity. batchId / supplierId were
-// always in the doc; read them now that the constructor carries them.
+            // batchId / supplierId: present in the doc since the procurement work.
             Long batchId = doc.contains("batchId") ? doc.getLong("batchId") : null;
             Long supplierId = doc.contains("supplierId") ? doc.getLong("supplierId") : null;
 
-// saleDate: prefer harvestDate (v40 picked sale date); fall back to
-// createdAt (v41 stores the picked date here). Mirrors MainActivity ~1764.
+            // saleDate: prefer harvestDate (the v40 picked sale date); fall back
+            // to createdAt (v41 stores the picked date there). Same rule as
+            // BaseSyncActivity and MainActivity ~1764.
             Long rawHarvestDate = doc.getLong("harvestDate");
             Long rawCreatedAt = doc.getLong("createdAt");
 
@@ -496,16 +502,14 @@ public class SyncService extends Service {
                     quantityKg,
                     pricePerKg,
                     buyer,
-                    RevenueEntity.QualityGrade.valueOf(doc.getString("quality")),
+                    grade,
                     notes
             );
             revenue.setId(id);
-// No setCreatedAt() here — the constructor already set createdAt from
-// saleDate. A post-construction setter would overwrite the picked date.
-            revenue.setCreatedAt(createdAt != null ? createdAt : 0);
-
-            // totalAmount is calculated automatically, but we can set it if needed
-            // revenue.setTotalAmount(totalAmount);
+            // No setCreatedAt() here. The constructor set createdAt from saleDate
+            // (9-arg canonical constructor). A post-construction setter would
+            // overwrite the picked sale date with the raw createdAt, silently
+            // breaking the 40→41 date-collapse on every downloaded document.
 
             return revenue;
 

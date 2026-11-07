@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 41,
-    "identityHash": "8a42714daf4554a1eb64532a68a222d2",
+    "identityHash": "bbb2a392ad2c4b740a78d6f15fcdc1bf",
     "entities": [
       {
         "tableName": "farms",
@@ -1966,7 +1966,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_batch_traceability_masterBatchId",
+            "unique": false,
+            "columnNames": [
+              "masterBatchId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_batch_traceability_masterBatchId` ON `${TABLE_NAME}` (`masterBatchId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "farms",
@@ -3480,7 +3490,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8a42714daf4554a1eb64532a68a222d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bbb2a392ad2c4b740a78d6f15fcdc1bf')"
     ]
   }
 }
