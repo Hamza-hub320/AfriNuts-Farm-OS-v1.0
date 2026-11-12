@@ -1,7 +1,6 @@
 package com.afrinuts.farmos.ui.suppliers;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,10 +25,16 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
 
     private List<QualityBatchEntity> batches;
     private OnBatchUpdatedListener onBatchUpdatedListener;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+    private OnBatchDisputeClickListener disputeListener;
+    private final SimpleDateFormat dateFormat =
+            new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     public interface OnBatchUpdatedListener {
         void onBatchUpdated();
+    }
+
+    public interface OnBatchDisputeClickListener {
+        void onBatchDisputeClick(QualityBatchEntity batch);
     }
 
     public SupplierBatchAdapter(List<QualityBatchEntity> batches) {
@@ -39,6 +43,10 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
 
     public void setOnBatchUpdatedListener(OnBatchUpdatedListener listener) {
         this.onBatchUpdatedListener = listener;
+    }
+
+    public void setOnBatchDisputeClickListener(OnBatchDisputeClickListener l) {
+        this.disputeListener = l;
     }
 
     @NonNull
@@ -53,7 +61,7 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
     public void onBindViewHolder(@NonNull BatchViewHolder holder, int position) {
         if (position < batches.size()) {
             QualityBatchEntity batch = batches.get(position);
-            holder.bind(batch, onBatchUpdatedListener);
+            holder.bind(batch, onBatchUpdatedListener, disputeListener);
         }
     }
 
@@ -69,13 +77,14 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
 
     static class BatchViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvBatchNumber;
-        private TextView tvDate;
-        private TextView tvWeight;
-        private TextView tvGrade;
-        private TextView tvQualityScore;
-        private ImageView ivGradeIcon;  // ✅ Added for vector icon
-        private CardView cardView;
+        private final TextView tvBatchNumber;
+        private final TextView tvDate;
+        private final TextView tvWeight;
+        private final TextView tvGrade;
+        private final TextView tvQualityScore;
+        private final ImageView ivGradeIcon;
+        private final CardView cardView;
+        private final View btnDisputeBatch;
 
         BatchViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -84,19 +93,19 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
             tvWeight = itemView.findViewById(R.id.tvWeight);
             tvGrade = itemView.findViewById(R.id.tvGrade);
             tvQualityScore = itemView.findViewById(R.id.tvQualityScore);
-            ivGradeIcon = itemView.findViewById(R.id.ivGradeIcon);  // ✅ Initialize
+            ivGradeIcon = itemView.findViewById(R.id.ivGradeIcon);
             cardView = itemView.findViewById(R.id.cardView);
+            btnDisputeBatch = itemView.findViewById(R.id.btnDisputeBatch);
         }
 
-        void bind(QualityBatchEntity batch, OnBatchUpdatedListener listener) {
+        void bind(QualityBatchEntity batch,
+                  OnBatchUpdatedListener listener,
+                  OnBatchDisputeClickListener disputeClick) {
             tvBatchNumber.setText("#" + batch.getBatchNumber());
             tvDate.setText(batch.getFormattedDate());
             tvWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
-
-            // ✅ Fixed: Removed getIcon() call, use display name only
             tvGrade.setText(batch.getQualityGrade().getDisplayName());
 
-            // ✅ Set grade icon
             if (ivGradeIcon != null) {
                 ivGradeIcon.setVisibility(View.VISIBLE);
                 switch (batch.getQualityGrade()) {
@@ -121,27 +130,33 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
 
             tvQualityScore.setText(String.valueOf((int) batch.getQualityScore()));
 
-            // Click to view details
             cardView.setOnClickListener(v -> {
-                Intent intent = new Intent(itemView.getContext(), QualityBatchDetailActivity.class);
+                Intent intent = new Intent(itemView.getContext(),
+                        QualityBatchDetailActivity.class);
                 intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
                 itemView.getContext().startActivity(intent);
             });
 
-            // Long click to edit delivery
             cardView.setOnLongClickListener(v -> {
                 showEditDeliveryDialog(batch.getId(), listener);
                 return true;
             });
+
+            // 3.4: dispute this specific batch. The button intercepts its own
+            // click, so the card's onClick does not fire when it is tapped.
+            if (btnDisputeBatch != null) {
+                btnDisputeBatch.setOnClickListener(v -> {
+                    if (disputeClick != null) {
+                        disputeClick.onBatchDisputeClick(batch);
+                    }
+                });
+            }
         }
 
         private void showEditDeliveryDialog(long batchId, OnBatchUpdatedListener listener) {
             EditRecordDeliveryDialog dialog = EditRecordDeliveryDialog.newInstance(batchId);
             dialog.setOnDeliveryUpdatedListener(() -> {
-                // Refresh the adapter
-                if (listener != null) {
-                    listener.onBatchUpdated();
-                }
+                if (listener != null) listener.onBatchUpdated();
             });
             dialog.show(((FragmentActivity) itemView.getContext()).getSupportFragmentManager(),
                     "EditRecordDeliveryDialog");

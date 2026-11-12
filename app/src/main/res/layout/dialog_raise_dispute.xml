@@ -106,6 +106,29 @@
 
         </androidx.cardview.widget.CardView>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutBatchPicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.AfriNuts.EditText"
+            android:hint="Pick to dispute a specific batch"
+            app:endIconMode="dropdown_menu"
+            app:endIconDrawable="@drawable/ic_arrow_drop_down"
+            app:boxBackgroundColor="@color/surface"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etBatchPicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Dispute Details Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

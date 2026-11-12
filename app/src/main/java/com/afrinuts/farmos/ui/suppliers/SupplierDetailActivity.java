@@ -173,6 +173,14 @@ public class SupplierDetailActivity extends BaseActivity {
             loadSupplierBatches();
             loadSupplierData();
         });
+
+        batchAdapter.setOnBatchDisputeClickListener(batch -> {
+            openDisputeDialog(
+                    SupplierDisputeEntity.TargetEntity.BATCH,
+                    batch.getId(),
+                    batch.getBatchNumber());
+        });
+
         batchesRecyclerView.setAdapter(batchAdapter);
 
         cardCommitments      = findViewById(R.id.cardCommitments);
@@ -691,7 +699,9 @@ public class SupplierDetailActivity extends BaseActivity {
         });
 
         btnDispute.setOnClickListener(v -> openDisputeDialog(
-                SupplierDisputeEntity.TargetEntity.COMMITMENT, c.getId()));
+                SupplierDisputeEntity.TargetEntity.COMMITMENT,
+                c.getId(),
+                c.getContractId()));
     }
 
 // ---------- Inspections ----------
@@ -734,7 +744,10 @@ public class SupplierDetailActivity extends BaseActivity {
         tvInspector.setText(i.getInspector() != null ? i.getInspector() : "");
 
         btnDispute.setOnClickListener(v -> openDisputeDialog(
-                SupplierDisputeEntity.TargetEntity.INSPECTION, i.getId()));
+                SupplierDisputeEntity.TargetEntity.INSPECTION,
+                i.getId(),
+                (i.getInspectionType() != null ? i.getInspectionType().name() : "Inspection")
+                        + " " + shortDate.format(new Date(i.getInspectionDate()))));
     }
 
 // ---------- Disputes ----------
@@ -774,10 +787,12 @@ public class SupplierDetailActivity extends BaseActivity {
         tvDate.setText(shortDate.format(new Date(d.getSubmittedDate())));
     }
 
-    private void openDisputeDialog(SupplierDisputeEntity.TargetEntity entity, long targetId) {
+    private void openDisputeDialog(SupplierDisputeEntity.TargetEntity entity,
+                                   long targetId,
+                                   String targetLabel) {
         if (supplier == null) return;
         RaiseDisputeDialog d = RaiseDisputeDialog.newInstance(
-                supplier.getId(), farmId, entity, targetId);
+                supplier.getId(), farmId, entity, targetId, targetLabel);
         d.setOnDisputeRaisedListener(id -> loadDisputes());
         d.show(getSupportFragmentManager(), "RaiseDisputeDialog");
     }
