@@ -734,6 +734,10 @@ public class FirestoreSyncManager {
 // SUPPLIER COMMITMENTS LISTENER
 // ========================================
 
+    // ========================================
+// SUPPLIER COMMITMENTS LISTENER
+// ========================================
+
     private void listenToSupplierCommitments() {
         supplierCommitmentsListener = db.collection(COLLECTION_FARMS)
                 .document(farmId)
@@ -757,20 +761,32 @@ public class FirestoreSyncManager {
                                     SupplierCommitmentEntity local =
                                             database.supplierCommitmentDao().getById(remote.getId());
                                     isApplyingRemoteUpdate = true;
-                                    if (local == null) {
-                                        database.supplierCommitmentDao().insert(remote);
-                                        Log.d(TAG, "➕ Commitment: " + remote.getId());
-                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
-                                        database.supplierCommitmentDao().update(remote);
-                                        Log.d(TAG, "📥 Updated commitment: " + remote.getId());
+                                    try {
+                                        if (local == null) {
+                                            // 3.6: parent-existence guard
+                                            if (database.supplierDao()
+                                                    .getSupplierById(remote.getSupplierId()) == null) {
+                                                Log.w(TAG, "Skipping commitment " + remote.getId()
+                                                        + " — supplier " + remote.getSupplierId()
+                                                        + " not present locally");
+                                                break;
+                                            }
+                                            database.supplierCommitmentDao().insert(remote);
+                                            Log.d(TAG, "➕ Commitment: " + remote.getId());
+                                        } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                            database.supplierCommitmentDao().update(remote);
+                                            Log.d(TAG, "📥 Updated commitment: " + remote.getId());
+                                        }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Commitment " + remote.getId()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-                                    isApplyingRemoteUpdate = false;
                                     break;
                                 case REMOVED:
                                     Log.d(TAG, "❌ Commitment removed remotely: " + remote.getId()
                                             + " (local record kept — audit trail)");
-                                    // Deliberately no local delete: evidence history is
-                                    // never removed, only superseded.
                                     break;
                             }
                         }
@@ -806,14 +822,28 @@ public class FirestoreSyncManager {
                                     SupplierInspectionEntity local =
                                             database.supplierInspectionDao().getById(remote.getId());
                                     isApplyingRemoteUpdate = true;
-                                    if (local == null) {
-                                        database.supplierInspectionDao().insert(remote);
-                                        Log.d(TAG, "➕ Inspection: " + remote.getId());
-                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
-                                        database.supplierInspectionDao().update(remote);
-                                        Log.d(TAG, "📥 Updated inspection: " + remote.getId());
+                                    try {
+                                        if (local == null) {
+                                            // 3.6: parent-existence guard
+                                            if (database.supplierDao()
+                                                    .getSupplierById(remote.getSupplierId()) == null) {
+                                                Log.w(TAG, "Skipping inspection " + remote.getId()
+                                                        + " — supplier " + remote.getSupplierId()
+                                                        + " not present locally");
+                                                break;
+                                            }
+                                            database.supplierInspectionDao().insert(remote);
+                                            Log.d(TAG, "➕ Inspection: " + remote.getId());
+                                        } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                            database.supplierInspectionDao().update(remote);
+                                            Log.d(TAG, "📥 Updated inspection: " + remote.getId());
+                                        }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Inspection " + remote.getId()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-                                    isApplyingRemoteUpdate = false;
                                     break;
                                 case REMOVED:
                                     Log.d(TAG, "❌ Inspection removed remotely: " + remote.getId()
@@ -853,14 +883,28 @@ public class FirestoreSyncManager {
                                     SupplierDisputeEntity local =
                                             database.supplierDisputeDao().getById(remote.getId());
                                     isApplyingRemoteUpdate = true;
-                                    if (local == null) {
-                                        database.supplierDisputeDao().insert(remote);
-                                        Log.d(TAG, "➕ Dispute: " + remote.getId());
-                                    } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
-                                        database.supplierDisputeDao().update(remote);
-                                        Log.d(TAG, "📥 Updated dispute: " + remote.getId());
+                                    try {
+                                        if (local == null) {
+                                            // 3.6: parent-existence guard
+                                            if (database.supplierDao()
+                                                    .getSupplierById(remote.getSupplierId()) == null) {
+                                                Log.w(TAG, "Skipping dispute " + remote.getId()
+                                                        + " — supplier " + remote.getSupplierId()
+                                                        + " not present locally");
+                                                break;
+                                            }
+                                            database.supplierDisputeDao().insert(remote);
+                                            Log.d(TAG, "➕ Dispute: " + remote.getId());
+                                        } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                            database.supplierDisputeDao().update(remote);
+                                            Log.d(TAG, "📥 Updated dispute: " + remote.getId());
+                                        }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Dispute " + remote.getId()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-                                    isApplyingRemoteUpdate = false;
                                     break;
                                 case REMOVED:
                                     Log.d(TAG, "❌ Dispute removed remotely: " + remote.getId()
@@ -894,17 +938,27 @@ public class FirestoreSyncManager {
                                     EntityMapper.mapToSnapshot(dc.getDocument());
                             if (remote == null) continue;
 
-                            // Snapshots are append-only. Insert if absent; never
-                            // overwrite. Remote removals are ignored (snapshots
-                            // are history).
                             if (dc.getType() == DocumentChange.Type.ADDED
                                     || dc.getType() == DocumentChange.Type.MODIFIED) {
                                 SupplierScoreSnapshotEntity local =
                                         database.supplierScoreSnapshotDao().getById(remote.getId());
                                 if (local == null) {
-                                    database.supplierScoreSnapshotDao().insert(remote);
-                                    Log.d(TAG, "➕ Snapshot: " + remote.getId()
-                                            + " for supplier " + remote.getSupplierId());
+                                    // 3.6: parent-existence guard
+                                    if (database.supplierDao()
+                                            .getSupplierById(remote.getSupplierId()) == null) {
+                                        Log.w(TAG, "Skipping snapshot " + remote.getId()
+                                                + " — supplier " + remote.getSupplierId()
+                                                + " not present locally");
+                                        continue;
+                                    }
+                                    try {
+                                        database.supplierScoreSnapshotDao().insert(remote);
+                                        Log.d(TAG, "➕ Snapshot: " + remote.getId()
+                                                + " for supplier " + remote.getSupplierId());
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Snapshot " + remote.getId()
+                                                + " rejected by FK constraint — skipped", e);
+                                    }
                                 }
                                 // else: immutable; do nothing
                             }
@@ -939,14 +993,13 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
-                                    // Check if supplier exists
+                                    // Existing supplier queue behaviour (kept)
                                     boolean supplierExists = true;
                                     if (remoteBatch.getSupplierId() != null && remoteBatch.getSupplierId() > 0) {
                                         SupplierEntity supplier = database.supplierDao()
                                                 .getSupplierById(remoteBatch.getSupplierId());
                                         if (supplier == null) {
                                             supplierExists = false;
-                                            // Queue this batch for later
                                             pendingBatches.add(remoteBatch);
                                             Log.d(TAG, "⏳ Queued batch " + remoteBatch.getBatchNumber() +
                                                     " waiting for supplier " + remoteBatch.getSupplierId());
@@ -954,31 +1007,42 @@ public class FirestoreSyncManager {
                                     }
 
                                     if (!supplierExists) {
-                                        continue; // Skip insertion, wait for supplier
+                                        continue;
                                     }
 
-                                    // Process any pending batches for this supplier
                                     processPendingBatches(remoteBatch.getSupplierId());
+
+                                    // 3.6: block guard — no queue for blocks; skip and log
+                                    if (remoteBatch.getBlockId() != null && remoteBatch.getBlockId() > 0) {
+                                        if (database.blockDao().getBlockById(remoteBatch.getBlockId()) == null) {
+                                            Log.w(TAG, "Skipping quality batch " + remoteBatch.getBatchNumber()
+                                                    + " — block " + remoteBatch.getBlockId()
+                                                    + " not present locally");
+                                            continue;
+                                        }
+                                    }
 
                                     QualityBatchEntity localBatch =
                                             database.qualityBatchDao().getBatchById(remoteBatch.getId());
 
                                     isApplyingRemoteUpdate = true;
-
-                                    if (localBatch == null) {
-                                        database.qualityBatchDao().insert(remoteBatch);
-                                        Log.d(TAG, "➕ New quality batch: " + remoteBatch.getBatchNumber());
-                                    } else {
-                                        if (remoteBatch.getUpdatedAt() > localBatch.getUpdatedAt()) {
+                                    try {
+                                        if (localBatch == null) {
+                                            database.qualityBatchDao().insert(remoteBatch);
+                                            Log.d(TAG, "➕ New quality batch: " + remoteBatch.getBatchNumber());
+                                        } else if (remoteBatch.getUpdatedAt() > localBatch.getUpdatedAt()) {
                                             database.qualityBatchDao().update(remoteBatch);
                                             Log.d(TAG, "📥 Updated quality batch: " + remoteBatch.getBatchNumber());
                                         } else {
                                             Log.d(TAG, "⏭️ Skipped quality batch (local newer): " +
                                                     remoteBatch.getBatchNumber());
                                         }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Quality batch " + remoteBatch.getBatchNumber()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-
-                                    isApplyingRemoteUpdate = false;
                                     break;
 
                                 case REMOVED:
@@ -1035,7 +1099,7 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
-                                    // Check if referenced quality batch exists
+                                    // Existing quality-batch guard
                                     if (remoteTraceability.getQualityBatchId() != null) {
                                         QualityBatchEntity batch = database.qualityBatchDao()
                                                 .getBatchById(remoteTraceability.getQualityBatchId());
@@ -1046,26 +1110,41 @@ public class FirestoreSyncManager {
                                         }
                                     }
 
+                                    // 3.6: revenue guard (renamed FK; same constraint class)
+                                    if (remoteTraceability.getRevenueId() != null
+                                            && remoteTraceability.getRevenueId() > 0) {
+                                        if (database.revenueDao()
+                                                .getRevenueById(remoteTraceability.getRevenueId()) == null) {
+                                            Log.w(TAG, "Skipping traceability "
+                                                    + remoteTraceability.getBatchNumber()
+                                                    + " — revenue " + remoteTraceability.getRevenueId()
+                                                    + " not present locally");
+                                            continue;
+                                        }
+                                    }
+
                                     BatchTraceabilityEntity localTraceability =
                                             database.batchTraceabilityDao()
                                                     .getById(remoteTraceability.getId());
 
                                     isApplyingRemoteUpdate = true;
-
-                                    if (localTraceability == null) {
-                                        database.batchTraceabilityDao().insert(remoteTraceability);
-                                        Log.d(TAG, "➕ New traceability: " + remoteTraceability.getBatchNumber());
-                                    } else {
-                                        if (remoteTraceability.getUpdatedAt() > localTraceability.getUpdatedAt()) {
+                                    try {
+                                        if (localTraceability == null) {
+                                            database.batchTraceabilityDao().insert(remoteTraceability);
+                                            Log.d(TAG, "➕ New traceability: " + remoteTraceability.getBatchNumber());
+                                        } else if (remoteTraceability.getUpdatedAt() > localTraceability.getUpdatedAt()) {
                                             database.batchTraceabilityDao().update(remoteTraceability);
                                             Log.d(TAG, "📥 Updated traceability: " + remoteTraceability.getBatchNumber());
                                         } else {
                                             Log.d(TAG, "⏭️ Skipped traceability (local newer): " +
                                                     remoteTraceability.getBatchNumber());
                                         }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Traceability " + remoteTraceability.getBatchNumber()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-
-                                    isApplyingRemoteUpdate = false;
                                     break;
 
                                 case REMOVED:
@@ -1105,23 +1184,35 @@ public class FirestoreSyncManager {
                             switch (dc.getType()) {
                                 case ADDED:
                                 case MODIFIED:
+                                    // 3.6: symmetric parent guard
+                                    if (remoteMaster.getFarmId() > 0
+                                            && database.farmDao().getFarmById(remoteMaster.getFarmId()) == null) {
+                                        Log.w(TAG, "Skipping master traceability "
+                                                + remoteMaster.getMasterBatchNumber()
+                                                + " — farm " + remoteMaster.getFarmId()
+                                                + " not present locally");
+                                        continue;
+                                    }
+
                                     MasterBatchTraceabilityEntity localMaster =
                                             database.masterTraceabilityDao()
                                                     .getById(remoteMaster.getId());
 
                                     isApplyingRemoteUpdate = true;
-
-                                    if (localMaster == null) {
-                                        database.masterTraceabilityDao().insert(remoteMaster);
-                                        Log.d(TAG, "➕ New master traceability: " + remoteMaster.getMasterBatchNumber());
-                                    } else {
-                                        if (remoteMaster.getUpdatedAt() > localMaster.getUpdatedAt()) {
+                                    try {
+                                        if (localMaster == null) {
+                                            database.masterTraceabilityDao().insert(remoteMaster);
+                                            Log.d(TAG, "➕ New master traceability: " + remoteMaster.getMasterBatchNumber());
+                                        } else if (remoteMaster.getUpdatedAt() > localMaster.getUpdatedAt()) {
                                             database.masterTraceabilityDao().update(remoteMaster);
                                             Log.d(TAG, "📥 Updated master traceability: " + remoteMaster.getMasterBatchNumber());
                                         }
+                                    } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                        Log.w(TAG, "Master traceability " + remoteMaster.getMasterBatchNumber()
+                                                + " rejected by FK constraint — skipped", e);
+                                    } finally {
+                                        isApplyingRemoteUpdate = false;
                                     }
-
-                                    isApplyingRemoteUpdate = false;
                                     break;
 
                                 case REMOVED:
