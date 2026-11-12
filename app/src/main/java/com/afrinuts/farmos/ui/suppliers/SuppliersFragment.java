@@ -25,6 +25,7 @@ import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.concurrent.Executors;
 public class SuppliersFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private SupplierAdapter adapter;  // ✅ Now this will work
+    private SupplierAdapter adapter;
     private ProgressBar progressBar;
     private LinearLayout emptyView;
     private TextView tvTotalSuppliers;
@@ -47,10 +48,16 @@ public class SuppliersFragment extends Fragment {
     private SupplierRepository repository;
     private AppDatabase database;
     private FarmEntity currentFarm;
+
+    // 3.3: search state
+    private TextInputEditText etSearch;
+    private String searchQuery = "";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private List<SupplierEntity> allSuppliers = new ArrayList<>();
-    private List<SupplierEntity> filteredSuppliers = new ArrayList<>();
+    // Three stages: Room → chip filter → search filter
+    private final List<SupplierEntity> allSuppliers = new ArrayList<>();
+    private final List<SupplierEntity> chipFilteredSuppliers = new ArrayList<>();
+    private final List<SupplierEntity> filteredSuppliers = new ArrayList<>();
 
     private String currentFilter = "ALL";
 
@@ -83,12 +90,25 @@ public class SuppliersFragment extends Fragment {
         tvCertifiedSuppliers = view.findViewById(R.id.tvCertifiedSuppliers);
         tvAvgRating = view.findViewById(R.id.tvAvgRating);
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
+
+        // 3.3: search box. Filter runs on the in-memory Room list —
+        // not a server query. Never becomes one.
+        etSearch = view.findViewById(R.id.etSearch);
+        if (etSearch != null) {
+            etSearch.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
+                @Override public void afterTextChanged(android.text.Editable s) { }
+                @Override public void onTextChanged(CharSequence s, int a, int b, int c) {
+                    searchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ROOT);
+                    applyCombinedFilter();
+                }
+            });
+        }
     }
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SupplierAdapter(filteredSuppliers, supplier -> {
-            // Open SupplierDetailActivity
             Intent intent = new Intent(getActivity(), SupplierDetailActivity.class);
             intent.putExtra(SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
             startActivity(intent);
@@ -103,31 +123,16 @@ public class SuppliersFragment extends Fragment {
         Chip chipCooperative = getView().findViewById(R.id.chipCooperative);
 
         chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "ALL";
-                applyFilter();
-            }
+            if (isChecked) { currentFilter = "ALL"; applyCombinedFilter(); }
         });
-
         chipActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "ACTIVE";
-                applyFilter();
-            }
+            if (isChecked) { currentFilter = "ACTIVE"; applyCombinedFilter(); }
         });
-
         chipCertified.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "CERTIFIED";
-                applyFilter();
-            }
+            if (isChecked) { currentFilter = "CERTIFIED"; applyCombinedFilter(); }
         });
-
         chipCooperative.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                currentFilter = "COOPERATIVE";
-                applyFilter();
-            }
+            if (isChecked) { currentFilter = "COOPERATIVE"; applyCombinedFilter(); }
         });
     }
 
@@ -191,40 +196,76 @@ public class SuppliersFragment extends Fragment {
                 } else {
                     showEmpty(false);
                     updateSummaryStats();
-                    applyFilter();
+                    applyCombinedFilter();
                 }
             }
         });
     }
 
-    private void applyFilter() {
-        filteredSuppliers.clear();
+    /**
+     * 3.3: chip filter first, then search narrows. Clearing the search
+     * restores the chip-filtered set — it does not disable the chips.
+     * Fully offline.
+     */
+    private void applyCombinedFilter() {
+        // Stage 1 — chip filter
+        chipFilteredSuppliers.clear();
+        for (SupplierEntity s : allSuppliers) {
+            if (matchesCurrentChipFilter(s)) {
+                chipFilteredSuppliers.add(s);
+            }
+        }
 
-        for (SupplierEntity supplier : allSuppliers) {
-            switch (currentFilter) {
-                case "ALL":
-                    filteredSuppliers.add(supplier);
-                    break;
-                case "ACTIVE":
-                    if (supplier.isActive()) {
-                        filteredSuppliers.add(supplier);
-                    }
-                    break;
-                case "CERTIFIED":
-                    if (supplier.isCertified()) {
-                        filteredSuppliers.add(supplier);
-                    }
-                    break;
-                case "COOPERATIVE":
-                    if (supplier.getType() == SupplierEntity.SupplierType.COOPERATIVE) {
-                        filteredSuppliers.add(supplier);
-                    }
-                    break;
+        // Stage 2 — search narrows the chip-filtered set
+        filteredSuppliers.clear();
+        if (searchQuery.isEmpty()) {
+            filteredSuppliers.addAll(chipFilteredSuppliers);
+        } else {
+            for (SupplierEntity s : chipFilteredSuppliers) {
+                if (matchesSearch(s, searchQuery)) {
+                    filteredSuppliers.add(s);
+                }
             }
         }
 
         adapter.updateSuppliers(filteredSuppliers);
         recyclerView.setVisibility(View.VISIBLE);
+
+        // Empty state reflects the *filtered* result, not just the raw list.
+        // If a search returns zero matches while allSuppliers is non-empty,
+        // we want the empty view, not a blank list with no explanation.
+        if (filteredSuppliers.isEmpty()) {
+            showEmpty(true);
+        } else {
+            showEmpty(false);
+        }
+    }
+
+    /** The existing chip predicate, extracted so the composition is explicit. */
+    private boolean matchesCurrentChipFilter(SupplierEntity s) {
+        switch (currentFilter) {
+            case "ALL":
+                return true;
+            case "ACTIVE":
+                return s.isActive();
+            case "CERTIFIED":
+                return s.isCertified();
+            case "COOPERATIVE":
+                return s.getType() == SupplierEntity.SupplierType.COOPERATIVE;
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * 3.3: case-insensitive contains on name + location.
+     * Null-safe: null name / location just doesn't match, no NPE.
+     */
+    private boolean matchesSearch(SupplierEntity s, String query) {
+        if (query == null || query.isEmpty()) return true;
+        String name = s.getName() == null ? "" : s.getName().toLowerCase(Locale.ROOT);
+        String location = s.getLocation() == null ? "" : s.getLocation().toLowerCase(Locale.ROOT);
+        return name.contains(query) || location.contains(query);
     }
 
     private void updateSummaryStats() {

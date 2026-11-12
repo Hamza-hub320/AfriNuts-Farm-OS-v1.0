@@ -301,6 +301,35 @@
 
     </HorizontalScrollView>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
+        style="@style/Widget.AfriNuts.EditText"
+        android:hint="       Search suppliers"
+        app:startIconDrawable="@drawable/ic_search"
+        app:startIconTint="?attr/colorOnSurface"
+        app:endIconMode="clear_text"
+        app:endIconTint="?attr/colorOnSurface"
+        app:boxBackgroundColor="@color/surface"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="?attr/colorPrimary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rounded_description"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
