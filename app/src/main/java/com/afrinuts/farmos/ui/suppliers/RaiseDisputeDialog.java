@@ -105,6 +105,7 @@ public class RaiseDisputeDialog extends DialogFragment {
                 .inflate(R.layout.dialog_raise_dispute, null);
         etReason = v.findViewById(R.id.etReason);
         TextView tvTarget = v.findViewById(R.id.tvTarget);
+        etBatchPicker = v.findViewById(R.id.etBatchPicker);
         btnCancel = v.findViewById(R.id.btnCancel);
         btnSave = v.findViewById(R.id.btnSave);
         targetLabel = getArguments().getString(ARG_TARGET_LABEL);
@@ -112,6 +113,8 @@ public class RaiseDisputeDialog extends DialogFragment {
         batchRepo = new QualityBatchRepository(requireContext(), farmId);
         selectedBatchId = targetId;
         selectedBatchLabel = targetLabel;
+
+        etBatchPicker = v.findViewById(R.id.etBatchPicker);
 
         if (targetLabel != null && !targetLabel.isEmpty()) {
             tvTarget.setText("Target: " + targetEntity.name() + " " + targetLabel);
