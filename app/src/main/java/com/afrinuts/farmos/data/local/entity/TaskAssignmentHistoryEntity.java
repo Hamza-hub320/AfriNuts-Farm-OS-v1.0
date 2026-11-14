@@ -82,17 +82,44 @@ public class TaskAssignmentHistoryEntity {
         return unassignedAt == null;
     }
 
+    /**
+     * 42: assignment duration in calendar days, minimum 1.
+     *
+     * Both timestamps are truncated to local midnight before subtracting, so a
+     * 14-day contract (7 Aug 13:11 → 21 Aug 12:57) reads 14 days, not 13.
+     * An active assignment (unassignedAt == null) measures to now, matching the
+     * behaviour of the previous getDuration().
+     *
+     * Same-day start-and-finish is 1 day, never 0 — a full labour day.
+     */
+    public long getDurationDays() {
+        long end = (unassignedAt != null) ? unassignedAt : System.currentTimeMillis();
+
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        c.setTimeInMillis(assignedAt);
+        c.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        c.set(java.util.Calendar.MINUTE, 0);
+        c.set(java.util.Calendar.SECOND, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        long startDayMs = c.getTimeInMillis();
+
+        c.setTimeInMillis(end);
+        c.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        c.set(java.util.Calendar.MINUTE, 0);
+        c.set(java.util.Calendar.SECOND, 0);
+        c.set(java.util.Calendar.MILLISECOND, 0);
+        long endDayMs = c.getTimeInMillis();
+
+        long days = (endDayMs - startDayMs) / 86_400_000L;
+        return Math.max(1, days);
+    }
+
+    /**
+     * 42: human label for the assignment duration — "14 days", "1 day".
+     * The days arithmetic lives in getDurationDays(); this method only formats.
+     */
     public String getDuration() {
-        long end = unassignedAt != null ? unassignedAt : System.currentTimeMillis();
-        long durationMs = end - assignedAt;
-
-        long days = durationMs / (24 * 60 * 60 * 1000);
-        long hours = (durationMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
-
-        if (days > 0) {
-            return days + " days " + hours + " hrs";
-        } else {
-            return hours + " hours";
-        }
+        long d = getDurationDays();
+        return d == 1 ? "1 day" : d + " days";
     }
 }

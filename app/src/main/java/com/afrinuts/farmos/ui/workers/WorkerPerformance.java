@@ -10,8 +10,8 @@ public class WorkerPerformance {
     private List<TaskAssignmentHistoryEntity> assignments;
     private int totalTasks;
     private int completedTasks;
-    private long totalTimeMs;
-    private double averageTimePerTaskMs;
+    private long totalDays;
+    private double averageDaysPerTask;
     private List<String> taskTypes = new ArrayList<>();
 
     public WorkerPerformance(String workerName) {
@@ -31,29 +31,39 @@ public class WorkerPerformance {
     public int getCompletedTasks() { return completedTasks; }
     public int getInProgressTasks() { return totalTasks - completedTasks; }
 
-    public long getTotalTimeMs() { return totalTimeMs; }
-    public double getAverageTimePerTaskMs() { return averageTimePerTaskMs; }
+    public long getTotalDays() { return totalDays; }
+    public double getAverageDaysPerTask() { return averageDaysPerTask; }
 
+    /**
+     * 42: total work, in days. The only time unit the app displays —
+     * farm labour is contract or monthly, not hourly.
+     */
     public String getFormattedTotalTime() {
-        long days = totalTimeMs / (24 * 60 * 60 * 1000);
-        long hours = (totalTimeMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
-
-        if (days > 0) {
-            return days + "d " + hours + "h";
-        } else {
-            return hours + " hours";
-        }
+        return formatDays(totalDays);
     }
 
+    /**
+     * 42: average per completed task, in days.
+     */
     public String getFormattedAverageTime() {
-        long hours = (long) (averageTimePerTaskMs / (60 * 60 * 1000));
-        long minutes = (long) ((averageTimePerTaskMs % (60 * 60 * 1000)) / (60 * 1000));
+        return formatDays(averageDaysPerTask);
+    }
 
-        if (hours > 0) {
-            return hours + "h " + minutes + "m";
+    /**
+     * 42: the one formatter for every days display — worker cards, dashboard
+     * aggregate, detail screen. Whole days print without a decimal
+     * ("14 days", "1 day"); fractional averages print one decimal
+     * ("7.5 days"); trailing ".0" is trimmed.
+     */
+    public static String formatDays(double days) {
+        if (days == 1.0) return "1 day";
+        String s;
+        if (days == Math.floor(days)) {
+            s = String.valueOf((long) days);
         } else {
-            return minutes + " minutes";
+            s = String.format(java.util.Locale.getDefault(), "%.1f", days);
         }
+        return s + " days";
     }
 
     public double getCompletionRate() {
@@ -65,16 +75,18 @@ public class WorkerPerformance {
     private void calculateStats() {
         totalTasks = assignments.size();
         completedTasks = 0;
-        totalTimeMs = 0;
+        totalDays = 0;
         taskTypes.clear();
 
         for (TaskAssignmentHistoryEntity assignment : assignments) {
             if (assignment.getUnassignedAt() != null) {
                 completedTasks++;
-                totalTimeMs += (assignment.getUnassignedAt() - assignment.getAssignedAt());
+                totalDays += assignment.getDurationDays();
             }
         }
 
-        averageTimePerTaskMs = completedTasks > 0 ? totalTimeMs / completedTasks : 0;
+        averageDaysPerTask = completedTasks > 0
+                ? (double) totalDays / completedTasks
+                : 0;
     }
 }

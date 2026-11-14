@@ -250,29 +250,23 @@ public class WorkerDashboardActivity extends BaseActivity {
         int totalWorkers = workerPerformances.size();
         int totalTasks = 0;
         int completedTasks = 0;
-        long totalTimeMs = 0;
+        long totalDays = 0;
 
         for (WorkerPerformance worker : workerPerformances) {
             totalTasks += worker.getTotalTasks();
             completedTasks += worker.getCompletedTasks();
-            totalTimeMs += worker.getTotalTimeMs();
+            totalDays += worker.getTotalDays();
         }
 
         double completionRate = totalTasks > 0 ? (completedTasks * 100.0 / totalTasks) : 0;
-        long avgTimeMs = completedTasks > 0 ? totalTimeMs / completedTasks : 0;
+        double avgDays = completedTasks > 0 ? (double) totalDays / completedTasks : 0;
 
         totalWorkersValue.setText(String.valueOf(totalWorkers));
         totalTasksValue.setText(String.valueOf(totalTasks));
         completionRateValue.setText(String.format(Locale.getDefault(), "%.0f%%", completionRate));
 
-        long avgHours = avgTimeMs / (60 * 60 * 1000);
-        long avgMinutes = (avgTimeMs % (60 * 60 * 1000)) / (60 * 1000);
-
-        if (avgHours > 0) {
-            avgTaskTimeValue.setText(avgHours + "h " + avgMinutes + "m");
-        } else {
-            avgTaskTimeValue.setText(avgMinutes + "m");
-        }
+        // 42: hours/minutes replaced by days.
+        avgTaskTimeValue.setText(WorkerPerformance.formatDays(avgDays));
     }
 
     private void displayWorkerCards() {
