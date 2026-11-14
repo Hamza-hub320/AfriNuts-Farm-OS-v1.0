@@ -3,15 +3,10 @@ package com.afrinuts.farmos.data.local.entity;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.utils.DateFormatter;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 @Entity(tableName = "compliance_documents",
         foreignKeys = {
