@@ -47,27 +47,28 @@
             android:paddingBottom="100dp"
             android:visibility="visible" />
 
-        <!-- Floating Action Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_add"
-            android:contentDescription="Action"
-            app:backgroundTint="?attr/colorSecondary"
-            app:tint="@android:color/white"
-            app:fabSize="normal"
-            app:elevation="4dp"
-            app:rippleColor="#80FFFFFF" />
-
         <!-- Spacer for bottom navigation -->
         <View
             android:layout_width="match_parent"
             android:layout_height="90dp" />
 
     </LinearLayout>
+
+    <!-- Floating Action Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="126dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="Action"
+        app:backgroundTint="?attr/colorSecondary"
+        app:tint="@android:color/white"
+        app:fabSize="normal"
+        app:elevation="4dp"
+        app:rippleColor="#80FFFFFF" />
 
     <!-- FLOATING BOTTOM NAVIGATION BAR - NIKE STYLE GLASS -->
     <com.google.android.material.card.MaterialCardView

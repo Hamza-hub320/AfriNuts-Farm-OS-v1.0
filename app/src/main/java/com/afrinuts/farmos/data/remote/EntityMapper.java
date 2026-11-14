@@ -1490,7 +1490,6 @@ public class EntityMapper {
 
     public static SupplierScoreSnapshotEntity mapToSnapshot(DocumentSnapshot doc) {
         try {
-            long id = getLongSafe(doc, "id");
             Long supplierIdLong = getLongSafe(doc, "supplierId");
             long supplierId = supplierIdLong != null ? supplierIdLong : parseLongOrZero(doc.getId());
             Long farmIdLong = getLongSafe(doc, "farmId");
@@ -1500,9 +1499,10 @@ public class EntityMapper {
 
             SupplierScoreSnapshotEntity s = new SupplierScoreSnapshotEntity(
                     supplierId, farmId, scoringVersion, calculatedBy);
-            s.setId(id);
 
             // Nullable doubles — preserve null (means "no evidence for this dimension")
+            Double overall = doc.getDouble("overall");
+            s.setOverall(overall);
             Object dimsObj = doc.get("dimensions");
             if (dimsObj instanceof Map) {
                 Map<?, ?> dims = (Map<?, ?>) dimsObj;
