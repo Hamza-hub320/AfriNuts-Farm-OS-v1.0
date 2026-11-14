@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.utils.CertificationIdGenerator;
+import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -267,15 +268,15 @@ public class CertificationEntity {
 
     // Helper methods
     public String getFormattedTargetDate() {
-        return formatDate(targetDate);
+        return DateFormatter.formatDateOrDash(targetDate);
     }
 
     public String getFormattedApprovalDate() {
-        return formatDate(approvalDate);
+        return DateFormatter.formatDateOrDash(approvalDate);
     }
 
     public String getFormattedExpiryDate() {
-        return formatDate(expiryDate);
+        return DateFormatter.formatDateOrDash(expiryDate);
     }
 
     private String formatDate(long date) {

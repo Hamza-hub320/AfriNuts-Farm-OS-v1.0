@@ -7,6 +7,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.utils.DateFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -172,15 +173,11 @@ public class DocumentEntity {
 
     // Helper methods
     public String getFormattedIssueDate() {
-        if (issueDate <= 0) return "Not set";
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        return sdf.format(new Date(issueDate));
+        return DateFormatter.formatDateOrDash(issueDate);
     }
 
     public String getFormattedExpiryDate() {
-        if (expiryDate <= 0) return "Not set";
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        return sdf.format(new Date(expiryDate));
+        return DateFormatter.formatDateOrDash(expiryDate);
     }
 
     // ✅ Fixed: Return just the display name (without icon)
