@@ -90,6 +90,26 @@ public class EntityMapper {
         return value != null ? value : "";
     }
 
+    // The portal writes these as numbers when it resolves a dispute
+// (e.g. 11.0 -> 9.0); the app stores them as text. Accept both.
+    private static String getStringOrNumber(DocumentSnapshot doc, String field) {
+        Object value = doc.get(field);
+        if (value == null) return null;
+        if (value instanceof String) return (String) value;
+        if (value instanceof Number) return String.valueOf(value);
+        return String.valueOf(value);
+    }
+
+    private static Double toNullableDouble(Object value) {
+        if (value instanceof Number) return ((Number) value).doubleValue();
+        return null;
+    }
+
+    private static long parseLongOrZero(String value) {
+        try { return value != null ? Long.parseLong(value) : 0; }
+        catch (NumberFormatException e) { return 0; }
+    }
+
     private static boolean getBooleanSafe(DocumentSnapshot doc, String field) {
         Boolean value = doc.getBoolean(field);
         return value != null ? value : false;
@@ -1411,8 +1431,8 @@ public class EntityMapper {
             Boolean correctionApplied = doc.getBoolean("correctionApplied");
             d.setCorrectionApplied(correctionApplied != null && correctionApplied);
 
-            d.setOriginalValue(doc.getString("originalValue"));
-            d.setCorrectedValue(doc.getString("correctedValue"));
+            d.setOriginalValue(getStringOrNumber(doc, "originalValue"));
+            d.setCorrectedValue(getStringOrNumber(doc, "correctedValue"));
 
             Long snapshotId = getNullableLong(doc, "recalculatedSnapshotId");
             if (snapshotId != null) d.setRecalculatedSnapshotId(snapshotId);
@@ -1471,8 +1491,10 @@ public class EntityMapper {
     public static SupplierScoreSnapshotEntity mapToSnapshot(DocumentSnapshot doc) {
         try {
             long id = getLongSafe(doc, "id");
-            long supplierId = getLongSafe(doc, "supplierId");
-            long farmId = getLongSafe(doc, "farmId");
+            Long supplierIdLong = getLongSafe(doc, "supplierId");
+            long supplierId = supplierIdLong != null ? supplierIdLong : parseLongOrZero(doc.getId());
+            Long farmIdLong = getLongSafe(doc, "farmId");
+            long farmId = farmIdLong != null ? farmIdLong : 0;
             String scoringVersion = doc.getString("scoringVersion");
             String calculatedBy = doc.getString("calculatedBy");
 
@@ -1481,14 +1503,16 @@ public class EntityMapper {
             s.setId(id);
 
             // Nullable doubles — preserve null (means "no evidence for this dimension")
-            Double overall = doc.getDouble("overall");
-            s.setOverall(overall);
-            s.setQuality(doc.getDouble("quality"));
-            s.setDelivery(doc.getDouble("delivery"));
-            s.setTraceability(doc.getDouble("traceability"));
-            s.setCompliance(doc.getDouble("compliance"));
-            s.setSustainability(doc.getDouble("sustainability"));
-            s.setCooperation(doc.getDouble("cooperation"));
+            Object dimsObj = doc.get("dimensions");
+            if (dimsObj instanceof Map) {
+                Map<?, ?> dims = (Map<?, ?>) dimsObj;
+                s.setQuality(toNullableDouble(dims.get("quality")));
+                s.setDelivery(toNullableDouble(dims.get("delivery")));
+                s.setTraceability(toNullableDouble(dims.get("traceability")));
+                s.setCompliance(toNullableDouble(dims.get("compliance")));
+                s.setSustainability(toNullableDouble(dims.get("sustainability")));
+                s.setCooperation(toNullableDouble(dims.get("cooperation")));
+            }
 
             String confidence = doc.getString("confidence");
             if (confidence != null && !confidence.isEmpty()) {
@@ -1499,8 +1523,14 @@ public class EntityMapper {
             Long verifiedLong = getNullableLong(doc, "verifiedTransactions");
             if (verifiedLong != null) s.setVerifiedTransactions(verifiedLong.intValue());
 
-            String weights = doc.getString("weightsUsed");
-            s.setWeightsUsed(weights != null ? weights : "{}");
+            Object weightsObj = doc.get("weightsUsed");
+            String weights = "{}";
+            if (weightsObj instanceof String) {
+                weights = (String) weightsObj;
+            } else if (weightsObj instanceof Map) {
+                weights = new Gson().toJson(weightsObj);
+            }
+            s.setWeightsUsed(weights);
 
             Long calculatedAt = getNullableLong(doc, "calculatedAt");
             if (calculatedAt != null) s.setCalculatedAt(calculatedAt);
