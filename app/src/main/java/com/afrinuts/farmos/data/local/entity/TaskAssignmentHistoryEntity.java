@@ -58,7 +58,11 @@ public class TaskAssignmentHistoryEntity {
     public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
 
     public long getAssignedAt() { return assignedAt; }
-    public void setAssignedAt(long assignedAt) { this.assignedAt = assignedAt; }
+    // TaskAssignmentHistoryEntity.java
+    public void setAssignedAt(long assignedAt) {
+        this.assignedAt = assignedAt;
+        this.updatedAt = System.currentTimeMillis();
+    }
 
     public Long getUnassignedAt() { return unassignedAt; }
     public void setUnassignedAt(Long unassignedAt) {
