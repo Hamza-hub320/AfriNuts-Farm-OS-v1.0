@@ -385,23 +385,50 @@ public class RcnEditDialog extends DialogFragment {
         return b;
     }
 
+    /**
+     * SOP §4.3 guard + save dispatch.
+     *
+     * The revenue lookup is a Room query and must not run on the main thread —
+     * save() is invoked from the click handler, so the query goes through the
+     * dialog's existing executor and posts back to main. The rest of save() is
+     * unchanged from before; it just lives in continueSave() now.
+     */
     private void save() {
         if (existing == null) {
             Toast.makeText(getContext(), "Batch not loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // ✅ SOP §4.3: no silent grade changes on already-sold batches
-        List<RevenueEntity> existingRevenues = repo.getRevenuesByBatchIdSync(existing.getId());
-        if (existingRevenues != null && !existingRevenues.isEmpty()) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Batch already sold")
-                    .setMessage("This batch has a sale recorded against it. " +
-                            "Changing its quality metrics would make the recorded grade " +
-                            "differ from the actual grade.\n\n" +
-                            "The sale must be reversed before quality can be edited (SOP §4.3).")
-                    .setPositiveButton("OK", null)
-                    .show();
+        final long batchId = existing.getId();
+
+        executor.execute(() -> {
+            List<RevenueEntity> existingRevenues =
+                    repo.getRevenuesByBatchIdSync(batchId);
+
+            boolean hasRevenue = existingRevenues != null && !existingRevenues.isEmpty();
+
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (hasRevenue) {
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Batch already sold")
+                            .setMessage("This batch has a sale recorded against it. " +
+                                    "Changing its quality metrics would make the recorded grade " +
+                                    "differ from the actual grade.\n\n" +
+                                    "The sale must be reversed before quality can be edited (SOP §4.3).")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    return;
+                }
+                continueSave();
+            });
+        });
+    }
+
+    /** Runs on the main thread, after the SOP §4.3 revenue check has passed. */
+    private void continueSave() {
+        if (existing == null) {
+            Toast.makeText(getContext(), "Batch not loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 

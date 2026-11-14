@@ -293,6 +293,10 @@ public class QualityBatchRepository {
 
     // In QualityBatchRepository.java
     public List<RevenueEntity> getRevenuesByBatchIdSync(long batchId) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new IllegalStateException(
+                    "getRevenuesByBatchIdSync called from main thread — call on a background executor");
+        }
         return database.revenueDao().getRevenuesByBatchId(batchId);
     }
 
