@@ -655,6 +655,7 @@ public class EntityMapper {
         map.put("type", task.getType().name());
         map.put("dueDate", task.getDueDate());
         map.put("completedDate", task.getCompletedDate());
+        map.put("startDate", task.getStartDate());
         map.put("createdAt", task.getCreatedAt());
         map.put("updatedAt", System.currentTimeMillis());
         return map;
@@ -690,6 +691,7 @@ public class EntityMapper {
             );
             task.setId(id);
             task.setCompletedDate(completedDate);
+            task.setStartDate(getNullableLong(doc, "startDate"));
             task.setCreatedAt(createdAt);
             return task;
         } catch (Exception e) {

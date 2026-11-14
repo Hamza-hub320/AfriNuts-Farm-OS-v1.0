@@ -35,6 +35,13 @@ public class TaskEntity {
 
     private long dueDate;
     private Long completedDate;  // null if not completed
+    /**
+     * 42: work-already-done support. Nullable — null means "no start recorded",
+     * which keeps every pre-42 row valid. A task with startDate set and status
+     * COMPLETED is a backdated task: the real work window is
+     * [startDate, completedDate], both supplied by the user at creation.
+     */
+    private Long startDate;
 
     // Audit timestamps
     private long createdAt;
@@ -131,6 +138,12 @@ public class TaskEntity {
         if (status == TaskStatus.COMPLETED && completedDate == null) {
             this.completedDate = System.currentTimeMillis();
         }
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public Long getStartDate() { return startDate; }
+    public void setStartDate(Long startDate) {
+        this.startDate = startDate;
         this.updatedAt = System.currentTimeMillis();
     }
 
