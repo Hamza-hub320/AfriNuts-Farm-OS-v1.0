@@ -221,6 +221,7 @@ public class FirestoreHelper {
         data.put("status", task.getStatus().name());
         data.put("type", task.getType().name());
         data.put("dueDate", task.getDueDate());
+        data.put("startDate", task.getStartDate());
         data.put("completedDate", task.getCompletedDate());
         data.put("createdAt", task.getCreatedAt());
         data.put("updatedAt", System.currentTimeMillis());
@@ -239,9 +240,12 @@ public class FirestoreHelper {
     public Task<Void> updateTask(TaskEntity task) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", task.getStatus().name());
+        updates.put("type", task.getType() != null ? task.getType().name() : null);  // 42: added
         updates.put("title", task.getTitle());
+        updates.put("blockId", task.getBlockId());                                     // 42: added
         updates.put("description", task.getDescription());
         updates.put("dueDate", task.getDueDate());
+        updates.put("startDate", task.getStartDate());                                 // 42: added
         updates.put("completedDate", task.getCompletedDate());
         updates.put("updatedAt", System.currentTimeMillis());
 

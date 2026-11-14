@@ -339,6 +339,7 @@ public class FirebaseManager {
         taskMap.put("status", task.getStatus().name());
         taskMap.put("type", task.getType().name());
         taskMap.put("dueDate", task.getDueDate());
+        taskMap.put("startDate", task.getStartDate());
         taskMap.put("completedDate", task.getCompletedDate());
         taskMap.put("createdAt", task.getCreatedAt());
         taskMap.put("updatedAt", System.currentTimeMillis());
