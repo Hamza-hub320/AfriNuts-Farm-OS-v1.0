@@ -181,30 +181,71 @@ public class AssignWorkerDialog extends DialogFragment {
 
         new Thread(() -> {
             try {
-                // Check if task already has an active assignment
+                // 42: backdate the assignment window when the task is already
+                // COMPLETED (i.e. it was logged as past work). Determine this up
+                // front so both branches below — close previous, create new —
+                // agree on the window.
+                //
+                // Fallbacks:
+                //   task == null (load race in onCreate)        → normal flow
+                //   COMPLETED, completedDate null (shouldn't)   → both = now
+                //   COMPLETED, startDate null (pre-42 record)   → assignedAt = completedDate (duration 0)
+                boolean taskAlreadyCompleted =
+                        task != null && task.getStatus() == TaskEntity.TaskStatus.COMPLETED;
+                long taskEnd = (task != null && task.getCompletedDate() != null)
+                        ? task.getCompletedDate() : System.currentTimeMillis();
+                long taskStart = (task != null && task.getStartDate() != null)
+                        ? task.getStartDate() : taskEnd;
+
+                // Check if task already has an active assignment.
+                // Note: born-closed assignments (unassignedAt != null) are never
+                // returned by this query, so the backdate path below cannot
+                // re-close an assignment that was already credited to another
+                // worker on an earlier session.
                 TaskAssignmentHistoryEntity currentAssignment =
                         database.taskDao().getCurrentAssignment(taskId);
 
-                // Complete current assignment if exists
+                // Close the current assignment if one exists.
                 if (currentAssignment != null) {
-                    currentAssignment.completeAssignment();
-                    database.taskDao().updateAssignment(currentAssignment);
-                    Log.d("AssignWorkerDialog", "Completed existing assignment: " + currentAssignment.getId());
+                    if (taskAlreadyCompleted) {
+                        // Past work: the previous worker's window ends when the
+                        // work ended, not today.
+                        currentAssignment.setUnassignedAt(taskEnd);
+                        database.taskDao().updateAssignment(currentAssignment);
+                        Log.d("AssignWorkerDialog",
+                                "Closed existing assignment " + currentAssignment.getId()
+                                        + " at task completedDate " + taskEnd);
+                    } else {
+                        currentAssignment.completeAssignment();
+                        database.taskDao().updateAssignment(currentAssignment);
+                        Log.d("AssignWorkerDialog",
+                                "Completed existing assignment: " + currentAssignment.getId());
+                    }
 
-                    // Queue the update for sync
-                    syncManager.queueForSync("assignments", currentAssignment.getId(), SyncEntity.SyncAction.UPDATE);
+                    // Queue the update for sync (unchanged)
+                    syncManager.queueForSync("assignments", currentAssignment.getId(),
+                            SyncEntity.SyncAction.UPDATE);
                 }
 
-                // Create new assignment
+                // Create new assignment. In past-work mode, assignedAt is the
+                // task's startDate (not now), and the assignment is born closed
+                // at completedDate — the real work window.
                 TaskAssignmentHistoryEntity newAssignment = new TaskAssignmentHistoryEntity(
                         farmId,
                         taskId,
                         workerName,
-                        System.currentTimeMillis()
+                        taskAlreadyCompleted ? taskStart : System.currentTimeMillis()
                 );
 
+                if (taskAlreadyCompleted) {
+                    newAssignment.setUnassignedAt(taskEnd);
+                }
+
                 Log.d("AssignWorkerDialog", "Creating new assignment - taskId: " + taskId +
-                        ", worker: " + workerName + ", farmId: " + farmId);
+                        ", worker: " + workerName + ", farmId: " + farmId +
+                        (taskAlreadyCompleted
+                                ? ", backdated window: " + taskStart + " → " + taskEnd
+                                : ", assignedAt: now, open"));
 
                 // Insert using repository
                 assignmentRepository.insertAssignment(newAssignment, new BaseRepository.InsertCallback() {
