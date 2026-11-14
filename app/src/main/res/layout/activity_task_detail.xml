@@ -124,6 +124,38 @@
 
             </androidx.cardview.widget.CardView>
 
+            <EditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:background="@drawable/edit_mode_background"
+                android:hint="Task title"
+                android:inputType="text"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurface"
+                android:padding="12dp"
+                style="@style/Text.H3" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutTaskType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                style="@style/Widget.AfriNuts.EditText"
+                app:boxBackgroundColor="?attr/colorSurface"
+                app:endIconMode="dropdown_menu"
+                app:endIconDrawable="@drawable/ic_arrow_drop_down">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/actvTaskType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Type"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Status Card - Modern with Gradient -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -379,13 +411,35 @@
 
                     </LinearLayout>
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutBlock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:endIconMode="dropdown_menu"
+                        app:endIconDrawable="@drawable/ic_arrow_drop_down">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/actvBlock"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Block"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <!-- Due Date Row with Icon -->
                     <LinearLayout
+                        android:id="@+id/layoutDueDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="12dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <ImageView
                             android:layout_width="20dp"
@@ -487,6 +541,21 @@
                             android:enabled="false"
                             android:textColor="?attr/colorOnSurface"
                             android:textColorHint="?attr/colorOnSurface"/>
+
+                        <EditText
+                            android:id="@+id/etDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:background="@drawable/edit_mode_background"
+                            android:hint="Description"
+                            android:inputType="textMultiLine"
+                            android:minLines="3"
+                            android:gravity="top|start"
+                            android:padding="12dp"
+                            style="@style/Text.Body.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
 
                     </LinearLayout>
 

@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -34,10 +38,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import android.app.DatePickerDialog;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import java.util.Calendar;
+import java.util.Objects;
 
 public class TaskDetailActivity extends BaseActivity {
 
@@ -84,11 +92,33 @@ public class TaskDetailActivity extends BaseActivity {
     private TextView tvNoAssignments;
     private MaterialButton btnAssignWorker;
 
+    private boolean isEditMode = false;
+    private MaterialButton btnSave;
+
     // Action buttons
     private MaterialButton btnEdit;
     private Button btnDelete;
     private FloatingActionButton fabStatus;
     private MaterialButton btnUpdateStatus;
+
+    private android.widget.EditText etTitle;
+    private android.widget.EditText etDescription;
+    private com.google.android.material.textfield.TextInputLayout layoutTaskType;
+    private com.google.android.material.textfield.MaterialAutoCompleteTextView actvTaskType;
+    private com.google.android.material.textfield.TextInputLayout layoutBlock;
+    private com.google.android.material.textfield.MaterialAutoCompleteTextView actvBlock;
+
+    private long editDueDate;
+    private Long editStartDate;                  // nullable: pre-42 task may have none
+    private Long editCompletedDate;              // nullable: only when task is COMPLETED
+
+    // 42 pre-edit snapshot for the §4 "actually changed" guard
+    private Long preEditStartDate;
+    private Long preEditCompletedDate;
+
+    // 42 edit-mode type / block selection
+    private TaskEntity.TaskType editSelectedType;
+    private Long editSelectedBlockId;            // null = Farm-Wide
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
@@ -170,8 +200,39 @@ public class TaskDetailActivity extends BaseActivity {
         btnUpdateStatus.setOnClickListener(v -> showStatusUpdateDialog());
         fabStatus.setOnClickListener(v -> showStatusUpdateDialog());
         btnAssignWorker.setOnClickListener(v -> showAssignWorkerDialog());
-        btnEdit.setOnClickListener(v -> enableEditMode());
+        btnEdit.setOnClickListener(v -> enableEditMode(true));
         btnDelete.setOnClickListener(v -> confirmDelete());
+
+        // 42 edit mode: input siblings (invisible until enableEditMode)
+        etTitle            = findViewById(R.id.etTitle);
+        etDescription      = findViewById(R.id.etDescription);
+        layoutTaskType     = findViewById(R.id.layoutTaskType);
+        actvTaskType       = findViewById(R.id.actvTaskType);
+        layoutBlock        = findViewById(R.id.layoutBlock);
+        actvBlock          = findViewById(R.id.actvBlock);
+        btnSave            = findViewById(R.id.btnSave);
+
+        // 42: date rows become tappable only in edit mode — the listener
+        // checks isEditMode and returns early otherwise, so the view-mode
+        // behaviour is unchanged (non-tappable rows).
+        View layoutDueDate = findViewById(R.id.layoutDueDate);
+        if (layoutDueDate != null) {
+            layoutDueDate.setOnClickListener(v -> {
+                if (isEditMode) showDueDatePicker();
+            });
+        }
+        if (layoutCompletedDate != null) {
+            layoutCompletedDate.setOnClickListener(v -> {
+                if (isEditMode) showCompletedDatePicker();
+            });
+        }
+        if (layoutStartDate != null) {
+            layoutStartDate.setOnClickListener(v -> {
+                if (isEditMode) showStartDatePicker();
+            });
+        }
+
+        btnSave.setOnClickListener(v -> saveChanges());
 
         // Photo gallery click listener
         btnPhotoGallery.setOnClickListener(v -> {
@@ -431,8 +492,78 @@ public class TaskDetailActivity extends BaseActivity {
         dialog.show(getSupportFragmentManager(), "AssignWorkerDialog");
     }
 
-    private void enableEditMode() {
-        Toast.makeText(this, "Edit mode coming soon", Toast.LENGTH_SHORT).show();
+    // ============================================================
+    // 42: TASK EDIT MODE
+    // ============================================================
+
+    /**
+     * Enter or exit edit mode. Entering snapshots the pre-edit dates (for
+     * the §4 'actually changed' guard), populates the inputs from the task,
+     * and swaps the action buttons. Exiting without saving discards —
+     * the inputs are UI-only until saveChanges().
+     */
+    private void enableEditMode(boolean enable) {
+        if (task == null) return;
+
+        if (enable && !sessionManager.canEditData()) {
+            com.google.android.material.snackbar.Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "You don't have permission to edit",
+                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        isEditMode = enable;
+
+        if (enable) {
+            // Snapshot pre-edit dates for the §4 guard
+            preEditStartDate = task.getStartDate();
+            preEditCompletedDate = task.getCompletedDate();
+
+            // Seed editable state from the task
+            editDueDate = task.getDueDate();
+            editStartDate = task.getStartDate();
+            editCompletedDate = task.getCompletedDate();
+            editSelectedType = task.getType();
+            editSelectedBlockId = task.getBlockId();
+
+            // Populate inputs
+            etTitle.setText(task.getTitle());
+            etDescription.setText(task.getDescription() != null ? task.getDescription() : "");
+            setupTypeDropdown();
+            setupBlockDropdown();
+            if (task.getType() != null) {
+                actvTaskType.setText(task.getType().getDisplayName(), false);
+            }
+            if (task.getBlockId() != null) {
+                String blockName = getBlockName(task.getBlockId());
+                actvBlock.setText(blockName, false);
+            } else {
+                actvBlock.setText("Farm-Wide", false);
+            }
+
+            // §3: start row is always visible in edit mode (so a pre-42 task
+            // can be given a start date). Completed row only when COMPLETED.
+            layoutStartDate.setVisibility(View.VISIBLE);
+            tvStartDate.setText(editStartDate != null
+                    ? dateFormat.format(new Date(editStartDate))
+                    : "Not set");
+            layoutCompletedDate.setVisibility(
+                    task.getStatus() == TaskEntity.TaskStatus.COMPLETED
+                            ? View.VISIBLE : View.GONE);
+            if (editCompletedDate != null) {
+                tvCompletedDate.setText(dateFormat.format(new Date(editCompletedDate)));
+            }
+
+            btnEdit.setVisibility(View.GONE);
+            btnSave.setVisibility(View.VISIBLE);
+        } else {
+            btnSave.setVisibility(View.GONE);
+            btnEdit.setVisibility(sessionManager.isInvestor() ? View.GONE : View.VISIBLE);
+            displayTaskData();
+        }
+
+        setFieldsEditable(enable);
     }
 
     private void confirmDelete() {
@@ -587,8 +718,225 @@ public class TaskDetailActivity extends BaseActivity {
         return null;
     }
 
+    /**
+     * Toggle visibility of the TextView / input pairs. In edit mode the
+     * input shows and the display TextView hides; in view mode the reverse.
+     * Dates use the tappable-row pattern (no separate input), so they are
+     * not toggled here — the row's click listener guards on isEditMode.
+     */
     private void setFieldsEditable(boolean editable) {
-        // Implement if needed
+        // Title
+        tvTaskTitle.setVisibility(editable ? View.GONE : View.VISIBLE);
+        etTitle.setVisibility(editable ? View.VISIBLE : View.GONE);
+
+        // Description
+        tvDescription.setVisibility(editable ? View.GONE : View.VISIBLE);
+        etDescription.setVisibility(editable ? View.VISIBLE : View.GONE);
+
+        // Type
+        tvTaskType.setVisibility(editable ? View.GONE : View.VISIBLE);
+        layoutTaskType.setVisibility(editable ? View.VISIBLE : View.GONE);
+
+        // Block
+        tvBlockName.setVisibility(editable ? View.GONE : View.VISIBLE);
+        layoutBlock.setVisibility(editable ? View.VISIBLE : View.GONE);
+    }
+
+    // ---------- Date pickers (edit mode) ----------
+
+    private void showDueDatePicker() {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(editDueDate);
+        new android.app.DatePickerDialog(this,
+                (view, y, m, d) -> {
+                    Calendar picked = Calendar.getInstance();
+                    picked.set(y, m, d);
+                    editDueDate = picked.getTimeInMillis();
+                    tvDueDate.setText(dateFormat.format(new Date(editDueDate)));
+                },
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)
+        ).show();
+    }
+
+    private void showCompletedDatePicker() {
+        if (task.getStatus() != TaskEntity.TaskStatus.COMPLETED) return;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(editCompletedDate != null
+                ? editCompletedDate : System.currentTimeMillis());
+        android.app.DatePickerDialog dp = new android.app.DatePickerDialog(this,
+                (view, y, m, d) -> {
+                    Calendar picked = Calendar.getInstance();
+                    picked.set(y, m, d);
+                    editCompletedDate = picked.getTimeInMillis();
+                    tvCompletedDate.setText(dateFormat.format(new Date(editCompletedDate)));
+                },
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        dp.getDatePicker().setMaxDate(System.currentTimeMillis());
+        dp.show();
+    }
+
+    private void showStartDatePicker() {
+        Calendar c = Calendar.getInstance();
+        long seed = editStartDate != null ? editStartDate
+                : (editCompletedDate != null ? editCompletedDate : System.currentTimeMillis());
+        c.setTimeInMillis(seed);
+        android.app.DatePickerDialog dp = new android.app.DatePickerDialog(this,
+                (view, y, m, d) -> {
+                    Calendar picked = Calendar.getInstance();
+                    picked.set(y, m, d);
+                    editStartDate = picked.getTimeInMillis();
+                    tvStartDate.setText(dateFormat.format(new Date(editStartDate)));
+                },
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        dp.getDatePicker().setMaxDate(System.currentTimeMillis());
+        dp.show();
+    }
+
+    // ---------- Type / block dropdowns (edit mode) ----------
+
+    private void setupTypeDropdown() {
+        TaskEntity.TaskType[] types = TaskEntity.TaskType.values();
+        String[] labels = new String[types.length];
+        for (int i = 0; i < types.length; i++) labels[i] = types[i].getDisplayName();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, labels);
+        actvTaskType.setAdapter(adapter);
+        actvTaskType.setOnItemClickListener((p, v, pos, id) -> {
+            editSelectedType = types[pos];
+            actvTaskType.setText(types[pos].getDisplayName(), false);
+        });
+    }
+
+    private void setupBlockDropdown() {
+        List<String> labels = new ArrayList<>();
+        labels.add("Farm-Wide");
+        if (allBlocks != null) {
+            for (BlockEntity b : allBlocks) labels.add(b.getBlockName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, labels);
+        actvBlock.setAdapter(adapter);
+        actvBlock.setOnItemClickListener((p, v, pos, id) -> {
+            if (pos == 0) {
+                editSelectedBlockId = null;
+                actvBlock.setText("Farm-Wide", false);
+            } else {
+                editSelectedBlockId = allBlocks.get(pos - 1).getId();
+                actvBlock.setText(allBlocks.get(pos - 1).getBlockName(), false);
+            }
+        });
+    }
+
+    // ---------- Save ----------
+
+    private void saveChanges() {
+        if (task == null || taskRepository == null) return;
+
+        // §3: validate — title, start ≤ completed, completed ≤ today, start ≤ today
+        String newTitle = etTitle.getText() == null ? "" : etTitle.getText().toString().trim();
+        if (newTitle.isEmpty()) {
+            etTitle.setError("Title is required");
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (editStartDate != null && editStartDate > now) {
+            Toast.makeText(this, "Start date cannot be in the future", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (editCompletedDate != null && editCompletedDate > now) {
+            Toast.makeText(this, "Completed date cannot be in the future", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (editStartDate != null && editCompletedDate != null
+                && editStartDate > editCompletedDate) {
+            Toast.makeText(this, "Start date must be on or before the completed date", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Apply to entity
+        task.setTitle(newTitle);
+        String desc = etDescription.getText() == null ? "" : etDescription.getText().toString().trim();
+        task.setDescription(desc.isEmpty() ? null : desc);
+        if (editSelectedType != null) task.setType(editSelectedType);
+        task.setBlockId(editSelectedBlockId);
+        task.setDueDate(editDueDate);
+        task.setStartDate(editStartDate);
+        task.setCompletedDate(editCompletedDate);
+        task.setUpdatedAt(System.currentTimeMillis());
+
+        // §4: capture whether the work window actually changed
+        boolean startChanged = !java.util.Objects.equals(preEditStartDate, editStartDate);
+        boolean completedChanged = !java.util.Objects.equals(preEditCompletedDate, editCompletedDate);
+        boolean windowChanged = startChanged || completedChanged;
+        boolean shouldReDerive = windowChanged
+                && task.getStatus() == TaskEntity.TaskStatus.COMPLETED
+                && editCompletedDate != null;
+
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving…");
+
+        taskRepository.updateTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                // §4: re-derive assignments inside the success callback —
+                // task is now committed, assignments are derived.
+                if (shouldReDerive) {
+                    reDeriveAssignments(editStartDate, editCompletedDate);
+                }
+                runOnUiThread(() -> {
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Save");
+                    enableEditMode(false);
+                    Toast.makeText(TaskDetailActivity.this, "Changes saved", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Save");
+                    Toast.makeText(TaskDetailActivity.this,
+                            "Error saving: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    /**
+     * 42 §4: when the task's window changed, every closed assignment of this
+     * task gets the new window. Mirrors completeCurrentAssignment()'s pattern
+     * — DAO update, then updateAssignment() (which queues the sync), so a
+     * failure on one assignment is a logged follow-up, not a rollback.
+     *
+     * Active assignments (unassignedAt == null) are not touched: on a
+     * COMPLETED task there should be none, and if one exists the next
+     * re-assign closes it at the new window (d891811).
+     */
+    private void reDeriveAssignments(Long newStart, Long newCompleted) {
+        if (newCompleted == null || assignmentRepository == null) return;
+        long assigned = newStart != null ? newStart : newCompleted;
+
+        executor.execute(() -> {
+            List<TaskAssignmentHistoryEntity> all =
+                    database.taskDao().getAssignmentsForTask(taskId);
+            for (TaskAssignmentHistoryEntity a : all) {
+                if (a.getUnassignedAt() == null) continue;   // active — skip
+                a.setAssignedAt(assigned);
+                a.setUnassignedAt(newCompleted);
+                database.taskAssignmentDao().update(a);
+                assignmentRepository.updateAssignment(a,
+                        new BaseRepository.RepositoryCallback<Boolean>() {
+                            @Override public void onSuccess(Boolean r) {
+                                Log.d(TAG, "Re-derived assignment " + a.getId());
+                            }
+                            @Override public void onError(String e) {
+                                Log.e(TAG, "Re-derive failed for " + a.getId() + ": " + e);
+                            }
+                        });
+            }
+            runOnUiThread(this::loadAssignmentHistory);
+        });
     }
 
     @Override
@@ -602,6 +950,10 @@ public class TaskDetailActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+        if (isEditMode) {
+            enableEditMode(false);   // discard pending inputs, redisplay
+            return;
+        }
         finish();
         super.onBackPressed();
     }
