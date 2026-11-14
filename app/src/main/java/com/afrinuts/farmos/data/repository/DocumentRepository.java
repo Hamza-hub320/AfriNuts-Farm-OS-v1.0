@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
+import com.afrinuts.farmos.utils.CertificationIdUtils;
 import com.afrinuts.farmos.utils.DocumentIdGenerator;
 
 import java.util.List;
@@ -56,16 +57,7 @@ public class DocumentRepository {
     public void insertDocument(DocumentEntity document, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                // ✅ Validate documentId is set
-                if (document.getDocumentId() == null || document.getDocumentId().isEmpty()) {
-                    String id = DocumentIdGenerator.generateDocumentId(
-                            document.getDocumentType(),
-                            document.getCertificationId()
-                    );
-                    document.setDocumentId(id);
-                }
-
-                // ✅ Verify certification exists
+                // ✅ Verify certification exists BEFORE generating ID
                 CertificationEntity certification = database.certificationDao()
                         .getCertificationById(document.getCertificationId());
 
@@ -75,7 +67,19 @@ public class DocumentRepository {
                     return;
                 }
 
-                documentDao.insert(document);
+                String programme = CertificationIdUtils.programmeCodeFromCertificationId(
+                        document.getCertificationId());
+                String prefix = DocumentIdGenerator.sequencePrefix(programme);
+                int next = CertificationIdUtils.trailingSequence(
+                        documentDao.getMaxDocumentIdForPrefix(prefix), prefix) + 1;
+                document.setDocumentId(DocumentIdGenerator.buildDocumentId(programme, next));
+
+                try {
+                    documentDao.insertAbort(document);
+                } catch (android.database.sqlite.SQLiteConstraintException e) {
+                    mainHandler.post(() -> callback.onError(CertificationIdUtils.collisionMessage()));
+                    return;
+                }
                 Log.d(TAG, "Document saved locally: " + document.getDocumentId());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {

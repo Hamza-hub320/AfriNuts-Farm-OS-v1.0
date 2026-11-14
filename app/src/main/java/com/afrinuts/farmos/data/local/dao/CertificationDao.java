@@ -18,6 +18,9 @@ public interface CertificationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(CertificationEntity certification);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertAbort(CertificationEntity certification);   // CertificationDao
+
     @Update
     void update(CertificationEntity certification);
 
@@ -67,4 +70,8 @@ public interface CertificationDao {
 
     @Query("UPDATE certifications SET isSynced = 1 WHERE certificationId = :certificationId")
     void markAsSynced(String certificationId);
+
+    @Query("SELECT certificationId FROM certifications " +
+            "WHERE certificationId LIKE :prefix || '%' ORDER BY certificationId DESC LIMIT 1")
+    String getMaxCertificationIdForPrefix(String prefix);
 }

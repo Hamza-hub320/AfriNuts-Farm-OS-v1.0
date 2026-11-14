@@ -361,8 +361,6 @@ public class AddDocumentDialog extends DialogFragment {
         String statusStr = etStatus.getText().toString().trim();
         DocumentEntity.DocumentStatus status = getStatusFromDisplay(statusStr);
 
-        String documentId = DocumentIdGenerator.generateDocumentId(type, certificationId);
-
         DocumentEntity document = new DocumentEntity(
                 certificationId,
                 farmId,
@@ -373,7 +371,6 @@ public class AddDocumentDialog extends DialogFragment {
                 fileUrl.isEmpty() ? null : fileUrl,
                 status
         );
-        document.setDocumentId(documentId);
 
         Log.d(TAG, "Saving document - CertId: " + certificationId + ", Issue: " + issueDate + ", Expiry: " + expiryDate);
 

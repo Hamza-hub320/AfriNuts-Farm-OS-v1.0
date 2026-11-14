@@ -13,6 +13,8 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
+import com.afrinuts.farmos.utils.CertificationIdUtils;
+import com.afrinuts.farmos.utils.DocumentIdGenerator;
 import com.afrinuts.farmos.utils.VerificationIdGenerator;
 
 import java.util.List;
@@ -55,19 +57,26 @@ public class VerificationRepository {
     public void insertVerification(VerificationEntity verification, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                if (verification.getVerificationId() == null || verification.getVerificationId().isEmpty()) {
-                    String id = VerificationIdGenerator.generateVerificationId(
-                            verification.getVerificationType(),
-                            verification.getCertificationId()
-                    );
-                    verification.setVerificationId(id);
+                String programme = CertificationIdUtils.programmeCodeFromCertificationId(
+                        verification.getCertificationId());
+                String prefix = VerificationIdGenerator.sequencePrefix(programme);
+                int next = CertificationIdUtils.trailingSequence(
+                        verificationDao.getMaxVerificationIdForPrefix(prefix), prefix) + 1;
+                verification.setVerificationId(
+                        VerificationIdGenerator.buildVerificationId(programme, next));
+
+                try {
+                    verificationDao.insertAbort(verification);
+                } catch (android.database.sqlite.SQLiteConstraintException e) {
+                    mainHandler.post(() -> callback.onError(CertificationIdUtils.collisionMessage()));
+                    return;
                 }
 
-                verificationDao.insert(verification);
                 Log.d(TAG, "Verification saved locally: " + verification.getVerificationId());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("verifications", verification.getVerificationId(), SyncEntity.SyncAction.CREATE);
+                    syncManager.queueForSync("compliance_verifications",
+                            verification.getVerificationId(), SyncEntity.SyncAction.CREATE);
                     syncManager.triggerAutoSync();
                 }
 

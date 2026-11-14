@@ -1,70 +1,22 @@
 package com.afrinuts.farmos.utils;
 
-import com.afrinuts.farmos.data.local.entity.InspectionEntity;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class InspectionIdGenerator {
 
-    private static final AtomicInteger counter = new AtomicInteger(1);
-
-    public static String generateInspectionId(InspectionEntity.InspectionType inspectionType,
-                                              InspectionEntity.RequirementCategory category) {
-        String prefix = getPrefix(inspectionType, category);
+    /** Format: INS-<PROG>-<yyyy>-<seq>. Type/category dropped from the ID (ruling 2). */
+    public static String buildInspectionId(String programmeCode, int sequence) {
+        String prog = (programmeCode == null || programmeCode.isEmpty()) ? "CERT" : programmeCode;
         String year = new SimpleDateFormat("yyyy", Locale.getDefault()).format(new Date());
-        String sequence = String.format("%03d", counter.getAndIncrement() % 1000);
-
-        return prefix + "-" + year + "-" + sequence;
+        return "INS-" + prog + "-" + year + "-" + String.format("%03d", sequence);
     }
 
-    private static String getPrefix(InspectionEntity.InspectionType inspectionType,
-                                    InspectionEntity.RequirementCategory category) {
-        String typeCode = "INSP";
-
-        if (inspectionType != null) {
-            switch (inspectionType) {
-                case EXTERNAL:
-                    typeCode = "EXT";
-                    break;
-                case INTERNAL:
-                    typeCode = "INT";
-                    break;
-                case SURVEILLANCE:
-                    typeCode = "SURV";
-                    break;
-                case RENEWAL:
-                    typeCode = "REN";
-                    break;
-            }
-        }
-
-        if (category != null) {
-            switch (category) {
-                case FIELD:
-                    typeCode += "-FLD";
-                    break;
-                case PROCESSING:
-                    typeCode += "-PROC";
-                    break;
-                case STORAGE:
-                    typeCode += "-STOR";
-                    break;
-                case DOCUMENTATION:
-                    typeCode += "-DOC";
-                    break;
-                case LABORATORY:
-                    typeCode += "-LAB";
-                    break;
-            }
-        }
-
-        return typeCode;
-    }
-
-    public static void resetCounter() {
-        counter.set(1);
+    /** LIKE anchor: INS-<PROG>-<yyyy>- */
+    public static String sequencePrefix(String programmeCode) {
+        String prog = (programmeCode == null || programmeCode.isEmpty()) ? "CERT" : programmeCode;
+        String year = new SimpleDateFormat("yyyy", Locale.getDefault()).format(new Date());
+        return "INS-" + prog + "-" + year + "-";
     }
 }

@@ -18,6 +18,7 @@ import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.utils.CertificationIdGenerator;
+import com.afrinuts.farmos.utils.CertificationIdUtils;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,22 @@ public class CertificationRepository {
         void onError(String error);
     }
 
+    /** Trailing sequence of an ID under the given prefix, or 0 when none. */
+    public static int trailingSequence(String id, String prefix) {
+        if (id == null || prefix == null || !id.startsWith(prefix)) return 0;
+        String tail = id.substring(prefix.length());
+        try {
+            return Integer.parseInt(tail);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /** User-facing message for an ID-collision insertAbort. */
+    public static String collisionMessage() {
+        return "ID collision — refresh and retry";
+    }
+
     public CertificationRepository(Context context, long farmId) {
         this.database = AppDatabase.getInstance(context);
         this.certificationDao = database.certificationDao();
@@ -59,15 +76,19 @@ public class CertificationRepository {
     public void insertCertification(CertificationEntity certification, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                if (certification.getCertificationId() == null || certification.getCertificationId().isEmpty()) {
-                    String id = CertificationIdGenerator.generateCertificationId(
-                            certification.getCertificationName(),
-                            certification.getCertificationBody()
-                    );
-                    certification.setCertificationId(id);
-                }
+                String prefix = CertificationIdGenerator.sequencePrefix(certification.getCertificationName());
+                int next = CertificationIdUtils.trailingSequence(
+                        certificationDao.getMaxCertificationIdForPrefix(prefix), prefix) + 1;
+                certification.setCertificationId(
+                        CertificationIdGenerator.buildCertificationId(
+                                certification.getCertificationName(), next));
 
-                certificationDao.insert(certification);
+                try {
+                    certificationDao.insertAbort(certification);
+                } catch (android.database.sqlite.SQLiteConstraintException e) {
+                    mainHandler.post(() -> callback.onError(CertificationIdUtils.collisionMessage()));
+                    return;
+                }
                 Log.d(TAG, "Certification saved locally: " + certification.getCertificationId());
 
                 // ✅ Queue for sync using string ID

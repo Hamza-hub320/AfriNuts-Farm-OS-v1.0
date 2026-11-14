@@ -21,7 +21,6 @@ import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
-import com.afrinuts.farmos.utils.CertificationIdGenerator;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -97,7 +96,6 @@ public class AddCertificationDialog extends DialogFragment {
         initViews(view);
         setupStatusDropdown();
         setupDatePickers();
-        setupCertificationIdGenerator();
 
         // ✅ Set hint text for optional dates
         etApprovalDate.setHint("Approval Date (Optional)");
@@ -131,6 +129,8 @@ public class AddCertificationDialog extends DialogFragment {
         etTargetDate = view.findViewById(R.id.etTargetDate);
         etApprovalDate = view.findViewById(R.id.etApprovalDate);
         etCertificationId = view.findViewById(R.id.etCertificationId);
+        etCertificationId.setEnabled(false);
+        etCertificationId.setHint("(assigned on save)");
         etExpiryDate = view.findViewById(R.id.etExpiryDate);
         btnSave = view.findViewById(R.id.btnSave);
     }
@@ -151,23 +151,6 @@ public class AddCertificationDialog extends DialogFragment {
 
         etStatus.setAdapter(adapter);
         etStatus.setText(statusNames[0], false);
-    }
-
-    private void setupCertificationIdGenerator() {
-        // Generate ID when name or body changes
-        android.view.View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if (!hasFocus) {
-                String name = etCertificationName.getText().toString().trim();
-                String body = etCertificationBody.getText().toString().trim();
-                if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(body)) {
-                    String id = CertificationIdGenerator.generateCertificationId(name, body);
-                    etCertificationId.setText(id);
-                }
-            }
-        };
-
-        etCertificationName.setOnFocusChangeListener(listener);
-        etCertificationBody.setOnFocusChangeListener(listener);
     }
 
     private void setupDatePickers() {
@@ -321,12 +304,6 @@ public class AddCertificationDialog extends DialogFragment {
             return;
         }
 
-        // ✅ Generate certification ID if not already set
-        String certificationId = etCertificationId.getText().toString().trim();
-        if (TextUtils.isEmpty(certificationId)) {
-            certificationId = CertificationIdGenerator.generateCertificationId(name, body);
-        }
-
         CertificationEntity certification = new CertificationEntity(
                 farmId,
                 name,
@@ -338,7 +315,6 @@ public class AddCertificationDialog extends DialogFragment {
                 approvalDate,
                 expiryDate
         );
-        certification.setCertificationId(certificationId);
 
         // ✅ Log the dates for debugging
         Log.d(TAG, "Saving certification with dates - Target: " + targetDate +

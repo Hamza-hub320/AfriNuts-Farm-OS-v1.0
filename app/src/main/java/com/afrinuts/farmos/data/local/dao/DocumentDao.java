@@ -18,6 +18,9 @@ public interface DocumentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(DocumentEntity document);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertAbort(DocumentEntity document);
+
     @Update
     void update(DocumentEntity document);
 
@@ -74,4 +77,8 @@ public interface DocumentDao {
 
     @Query("UPDATE compliance_documents SET isSynced = 1 WHERE documentId = :documentId")
     void markAsSynced(String documentId);
+
+    @Query("SELECT documentId FROM compliance_documents " +
+            "WHERE documentId LIKE :prefix || '%' ORDER BY documentId DESC LIMIT 1")
+    String getMaxDocumentIdForPrefix(String prefix);
 }

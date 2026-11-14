@@ -109,9 +109,6 @@ public class CertificationEntity {
                                CertificationStatus status, String scope, String applicableStandardsJson,
                                long targetDate, long approvalDate, long expiryDate) {
         // Generate ID if not already set
-        this.certificationId = CertificationIdGenerator.generateCertificationId(
-                certificationName, certificationBody
-        );
         this.farmId = farmId;
         this.certificationName = certificationName;
         this.certificationBody = certificationBody;
@@ -132,9 +129,7 @@ public class CertificationEntity {
     public CertificationEntity(long farmId, String certificationName, String certificationBody,
                                CertificationStatus status, String scope, List<String> applicableStandards,
                                long targetDate, long approvalDate, long expiryDate) {
-        this.certificationId = CertificationIdGenerator.generateCertificationId(
-                certificationName, certificationBody
-        );
+
         this.farmId = farmId;
         this.certificationName = certificationName;
         this.certificationBody = certificationBody;
@@ -149,15 +144,8 @@ public class CertificationEntity {
         this.isSynced = false;
     }
 
-    // Safe setter
     public void setCertificationId(@NonNull String certificationId) {
-        if (certificationId == null) {
-            this.certificationId = CertificationIdGenerator.generateCertificationId(
-                    this.certificationName, this.certificationBody
-            );
-        } else {
-            this.certificationId = certificationId;
-        }
+        this.certificationId = certificationId;
     }
 
     // Helper method to parse JSON to List

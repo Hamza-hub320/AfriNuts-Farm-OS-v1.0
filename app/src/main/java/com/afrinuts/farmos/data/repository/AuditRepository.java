@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.utils.AuditIdGenerator;
+import com.afrinuts.farmos.utils.CertificationIdUtils;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -55,16 +56,20 @@ public class AuditRepository {
     public void insertAudit(AuditEntity audit, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                // Generate ID if not set
-                if (audit.getAuditId() == null || audit.getAuditId().isEmpty()) {
-                    String id = AuditIdGenerator.generateAuditId(
-                            audit.getAuditType(),
-                            audit.getCertificationId()
-                    );
-                    audit.setAuditId(id);
+                String programme = CertificationIdUtils.programmeCodeFromCertificationId(
+                        audit.getCertificationId());
+                String prefix = AuditIdGenerator.sequencePrefix(programme);
+                int next = CertificationIdUtils.trailingSequence(
+                        auditDao.getMaxAuditIdForPrefix(prefix), prefix) + 1;
+                audit.setAuditId(AuditIdGenerator.buildAuditId(programme, next));
+
+                try {
+                    auditDao.insertAbort(audit);
+                } catch (android.database.sqlite.SQLiteConstraintException e) {
+                    mainHandler.post(() -> callback.onError(CertificationIdUtils.collisionMessage()));
+                    return;
                 }
 
-                auditDao.insert(audit);
                 Log.d(TAG, "Audit saved locally: " + audit.getAuditId());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {

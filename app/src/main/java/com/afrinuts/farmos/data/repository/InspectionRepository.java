@@ -13,6 +13,7 @@ import com.afrinuts.farmos.data.local.entity.InspectionEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
+import com.afrinuts.farmos.utils.CertificationIdUtils;
 import com.afrinuts.farmos.utils.InspectionIdGenerator;
 
 import java.util.List;
@@ -51,15 +52,20 @@ public class InspectionRepository {
     public void insertInspection(InspectionEntity inspection, InsertCallback callback) {
         executor.execute(() -> {
             try {
-                if (inspection.getInspectionId() == null || inspection.getInspectionId().isEmpty()) {
-                    String id = InspectionIdGenerator.generateInspectionId(
-                            inspection.getInspectionType(),
-                            inspection.getRequirementCategory()
-                    );
-                    inspection.setInspectionId(id);
-                }
+                String programme = CertificationIdUtils.programmeCodeFromCertificationId(
+                        inspection.getCertificationId());
+                String prefix = InspectionIdGenerator.sequencePrefix(programme);
+                int next = CertificationIdUtils.trailingSequence(
+                        inspectionDao.getMaxInspectionIdForPrefix(prefix), prefix) + 1;
+                inspection.setInspectionId(
+                        InspectionIdGenerator.buildInspectionId(programme, next));
 
-                inspectionDao.insert(inspection);
+                try {
+                    inspectionDao.insertAbort(inspection);
+                } catch (android.database.sqlite.SQLiteConstraintException e) {
+                    mainHandler.post(() -> callback.onError(CertificationIdUtils.collisionMessage()));
+                    return;
+                }
                 Log.d(TAG, "Inspection saved locally: " + inspection.getInspectionId());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {

@@ -18,6 +18,9 @@ public interface VerificationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(VerificationEntity verification);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertAbort(VerificationEntity verification);     // VerificationDao
+
     @Update
     void update(VerificationEntity verification);
 
@@ -66,4 +69,8 @@ public interface VerificationDao {
 
     @Query("UPDATE compliance_verifications SET isSynced = 1 WHERE verificationId = :verificationId")
     void markAsSynced(String verificationId);
+
+    @Query("SELECT verificationId FROM compliance_verifications " +
+            "WHERE verificationId LIKE :prefix || '%' ORDER BY verificationId DESC LIMIT 1")
+    String getMaxVerificationIdForPrefix(String prefix);
 }

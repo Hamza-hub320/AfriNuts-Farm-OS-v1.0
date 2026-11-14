@@ -18,6 +18,9 @@ public interface AuditDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(AuditEntity audit);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertAbort(AuditEntity audit);
+
     @Update
     void update(AuditEntity audit);
 
@@ -74,4 +77,7 @@ public interface AuditDao {
 
     @Query("UPDATE audits SET isSynced = 1 WHERE auditId = :auditId")
     void markAsSynced(String auditId);
+
+    @Query("SELECT auditId FROM audits WHERE auditId LIKE :prefix || '%' ORDER BY auditId DESC LIMIT 1")
+    String getMaxAuditIdForPrefix(String prefix);
 }

@@ -18,6 +18,9 @@ public interface InspectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(InspectionEntity inspection);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insertAbort(InspectionEntity inspection);
+
     @Update
     void update(InspectionEntity inspection);
 
@@ -62,4 +65,8 @@ public interface InspectionDao {
 
     @Query("UPDATE inspections SET isSynced = 1 WHERE inspectionId = :inspectionId")
     void markAsSynced(String inspectionId);
+
+    @Query("SELECT inspectionId FROM inspections " +
+            "WHERE inspectionId LIKE :prefix || '%' ORDER BY inspectionId DESC LIMIT 1")
+    String getMaxInspectionIdForPrefix(String prefix);
 }
