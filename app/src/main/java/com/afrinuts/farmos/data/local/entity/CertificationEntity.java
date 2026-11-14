@@ -279,12 +279,6 @@ public class CertificationEntity {
         return DateFormatter.formatDateOrDash(expiryDate);
     }
 
-    private String formatDate(long date) {
-        if (date <= 0) return "Not set";
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-        return sdf.format(new Date(date));
-    }
-
     public String getStatusDisplay() {
         return status.getDisplayName();
     }
