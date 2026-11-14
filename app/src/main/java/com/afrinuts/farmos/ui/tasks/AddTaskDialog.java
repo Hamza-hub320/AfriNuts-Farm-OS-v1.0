@@ -72,7 +72,7 @@ public class AddTaskDialog extends DialogFragment {
     private Calendar dueDateCalendar = Calendar.getInstance();
 
     // 42: backdated-work support
-    private com.google.android.material.materialswitch.MaterialSwitch swAlreadyDone;
+    private androidx.appcompat.widget.SwitchCompat swAlreadyDone;
     private View cardDueDate;           // existing due-date card, hidden when ON
     private View cardWorkDates;         // new work-dates card, shown when ON
     private TextInputEditText etStartDate;
