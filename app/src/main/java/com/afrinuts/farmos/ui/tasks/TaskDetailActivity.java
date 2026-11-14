@@ -73,6 +73,8 @@ public class TaskDetailActivity extends BaseActivity {
     private TextView tvCompletedDate;
     private TextView tvDescription;
     private LinearLayout layoutCompletedDate;
+    private View layoutStartDate;
+    private TextView tvStartDate;
 
     // Assignment UI
     private LinearLayout layoutCurrentAssignment;
@@ -155,6 +157,9 @@ public class TaskDetailActivity extends BaseActivity {
         assignmentHistoryContainer = findViewById(R.id.assignmentHistoryContainer);
         tvNoAssignments = findViewById(R.id.tvNoAssignments);
         btnAssignWorker = findViewById(R.id.btnAssignWorker);
+
+        layoutStartDate = findViewById(R.id.layoutStartDate);
+        tvStartDate     = findViewById(R.id.tvStartDate);
 
         // Action buttons
         btnEdit = findViewById(R.id.btnEdit);
@@ -352,9 +357,8 @@ public class TaskDetailActivity extends BaseActivity {
         dialog.setOnStatusUpdatedListener(newStatus -> {
             task.setStatus(newStatus);
 
-            if (newStatus == TaskEntity.TaskStatus.COMPLETED) {
+            if (task.getCompletedDate() == null) {
                 task.setCompletedDate(System.currentTimeMillis());
-                completeCurrentAssignment();
             }
 
             taskRepository.updateTask(task, new BaseRepository.RepositoryCallback<Boolean>() {
@@ -491,6 +495,14 @@ public class TaskDetailActivity extends BaseActivity {
             tvCompletedDate.setText(dateFormat.format(new Date(task.getCompletedDate())));
         } else {
             layoutCompletedDate.setVisibility(View.GONE);
+        }
+
+        // 42: start date. Only present on backdated tasks.
+        if (task.getStartDate() != null && task.getStartDate() > 0) {
+            layoutStartDate.setVisibility(View.VISIBLE);
+            tvStartDate.setText(dateFormat.format(new Date(task.getStartDate())));
+        } else {
+            layoutStartDate.setVisibility(View.GONE);
         }
 
         if (task.getDescription() != null && !task.getDescription().isEmpty()) {

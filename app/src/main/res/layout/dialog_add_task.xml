@@ -45,6 +45,52 @@
 
         </LinearLayout>
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp"
+            android:background="?attr/cardBackgroundAccent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Work already done"
+                        style="@style/Text.H6"
+                        android:textColor="?attr/colorSecondary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Log a past task with its real start and finish dates."
+                        style="@style/Text.Caption.Small"
+                        android:textColor="?attr/colorOnSurface"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swAlreadyDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- Task Details Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -54,26 +100,6 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -312,6 +338,7 @@
 
         <!-- Due Date Card -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardDueDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -319,26 +346,6 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             android:background="?attr/cardBackgroundPrimary">
-
-            <!-- Edge Effect (3D border) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -380,6 +387,88 @@
 
             </LinearLayout>
 
+        </androidx.cardview.widget.CardView>
+
+        <!-- 42: start + finish dates. Only visible when "Work already done" is ON.
+     Both default sensibly: finish = today, start = finish. -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardWorkDates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            style="@style/Widget.AfriNuts.CardView"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            android:background="?attr/cardBackgroundPrimary">
+
+            <View android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_edge_effect" android:alpha="0.3" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_glassy_overlay" android:alpha="0.4" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent"
+                android:background="@drawable/bg_inner_shadow" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="?attr/cardBackgroundPrimary">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Work Dates"
+                    style="@style/Text.H5"
+                    android:textColor="?attr/colorSecondary"
+                    android:layout_marginBottom="16dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/ic_today"
+                    app:boxBackgroundColor="?attr/colorSurface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etStartDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Start date"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.AfriNuts.EditText"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/ic_today"
+                    app:boxBackgroundColor="?attr/colorSurface"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="?attr/colorSecondary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFinishDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Finish date"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <!-- Status Card (Read-only) -->

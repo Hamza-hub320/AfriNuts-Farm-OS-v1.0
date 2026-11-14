@@ -70,6 +70,16 @@ public class AddTaskDialog extends DialogFragment {
     private TaskEntity.TaskType selectedTaskType = null;
 
     private Calendar dueDateCalendar = Calendar.getInstance();
+
+    // 42: backdated-work support
+    private com.google.android.material.materialswitch.MaterialSwitch swAlreadyDone;
+    private View cardDueDate;           // existing due-date card, hidden when ON
+    private View cardWorkDates;         // new work-dates card, shown when ON
+    private TextInputEditText etStartDate;
+    private TextInputEditText etFinishDate;
+    private Calendar startDateCalendar = Calendar.getInstance();
+    private Calendar finishDateCalendar = Calendar.getInstance();
+    private boolean isPastWork = false;
     private boolean isFarmWide = true; // Default to farm-wide
 
     public interface OnTaskAddedListener {
@@ -117,6 +127,8 @@ public class AddTaskDialog extends DialogFragment {
         initViews(view);
         setupTaskTypeDropdown();
         setupDatePicker();
+        setupWorkDates();
+        setupAlreadyDoneToggle();
         setupTaskScopeToggle();
         loadBlocksForDropdown();
 
@@ -162,6 +174,12 @@ public class AddTaskDialog extends DialogFragment {
         // Default to farm-wide selected
         toggleTaskScope.check(R.id.btnFarmWide);
         layoutBlockSelector.setVisibility(View.GONE);
+
+        swAlreadyDone = view.findViewById(R.id.swAlreadyDone);
+        cardDueDate   = view.findViewById(R.id.cardDueDate);
+        cardWorkDates = view.findViewById(R.id.cardWorkDates);
+        etStartDate   = view.findViewById(R.id.etStartDate);
+        etFinishDate  = view.findViewById(R.id.etFinishDate);
     }
 
     private void setupTaskTypeDropdown() {
@@ -243,6 +261,83 @@ public class AddTaskDialog extends DialogFragment {
         etDueDate.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showDatePicker();
+            }
+        });
+    }
+
+    /** 42: pre-populate the work-dates fields (finish = today, start = finish). */
+    private void setupWorkDates() {
+        finishDateCalendar = Calendar.getInstance();
+        startDateCalendar  = (Calendar) finishDateCalendar.clone();
+
+        updateWorkDatesLabels();
+
+        etFinishDate.setOnClickListener(v -> showFinishDatePicker());
+        etFinishDate.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) showFinishDatePicker();
+        });
+
+        etStartDate.setOnClickListener(v -> showStartDatePicker());
+        etStartDate.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) showStartDatePicker();
+        });
+    }
+
+    private void showFinishDatePicker() {
+        DatePickerDialog d = new DatePickerDialog(
+                requireContext(),
+                (v, y, m, day) -> {
+                    finishDateCalendar.set(y, m, day);
+                    // Keep start <= finish: if start now exceeds finish, pull it back.
+                    if (startDateCalendar.after(finishDateCalendar)) {
+                        startDateCalendar = (Calendar) finishDateCalendar.clone();
+                    }
+                    updateWorkDatesLabels();
+                },
+                finishDateCalendar.get(Calendar.YEAR),
+                finishDateCalendar.get(Calendar.MONTH),
+                finishDateCalendar.get(Calendar.DAY_OF_MONTH));
+        d.getDatePicker().setMaxDate(System.currentTimeMillis());
+        d.show();
+    }
+
+    private void showStartDatePicker() {
+        DatePickerDialog d = new DatePickerDialog(
+                requireContext(),
+                (v, y, m, day) -> {
+                    startDateCalendar.set(y, m, day);
+                    updateWorkDatesLabels();
+                },
+                startDateCalendar.get(Calendar.YEAR),
+                startDateCalendar.get(Calendar.MONTH),
+                startDateCalendar.get(Calendar.DAY_OF_MONTH));
+        // Start cannot be in the future and cannot exceed finish.
+        d.getDatePicker().setMaxDate(finishDateCalendar.getTimeInMillis());
+        d.show();
+    }
+
+    private void updateWorkDatesLabels() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        etStartDate.setText(sdf.format(startDateCalendar.getTime()));
+        etFinishDate.setText(sdf.format(finishDateCalendar.getTime()));
+    }
+
+    /**
+     * 42: 'Work already done' mode. Swaps which date block is visible and what
+     * the read-only status field says. The normal path (toggle OFF) is
+     * byte-for-byte unchanged: due date visible, PENDING status, no start date.
+     */
+    private void setupAlreadyDoneToggle() {
+        swAlreadyDone.setOnCheckedChangeListener((btn, checked) -> {
+            isPastWork = checked;
+            if (checked) {
+                cardDueDate.setVisibility(View.GONE);
+                cardWorkDates.setVisibility(View.VISIBLE);
+                etStatus.setText("COMPLETED");
+            } else {
+                cardDueDate.setVisibility(View.VISIBLE);
+                cardWorkDates.setVisibility(View.GONE);
+                etStatus.setText("PENDING");
             }
         });
     }
@@ -345,19 +440,58 @@ public class AddTaskDialog extends DialogFragment {
         // Get description (optional)
         String description = etTaskDescription.getText().toString().trim();
 
-        // Get due date
-        long dueDate = dueDateCalendar.getTimeInMillis();
+        long dueDate;
+        TaskEntity.TaskStatus initialStatus;
+        Long startDateMillis = null;
+        Long completedDateMillis = null;
 
-        // Create task (always PENDING for new tasks)
+        if (isPastWork) {
+            // 42: backdated work.
+            //   - finish must be in the past or today
+            //   - start must be <= finish
+            long finishMs = finishDateCalendar.getTimeInMillis();
+            long startMs  = startDateCalendar.getTimeInMillis();
+
+            if (finishMs > System.currentTimeMillis()) {
+                Toast.makeText(getContext(),
+                        "Finish date cannot be in the future", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (startMs > finishMs) {
+                Toast.makeText(getContext(),
+                        "Start date must be on or before the finish date", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            dueDate              = finishMs;
+            initialStatus        = TaskEntity.TaskStatus.COMPLETED;
+            startDateMillis      = startMs;
+            completedDateMillis  = finishMs;
+        } else {
+            // Normal path — unchanged.
+            dueDate              = dueDateCalendar.getTimeInMillis();
+            initialStatus        = TaskEntity.TaskStatus.PENDING;
+        }
+
         TaskEntity task = new TaskEntity(
                 farmId,
                 blockId,
                 title,
                 description.isEmpty() ? null : description,
                 selectedTaskType,
-                TaskEntity.TaskStatus.PENDING,
+                initialStatus,
                 dueDate
         );
+
+        // 42: in past-work mode, set the two dates AFTER construction and BEFORE
+        // insert, in this exact order. The constructor nulls completedDate; we
+        // set it explicitly and never call setStatus() afterwards, so
+        // setCompletedDate here is the record. createdAt stays 'now' — that is
+        // the log date, which is correct.
+        if (isPastWork) {
+            task.setStartDate(startDateMillis);
+            task.setCompletedDate(completedDateMillis);
+        }
 
         // Disable save button
         btnSave.setEnabled(false);

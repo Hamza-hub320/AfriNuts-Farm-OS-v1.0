@@ -494,6 +494,35 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- 42: work window start. Only visible when the task carries a startDate
+            (backdated work). Normal plan-then-do tasks don't show it. -->
+            <LinearLayout
+                android:id="@+id/layoutStartDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:visibility="gone"
+                android:background="?attr/cardBackgroundAccent"
+                app:cornerRadius="12dp">
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="Started:"
+                    style="@style/Text.Label"
+                    android:textColor="?attr/colorOnSurface"
+                    android:alpha="0.7" />
+
+                <TextView
+                    android:id="@+id/tvStartDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Text.Body"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
             <!-- Photo Gallery Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
