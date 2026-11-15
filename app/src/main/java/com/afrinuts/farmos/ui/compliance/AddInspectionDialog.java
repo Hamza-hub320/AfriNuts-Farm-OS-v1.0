@@ -1,7 +1,5 @@
 package com.afrinuts.farmos.ui.compliance;
 
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.description;
-
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -30,6 +28,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -39,10 +38,10 @@ public class AddInspectionDialog extends DialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
     private static final String ARG_CERTIFICATION_ID = "certification_id";
+    private static final String ARG_CORRECTION_OF = "correction_of";
 
     private long farmId;
     private String preselectedCertificationId;
-    private static final String ARG_CORRECTION_OF = "correction_of";
     private String correctionOfId;
     private InspectionRepository inspectionRepository;
     private CertificationRepository certificationRepository;
@@ -167,22 +166,19 @@ public class AddInspectionDialog extends DialogFragment {
             final String certDisplayFinal = certDisplay;
 
             getActivity().runOnUiThread(() -> {
-                        if (certDisplayFinal != null) {
-                            etCertification.setText(certDisplayFinal, false);
-                        }
-                        etRequirementCategory.setText(original.getRequirementCategoryDisplay(), false);
-                    });
-
-            getActivity().runOnUiThread(() -> {
-                preselectedCertificationId = original.getCertificationId();
-                loadCertifications();
-
+                if (certDisplayFinal != null) {
+                    etCertification.setText(certDisplayFinal, false);
+                }
                 etRequirementCategory.setText(original.getRequirementCategoryDisplay(), false);
                 etInspectionType.setText(original.getInspectionType().getDisplayName(), false);
                 etStatus.setText(original.getStatusDisplay(), false);
 
-                // Correction's inspection date defaults to TODAY; original's date is on the original.
-                selectedDate = Calendar.getInstance();
+                // Correction inherits the original inspection's event date; createdAt
+                // (set in the entity constructor) records when the correction was made.
+                selectedDate.setTimeInMillis(
+                        original.getInspectionDate() > 0
+                                ? original.getInspectionDate()
+                                : System.currentTimeMillis());
                 updateDateLabel();
 
                 etInspectorName.setText(original.getInspectorName() != null ? original.getInspectorName() : "");
@@ -193,7 +189,7 @@ public class AddInspectionDialog extends DialogFragment {
                 List<InspectionEntity.CorrectiveAction> actions = original.getCorrectiveActions();
                 if (actions != null) {
                     for (InspectionEntity.CorrectiveAction a : actions) {
-                        addCorrectiveActionItem(a.description, a.assignedTo, a.status);
+                        addCorrectiveActionItem(a.description, a.assignedTo, a.status, a.dueDate);
                     }
                 }
             });
@@ -247,11 +243,10 @@ public class AddInspectionDialog extends DialogFragment {
     }
 
     private void setupDropdowns() {
-        // ✅ Requirement Category dropdown - show just display names
         InspectionEntity.RequirementCategory[] categories = InspectionEntity.RequirementCategory.values();
         String[] categoryNames = new String[categories.length];
         for (int i = 0; i < categories.length; i++) {
-            categoryNames[i] = categories[i].getDisplayName();  // Just the name, no icon
+            categoryNames[i] = categories[i].getDisplayName();
         }
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
                 requireContext(),
@@ -261,7 +256,6 @@ public class AddInspectionDialog extends DialogFragment {
         etRequirementCategory.setAdapter(categoryAdapter);
         etRequirementCategory.setText(categoryNames[0], false);
 
-        // ✅ Inspection Type dropdown - show just display names
         InspectionEntity.InspectionType[] types = InspectionEntity.InspectionType.values();
         String[] typeNames = new String[types.length];
         for (int i = 0; i < types.length; i++) {
@@ -275,7 +269,6 @@ public class AddInspectionDialog extends DialogFragment {
         etInspectionType.setAdapter(typeAdapter);
         etInspectionType.setText(typeNames[0], false);
 
-        // ✅ Status dropdown - show just display names
         InspectionEntity.InspectionStatus[] statuses = InspectionEntity.InspectionStatus.values();
         String[] statusNames = new String[statuses.length];
         for (int i = 0; i < statuses.length; i++) {
@@ -319,43 +312,53 @@ public class AddInspectionDialog extends DialogFragment {
     }
 
     private void setupCorrectiveActions() {
-        btnAddCorrectiveAction.setOnClickListener(v -> addCorrectiveActionItem(null, null, null));
+        btnAddCorrectiveAction.setOnClickListener(v -> addCorrectiveActionItem(null, null));
+    }
+
+    private void addCorrectiveActionItem(String description, String assignedTo) {
+        addCorrectiveActionItem(description, assignedTo, "OPEN", 0L);
     }
 
     private void addCorrectiveActionItem(String description, String assignedTo, String status) {
+        addCorrectiveActionItem(description, assignedTo, status, 0L);
+    }
+
+    private void addCorrectiveActionItem(String description, String assignedTo,
+                                         String status, long dueDate) {
         View actionView = getLayoutInflater().inflate(R.layout.item_corrective_action_input, correctiveActionsContainer, false);
+
         TextInputEditText etDescription = actionView.findViewById(R.id.etActionDescription);
         TextInputEditText etAssignedTo = actionView.findViewById(R.id.etAssignedTo);
+        TextInputEditText etDueDate = actionView.findViewById(R.id.etActionDueDate);
         Button btnRemove = actionView.findViewById(R.id.btnRemoveAction);
 
         if (description != null) etDescription.setText(description);
         if (assignedTo != null) etAssignedTo.setText(assignedTo);
-        // store status on the view tag so collectCorrectiveActions can read it back
+
         actionView.setTag(R.id.tag_action_status, status != null ? status : "OPEN");
-
-        btnRemove.setOnClickListener(v -> correctiveActionsContainer.removeView(actionView));
-        correctiveActionsContainer.addView(actionView);
-    }
-
-
-    private void addCorrectiveActionItem(String description, String assignedTo) {
-        View actionView = getLayoutInflater().inflate(R.layout.item_corrective_action_input, correctiveActionsContainer, false);
-
-        TextInputEditText etDescription = actionView.findViewById(R.id.etActionDescription);
-        TextInputEditText etAssignedTo = actionView.findViewById(R.id.etAssignedTo);
-        Button btnRemove = actionView.findViewById(R.id.btnRemoveAction);
-
-        if (description != null) {
-            etDescription.setText(description);
-        }
-        if (assignedTo != null) {
-            etAssignedTo.setText(assignedTo);
+        actionView.setTag(R.id.tag_action_due_date, dueDate);
+        if (dueDate > 0) {
+            etDueDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(dueDate)));
         }
 
-        btnRemove.setOnClickListener(v -> {
-            correctiveActionsContainer.removeView(actionView);
+        etDueDate.setOnClickListener(v -> {
+            long current = (Long) actionView.getTag(R.id.tag_action_due_date);
+            Calendar c = Calendar.getInstance();
+            if (current > 0) c.setTimeInMillis(current);
+            new DatePickerDialog(requireContext(),
+                    (dp, year, month, day) -> {
+                        Calendar picked = Calendar.getInstance();
+                        picked.set(year, month, day, 0, 0, 0);
+                        picked.set(Calendar.MILLISECOND, 0);
+                        long millis = picked.getTimeInMillis();
+                        actionView.setTag(R.id.tag_action_due_date, millis);
+                        etDueDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(millis)));
+                    },
+                    c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)
+            ).show();
         });
 
+        btnRemove.setOnClickListener(v -> correctiveActionsContainer.removeView(actionView));
         correctiveActionsContainer.addView(actionView);
     }
 
@@ -373,8 +376,10 @@ public class AddInspectionDialog extends DialogFragment {
                         description,
                         etAssignedTo.getText().toString().trim()
                 );
-                Object tag = actionView.getTag(R.id.tag_action_status);
-                if (tag instanceof String) action.status = (String) tag;
+                Object statusTag = actionView.getTag(R.id.tag_action_status);
+                if (statusTag instanceof String) action.status = (String) statusTag;
+                Object dueTag = actionView.getTag(R.id.tag_action_due_date);
+                if (dueTag instanceof Long) action.dueDate = (Long) dueTag;
                 result.add(action);
             }
         }
@@ -468,7 +473,6 @@ public class AddInspectionDialog extends DialogFragment {
         String remarks = etRemarks.getText().toString().trim();
         List<InspectionEntity.CorrectiveAction> correctiveActions = collectCorrectiveActions();
         String reportUrl = etReportUrl.getText().toString().trim();
-
 
         InspectionEntity inspection = new InspectionEntity(
                 certificationId,

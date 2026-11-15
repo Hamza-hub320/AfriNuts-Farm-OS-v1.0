@@ -28,6 +28,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -164,7 +165,7 @@ public class AddAuditDialog extends DialogFragment {
 
                 // Audit date: correction's date defaults to TODAY (the act of correcting).
                 // The original's date is preserved on the original record.
-                selectedDate = Calendar.getInstance();
+                selectedDate.setTimeInMillis(original.getAuditDate() > 0 ? original.getAuditDate() : System.currentTimeMillis());
                 updateDateLabel();
 
                 etAuditorName.setText(original.getAuditorName() != null ? original.getAuditorName() : "");
@@ -292,23 +293,47 @@ public class AddAuditDialog extends DialogFragment {
     }
 
     private void addFindingItem(String findingText, String correctiveActionText) {
+        addFindingItem(findingText, correctiveActionText, "OPEN", null, 0L);
+    }
+
+    private void addFindingItem(String findingText, String correctiveActionText,
+                                String status, String assignedTo, long dueDate) {
         View findingView = getLayoutInflater().inflate(R.layout.item_finding_input, findingsContainer, false);
 
         TextInputEditText etFinding = findingView.findViewById(R.id.etFinding);
         TextInputEditText etCorrectiveAction = findingView.findViewById(R.id.etCorrectiveAction);
+        TextInputEditText etOwner = findingView.findViewById(R.id.etFindingOwner);
+        TextInputEditText etDueDate = findingView.findViewById(R.id.etActionDueDate);
         Button btnRemove = findingView.findViewById(R.id.btnRemoveFinding);
 
-        if (findingText != null) {
-            etFinding.setText(findingText);
-        }
-        if (correctiveActionText != null) {
-            etCorrectiveAction.setText(correctiveActionText);
+        if (findingText != null) etFinding.setText(findingText);
+        if (correctiveActionText != null) etCorrectiveAction.setText(correctiveActionText);
+        if (assignedTo != null) etOwner.setText(assignedTo);
+
+        findingView.setTag(R.id.tag_finding_status, status != null ? status : "OPEN");
+        findingView.setTag(R.id.tag_finding_due_date, dueDate);
+        if (dueDate > 0) {
+            etDueDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(dueDate)));
         }
 
-        btnRemove.setOnClickListener(v -> {
-            findingsContainer.removeView(findingView);
+        etDueDate.setOnClickListener(v -> {
+            long current = (Long) findingView.getTag(R.id.tag_finding_due_date);
+            Calendar c = Calendar.getInstance();
+            if (current > 0) c.setTimeInMillis(current);
+            new DatePickerDialog(requireContext(),
+                    (dp, year, month, day) -> {
+                        Calendar picked = Calendar.getInstance();
+                        picked.set(year, month, day, 0, 0, 0);
+                        picked.set(Calendar.MILLISECOND, 0);
+                        long millis = picked.getTimeInMillis();
+                        findingView.setTag(R.id.tag_finding_due_date, millis);
+                        etDueDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(millis)));
+                    },
+                    c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)
+            ).show();
         });
 
+        btnRemove.setOnClickListener(v -> findingsContainer.removeView(findingView));
         findingsContainer.addView(findingView);
     }
 
@@ -319,14 +344,18 @@ public class AddAuditDialog extends DialogFragment {
             View findingView = findingsContainer.getChildAt(i);
             TextInputEditText etFinding = findingView.findViewById(R.id.etFinding);
             TextInputEditText etCorrectiveAction = findingView.findViewById(R.id.etCorrectiveAction);
+            TextInputEditText etOwner = findingView.findViewById(R.id.etFindingOwner);
 
             String finding = etFinding.getText().toString().trim();
             if (!TextUtils.isEmpty(finding)) {
                 AuditEntity.Finding f = new AuditEntity.Finding();
                 f.finding = finding;
                 f.correctiveAction = etCorrectiveAction.getText().toString().trim();
-                f.status = "OPEN";  // ✅ Default to OPEN
-                f.dueDate = 0;
+                f.assignedTo = etOwner.getText().toString().trim();
+                Object statusTag = findingView.getTag(R.id.tag_finding_status);
+                f.status = statusTag instanceof String ? (String) statusTag : "OPEN";
+                Object dueTag = findingView.getTag(R.id.tag_finding_due_date);
+                f.dueDate = dueTag instanceof Long ? (Long) dueTag : 0L;
                 result.add(f);
             }
         }

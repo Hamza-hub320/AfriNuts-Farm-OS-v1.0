@@ -158,7 +158,7 @@ public class AddVerificationDialog extends DialogFragment {
                 etStatus.setText(original.getStatusDisplay(), false);
 
                 // Correction's verification date defaults to TODAY.
-                selectedDate = Calendar.getInstance();
+                selectedDate.setTimeInMillis(original.getVerificationDate() > 0 ? original.getVerificationDate() : System.currentTimeMillis());
                 updateDateLabel();
 
                 etVerifiedBy.setText(original.getVerifiedBy() != null ? original.getVerifiedBy() : "");
