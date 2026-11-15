@@ -19,7 +19,7 @@ public interface CertificationDao {
     long insert(CertificationEntity certification);
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    long insertAbort(CertificationEntity certification);   // CertificationDao
+    long insertAbort(CertificationEntity certification);
 
     @Update
     void update(CertificationEntity certification);

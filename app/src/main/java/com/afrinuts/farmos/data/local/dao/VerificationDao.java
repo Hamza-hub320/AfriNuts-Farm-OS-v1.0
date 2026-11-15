@@ -19,7 +19,7 @@ public interface VerificationDao {
     long insert(VerificationEntity verification);
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    long insertAbort(VerificationEntity verification);     // VerificationDao
+    long insertAbort(VerificationEntity verification);
 
     @Update
     void update(VerificationEntity verification);
