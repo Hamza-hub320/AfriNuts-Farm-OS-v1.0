@@ -174,13 +174,13 @@ public class AddAuditDialog extends DialogFragment {
                 etStatus.setText(original.getStatusDisplay(), false);
                 etReportUrl.setText(original.getReportUrl() != null ? original.getReportUrl() : "");
 
-                // Findings: prefill only finding text + corrective action — the dialog's
-                // finding input layout has only those two fields (severity, clause, owner,
-                // due date, closure state are not editable here).
+                // Findings: prefill text, corrective action, owner, due date and closure
+                // status. Severity/standardClause are not on Finding (model: finding,
+                // correctiveAction, status, assignedTo, dueDate).
                 List<AuditEntity.Finding> findings = original.getFindings();
                 if (findings != null) {
                     for (AuditEntity.Finding f : findings) {
-                        addFindingItem(f.finding, f.correctiveAction);
+                        addFindingItem(f.finding, f.correctiveAction, f.status, f.assignedTo, f.dueDate);
                     }
                 }
             });
