@@ -20,7 +20,6 @@ import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -58,6 +57,8 @@ public class InspectionDetailActivity extends BaseActivity {
     private LinearLayout actionsContainer;
     private CardView cardStatus;
     private CardView cardCorrectiveActions;
+    private MaterialButton btnCorrect;
+    private TextView tvSuperseded;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -104,6 +105,12 @@ public class InspectionDetailActivity extends BaseActivity {
         actionsContainer = findViewById(R.id.actionsContainer);
         cardStatus = findViewById(R.id.cardStatus);
         cardCorrectiveActions = findViewById(R.id.cardCorrectiveActions);
+        tvSuperseded = findViewById(R.id.tvSuperseded);
+
+        btnCorrect = findViewById(R.id.btnCorrect);
+        btnCorrect.setOnClickListener(v -> openCorrectionDialog());
+
+        loadSupersededState();
     }
 
     private void setupToolbar() {
@@ -154,6 +161,21 @@ public class InspectionDetailActivity extends BaseActivity {
                     finish();
                 });
             }
+        });
+    }
+
+    private void loadSupersededState() {
+        executor.execute(() -> {
+            String supersedingId = database.inspectionDao()
+                    .getSupersedingRecordId(inspection.getInspectionId());
+            runOnUiThread(() -> {
+                if (supersedingId != null) {
+                    tvSuperseded.setText("Superseded by " + supersedingId);
+                    tvSuperseded.setVisibility(View.VISIBLE);
+                } else {
+                    tvSuperseded.setVisibility(View.GONE);
+                }
+            });
         });
     }
 
@@ -347,6 +369,12 @@ public class InspectionDetailActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    private void openCorrectionDialog() {
+        AddInspectionDialog correction = AddInspectionDialog.newInstanceCorrection(farmId, inspection.getInspectionId());
+        correction.setOnInspectionAddedListener(this::loadInspectionData);
+        correction.show(getSupportFragmentManager(), "AddInspectionCorrectionDialog");
     }
 
     @Override

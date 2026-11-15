@@ -37,6 +37,7 @@ public class InspectionEntity {
     @PrimaryKey
     @NonNull
     private String inspectionId; // INSP-ORG-2026-078
+    private String supersedesId; // null unless this record corrects another record (its ID)
 
     private String certificationId;
     private String certificationName; // Denormalized for quick display
@@ -209,6 +210,12 @@ public class InspectionEntity {
     public String getCertificationName() { return certificationName; }
     public void setCertificationName(String certificationName) {
         this.certificationName = certificationName;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getSupersedesId() { return supersedesId; }
+    public void setSupersedesId(String supersedesId) {
+        this.supersedesId = supersedesId;
         this.updatedAt = System.currentTimeMillis();
     }
 

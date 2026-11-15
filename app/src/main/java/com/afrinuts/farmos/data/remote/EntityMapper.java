@@ -1902,6 +1902,7 @@ public class EntityMapper {
     public static Map<String, Object> auditToMap(AuditEntity audit) {
         Map<String, Object> map = new HashMap<>();
         map.put("auditId", audit.getAuditId());
+        map.put("supersedesId", audit.getSupersedesId());
         map.put("certificationId", audit.getCertificationId());
         map.put("farmId", audit.getFarmId());
         map.put("auditType", audit.getAuditType() != null ? audit.getAuditType().name() : null);
@@ -1930,6 +1931,7 @@ public class EntityMapper {
             }
 
             String auditTypeStr = doc.getString("auditType");
+            String supersedesId = doc.getString("supersedesId");
             Long auditDate = doc.getLong("auditDate");
             String auditorName = doc.getString("auditorName");
             String auditorBody = doc.getString("auditorBody");
@@ -1985,6 +1987,7 @@ public class EntityMapper {
                     reportUrl
             );
             audit.setAuditId(auditId);
+            audit.setSupersedesId(supersedesId);
             audit.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             audit.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             audit.setSynced(isSynced != null && isSynced);
@@ -2003,6 +2006,7 @@ public class EntityMapper {
     public static Map<String, Object> inspectionToMap(InspectionEntity inspection) {
         Map<String, Object> map = new HashMap<>();
         map.put("inspectionId", inspection.getInspectionId());
+        map.put("supersedesId", inspection.getSupersedesId());
         map.put("certificationId", inspection.getCertificationId());
         map.put("certificationName", inspection.getCertificationName());
         map.put("farmId", inspection.getFarmId());
@@ -2037,6 +2041,7 @@ public class EntityMapper {
             }
 
             String requirementCategoryStr = doc.getString("requirementCategory");
+            String supersedesId = doc.getString("supersedesId");
             String inspectionTypeStr = doc.getString("inspectionType");
             Long inspectionDate = doc.getLong("inspectionDate");
             String inspectorName = doc.getString("inspectorName");
@@ -2121,6 +2126,7 @@ public class EntityMapper {
                     reportUrl
             );
             inspection.setInspectionId(inspectionId);
+            inspection.setSupersedesId(supersedesId);
             inspection.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             inspection.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             inspection.setSynced(isSynced != null && isSynced);
@@ -2139,6 +2145,7 @@ public class EntityMapper {
     public static Map<String, Object> verificationToMap(VerificationEntity verification) {
         Map<String, Object> map = new HashMap<>();
         map.put("verificationId", verification.getVerificationId());
+        map.put("supersedesId", verification.getSupersedesId());
         map.put("certificationId", verification.getCertificationId());
         map.put("farmId", verification.getFarmId());
         map.put("verificationType", verification.getVerificationType() != null ?
@@ -2167,6 +2174,7 @@ public class EntityMapper {
             }
 
             String verificationTypeStr = doc.getString("verificationType");
+            String supersedesId = doc.getString("supersedesId");
             Long verificationDate = doc.getLong("verificationDate");
             String verifiedBy = doc.getString("verifiedBy");
             String statusStr = doc.getString("status");
@@ -2220,6 +2228,7 @@ public class EntityMapper {
                     comment
             );
             verification.setVerificationId(verificationId);
+            verification.setSupersedesId(supersedesId);
             verification.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             verification.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             verification.setSynced(isSynced != null && isSynced);

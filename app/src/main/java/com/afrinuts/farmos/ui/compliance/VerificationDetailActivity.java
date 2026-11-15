@@ -52,6 +52,8 @@ public class VerificationDetailActivity extends BaseActivity {
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
     private CardView cardStatus;
+    private TextView tvSuperseded;
+    private MaterialButton btnCorrect;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -93,6 +95,12 @@ public class VerificationDetailActivity extends BaseActivity {
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
         cardStatus = findViewById(R.id.cardStatus);
+
+        loadSupersededState();
+
+        btnCorrect = findViewById(R.id.btnCorrect);
+        btnCorrect.setOnClickListener(v -> openCorrectionDialog());
+        tvSuperseded = findViewById(R.id.tvSuperseded);
     }
 
     private void setupToolbar() {
@@ -145,7 +153,20 @@ public class VerificationDetailActivity extends BaseActivity {
             }
         });
     }
-
+    private void loadSupersededState() {
+        executor.execute(() -> {
+            String supersedingId = database.verificationDao()
+                    .getSupersedingRecordId(verification.getVerificationId());
+            runOnUiThread(() -> {
+                if (supersedingId != null) {
+                    tvSuperseded.setText("Superseded by " + supersedingId);
+                    tvSuperseded.setVisibility(View.VISIBLE);
+                } else {
+                    tvSuperseded.setVisibility(View.GONE);
+                }
+            });
+        });
+    }
     private void displayVerificationData() {
         tvVerificationId.setText(verification.getVerificationId());
         tvVerificationType.setText(verification.getVerificationTypeDisplay());
@@ -194,6 +215,12 @@ public class VerificationDetailActivity extends BaseActivity {
                 break;
         }
         cardStatus.setCardBackgroundColor(getColor(colorRes));
+    }
+
+    private void openCorrectionDialog() {
+        AddVerificationDialog correction = AddVerificationDialog.newInstanceCorrection(farmId, verification.getVerificationId());
+        correction.setOnVerificationAddedListener(this::loadVerificationData);
+        correction.show(getSupportFragmentManager(), "AddVerificationCorrectionDialog");
     }
 
     @Override

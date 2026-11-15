@@ -1,7 +1,5 @@
 package com.afrinuts.farmos.data.local.database;
 
-import static androidx.compose.ui.text.input.CursorAnchorInfoBuilder_androidKt.build;
-
 import android.content.Context;
 
 import androidx.room.Database;
@@ -9,7 +7,6 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.data.local.converter.Converters;
 import com.afrinuts.farmos.data.local.dao.AuditDao;
 import com.afrinuts.farmos.data.local.dao.BatchTraceabilityDao;
@@ -95,7 +92,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 SupplierScoreSnapshotEntity.class,
 
         },
-        version = 42,
+        version = 43,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -189,7 +186,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration38To39(),
                                     new Migration39To40(),
                                     new Migration40To41(),
-                                    new Migration41To42()
+                                    new Migration41To42(),
+                                    new Migration42To43()
 
                             )
                             .build();

@@ -69,4 +69,10 @@ public interface InspectionDao {
     @Query("SELECT inspectionId FROM inspections " +
             "WHERE inspectionId LIKE :prefix || '%' ORDER BY inspectionId DESC LIMIT 1")
     String getMaxInspectionIdForPrefix(String prefix);
+
+    @Query("SELECT * FROM inspections WHERE supersedesId = :originalId")
+    List<InspectionEntity> getCorrectionsForRecord(String originalId);
+
+    @Query("SELECT inspectionId FROM inspections WHERE supersedesId = :originalId LIMIT 1")
+    String getSupersedingRecordId(String originalId);
 }

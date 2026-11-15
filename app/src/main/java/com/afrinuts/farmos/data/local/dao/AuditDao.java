@@ -80,4 +80,10 @@ public interface AuditDao {
 
     @Query("SELECT auditId FROM audits WHERE auditId LIKE :prefix || '%' ORDER BY auditId DESC LIMIT 1")
     String getMaxAuditIdForPrefix(String prefix);
+
+    @Query("SELECT * FROM audits WHERE supersedesId = :originalId")
+    List<AuditEntity> getCorrectionsForRecord(String originalId);
+
+    @Query("SELECT auditId FROM audits WHERE supersedesId = :originalId LIMIT 1")
+    String getSupersedingRecordId(String originalId);
 }

@@ -70,6 +70,15 @@
                 android:alpha="0.5"
                 android:layout_marginBottom="8dp" />
 
+            <TextView
+                android:id="@+id/tvSuperseded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/status_suspended"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"
+                android:visibility="gone" />
+
             <!-- Audit Type -->
             <TextView
                 android:id="@+id/tvAuditType"
@@ -406,6 +415,14 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCorrect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Correct this record"
+                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary" />
 
         </LinearLayout>
 

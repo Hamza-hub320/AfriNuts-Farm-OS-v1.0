@@ -40,6 +40,8 @@ public class AddVerificationDialog extends DialogFragment {
 
     private long farmId;
     private String preselectedCertificationId;
+    private static final String ARG_CORRECTION_OF = "correction_of";
+    private String correctionOfId;
     private VerificationRepository verificationRepository;
     private CertificationRepository certificationRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -80,6 +82,15 @@ public class AddVerificationDialog extends DialogFragment {
         return dialog;
     }
 
+    public static AddVerificationDialog newInstanceCorrection(long farmId, String originalVerificationId) {
+        AddVerificationDialog dialog = new AddVerificationDialog();
+        Bundle args = new Bundle();
+        args.putLong(ARG_FARM_ID, farmId);
+        args.putString(ARG_CORRECTION_OF, originalVerificationId);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     public void setOnVerificationAddedListener(OnVerificationAddedListener listener) {
         this.listener = listener;
     }
@@ -91,6 +102,7 @@ public class AddVerificationDialog extends DialogFragment {
         if (getArguments() != null) {
             farmId = getArguments().getLong(ARG_FARM_ID);
             preselectedCertificationId = getArguments().getString(ARG_CERTIFICATION_ID);
+            correctionOfId = getArguments().getString(ARG_CORRECTION_OF);
         }
 
         verificationRepository = new VerificationRepository(requireContext(), farmId);
@@ -108,9 +120,15 @@ public class AddVerificationDialog extends DialogFragment {
         setupDatePicker();
         setupEvidence();
 
+        String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Verification";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
+                .setTitle(title)
                 .setCancelable(false);
+
+        if (correctionOfId != null) {
+            prefillFromOriginal(correctionOfId);
+        }
 
         AlertDialog dialog = builder.create();
 
@@ -125,6 +143,35 @@ public class AddVerificationDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    private void prefillFromOriginal(String originalId) {
+        executor.execute(() -> {
+            VerificationEntity original = verificationRepository.getVerificationByIdSync(originalId);
+            if (original == null || getActivity() == null) return;
+
+            getActivity().runOnUiThread(() -> {
+                preselectedCertificationId = original.getCertificationId();
+                loadCertifications();
+
+                etVerificationType.setText(original.getVerificationTypeDisplay(), false);
+                etStatus.setText(original.getStatusDisplay(), false);
+
+                // Correction's verification date defaults to TODAY.
+                selectedDate = Calendar.getInstance();
+                updateDateLabel();
+
+                etVerifiedBy.setText(original.getVerifiedBy() != null ? original.getVerifiedBy() : "");
+                etComment.setText(original.getComment() != null ? original.getComment() : "");
+
+                List<String> evidence = original.getEvidence();
+                if (evidence != null) {
+                    for (String url : evidence) {
+                        addEvidenceItem(url);
+                    }
+                }
+            });
+        });
     }
 
     private void initViews(View view) {
@@ -337,6 +384,10 @@ public class AddVerificationDialog extends DialogFragment {
                 evidence,
                 comment
         );
+
+        if (correctionOfId != null) {
+            verification.setSupersedesId(correctionOfId);
+        }
 
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");

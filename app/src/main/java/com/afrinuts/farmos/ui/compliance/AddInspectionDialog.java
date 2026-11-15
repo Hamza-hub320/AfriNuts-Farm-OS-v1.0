@@ -1,5 +1,7 @@
 package com.afrinuts.farmos.ui.compliance;
 
+import static org.bouncycastle.asn1.x500.style.RFC4519Style.description;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -40,6 +42,8 @@ public class AddInspectionDialog extends DialogFragment {
 
     private long farmId;
     private String preselectedCertificationId;
+    private static final String ARG_CORRECTION_OF = "correction_of";
+    private String correctionOfId;
     private InspectionRepository inspectionRepository;
     private CertificationRepository certificationRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -84,6 +88,15 @@ public class AddInspectionDialog extends DialogFragment {
         return dialog;
     }
 
+    public static AddInspectionDialog newInstanceCorrection(long farmId, String originalInspectionId) {
+        AddInspectionDialog dialog = new AddInspectionDialog();
+        Bundle args = new Bundle();
+        args.putLong(ARG_FARM_ID, farmId);
+        args.putString(ARG_CORRECTION_OF, originalInspectionId);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     public void setOnInspectionAddedListener(OnInspectionAddedListener listener) {
         this.listener = listener;
     }
@@ -95,6 +108,7 @@ public class AddInspectionDialog extends DialogFragment {
         if (getArguments() != null) {
             farmId = getArguments().getLong(ARG_FARM_ID);
             preselectedCertificationId = getArguments().getString(ARG_CERTIFICATION_ID);
+            correctionOfId = getArguments().getString(ARG_CORRECTION_OF);
         }
 
         inspectionRepository = new InspectionRepository(requireContext(), farmId);
@@ -112,8 +126,14 @@ public class AddInspectionDialog extends DialogFragment {
         setupDatePicker();
         setupCorrectiveActions();
 
+        if (correctionOfId != null) {
+            prefillFromOriginal(correctionOfId);
+        }
+
+        String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Inspection";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
+                .setTitle(title)
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
@@ -129,6 +149,55 @@ public class AddInspectionDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    private void prefillFromOriginal(String originalId) {
+        executor.execute(() -> {
+            InspectionEntity original = inspectionRepository.getInspectionByIdSync(originalId);
+            if (original == null || getActivity() == null) return;
+
+            List<CertificationEntity> certs = certificationRepository.getCertificationsSync();
+            String certDisplay = null;
+            for (CertificationEntity c : certs) {
+                if (c.getCertificationId().equals(original.getCertificationId())) {
+                    certDisplay = c.getCertificationName() + " (" + c.getCertificationId() + ")";
+                    break;
+                }
+            }
+            final String certDisplayFinal = certDisplay;
+
+            getActivity().runOnUiThread(() -> {
+                        if (certDisplayFinal != null) {
+                            etCertification.setText(certDisplayFinal, false);
+                        }
+                        etRequirementCategory.setText(original.getRequirementCategoryDisplay(), false);
+                    });
+
+            getActivity().runOnUiThread(() -> {
+                preselectedCertificationId = original.getCertificationId();
+                loadCertifications();
+
+                etRequirementCategory.setText(original.getRequirementCategoryDisplay(), false);
+                etInspectionType.setText(original.getInspectionType().getDisplayName(), false);
+                etStatus.setText(original.getStatusDisplay(), false);
+
+                // Correction's inspection date defaults to TODAY; original's date is on the original.
+                selectedDate = Calendar.getInstance();
+                updateDateLabel();
+
+                etInspectorName.setText(original.getInspectorName() != null ? original.getInspectorName() : "");
+                etInspectorBody.setText(original.getInspectorBody() != null ? original.getInspectorBody() : "");
+                etRemarks.setText(original.getRemarks() != null ? original.getRemarks() : "");
+                etReportUrl.setText(original.getReportUrl() != null ? original.getReportUrl() : "");
+
+                List<InspectionEntity.CorrectiveAction> actions = original.getCorrectiveActions();
+                if (actions != null) {
+                    for (InspectionEntity.CorrectiveAction a : actions) {
+                        addCorrectiveActionItem(a.description, a.assignedTo, a.status);
+                    }
+                }
+            });
+        });
     }
 
     private void initViews(View view) {
@@ -250,8 +319,24 @@ public class AddInspectionDialog extends DialogFragment {
     }
 
     private void setupCorrectiveActions() {
-        btnAddCorrectiveAction.setOnClickListener(v -> addCorrectiveActionItem(null, null));
+        btnAddCorrectiveAction.setOnClickListener(v -> addCorrectiveActionItem(null, null, null));
     }
+
+    private void addCorrectiveActionItem(String description, String assignedTo, String status) {
+        View actionView = getLayoutInflater().inflate(R.layout.item_corrective_action_input, correctiveActionsContainer, false);
+        TextInputEditText etDescription = actionView.findViewById(R.id.etActionDescription);
+        TextInputEditText etAssignedTo = actionView.findViewById(R.id.etAssignedTo);
+        Button btnRemove = actionView.findViewById(R.id.btnRemoveAction);
+
+        if (description != null) etDescription.setText(description);
+        if (assignedTo != null) etAssignedTo.setText(assignedTo);
+        // store status on the view tag so collectCorrectiveActions can read it back
+        actionView.setTag(R.id.tag_action_status, status != null ? status : "OPEN");
+
+        btnRemove.setOnClickListener(v -> correctiveActionsContainer.removeView(actionView));
+        correctiveActionsContainer.addView(actionView);
+    }
+
 
     private void addCorrectiveActionItem(String description, String assignedTo) {
         View actionView = getLayoutInflater().inflate(R.layout.item_corrective_action_input, correctiveActionsContainer, false);
@@ -288,6 +373,8 @@ public class AddInspectionDialog extends DialogFragment {
                         description,
                         etAssignedTo.getText().toString().trim()
                 );
+                Object tag = actionView.getTag(R.id.tag_action_status);
+                if (tag instanceof String) action.status = (String) tag;
                 result.add(action);
             }
         }
@@ -382,6 +469,7 @@ public class AddInspectionDialog extends DialogFragment {
         List<InspectionEntity.CorrectiveAction> correctiveActions = collectCorrectiveActions();
         String reportUrl = etReportUrl.getText().toString().trim();
 
+
         InspectionEntity inspection = new InspectionEntity(
                 certificationId,
                 certificationName,
@@ -398,6 +486,10 @@ public class AddInspectionDialog extends DialogFragment {
                 reportUrl.isEmpty() ? null : reportUrl
         );
 
+        if (correctionOfId != null) {
+            inspection.setSupersedesId(correctionOfId);
+        }
+
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
@@ -406,7 +498,8 @@ public class AddInspectionDialog extends DialogFragment {
             public void onSuccess(String inspectionId) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Inspection added! ID: " + inspectionId, Toast.LENGTH_SHORT).show();
+                        String label = correctionOfId != null ? "Correction added! ID: " : "Inspection added! ID: ";
+                        Toast.makeText(getContext(), label + inspectionId, Toast.LENGTH_SHORT).show();
                         if (listener != null) listener.onInspectionAdded();
                         dismiss();
                     });

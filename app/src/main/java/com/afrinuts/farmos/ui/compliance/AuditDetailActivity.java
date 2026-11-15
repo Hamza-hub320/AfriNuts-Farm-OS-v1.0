@@ -57,6 +57,8 @@ public class AuditDetailActivity extends BaseActivity {
     private LinearLayout findingsContainer;
     private CardView cardStatus;
     private CardView cardFindings;
+    private MaterialButton btnCorrect;
+    private TextView tvSuperseded;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -102,6 +104,12 @@ public class AuditDetailActivity extends BaseActivity {
         findingsContainer = findViewById(R.id.findingsContainer);
         cardStatus = findViewById(R.id.cardStatus);
         cardFindings = findViewById(R.id.cardFindings);
+        tvSuperseded = findViewById(R.id.tvSuperseded);
+
+        btnCorrect = findViewById(R.id.btnCorrect);
+        btnCorrect.setOnClickListener(v -> openCorrectionDialog());
+
+        loadSupersededState();
     }
 
     private void setupToolbar() {
@@ -146,12 +154,29 @@ public class AuditDetailActivity extends BaseActivity {
                     }
                 });
 
+                loadSupersededState();
+
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Error loading audit", Toast.LENGTH_SHORT).show();
                     finish();
                 });
             }
+        });
+    }
+
+    private void loadSupersededState() {
+        executor.execute(() -> {
+            String supersedingId = database.auditDao()
+                    .getSupersedingRecordId(audit.getAuditId());
+            runOnUiThread(() -> {
+                if (supersedingId != null) {
+                    tvSuperseded.setText("Superseded by " + supersedingId);
+                    tvSuperseded.setVisibility(View.VISIBLE);
+                } else {
+                    tvSuperseded.setVisibility(View.GONE);
+                }
+            });
         });
     }
 
@@ -341,6 +366,12 @@ public class AuditDetailActivity extends BaseActivity {
                 });
             }
         });
+    }
+
+    private void openCorrectionDialog() {
+        AddAuditDialog correction = AddAuditDialog.newInstanceCorrection(farmId, audit.getAuditId());
+        correction.setOnAuditAddedListener(this::loadAuditData);
+        correction.show(getSupportFragmentManager(), "AddAuditCorrectionDialog");
     }
 
     @Override

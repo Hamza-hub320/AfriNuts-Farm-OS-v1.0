@@ -37,6 +37,7 @@ public class VerificationEntity {
     @PrimaryKey
     @NonNull
     private String verificationId; // VER-ORG-2026-012
+    private String supersedesId; // null unless this record corrects another record (its ID)
 
     private String certificationId;
     private long farmId;
@@ -156,6 +157,12 @@ public class VerificationEntity {
     public long getVerificationDate() { return verificationDate; }
     public void setVerificationDate(long verificationDate) {
         this.verificationDate = verificationDate;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getSupersedesId() { return supersedesId; }
+    public void setSupersedesId(String supersedesId) {
+        this.supersedesId = supersedesId;
         this.updatedAt = System.currentTimeMillis();
     }
 

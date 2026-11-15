@@ -40,6 +40,8 @@ public class AddAuditDialog extends DialogFragment {
 
     private long farmId;
     private String preselectedCertificationId;
+    private static final String ARG_CORRECTION_OF = "correction_of";
+    private String correctionOfId;
     private AuditRepository auditRepository;
     private CertificationRepository certificationRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -84,6 +86,15 @@ public class AddAuditDialog extends DialogFragment {
         return dialog;
     }
 
+    public static AddAuditDialog newInstanceCorrection(long farmId, String originalAuditId) {
+        AddAuditDialog dialog = new AddAuditDialog();
+        Bundle args = new Bundle();
+        args.putLong(ARG_FARM_ID, farmId);
+        args.putString(ARG_CORRECTION_OF, originalAuditId);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     public void setOnAuditAddedListener(OnAuditAddedListener listener) {
         this.listener = listener;
     }
@@ -95,6 +106,7 @@ public class AddAuditDialog extends DialogFragment {
         if (getArguments() != null) {
             farmId = getArguments().getLong(ARG_FARM_ID);
             preselectedCertificationId = getArguments().getString(ARG_CERTIFICATION_ID);
+            correctionOfId = getArguments().getString(ARG_CORRECTION_OF);
         }
 
         auditRepository = new AuditRepository(requireContext(), farmId);
@@ -112,10 +124,15 @@ public class AddAuditDialog extends DialogFragment {
         setupDatePicker();
         setupFindings();
 
+        String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Audit";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Add Audit")
+                .setTitle(title)
                 .setCancelable(false);
+
+        if (correctionOfId != null) {
+            prefillFromOriginal(correctionOfId);
+        }
 
         AlertDialog dialog = builder.create();
 
@@ -130,6 +147,43 @@ public class AddAuditDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    private void prefillFromOriginal(String originalId) {
+        executor.execute(() -> {
+            AuditEntity original = auditRepository.getAuditByIdSync(originalId);
+            if (original == null) return;
+            if (getActivity() == null) return;
+
+            getActivity().runOnUiThread(() -> {
+                // Certification is preselected via the certification-picker; set preselect then reload
+                preselectedCertificationId = original.getCertificationId();
+                loadCertifications();
+
+                etAuditType.setText(original.getAuditTypeDisplay(), false);
+
+                // Audit date: correction's date defaults to TODAY (the act of correcting).
+                // The original's date is preserved on the original record.
+                selectedDate = Calendar.getInstance();
+                updateDateLabel();
+
+                etAuditorName.setText(original.getAuditorName() != null ? original.getAuditorName() : "");
+                etAuditorBody.setText(original.getAuditorBody() != null ? original.getAuditorBody() : "");
+                etScope.setText(original.getScope() != null ? original.getScope() : "");
+                etStatus.setText(original.getStatusDisplay(), false);
+                etReportUrl.setText(original.getReportUrl() != null ? original.getReportUrl() : "");
+
+                // Findings: prefill only finding text + corrective action — the dialog's
+                // finding input layout has only those two fields (severity, clause, owner,
+                // due date, closure state are not editable here).
+                List<AuditEntity.Finding> findings = original.getFindings();
+                if (findings != null) {
+                    for (AuditEntity.Finding f : findings) {
+                        addFindingItem(f.finding, f.correctiveAction);
+                    }
+                }
+            });
+        });
     }
 
     private void initViews(View view) {
@@ -363,6 +417,10 @@ public class AddAuditDialog extends DialogFragment {
                 reportUrl.isEmpty() ? null : reportUrl
         );
 
+        if (correctionOfId != null) {
+            audit.setSupersedesId(correctionOfId);
+        }
+
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
@@ -371,7 +429,8 @@ public class AddAuditDialog extends DialogFragment {
             public void onSuccess(String auditId) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Audit added! ID: " + auditId, Toast.LENGTH_SHORT).show();
+                        String label = correctionOfId != null ? "Correction added! ID: " : "Audit added! ID: ";
+                        Toast.makeText(getContext(), label + auditId, Toast.LENGTH_SHORT).show();
                         if (listener != null) listener.onAuditAdded();
                         dismiss();
                     });

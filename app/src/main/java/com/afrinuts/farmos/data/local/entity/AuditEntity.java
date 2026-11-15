@@ -37,6 +37,7 @@ public class AuditEntity {
     @NonNull
     @PrimaryKey
     private String auditId; // AUDIT-ORG-2026-001
+    private String supersedesId; // null unless this record corrects another record (its ID)
 
     private String certificationId; // Links to CertificationEntity
     private long farmId;
@@ -172,6 +173,12 @@ public class AuditEntity {
     public AuditType getAuditType() { return auditType; }
     public void setAuditType(AuditType auditType) {
         this.auditType = auditType;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getSupersedesId() { return supersedesId; }
+    public void setSupersedesId(String supersedesId) {
+        this.supersedesId = supersedesId;
         this.updatedAt = System.currentTimeMillis();
     }
 

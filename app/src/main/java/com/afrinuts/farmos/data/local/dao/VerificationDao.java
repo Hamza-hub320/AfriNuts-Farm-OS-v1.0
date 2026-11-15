@@ -73,4 +73,10 @@ public interface VerificationDao {
     @Query("SELECT verificationId FROM compliance_verifications " +
             "WHERE verificationId LIKE :prefix || '%' ORDER BY verificationId DESC LIMIT 1")
     String getMaxVerificationIdForPrefix(String prefix);
+
+    @Query("SELECT * FROM compliance_verifications WHERE supersedesId = :originalId")
+    List<VerificationEntity> getCorrectionsForRecord(String originalId);
+
+    @Query("SELECT verificationId FROM compliance_verifications WHERE supersedesId = :originalId LIMIT 1")
+    String getSupersedingRecordId(String originalId);
 }
