@@ -59,9 +59,6 @@ public class InspectionDetailActivity extends BaseActivity {
     private CardView cardStatus;
     private CardView cardCorrectiveActions;
 
-    private MaterialButton btnEdit;
-    private MaterialButton btnDelete;
-
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     @Override
@@ -107,12 +104,6 @@ public class InspectionDetailActivity extends BaseActivity {
         actionsContainer = findViewById(R.id.actionsContainer);
         cardStatus = findViewById(R.id.cardStatus);
         cardCorrectiveActions = findViewById(R.id.cardCorrectiveActions);
-
-        btnEdit = findViewById(R.id.btnEdit);
-        btnDelete = findViewById(R.id.btnDelete);
-
-        btnEdit.setOnClickListener(v -> showEditDialog());
-        btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
     private void setupToolbar() {
@@ -209,12 +200,6 @@ public class InspectionDetailActivity extends BaseActivity {
 
         // Corrective Actions
         displayCorrectiveActions();
-
-        // Role-based UI
-        if (!sessionManager.canEditData()) {
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-        }
     }
 
     private void updateStatusColor() {
@@ -362,55 +347,6 @@ public class InspectionDetailActivity extends BaseActivity {
                 }
             });
         }
-    }
-
-    private void showEditDialog() {
-        if (inspection == null) return;
-
-        EditInspectionDialog dialog = EditInspectionDialog.newInstance(inspection.getInspectionId());
-        dialog.setOnInspectionUpdatedListener(() -> {
-            loadInspectionData();
-            Toast.makeText(this, "Inspection updated!", Toast.LENGTH_SHORT).show();
-        });
-        dialog.show(getSupportFragmentManager(), "EditInspectionDialog");
-    }
-
-    private void confirmDelete() {
-        if (!sessionManager.isOwner()) {
-            Snackbar.make(findViewById(android.R.id.content),
-                    "Only owners can delete inspections", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Inspection")
-                .setMessage("Are you sure you want to delete this inspection record?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteInspection())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteInspection() {
-        Toast.makeText(this, "Deleting inspection...", Toast.LENGTH_SHORT).show();
-
-        inspectionRepository.deleteInspection(inspection, new InspectionRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    Toast.makeText(InspectionDetailActivity.this,
-                            "Inspection deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(InspectionDetailActivity.this,
-                                "Error: " + error, Toast.LENGTH_LONG).show()
-                );
-            }
-        });
     }
 
     @Override

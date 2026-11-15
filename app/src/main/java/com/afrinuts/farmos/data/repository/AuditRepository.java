@@ -134,30 +134,6 @@ public class AuditRepository {
         });
     }
 
-    // ========================================
-    // DELETE
-    // ========================================
-
-    public void deleteAudit(AuditEntity audit, RepositoryCallback<Boolean> callback) {
-        executor.execute(() -> {
-            try {
-                auditDao.delete(audit);
-                Log.d(TAG, "Audit deleted: " + audit.getAuditId());
-
-                if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("audits", audit.getAuditId(), SyncEntity.SyncAction.DELETE);
-                    syncManager.triggerAutoSync();
-                }
-
-                mainHandler.post(() -> callback.onSuccess(true));
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error deleting audit", e);
-                mainHandler.post(() -> callback.onError(e.getMessage()));
-            }
-        });
-    }
-
     public void shutdown() {
         executor.shutdown();
     }

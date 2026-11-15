@@ -122,26 +122,6 @@ public class InspectionRepository {
         });
     }
 
-    public void deleteInspection(InspectionEntity inspection, RepositoryCallback<Boolean> callback) {
-        executor.execute(() -> {
-            try {
-                inspectionDao.delete(inspection);
-                Log.d(TAG, "Inspection deleted: " + inspection.getInspectionId());
-
-                if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("inspections", inspection.getInspectionId(), SyncEntity.SyncAction.DELETE);
-                    syncManager.triggerAutoSync();
-                }
-
-                mainHandler.post(() -> callback.onSuccess(true));
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error deleting inspection", e);
-                mainHandler.post(() -> callback.onError(e.getMessage()));
-            }
-        });
-    }
-
     public void shutdown() {
         executor.shutdown();
     }

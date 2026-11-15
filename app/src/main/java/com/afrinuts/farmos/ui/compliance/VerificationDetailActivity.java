@@ -53,9 +53,6 @@ public class VerificationDetailActivity extends BaseActivity {
     private TextView tvUpdatedAt;
     private CardView cardStatus;
 
-    private MaterialButton btnEdit;
-    private MaterialButton btnDelete;
-
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     @Override
@@ -96,12 +93,6 @@ public class VerificationDetailActivity extends BaseActivity {
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
         cardStatus = findViewById(R.id.cardStatus);
-
-        btnEdit = findViewById(R.id.btnEdit);
-        btnDelete = findViewById(R.id.btnDelete);
-
-        btnEdit.setOnClickListener(v -> showEditDialog());
-        btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
     private void setupToolbar() {
@@ -184,11 +175,6 @@ public class VerificationDetailActivity extends BaseActivity {
 
         tvCreatedAt.setText(dateFormat.format(verification.getCreatedAt()));
         tvUpdatedAt.setText(dateFormat.format(verification.getUpdatedAt()));
-
-        if (!sessionManager.canEditData()) {
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-        }
     }
 
     private void updateStatusColor() {
@@ -208,56 +194,6 @@ public class VerificationDetailActivity extends BaseActivity {
                 break;
         }
         cardStatus.setCardBackgroundColor(getColor(colorRes));
-    }
-
-    // ✅ Updated: Now opens EditVerificationDialog
-    private void showEditDialog() {
-        if (verification == null) return;
-
-        EditVerificationDialog dialog = EditVerificationDialog.newInstance(verification.getVerificationId());
-        dialog.setOnVerificationUpdatedListener(() -> {
-            loadVerificationData();
-            Toast.makeText(this, "✅ Verification updated!", Toast.LENGTH_SHORT).show();
-        });
-        dialog.show(getSupportFragmentManager(), "EditVerificationDialog");
-    }
-
-    private void confirmDelete() {
-        if (!sessionManager.isOwner()) {
-            Snackbar.make(findViewById(android.R.id.content),
-                    "Only owners can delete verifications", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Verification")
-                .setMessage("Are you sure you want to delete this verification record?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteVerification())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteVerification() {
-        Toast.makeText(this, "Deleting verification...", Toast.LENGTH_SHORT).show();
-
-        verificationRepository.deleteVerification(verification, new VerificationRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    Toast.makeText(VerificationDetailActivity.this,
-                            "Verification deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(VerificationDetailActivity.this,
-                                "Error: " + error, Toast.LENGTH_LONG).show()
-                );
-            }
-        });
     }
 
     @Override

@@ -78,7 +78,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
         tabs.clear();
         tabs.add(new TabItem("Certifications", R.drawable.ic_certified, TabType.CERTIFICATIONS));
         tabs.add(new TabItem("Audits", R.drawable.ic_audit, TabType.AUDITS));
-        tabs.add(new TabItem("Inspections", R.drawable.ic_inspection, TabType.INSPECTIONS));
+        tabs.add(new TabItem("Compliance inspections", R.drawable.ic_inspection, TabType.INSPECTIONS));
         tabs.add(new TabItem("Verifications", R.drawable.ic_verified, TabType.VERIFICATIONS));
         tabs.add(new TabItem("Documents", R.drawable.ic_document, TabType.DOCUMENTS));
     }

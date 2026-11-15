@@ -58,9 +58,6 @@ public class AuditDetailActivity extends BaseActivity {
     private CardView cardStatus;
     private CardView cardFindings;
 
-    private MaterialButton btnEdit;
-    private MaterialButton btnDelete;
-
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     @Override
@@ -105,12 +102,6 @@ public class AuditDetailActivity extends BaseActivity {
         findingsContainer = findViewById(R.id.findingsContainer);
         cardStatus = findViewById(R.id.cardStatus);
         cardFindings = findViewById(R.id.cardFindings);
-
-        btnEdit = findViewById(R.id.btnEdit);
-        btnDelete = findViewById(R.id.btnDelete);
-
-        btnEdit.setOnClickListener(v -> showEditDialog());
-        btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
     private void setupToolbar() {
@@ -204,12 +195,6 @@ public class AuditDetailActivity extends BaseActivity {
 
         // Findings
         displayFindings();
-
-        // Role-based UI
-        if (!sessionManager.canEditData()) {
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
-        }
     }
 
     private void updateStatusColor() {
@@ -354,55 +339,6 @@ public class AuditDetailActivity extends BaseActivity {
                     Toast.makeText(AuditDetailActivity.this,
                             "Error updating status: " + error, Toast.LENGTH_LONG).show();
                 });
-            }
-        });
-    }
-
-    private void showEditDialog() {
-        if (audit == null) return;
-
-        EditAuditDialog dialog = EditAuditDialog.newInstance(audit.getAuditId());
-        dialog.setOnAuditUpdatedListener(() -> {
-            loadAuditData();
-            Toast.makeText(this, "Audit updated!", Toast.LENGTH_SHORT).show();
-        });
-        dialog.show(getSupportFragmentManager(), "EditAuditDialog");
-    }
-
-    private void confirmDelete() {
-        if (!sessionManager.isOwner()) {
-            Snackbar.make(findViewById(android.R.id.content),
-                    "Only owners can delete audits", Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Audit")
-                .setMessage("Are you sure you want to delete this audit record?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteAudit())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteAudit() {
-        Toast.makeText(this, "Deleting audit...", Toast.LENGTH_SHORT).show();
-
-        auditRepository.deleteAudit(audit, new AuditRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    Toast.makeText(AuditDetailActivity.this,
-                            "Audit deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(AuditDetailActivity.this,
-                                "Error: " + error, Toast.LENGTH_LONG).show()
-                );
             }
         });
     }

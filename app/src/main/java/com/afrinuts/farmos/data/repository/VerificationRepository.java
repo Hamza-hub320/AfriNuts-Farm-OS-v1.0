@@ -141,30 +141,6 @@ public class VerificationRepository {
         });
     }
 
-    // ========================================
-    // DELETE
-    // ========================================
-
-    public void deleteVerification(VerificationEntity verification, RepositoryCallback<Boolean> callback) {
-        executor.execute(() -> {
-            try {
-                verificationDao.delete(verification);
-                Log.d(TAG, "Verification deleted: " + verification.getVerificationId());
-
-                if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("verifications", verification.getVerificationId(), SyncEntity.SyncAction.DELETE);
-                    syncManager.triggerAutoSync();
-                }
-
-                mainHandler.post(() -> callback.onSuccess(true));
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error deleting verification", e);
-                mainHandler.post(() -> callback.onError(e.getMessage()));
-            }
-        });
-    }
-
     public void shutdown() {
         executor.shutdown();
     }
