@@ -139,6 +139,7 @@ public class VerificationDetailActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     if (verification != null) {
                         displayVerificationData();
+                        loadSupersededState();
                     } else {
                         Toast.makeText(this, "Verification not found", Toast.LENGTH_SHORT).show();
                         finish();
@@ -154,6 +155,7 @@ public class VerificationDetailActivity extends BaseActivity {
         });
     }
     private void loadSupersededState() {
+        if (verification == null) return;
         executor.execute(() -> {
             String supersedingId = database.verificationDao()
                     .getSupersedingRecordId(verification.getVerificationId());

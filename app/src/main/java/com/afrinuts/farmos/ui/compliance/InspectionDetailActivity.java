@@ -149,6 +149,7 @@ public class InspectionDetailActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     if (inspection != null) {
                         displayInspectionData();
+                        loadSupersededState();
                     } else {
                         Toast.makeText(this, "Inspection not found", Toast.LENGTH_SHORT).show();
                         finish();
@@ -165,6 +166,7 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void loadSupersededState() {
+        if (inspection == null) return;
         executor.execute(() -> {
             String supersedingId = database.inspectionDao()
                     .getSupersedingRecordId(inspection.getInspectionId());

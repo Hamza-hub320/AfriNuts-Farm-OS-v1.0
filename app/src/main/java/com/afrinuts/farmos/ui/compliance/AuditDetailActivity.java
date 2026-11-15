@@ -148,6 +148,7 @@ public class AuditDetailActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     if (audit != null) {
                         displayAuditData();
+                        loadSupersededState();
                     } else {
                         Toast.makeText(this, "Audit not found", Toast.LENGTH_SHORT).show();
                         finish();
@@ -166,6 +167,7 @@ public class AuditDetailActivity extends BaseActivity {
     }
 
     private void loadSupersededState() {
+        if (audit == null) return;
         executor.execute(() -> {
             String supersedingId = database.auditDao()
                     .getSupersedingRecordId(audit.getAuditId());

@@ -130,7 +130,7 @@ public class AddCertificationDialog extends DialogFragment {
         etApprovalDate = view.findViewById(R.id.etApprovalDate);
         etCertificationId = view.findViewById(R.id.etCertificationId);
         etCertificationId.setEnabled(false);
-        etCertificationId.setHint("(assigned on save)");
+        etCertificationId.setHint("");
         etExpiryDate = view.findViewById(R.id.etExpiryDate);
         btnSave = view.findViewById(R.id.btnSave);
     }
@@ -329,7 +329,7 @@ public class AddCertificationDialog extends DialogFragment {
             public void onSuccess(String certificationId) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Certification added! ID: " + certificationId, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "" + certificationId, Toast.LENGTH_SHORT).show();
                         if (listener != null) listener.onCertificationAdded();
                         dismiss();
                     });
