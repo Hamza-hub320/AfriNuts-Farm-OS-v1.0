@@ -125,6 +125,10 @@ public class AddAuditDialog extends DialogFragment {
         setupDatePicker();
         setupFindings();
 
+        if (correctionOfId == null) {
+            addFindingItem(null, null);
+        }
+
         String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Audit";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -303,7 +307,7 @@ public class AddAuditDialog extends DialogFragment {
         TextInputEditText etFinding = findingView.findViewById(R.id.etFinding);
         TextInputEditText etCorrectiveAction = findingView.findViewById(R.id.etCorrectiveAction);
         TextInputEditText etOwner = findingView.findViewById(R.id.etFindingOwner);
-        TextInputEditText etDueDate = findingView.findViewById(R.id.etActionDueDate);
+        TextInputEditText etDueDate = findingView.findViewById(R.id.etFindingDueDate);
         Button btnRemove = findingView.findViewById(R.id.btnRemoveFinding);
 
         if (findingText != null) etFinding.setText(findingText);

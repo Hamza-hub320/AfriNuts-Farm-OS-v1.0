@@ -70,7 +70,7 @@
         android:hint="Due Date">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etActionDueDate"
+            android:id="@+id/etFindingDueDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none"
