@@ -188,7 +188,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration40To41(),
                                     new Migration41To42(),
                                     new Migration42To43(),
-                                    new Migration42To43()
+                                    new Migration43To44()
 
                             )
                             .build();
