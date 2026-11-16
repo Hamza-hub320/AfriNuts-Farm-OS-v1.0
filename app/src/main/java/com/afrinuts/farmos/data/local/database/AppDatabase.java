@@ -92,7 +92,7 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 SupplierScoreSnapshotEntity.class,
 
         },
-        version = 44,
+        version = 45,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -188,7 +188,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration40To41(),
                                     new Migration41To42(),
                                     new Migration42To43(),
-                                    new Migration43To44()
+                                    new Migration43To44(),
+                                    new Migration44To45()
 
                             )
                             .build();

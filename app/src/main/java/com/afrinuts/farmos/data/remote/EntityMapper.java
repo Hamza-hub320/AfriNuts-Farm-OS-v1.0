@@ -1815,6 +1815,7 @@ public class EntityMapper {
         map.put("status", certification.getStatus() != null ? certification.getStatus().name() : null);
         map.put("scope", certification.getScope());
         map.put("applicableStandardsJson", certification.getApplicableStandardsJson());
+        map.put("statusHistoryJson", certification.getStatusHistoryJson());
         map.put("targetDate", certification.getTargetDate());
         map.put("approvalDate", certification.getApprovalDate());
         map.put("expiryDate", certification.getExpiryDate());
@@ -1838,6 +1839,7 @@ public class EntityMapper {
             String certificationBody = doc.getString("certificationBody");
             String statusStr = doc.getString("status");
             String scope = doc.getString("scope");
+            String statusHistoryJson = doc.getString("statusHistoryJson");
             String applicableStandardsJson = doc.getString("applicableStandardsJson");
             Long targetDate = doc.getLong("targetDate");
             Long approvalDate = doc.getLong("approvalDate");
@@ -1880,6 +1882,7 @@ public class EntityMapper {
             );
 
             certification.setCertificationId(certificationId);
+            certification.setStatusHistoryJson(statusHistoryJson);
             certification.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             certification.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             certification.setSynced(isSynced != null && isSynced);

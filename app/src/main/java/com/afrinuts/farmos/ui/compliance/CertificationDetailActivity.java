@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import com.afrinuts.farmos.utils.DateFormatter;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -23,6 +24,7 @@ import com.afrinuts.farmos.data.repository.AuditRepository;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -69,6 +71,7 @@ public class CertificationDetailActivity extends BaseActivity {
     private MaterialButton btnEdit;
     private MaterialButton btnDelete;
     private MaterialButton btnAddAudit;
+    private TextView tvStatusHistory;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -111,6 +114,7 @@ public class CertificationDetailActivity extends BaseActivity {
         tvStandards = findViewById(R.id.tvStandards);
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
+        tvStatusHistory = findViewById(R.id.tvStatusHistory);
         cardStatus = findViewById(R.id.cardStatus);
 
         // Related Records
@@ -254,6 +258,23 @@ public class CertificationDetailActivity extends BaseActivity {
         // Audit timestamps
         tvCreatedAt.setText(dateFormat.format(certification.getCreatedAt()));
         tvUpdatedAt.setText(dateFormat.format(certification.getUpdatedAt()));
+
+        // Status history
+        List<CertificationEntity.StatusEvent> history = certification.getStatusHistory();
+        if (history.isEmpty()) {
+            tvStatusHistory.setText("No status changes yet");
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = history.size() - 1; i >= 0; i--) {
+                CertificationEntity.StatusEvent e = history.get(i);
+                if (sb.length() > 0) sb.append("\n");
+                sb.append(e.fromStatus != null ? e.fromStatus : "—")
+                        .append(" → ").append(e.toStatus)
+                        .append(" · ").append(DateFormatter.formatDateOrDash(e.date))
+                        .append(" · ").append(e.actor != null ? e.actor : "—");
+            }
+            tvStatusHistory.setText(sb.toString());
+        }
 
         // Role-based UI
         if (!sessionManager.canEditData()) {

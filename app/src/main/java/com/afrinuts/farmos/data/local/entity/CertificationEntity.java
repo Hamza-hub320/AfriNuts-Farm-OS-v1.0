@@ -39,6 +39,7 @@ public class CertificationEntity {
 
     // Store as JSON string in database
     private String applicableStandardsJson; // JSON array of standards
+    private String statusHistoryJson;
 
     // Dates
     private long targetDate; // Planned certification date
@@ -53,6 +54,8 @@ public class CertificationEntity {
     // Transient field (not stored in database)
     @Ignore
     private List<String> applicableStandards;
+    @Ignore
+    private List<StatusEvent> statusHistory;
 
     public enum CertificationStatus {
         NOT_STARTED("Not Started", R.drawable.ic_circle_empty),
@@ -169,6 +172,52 @@ public class CertificationEntity {
         return new Gson().toJson(standards);
     }
 
+    private List<StatusEvent> parseStatusHistoryFromJson(String json) {
+        if (json == null || json.isEmpty()) {
+            return new ArrayList<>();
+        }
+        try {
+            Type listType = new TypeToken<List<StatusEvent>>(){}.getType();
+            return new Gson().fromJson(json, listType);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private String statusHistoryListToJson(List<StatusEvent> events) {
+        if (events == null || events.isEmpty()) {
+            return null;
+        }
+        return new Gson().toJson(events);
+    }
+
+    public String getStatusHistoryJson() { return statusHistoryJson; }
+
+    public List<StatusEvent> getStatusHistory() {
+        if (statusHistory == null && statusHistoryJson != null) {
+            statusHistory = parseStatusHistoryFromJson(statusHistoryJson);
+        }
+        if (statusHistory == null) statusHistory = new ArrayList<>();
+        return statusHistory;
+    }
+
+    public void appendStatusEvent(String fromStatus, String toStatus,
+                                  String actor, String documentId) {
+        List<StatusEvent> events = getStatusHistory();
+        events.add(new StatusEvent(fromStatus, toStatus, System.currentTimeMillis(),
+                actor, documentId));
+        this.statusHistory = events;
+        this.statusHistoryJson = statusHistoryListToJson(events);
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public void setStatusHistoryJson(String statusHistoryJson) {
+        this.statusHistoryJson = statusHistoryJson;
+        if (statusHistoryJson != null) {
+            this.statusHistory = parseStatusHistoryFromJson(statusHistoryJson);
+        }
+    }
+
     // Getters and Setters
     public String getCertificationId() { return certificationId; }
 
@@ -191,6 +240,25 @@ public class CertificationEntity {
     public void setStatus(CertificationStatus status) {
         this.status = status;
         this.updatedAt = System.currentTimeMillis();
+    }
+
+    public static class StatusEvent {
+        public String fromStatus;   // enum name; null for the creation event
+        public String toStatus;     // enum name
+        public long date;
+        public String actor;
+        public String documentId;   // null in Stage 1
+
+        public StatusEvent() {}
+
+        public StatusEvent(String fromStatus, String toStatus, long date,
+                           String actor, String documentId) {
+            this.fromStatus = fromStatus;
+            this.toStatus = toStatus;
+            this.date = date;
+            this.actor = actor;
+            this.documentId = documentId;
+        }
     }
 
     public String getScope() { return scope; }

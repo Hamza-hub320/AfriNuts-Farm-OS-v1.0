@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -251,6 +253,14 @@ public class AddCertificationDialog extends DialogFragment {
         return CertificationEntity.CertificationStatus.NOT_STARTED;
     }
 
+    private String currentActor() {
+        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        if (u == null) return "app";
+        if (u.getEmail() != null && !u.getEmail().isEmpty()) return u.getEmail();
+        if (u.getUid() != null && !u.getUid().isEmpty()) return u.getUid();
+        return "app";
+    }
+
     private void saveCertification() {
         String name = etCertificationName.getText().toString().trim();
         if (TextUtils.isEmpty(name)) {
@@ -323,6 +333,8 @@ public class AddCertificationDialog extends DialogFragment {
 
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
+
+        certification.appendStatusEvent(null, status.name(), currentActor(), null);
 
         repository.insertCertification(certification, new CertificationRepository.InsertCallback() {
             @Override

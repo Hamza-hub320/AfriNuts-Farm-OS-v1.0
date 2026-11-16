@@ -22,6 +22,8 @@ import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -167,6 +169,14 @@ public class EditCertificationDialog extends DialogFragment {
 
         etStatus.setAdapter(adapter);
         etStatus.setText(statusNames[0], false);
+    }
+
+    private String currentActor() {
+        FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+        if (u == null) return "app";
+        if (u.getEmail() != null && !u.getEmail().isEmpty()) return u.getEmail();
+        if (u.getUid() != null && !u.getUid().isEmpty()) return u.getUid();
+        return "app";
     }
 
     private void setupDatePickers() {
@@ -317,6 +327,7 @@ public class EditCertificationDialog extends DialogFragment {
 
         String statusStr = etStatus.getText().toString().trim();
         CertificationEntity.CertificationStatus status = getStatusFromDisplay(statusStr);
+        CertificationEntity.CertificationStatus oldStatus = certification.getStatus();
 
         String scope = etScope.getText().toString().trim();
         String standardsStr = etStandards.getText().toString().trim();
@@ -358,6 +369,9 @@ public class EditCertificationDialog extends DialogFragment {
         // Update certification
         certification.setCertificationName(name);
         certification.setCertificationBody(body);
+        if (oldStatus != status) {
+            certification.appendStatusEvent(oldStatus.name(), status.name(), currentActor(), null);
+        }
         certification.setStatus(status);
         certification.setScope(scope);
         certification.setApplicableStandards(standards);
