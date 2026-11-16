@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+
+import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.utils.DateFormatter;
 
 import com.afrinuts.farmos.R;
@@ -200,7 +202,9 @@ public class CertificationDetailActivity extends BaseActivity {
                 int inspectionCount = inspections != null ? inspections.size() : 0;
 
                 // Document count (you can query documents table later)
-                int documentCount = 0;
+                List<DocumentEntity> documents = database.documentDao()
+                        .getDocumentsByCertificationId(certificationId);
+                int documentCount = documents != null ? documents.size() : 0;
 
                 // Verification count (optional)
                 List<VerificationEntity> verifications = database.verificationDao()
