@@ -128,7 +128,7 @@ public class VerificationRepository {
                 Log.d(TAG, "Verification updated: " + verification.getVerificationId());
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {
-                    syncManager.queueForSync("verifications", verification.getVerificationId(), SyncEntity.SyncAction.UPDATE);
+                    syncManager.queueForSync("compliance_verifications", verification.getVerificationId(), SyncEntity.SyncAction.UPDATE);
                     syncManager.triggerAutoSync();
                 }
 

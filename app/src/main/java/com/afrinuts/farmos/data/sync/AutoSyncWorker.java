@@ -178,8 +178,8 @@ public class AutoSyncWorker extends Worker {
                     case "inspections":
                         syncInspection(syncItem);
                         break;
-                    case "verification":
                     case "verifications":
+                    case "compliance_verifications":
                         syncVerification(syncItem);
                         break;
                     case "document":
