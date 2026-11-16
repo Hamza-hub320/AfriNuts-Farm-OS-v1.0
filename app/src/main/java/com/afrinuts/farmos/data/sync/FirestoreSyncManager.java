@@ -1270,6 +1270,7 @@ public class FirestoreSyncManager {
                                     if (localCert == null) {
                                         database.certificationDao().insert(remoteCert);
                                         Log.d(TAG, "➕ New certification: " + remoteCert.getCertificationName());
+                                        retryPendingChildren(remoteCert.getCertificationId());
                                     } else {
                                         if (remoteCert.getUpdatedAt() > localCert.getUpdatedAt()) {
                                             database.certificationDao().update(remoteCert);
@@ -1503,7 +1504,7 @@ public class FirestoreSyncManager {
                                             Log.w(TAG, "⚠️ Skipping verification " + remoteVerification.getVerificationId() +
                                                     " - certification " + remoteVerification.getCertificationId() +
                                                     " not found in local DB. Will sync later.");
-                                            pendingAuditIds.add(remoteVerification.getVerificationId());
+                                            pendingVerificationIds.add(remoteVerification.getVerificationId());
                                             continue;
                                         }
                                     }
@@ -1571,7 +1572,7 @@ public class FirestoreSyncManager {
                                             Log.w(TAG, "⚠️ Skipping document " + remoteDocument.getDocumentId() +
                                                     " - certification " + remoteDocument.getCertificationId() +
                                                     " not found in local DB. Will sync later.");
-                                            pendingAuditIds.add(remoteDocument.getDocumentId());
+                                            pendingDocumentIds.add(remoteDocument.getDocumentId());
                                             continue;
                                         }
                                     }
