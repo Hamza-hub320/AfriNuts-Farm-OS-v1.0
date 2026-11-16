@@ -24,7 +24,6 @@ import com.afrinuts.farmos.data.repository.AuditRepository;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -70,6 +69,7 @@ public class CertificationDetailActivity extends BaseActivity {
     // UI Elements - Buttons
     private MaterialButton btnEdit;
     private MaterialButton btnDelete;
+    private MaterialButton btnChangeStatus;
     private MaterialButton btnAddAudit;
     private TextView tvStatusHistory;
 
@@ -126,6 +126,8 @@ public class CertificationDetailActivity extends BaseActivity {
         btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
         btnAddAudit = findViewById(R.id.btnAddAudit);
+        btnChangeStatus = findViewById(R.id.btnChangeStatus);
+        btnChangeStatus.setOnClickListener(v -> showChangeStatusDialog());
 
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -180,6 +182,8 @@ public class CertificationDetailActivity extends BaseActivity {
             }
         });
     }
+
+
 
     private void loadRelatedRecordsCounts() {
         if (certification == null) return;
@@ -280,6 +284,7 @@ public class CertificationDetailActivity extends BaseActivity {
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
+            btnChangeStatus.setVisibility(View.GONE);
         }
     }
 
@@ -332,6 +337,18 @@ public class CertificationDetailActivity extends BaseActivity {
                 .setPositiveButton("Delete", (dialog, which) -> deleteCertification())
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void showChangeStatusDialog() {
+        if (certification == null) return;
+        ChangeStatusDialog dialog = ChangeStatusDialog.newInstance(
+                certification.getCertificationId(), farmId);
+        dialog.setOnStatusChangedListener(() -> {
+            loadCertificationData();
+            loadRelatedRecordsCounts();
+            Toast.makeText(this, "Status updated", Toast.LENGTH_SHORT).show();
+        });
+        dialog.show(getSupportFragmentManager(), "ChangeStatusDialog");
     }
 
 

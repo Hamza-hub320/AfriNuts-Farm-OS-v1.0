@@ -47,7 +47,6 @@ public class EditCertificationDialog extends DialogFragment {
     // UI Elements
     private TextInputEditText etCertificationName;
     private TextInputEditText etCertificationBody;
-    private MaterialAutoCompleteTextView etStatus;
     private TextInputEditText etScope;
     private TextInputEditText etStandards;
     private TextInputEditText etTargetDate;
@@ -113,7 +112,6 @@ public class EditCertificationDialog extends DialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_certification, null);
 
         initViews(view);
-        setupStatusDropdown();
         setupDatePickers();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -138,7 +136,6 @@ public class EditCertificationDialog extends DialogFragment {
     private void initViews(View view) {
         etCertificationName = view.findViewById(R.id.etCertificationName);
         etCertificationBody = view.findViewById(R.id.etCertificationBody);
-        etStatus = view.findViewById(R.id.etStatus);
         etScope = view.findViewById(R.id.etScope);
         etStandards = view.findViewById(R.id.etStandards);
         etTargetDate = view.findViewById(R.id.etTargetDate);
@@ -151,24 +148,6 @@ public class EditCertificationDialog extends DialogFragment {
         // ✅ Set hint text for optional dates
         etApprovalDate.setHint("Approval Date (Optional)");
         etExpiryDate.setHint("Expiry Date (Optional)");
-    }
-
-    private void setupStatusDropdown() {
-        // Get the display names directly from the enum
-        String[] statusNames = new String[CertificationEntity.CertificationStatus.values().length];
-        int i = 0;
-        for (CertificationEntity.CertificationStatus status : CertificationEntity.CertificationStatus.values()) {
-            statusNames[i++] = status.getDisplayName();
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                statusNames
-        );
-
-        etStatus.setAdapter(adapter);
-        etStatus.setText(statusNames[0], false);
     }
 
     private String currentActor() {
@@ -273,7 +252,6 @@ public class EditCertificationDialog extends DialogFragment {
 
         etCertificationName.setText(certification.getCertificationName());
         etCertificationBody.setText(certification.getCertificationBody());
-        etStatus.setText(certification.getStatusDisplay(), false);
         etScope.setText(certification.getScope());
         etStandards.setText(certification.getStandardsDisplay());
 
@@ -325,10 +303,6 @@ public class EditCertificationDialog extends DialogFragment {
             return;
         }
 
-        String statusStr = etStatus.getText().toString().trim();
-        CertificationEntity.CertificationStatus status = getStatusFromDisplay(statusStr);
-        CertificationEntity.CertificationStatus oldStatus = certification.getStatus();
-
         String scope = etScope.getText().toString().trim();
         String standardsStr = etStandards.getText().toString().trim();
 
@@ -369,10 +343,6 @@ public class EditCertificationDialog extends DialogFragment {
         // Update certification
         certification.setCertificationName(name);
         certification.setCertificationBody(body);
-        if (oldStatus != status) {
-            certification.appendStatusEvent(oldStatus.name(), status.name(), currentActor(), null);
-        }
-        certification.setStatus(status);
         certification.setScope(scope);
         certification.setApplicableStandards(standards);
         certification.setTargetDate(targetDate);

@@ -514,6 +514,16 @@
                     app:iconGravity="textStart"
                     android:layout_marginBottom="8dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChangeStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:text="Change Status"
+                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    app:icon="@drawable/ic_progress_clock"
+                    app:iconGravity="textStart"
+                    android:layout_marginBottom="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
