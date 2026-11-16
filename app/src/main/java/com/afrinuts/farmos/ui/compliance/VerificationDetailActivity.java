@@ -17,6 +17,7 @@ import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.VerificationRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -51,6 +52,7 @@ public class VerificationDetailActivity extends BaseActivity {
     private TextView tvComment;
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
+    private TextView tvValidated;
     private CardView cardStatus;
     private TextView tvSuperseded;
     private MaterialButton btnCorrect;
@@ -94,6 +96,7 @@ public class VerificationDetailActivity extends BaseActivity {
         tvComment = findViewById(R.id.tvComment);
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
+        tvValidated = findViewById(R.id.tvValidated);
         cardStatus = findViewById(R.id.cardStatus);
 
         loadSupersededState();
@@ -198,6 +201,14 @@ public class VerificationDetailActivity extends BaseActivity {
 
         tvCreatedAt.setText(dateFormat.format(verification.getCreatedAt()));
         tvUpdatedAt.setText(dateFormat.format(verification.getUpdatedAt()));
+
+        // Validation
+        if (verification.getValidatedAt() == null) {
+            tvValidated.setText("—");
+        } else {
+            tvValidated.setText("Validated by " + verification.getValidatedBy()
+                    + " on " + DateFormatter.formatDateOrDash(verification.getValidatedAt()));
+        }
     }
 
     private void updateStatusColor() {

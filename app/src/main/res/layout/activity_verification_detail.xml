@@ -303,6 +303,32 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:text="Validated"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                        <TextView
+                            android:id="@+id/tvValidated"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="—"
+                            style="@style/Text.Caption.Small"
+                            android:textColor="?attr/colorOnSurface"
+                            android:alpha="0.5" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <TextView

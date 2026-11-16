@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
@@ -31,12 +32,17 @@ import java.util.Locale;
                         childColumns = "farmId",
                         onDelete = ForeignKey.CASCADE
                 )
+        },
+        indices = {
+                @Index(value = {"validatedAt"})
         })
 public class InspectionEntity {
 
     @PrimaryKey
     @NonNull
     private String inspectionId; // INSP-ORG-2026-078
+    private Long validatedAt; // null = not yet validated
+    private String validatedBy;
     private String supersedesId; // null unless this record corrects another record (its ID)
 
     private String certificationId;
@@ -216,6 +222,18 @@ public class InspectionEntity {
     public String getSupersedesId() { return supersedesId; }
     public void setSupersedesId(String supersedesId) {
         this.supersedesId = supersedesId;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public Long getValidatedAt() { return validatedAt; }
+    public void setValidatedAt(Long validatedAt) {
+        this.validatedAt = validatedAt;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getValidatedBy() { return validatedBy; }
+    public void setValidatedBy(String validatedBy) {
+        this.validatedBy = validatedBy;
         this.updatedAt = System.currentTimeMillis();
     }
 

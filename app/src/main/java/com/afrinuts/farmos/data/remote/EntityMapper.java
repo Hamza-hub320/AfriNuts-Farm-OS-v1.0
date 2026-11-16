@@ -1903,6 +1903,8 @@ public class EntityMapper {
         Map<String, Object> map = new HashMap<>();
         map.put("auditId", audit.getAuditId());
         map.put("supersedesId", audit.getSupersedesId());
+        map.put("validatedAt", audit.getValidatedAt());
+        map.put("validatedBy", audit.getValidatedBy());
         map.put("certificationId", audit.getCertificationId());
         map.put("farmId", audit.getFarmId());
         map.put("auditType", audit.getAuditType() != null ? audit.getAuditType().name() : null);
@@ -1932,6 +1934,8 @@ public class EntityMapper {
 
             String auditTypeStr = doc.getString("auditType");
             String supersedesId = doc.getString("supersedesId");
+            Long validatedAt = doc.getLong("validatedAt");
+            String validatedBy = doc.getString("validatedBy");
             Long auditDate = doc.getLong("auditDate");
             String auditorName = doc.getString("auditorName");
             String auditorBody = doc.getString("auditorBody");
@@ -1988,6 +1992,8 @@ public class EntityMapper {
             );
             audit.setAuditId(auditId);
             audit.setSupersedesId(supersedesId);
+            audit.setValidatedAt(validatedAt);
+            audit.setValidatedBy(validatedBy);
             audit.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             audit.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             audit.setSynced(isSynced != null && isSynced);
@@ -2007,6 +2013,8 @@ public class EntityMapper {
         Map<String, Object> map = new HashMap<>();
         map.put("inspectionId", inspection.getInspectionId());
         map.put("supersedesId", inspection.getSupersedesId());
+        map.put("validatedAt", inspection.getValidatedAt());
+        map.put("validatedBy", inspection.getValidatedBy());
         map.put("certificationId", inspection.getCertificationId());
         map.put("certificationName", inspection.getCertificationName());
         map.put("farmId", inspection.getFarmId());
@@ -2042,6 +2050,8 @@ public class EntityMapper {
 
             String requirementCategoryStr = doc.getString("requirementCategory");
             String supersedesId = doc.getString("supersedesId");
+            Long validatedAt = doc.getLong("validatedAt");
+            String validatedBy = doc.getString("validatedBy");
             String inspectionTypeStr = doc.getString("inspectionType");
             Long inspectionDate = doc.getLong("inspectionDate");
             String inspectorName = doc.getString("inspectorName");
@@ -2127,6 +2137,8 @@ public class EntityMapper {
             );
             inspection.setInspectionId(inspectionId);
             inspection.setSupersedesId(supersedesId);
+            inspection.setValidatedAt(validatedAt);
+            inspection.setValidatedBy(validatedBy);
             inspection.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             inspection.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             inspection.setSynced(isSynced != null && isSynced);
@@ -2146,6 +2158,8 @@ public class EntityMapper {
         Map<String, Object> map = new HashMap<>();
         map.put("verificationId", verification.getVerificationId());
         map.put("supersedesId", verification.getSupersedesId());
+        map.put("validatedAt", verification.getValidatedAt());
+        map.put("validatedBy", verification.getValidatedBy());
         map.put("certificationId", verification.getCertificationId());
         map.put("farmId", verification.getFarmId());
         map.put("verificationType", verification.getVerificationType() != null ?
@@ -2175,6 +2189,8 @@ public class EntityMapper {
 
             String verificationTypeStr = doc.getString("verificationType");
             String supersedesId = doc.getString("supersedesId");
+            Long validatedAt = doc.getLong("validatedAt");
+            String validatedBy = doc.getString("validatedBy");
             Long verificationDate = doc.getLong("verificationDate");
             String verifiedBy = doc.getString("verifiedBy");
             String statusStr = doc.getString("status");
@@ -2229,6 +2245,8 @@ public class EntityMapper {
             );
             verification.setVerificationId(verificationId);
             verification.setSupersedesId(supersedesId);
+            verification.setValidatedAt(validatedAt);
+            verification.setValidatedBy(validatedBy);
             verification.setCreatedAt(createdAt != null ? createdAt : System.currentTimeMillis());
             verification.setUpdatedAt(updatedAt != null ? updatedAt : System.currentTimeMillis());
             verification.setSynced(isSynced != null && isSynced);

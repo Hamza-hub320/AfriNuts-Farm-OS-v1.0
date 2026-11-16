@@ -18,6 +18,7 @@ import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.repository.AuditRepository;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -53,6 +54,7 @@ public class AuditDetailActivity extends BaseActivity {
     private TextView tvReportUrl;
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
+    private TextView tvValidated;
     private TextView tvFindingsCount;
     private LinearLayout findingsContainer;
     private CardView cardStatus;
@@ -100,6 +102,7 @@ public class AuditDetailActivity extends BaseActivity {
         tvReportUrl = findViewById(R.id.tvReportUrl);
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
+        tvValidated = findViewById(R.id.tvValidated);
         tvFindingsCount = findViewById(R.id.tvFindingsCount);
         findingsContainer = findViewById(R.id.findingsContainer);
         cardStatus = findViewById(R.id.cardStatus);
@@ -219,6 +222,14 @@ public class AuditDetailActivity extends BaseActivity {
         // Timestamps
         tvCreatedAt.setText(dateFormat.format(audit.getCreatedAt()));
         tvUpdatedAt.setText(dateFormat.format(audit.getUpdatedAt()));
+
+        // Validation
+        if (audit.getValidatedAt() == null) {
+            tvValidated.setText("—");
+        } else {
+            tvValidated.setText("Validated by " + audit.getValidatedBy()
+                    + " on " + DateFormatter.formatDateOrDash(audit.getValidatedAt()));
+        }
 
         // Findings
         displayFindings();
