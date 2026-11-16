@@ -8,8 +8,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 /**
  * 43 -> 44 (Stage 1, step 4 validation fields):
- * validatedAt / validatedBy on the three append-only record types.
- * Both nullable, no default. null validatedAt = not yet validated.
+ * validatedAt / validatedBy on the three append-only record types,
+ * plus the validatedAt index the entity annotations declare.
  */
 public class Migration43To44 extends Migration {
 
@@ -30,7 +30,9 @@ public class Migration43To44 extends Migration {
         try {
             database.execSQL("ALTER TABLE " + table + " ADD COLUMN validatedAt INTEGER;");
             database.execSQL("ALTER TABLE " + table + " ADD COLUMN validatedBy TEXT;");
-            Log.d(TAG, "Added validation fields to " + table);
+            database.execSQL("CREATE INDEX IF NOT EXISTS index_" + table
+                    + "_validatedAt ON " + table + " (validatedAt);");
+            Log.d(TAG, "Added validation fields and index to " + table);
         } catch (Exception e) {
             Log.e(TAG, "Failed to add validation fields to " + table, e);
             throw e;
