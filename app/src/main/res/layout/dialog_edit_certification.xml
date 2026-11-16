@@ -78,26 +78,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Status -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.AfriNuts.EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:endIconMode="dropdown_menu"
-            app:endIconDrawable="@drawable/ic_arrow_drop_down"
-            app:endIconTint="?attr/colorPrimary"
-            app:boxBackgroundColor="?attr/colorSurface">
-
-            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/etStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Status"
-                android:inputType="none" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
         <!-- Scope -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.AfriNuts.EditText"

@@ -281,15 +281,6 @@ public class EditCertificationDialog extends DialogFragment {
         }
     }
 
-    private CertificationEntity.CertificationStatus getStatusFromDisplay(String display) {
-        for (CertificationEntity.CertificationStatus status : CertificationEntity.CertificationStatus.values()) {
-            if (display.contains(status.getDisplayName())) {
-                return status;
-            }
-        }
-        return CertificationEntity.CertificationStatus.NOT_STARTED;
-    }
-
     private void saveCertification() {
         String name = etCertificationName.getText().toString().trim();
         if (TextUtils.isEmpty(name)) {
