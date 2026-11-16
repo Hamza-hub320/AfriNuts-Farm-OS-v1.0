@@ -109,7 +109,6 @@ public class ChangeStatusDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Change status")
                 .setCancelable(true);
         return builder.create();
     }

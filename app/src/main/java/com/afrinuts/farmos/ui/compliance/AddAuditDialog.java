@@ -129,7 +129,7 @@ public class AddAuditDialog extends DialogFragment {
             addFindingItem(null, null);
         }
 
-        String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Audit";
+        String title = correctionOfId != null ? "Correcting " + correctionOfId : "";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .setTitle(title)
