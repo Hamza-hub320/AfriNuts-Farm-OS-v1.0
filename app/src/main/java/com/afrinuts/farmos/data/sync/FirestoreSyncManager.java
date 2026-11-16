@@ -39,7 +39,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,6 +79,13 @@ public class FirestoreSyncManager {
     private ListenerRegistration supplierDisputesListener;
     private ListenerRegistration scoreHistoryListener;
     private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
+    // Stage 1, step 6: children skipped because the parent certification wasn't
+    // local yet. Drained when the certification lands. In-memory only — a restart
+    // re-delivers each collection's snapshot, so persistence would only leak.
+    private final Set<String> pendingAuditIds = new HashSet<>();
+    private final Set<String> pendingInspectionIds = new HashSet<>();
+    private final Set<String> pendingVerificationIds = new HashSet<>();
+    private final Set<String> pendingDocumentIds = new HashSet<>();
 
 
 
@@ -1354,7 +1363,8 @@ public class FirestoreSyncManager {
                                         if (certification == null) {
                                             Log.w(TAG, "⚠️ Skipping inspection " + remoteInspection.getInspectionId() +
                                                     " - certification " + remoteInspection.getCertificationId() +
-                                                    " not found in local DB");
+                                                    " not found in local DB. Will sync later.");
+                                            pendingInspectionIds.add(remoteInspection.getInspectionId());
                                             continue;
                                         }
                                     }
@@ -1425,7 +1435,7 @@ public class FirestoreSyncManager {
                                             Log.w(TAG, "⚠️ Skipping audit " + remoteAudit.getAuditId() +
                                                     " - certification " + remoteAudit.getCertificationId() +
                                                     " not found in local DB. Will sync later.");
-                                            // Don't insert the audit yet - it will be synced when certification arrives
+                                            pendingAuditIds.add(remoteAudit.getAuditId());
                                             continue;
                                         }
                                     }
@@ -1492,7 +1502,8 @@ public class FirestoreSyncManager {
                                         if (certification == null) {
                                             Log.w(TAG, "⚠️ Skipping verification " + remoteVerification.getVerificationId() +
                                                     " - certification " + remoteVerification.getCertificationId() +
-                                                    " not found in local DB");
+                                                    " not found in local DB. Will sync later.");
+                                            pendingAuditIds.add(remoteVerification.getVerificationId());
                                             continue;
                                         }
                                     }
@@ -1559,7 +1570,8 @@ public class FirestoreSyncManager {
                                         if (certification == null) {
                                             Log.w(TAG, "⚠️ Skipping document " + remoteDocument.getDocumentId() +
                                                     " - certification " + remoteDocument.getCertificationId() +
-                                                    " not found in local DB");
+                                                    " not found in local DB. Will sync later.");
+                                            pendingAuditIds.add(remoteDocument.getDocumentId());
                                             continue;
                                         }
                                     }
@@ -1595,6 +1607,218 @@ public class FirestoreSyncManager {
                     });
                 });
         Log.d(TAG, "👂 Documents listener registered");
+    }
+
+    /**
+     * Stage 1, step 6. Children whose parent certification wasn't local were
+     * skipped and their IDs parked in the four pending sets. Now that the parent
+     * has landed, re-fetch each one once and run it through the same insert path
+     * the listener uses. Fire-and-forget: the .get() is async and its callback
+     * re-enters the executor, same as the snapshot listeners.
+     *
+     * The ID leaves its pending set in every outcome — success, document gone,
+     * map returned null — so a permanently unmappable record doesn't retry forever.
+     */
+    private void retryPendingChildren(String certificationId) {
+        drainPendingAudits(certificationId);
+        drainPendingInspections(certificationId);
+        drainPendingVerifications(certificationId);
+        drainPendingDocuments(certificationId);
+    }
+
+    private void drainPendingAudits(String certificationId) {
+        if (pendingAuditIds.isEmpty()) return;
+        List<String> toRetry = new ArrayList<>(pendingAuditIds);
+        pendingAuditIds.clear();
+        for (String auditId : toRetry) {
+            Log.d(TAG, "Retrying skipped audit " + auditId + " (parent " + certificationId + " now local)");
+            db.collection("farms").document(farmId)
+                    .collection("audits").document(auditId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document == null || !document.exists()) {
+                            Log.d(TAG, "Retried audit " + auditId + " — document no longer exists");
+                            return;
+                        }
+                        AuditEntity remote = EntityMapper.mapToAudit(document);
+                        if (remote == null) {
+                            Log.d(TAG, "Retried audit " + auditId + " — map returned null, dropped");
+                            return;
+                        }
+                        executor.execute(() -> {
+                            if (database.certificationDao()
+                                    .getCertificationById(remote.getCertificationId()) == null) {
+                                Log.w(TAG, "Retried audit " + auditId + " — parent still missing, dropped");
+                                return;
+                            }
+                            AuditEntity local = database.auditDao().getAuditById(remote.getAuditId());
+                            isApplyingRemoteUpdate = true;
+                            try {
+                                if (local == null) {
+                                    database.auditDao().insert(remote);
+                                    Log.d(TAG, "➕ Retried new audit: " + remote.getAuditId());
+                                } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                    database.auditDao().update(remote);
+                                    Log.d(TAG, "📥 Retried updated audit: " + remote.getAuditId());
+                                }
+                            } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                Log.w(TAG, "Retried audit " + auditId
+                                        + " rejected by FK constraint — dropped", e);
+                            } finally {
+                                isApplyingRemoteUpdate = false;
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Retried audit " + auditId + " — fetch failed, dropped", e));
+        }
+    }
+
+    private void drainPendingInspections(String certificationId) {
+        if (pendingInspectionIds.isEmpty()) return;
+        List<String> toRetry = new ArrayList<>(pendingInspectionIds);
+        pendingInspectionIds.clear();
+        for (String inspectionId : toRetry) {
+            Log.d(TAG, "Retrying skipped inspection " + inspectionId + " (parent " + certificationId + " now local)");
+            db.collection("farms").document(farmId)
+                    .collection("inspections").document(inspectionId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document == null || !document.exists()) {
+                            Log.d(TAG, "Retried inspection " + inspectionId + " — document no longer exists");
+                            return;
+                        }
+                        InspectionEntity remote = EntityMapper.mapToInspection(document);
+                        if (remote == null) {
+                            Log.d(TAG, "Retried inspection " + inspectionId + " — map returned null, dropped");
+                            return;
+                        }
+                        executor.execute(() -> {
+                            if (database.certificationDao()
+                                    .getCertificationById(remote.getCertificationId()) == null) {
+                                Log.w(TAG, "Retried inspection " + inspectionId + " — parent still missing, dropped");
+                                return;
+                            }
+                            InspectionEntity local = database.inspectionDao()
+                                    .getInspectionById(remote.getInspectionId());
+                            isApplyingRemoteUpdate = true;
+                            try {
+                                if (local == null) {
+                                    database.inspectionDao().insert(remote);
+                                    Log.d(TAG, "➕ Retried new inspection: " + remote.getInspectionId());
+                                } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                    database.inspectionDao().update(remote);
+                                    Log.d(TAG, "📥 Retried updated inspection: " + remote.getInspectionId());
+                                }
+                            } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                Log.w(TAG, "Retried inspection " + inspectionId
+                                        + " rejected by FK constraint — dropped", e);
+                            } finally {
+                                isApplyingRemoteUpdate = false;
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Retried inspection " + inspectionId + " — fetch failed, dropped", e));
+        }
+    }
+
+    private void drainPendingVerifications(String certificationId) {
+        if (pendingVerificationIds.isEmpty()) return;
+        List<String> toRetry = new ArrayList<>(pendingVerificationIds);
+        pendingVerificationIds.clear();
+        for (String verificationId : toRetry) {
+            Log.d(TAG, "Retrying skipped verification " + verificationId + " (parent " + certificationId + " now local)");
+            db.collection("farms").document(farmId)
+                    .collection("verifications").document(verificationId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document == null || !document.exists()) {
+                            Log.d(TAG, "Retried verification " + verificationId + " — document no longer exists");
+                            return;
+                        }
+                        VerificationEntity remote = EntityMapper.mapToVerification(document);
+                        if (remote == null) {
+                            Log.d(TAG, "Retried verification " + verificationId + " — map returned null, dropped");
+                            return;
+                        }
+                        executor.execute(() -> {
+                            if (database.certificationDao()
+                                    .getCertificationById(remote.getCertificationId()) == null) {
+                                Log.w(TAG, "Retried verification " + verificationId + " — parent still missing, dropped");
+                                return;
+                            }
+                            VerificationEntity local = database.verificationDao()
+                                    .getVerificationById(remote.getVerificationId());
+                            isApplyingRemoteUpdate = true;
+                            try {
+                                if (local == null) {
+                                    database.verificationDao().insert(remote);
+                                    Log.d(TAG, "➕ Retried new verification: " + remote.getVerificationId());
+                                } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                    database.verificationDao().update(remote);
+                                    Log.d(TAG, "📥 Retried updated verification: " + remote.getVerificationId());
+                                }
+                            } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                Log.w(TAG, "Retried verification " + verificationId
+                                        + " rejected by FK constraint — dropped", e);
+                            } finally {
+                                isApplyingRemoteUpdate = false;
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Retried verification " + verificationId + " — fetch failed, dropped", e));
+        }
+    }
+
+    private void drainPendingDocuments(String certificationId) {
+        if (pendingDocumentIds.isEmpty()) return;
+        List<String> toRetry = new ArrayList<>(pendingDocumentIds);
+        pendingDocumentIds.clear();
+        for (String documentId : toRetry) {
+            Log.d(TAG, "Retrying skipped document " + documentId + " (parent " + certificationId + " now local)");
+            db.collection("farms").document(farmId)
+                    .collection("documents").document(documentId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document == null || !document.exists()) {
+                            Log.d(TAG, "Retried document " + documentId + " — document no longer exists");
+                            return;
+                        }
+                        DocumentEntity remote = EntityMapper.mapToDocument(document);
+                        if (remote == null) {
+                            Log.d(TAG, "Retried document " + documentId + " — map returned null, dropped");
+                            return;
+                        }
+                        executor.execute(() -> {
+                            if (database.certificationDao()
+                                    .getCertificationById(remote.getCertificationId()) == null) {
+                                Log.w(TAG, "Retried document " + documentId + " — parent still missing, dropped");
+                                return;
+                            }
+                            DocumentEntity local = database.documentDao()
+                                    .getDocumentById(remote.getDocumentId());
+                            isApplyingRemoteUpdate = true;
+                            try {
+                                if (local == null) {
+                                    database.documentDao().insert(remote);
+                                    Log.d(TAG, "➕ Retried new document: " + remote.getDocumentId());
+                                } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                    database.documentDao().update(remote);
+                                    Log.d(TAG, "📥 Retried updated document: " + remote.getDocumentId());
+                                }
+                            } catch (android.database.sqlite.SQLiteConstraintException e) {
+                                Log.w(TAG, "Retried document " + documentId
+                                        + " rejected by FK constraint — dropped", e);
+                            } finally {
+                                isApplyingRemoteUpdate = false;
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Retried document " + documentId + " — fetch failed, dropped", e));
+        }
     }
 
     // ========================================
