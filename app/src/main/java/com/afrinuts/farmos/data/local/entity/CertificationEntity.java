@@ -1,7 +1,5 @@
 package com.afrinuts.farmos.data.local.entity;
 
-import static kotlinx.coroutines.CoroutineScopeKt.isActive;
-
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
