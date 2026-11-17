@@ -90,15 +90,15 @@ public class CertificationAdapter extends RecyclerView.Adapter<CertificationAdap
             tvCertificationBody.setText("Issued by: " + certification.getCertificationBody());
 
             // ✅ Set status text (without icon)
-            tvStatus.setText(certification.getStatusDisplay());
+            tvStatus.setText(certification.getEffectiveStatusDisplay());
 
             // ✅ Set status icon
-            int iconResId = certification.getStatus().getIconResId();
+            int iconResId = certification.getEffectiveStatus().getIconResId();
             ivStatusIcon.setImageResource(iconResId);
 
             // ✅ Color the icon based on status
             int colorResId;
-            switch (certification.getStatus()) {
+            switch (certification.getEffectiveStatus()) {
                 case CERTIFIED:
                     colorResId = R.color.status_certified;
                     break;
@@ -121,7 +121,7 @@ public class CertificationAdapter extends RecyclerView.Adapter<CertificationAdap
             ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), colorResId));
 
             // Status background color
-            switch (certification.getStatus()) {
+            switch (certification.getEffectiveStatus()) {
                 case CERTIFIED:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_certified);
                     break;

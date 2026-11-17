@@ -1,5 +1,7 @@
 package com.afrinuts.farmos.data.local.entity;
 
+import static kotlinx.coroutines.CoroutineScopeKt.isActive;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -7,7 +9,6 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.utils.CertificationIdGenerator;
 import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -342,17 +343,36 @@ public class CertificationEntity {
         return String.join(", ", standards);
     }
 
-    public boolean isActive() {
-        return status == CertificationStatus.CERTIFIED ||
-                status == CertificationStatus.IN_PROGRESS ||
-                status == CertificationStatus.AUDIT_READY;
-    }
-
     public boolean isExpired() {
-        if (status != CertificationStatus.CERTIFIED) return false;
-        return System.currentTimeMillis() > expiryDate;
+        return status == CertificationStatus.CERTIFIED
+                && expiryDate > 0
+                && expiryDate < System.currentTimeMillis();
     }
 
+    /**
+     * Effective status. EXPIRED is derived: stored CERTIFIED with a real
+     * expiry in the past reads as EXPIRED everywhere the status is shown or
+     * consumed. The stored value is never rewritten by this.
+     */
+    public CertificationStatus getEffectiveStatus() {
+        if (status == CertificationStatus.CERTIFIED
+                && expiryDate > 0
+                && expiryDate < System.currentTimeMillis()) {
+            return CertificationStatus.EXPIRED;
+        }
+        return status;
+    }
+
+    public String getEffectiveStatusDisplay() {
+        return getEffectiveStatus().getDisplayName();
+    }
+
+    public boolean isActive() {
+        CertificationStatus effective = getEffectiveStatus();
+        return effective == CertificationStatus.CERTIFIED
+                || effective == CertificationStatus.IN_PROGRESS
+                || effective == CertificationStatus.AUDIT_READY;
+    }
     public boolean isExpiringSoon() {
         if (!isActive()) return false;
         long daysUntilExpiry = (expiryDate - System.currentTimeMillis()) / (24 * 60 * 60 * 1000);

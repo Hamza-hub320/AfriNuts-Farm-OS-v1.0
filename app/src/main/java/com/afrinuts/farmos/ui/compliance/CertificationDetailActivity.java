@@ -252,7 +252,7 @@ public class CertificationDetailActivity extends BaseActivity {
         tvScope.setText(certification.getScope() != null ? certification.getScope() : "Not specified");
 
         // Status with color
-        tvStatus.setText(certification.getStatusDisplay());
+        tvStatus.setText(certification.getEffectiveStatusDisplay());
         updateStatusColor();
 
         // Dates
@@ -294,7 +294,7 @@ public class CertificationDetailActivity extends BaseActivity {
 
     private void updateStatusColor() {
         int colorRes;
-        switch (certification.getStatus()) {
+        switch (certification.getEffectiveStatus()) {
             case CERTIFIED:
                 colorRes = R.color.status_certified;
                 break;

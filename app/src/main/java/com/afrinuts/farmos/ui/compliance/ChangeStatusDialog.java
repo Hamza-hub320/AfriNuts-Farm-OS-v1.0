@@ -116,7 +116,7 @@ public class ChangeStatusDialog extends DialogFragment {
     private void populateTargets() {
         if (targetsContainer == null) return;
         targetsContainer.removeAllViews();
-        tvCurrentStatus.setText("Current status: " + certification.getStatusDisplay());
+        tvCurrentStatus.setText("Current status: " + certification.getEffectiveStatusDisplay());
         for (CertificationEntity.CertificationStatus target : availableTargets()) {
             View row = LayoutInflater.from(requireContext())
                     .inflate(R.layout.item_status_target, targetsContainer, false);
@@ -127,15 +127,16 @@ public class ChangeStatusDialog extends DialogFragment {
         }
         if (targetsContainer.getChildCount() == 0) {
             TextView tv = new TextView(requireContext());
-            tv.setText("No status changes available from " + certification.getStatusDisplay() + ".");
+            tv.setText("No status changes available from " + certification.getEffectiveStatusDisplay() + ".");
             targetsContainer.addView(tv);
         }
     }
 
     private List<CertificationEntity.CertificationStatus> availableTargets() {
         List<CertificationEntity.CertificationStatus> targets = new ArrayList<>();
-        CertificationEntity.CertificationStatus current = certification.getStatus();
-        if (current == CertificationEntity.CertificationStatus.SUSPENDED) {
+        CertificationEntity.CertificationStatus current = certification.getEffectiveStatus();
+        if (current == CertificationEntity.CertificationStatus.SUSPENDED
+                || current == CertificationEntity.CertificationStatus.EXPIRED) {
             targets.add(CertificationEntity.CertificationStatus.CERTIFIED);
             return targets;
         }
@@ -147,7 +148,7 @@ public class ChangeStatusDialog extends DialogFragment {
             targets.add(CertificationEntity.CertificationStatus.CERTIFIED);
         if (current != CertificationEntity.CertificationStatus.SUSPENDED)
             targets.add(CertificationEntity.CertificationStatus.SUSPENDED);
-        return targets;   // EXPIRED never offered
+        return targets;
     }
 
     private String checkFor(CertificationEntity.CertificationStatus target) {
@@ -240,7 +241,7 @@ public class ChangeStatusDialog extends DialogFragment {
             return;
         }
 
-        CertificationEntity.CertificationStatus old = certification.getStatus();
+        CertificationEntity.CertificationStatus old = certification.getEffectiveStatus();
         String actor = currentActor();
         String documentId = null;
 
