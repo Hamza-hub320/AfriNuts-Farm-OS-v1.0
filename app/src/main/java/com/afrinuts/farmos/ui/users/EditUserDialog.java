@@ -154,6 +154,16 @@ public class EditUserDialog extends DialogFragment {
                 R.drawable.ic_star
         ));
         roleItems.add(new RoleItem(
+                UserEntity.UserRole.CEO,
+                "CEO",
+                R.drawable.ic_person_add
+        ));
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.COMPLIANCE_OFFICER,
+                "Compliance Officer",
+                R.drawable.ic_shield
+        ));
+        roleItems.add(new RoleItem(
                 UserEntity.UserRole.MANAGER,
                 "Manager",
                 R.drawable.ic_assignment
@@ -167,6 +177,11 @@ public class EditUserDialog extends DialogFragment {
                 UserEntity.UserRole.INVESTOR,
                 "Investor",
                 R.drawable.ic_trending_up
+        ));
+        roleItems.add(new RoleItem(
+                UserEntity.UserRole.FIELD_OFFICER,
+                "Field Officer",
+                R.drawable.ic_farmer
         ));
 
         RoleAdapter adapter = new RoleAdapter(requireContext(), roleItems);
