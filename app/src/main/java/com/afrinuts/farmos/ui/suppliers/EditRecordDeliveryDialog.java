@@ -22,6 +22,7 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.utils.BatchNumberGenerator;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -53,7 +54,7 @@ public class EditRecordDeliveryDialog extends DialogFragment {
     private MaterialAutoCompleteTextView etSourceType;
     private MaterialAutoCompleteTextView etBatchType;
     private TextInputEditText etNotes;
-
+    private SessionManager sessionManager;
     private SwitchCompat switchNoChildLabor;
     private SwitchCompat switchFarmOsMonitored;
     private SwitchCompat switchFirebreakProtection;
@@ -85,7 +86,7 @@ public class EditRecordDeliveryDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        sessionManager = new SessionManager(requireContext());
         if (getArguments() != null) {
             batchId = getArguments().getLong(ARG_BATCH_ID);
         }
@@ -337,6 +338,14 @@ public class EditRecordDeliveryDialog extends DialogFragment {
     }
 
     private void updateDelivery() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can raise a dispute.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         String quantityStr = etQuantity.getText().toString().trim();
         if (TextUtils.isEmpty(quantityStr)) {
             etQuantity.setError("Quantity required");

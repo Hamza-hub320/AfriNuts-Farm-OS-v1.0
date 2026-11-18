@@ -26,6 +26,7 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.utils.BatchNumberGenerator;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -61,6 +62,7 @@ public class RecordDeliveryDialog extends DialogFragment {
     private SwitchCompat switchFarmOsMonitored;
     private SwitchCompat switchFirebreakProtection;
     private SwitchCompat switchSustainableHarvesting;
+    private SessionManager sessionManager;
     private TextView tvVerifiedStatus;
 
     private Calendar selectedDate = Calendar.getInstance();
@@ -86,7 +88,7 @@ public class RecordDeliveryDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        sessionManager = new SessionManager(requireContext());
         if (getArguments() != null) {
             supplierId = getArguments().getLong(ARG_SUPPLIER_ID);
         }
@@ -280,6 +282,14 @@ public class RecordDeliveryDialog extends DialogFragment {
     }
 
     private void recordDelivery() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can do this.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         String batchNumber = etBatchNumber.getText().toString().trim();
         if (TextUtils.isEmpty(batchNumber)) {
             etBatchNumber.setError("Batch number required");

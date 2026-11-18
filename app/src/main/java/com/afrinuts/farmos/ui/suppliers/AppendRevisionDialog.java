@@ -94,6 +94,14 @@ public class AppendRevisionDialog extends DialogFragment {
     }
 
     private void save() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can do this.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         btnSave.setEnabled(false);
         btnSave.setText("Saving…");
         String reason = etReason.getText() == null ? "" : etReason.getText().toString().trim();

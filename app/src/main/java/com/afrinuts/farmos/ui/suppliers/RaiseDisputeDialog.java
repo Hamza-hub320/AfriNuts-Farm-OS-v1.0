@@ -135,6 +135,14 @@ public class RaiseDisputeDialog extends DialogFragment {
     }
 
     private void save() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can do this.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         String reason = etReason.getText() == null ? "" : etReason.getText().toString().trim();
         if (TextUtils.isEmpty(reason)) {
             etReason.setError("Reason required");

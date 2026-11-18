@@ -133,6 +133,15 @@ public class RecordCommitmentDialog extends DialogFragment {
     }
 
     private void save(AlertDialog dialog) {
+        if (!sessionManager.canOnboardSuppliers()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners, Managers and Field Officers can record a commitment.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+
         String contractId = text(etContractId);
         String season = text(etSeason);
         String kgStr = text(etCommittedKg);

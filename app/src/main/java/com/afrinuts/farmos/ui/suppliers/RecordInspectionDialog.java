@@ -168,6 +168,14 @@ public class RecordInspectionDialog extends DialogFragment {
     }
 
     private void save() {
+        if (!sessionManager.canOnboardSuppliers()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners, Managers and Field Officers can record an inspection.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         String findings = etFindings.getText() == null ? "" : etFindings.getText().toString().trim();
         if (TextUtils.isEmpty(findings)) {
             etFindings.setError("Findings required");

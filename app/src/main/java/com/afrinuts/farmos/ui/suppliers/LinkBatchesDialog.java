@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.utils.SessionManager;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
@@ -39,6 +40,7 @@ public class LinkBatchesDialog extends DialogFragment {
 
     private LinearLayout containerBatches;
     private Button btnCancel, btnSave;
+    private SessionManager sessionManager;
 
     private final Set<Long> selectedBatchIds = new HashSet<>();
 
@@ -59,6 +61,7 @@ public class LinkBatchesDialog extends DialogFragment {
 
     @Override public void onCreate(@Nullable Bundle s) {
         super.onCreate(s);
+        sessionManager = new SessionManager(requireContext());
         if (getArguments() != null) {
             commitmentId = getArguments().getLong(ARG_COMMITMENT_ID);
             supplierId = getArguments().getLong(ARG_SUPPLIER_ID);
@@ -114,6 +117,14 @@ public class LinkBatchesDialog extends DialogFragment {
     }
 
     private void save() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can do this.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         if (selectedBatchIds.isEmpty()) {
             Toast.makeText(getContext(), "Pick at least one batch", Toast.LENGTH_SHORT).show();
             return;

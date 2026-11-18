@@ -84,9 +84,16 @@ public class LoginActivity extends AppCompatActivity {
         // ✅ Check if already logged in via SessionManager
         SessionManager sessionManager = new SessionManager(this);
         if (sessionManager.isLoggedIn()) {
-            Log.d(TAG, "Already logged in via SessionManager, redirecting to Main");
-            navigateToMain();
-            return;
+            if (sessionManager.getUserRole() == UserEntity.UserRole.WORKER) {
+                Log.w(TAG, "Saved session belongs to a WORKER — clearing");
+                FirebaseAuth.getInstance().signOut();
+                sessionManager.logout();
+                // fall through to the login UI
+            } else {
+                Log.d(TAG, "Already logged in via SessionManager, redirecting to Main");
+                navigateToMain();
+                return;
+            }
         }
 
         // ✅ Check if already logged in via Firebase
@@ -262,6 +269,9 @@ public class LoginActivity extends AppCompatActivity {
 
         for (UserEntity user : users) {
             if (!user.isActive()) continue;
+
+            if (!user.isActive()) continue;
+            if (user.getRole() == UserEntity.UserRole.WORKER) continue;   // §9.3 — not a sign-in role
 
             Chip chip = new Chip(this);
             chip.setText(user.getName());
@@ -475,6 +485,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     UserEntity firestoreUser = documentToUser(documentSnapshot);
                     if (firestoreUser != null) {
+                        if (firestoreUser.getRole() == UserEntity.UserRole.WORKER) {
+                            Log.w(TAG, "Worker sign-in refused: " + firestoreUser.getUid());
+                            FirebaseAuth.getInstance().signOut();
+                            loginFailed("Field workers don't sign in — your supervisor records your work.");
+                            return;
+                        }
                         saveUserToLocalAndLogin(firestoreUser);
                     } else {
                         loginFailed("Error loading user data");

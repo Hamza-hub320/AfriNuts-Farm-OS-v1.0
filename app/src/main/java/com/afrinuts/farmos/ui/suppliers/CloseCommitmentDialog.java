@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.SupplierCommitmentEntity;
 import com.afrinuts.farmos.data.repository.SupplierCommitmentRepository;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -34,6 +35,7 @@ public class CloseCommitmentDialog extends DialogFragment {
     private TextInputLayout layoutDelayReason;
     private MaterialCheckBox cbBuyerRequested;
     private Button btnCancel, btnSave;
+    private SessionManager sessionManager;
 
     private SupplierCommitmentEntity.CommitmentStatus selectedOutcome =
             SupplierCommitmentEntity.CommitmentStatus.FULFILLED;
@@ -55,6 +57,7 @@ public class CloseCommitmentDialog extends DialogFragment {
 
     @Override public void onCreate(@Nullable Bundle s) {
         super.onCreate(s);
+        sessionManager = new SessionManager(requireContext());
         if (getArguments() != null) {
             commitmentId = getArguments().getLong(ARG_COMMITMENT_ID);
             farmId = getArguments().getLong(ARG_FARM_ID);
@@ -119,6 +122,14 @@ public class CloseCommitmentDialog extends DialogFragment {
     }
 
     private void save() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can do this.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         btnSave.setEnabled(false);
         btnSave.setText("Saving…");
         repository.closeCommitment(commitmentId, selectedOutcome,

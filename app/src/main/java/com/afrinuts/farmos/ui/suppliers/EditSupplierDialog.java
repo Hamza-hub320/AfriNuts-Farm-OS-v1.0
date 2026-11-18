@@ -22,6 +22,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.ConsentScope;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
+import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -75,6 +76,7 @@ public class EditSupplierDialog extends DialogFragment {
     private TextView tvConsentSignedBy;
     private TextView tvConsentDate;
     private TextView tvConsentWithdrawn;
+    private SessionManager sessionManager;
 
     public interface OnSupplierUpdatedListener {
         void onSupplierUpdated();
@@ -97,7 +99,7 @@ public class EditSupplierDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        sessionManager = new SessionManager(requireContext());
         if (getArguments() != null) {
             supplierId = getArguments().getLong(ARG_SUPPLIER_ID);
         }
@@ -263,6 +265,14 @@ public class EditSupplierDialog extends DialogFragment {
     }
 
     private void saveSupplier() {
+        if (!sessionManager.canEditData()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot perform this action")
+                    .setMessage("Only Owners and Managers can raise a dispute.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         if (!validateInputs()) return;
 
         String name = etName.getText().toString().trim();
