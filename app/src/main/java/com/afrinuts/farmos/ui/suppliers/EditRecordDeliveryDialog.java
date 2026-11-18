@@ -341,7 +341,7 @@ public class EditRecordDeliveryDialog extends DialogFragment {
         if (!sessionManager.canEditData()) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Cannot perform this action")
-                    .setMessage("Only Owners and Managers can raise a dispute.")
+                    .setMessage("Only Owners and Managers can record a delivery.")
                     .setPositiveButton("OK", null)
                     .show();
             return;
