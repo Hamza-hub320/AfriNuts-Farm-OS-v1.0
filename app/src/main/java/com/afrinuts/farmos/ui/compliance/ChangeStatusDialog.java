@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.utils.SessionManager;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -52,6 +53,7 @@ public class ChangeStatusDialog extends DialogFragment {
     private LinearLayout targetsContainer;
     private TextView tvCurrentStatus;
     private Button btnCancel;
+    private SessionManager sessionManager;
 
     public interface OnStatusChangedListener { void onStatusChanged(); }
     private OnStatusChangedListener listener;
@@ -78,6 +80,10 @@ public class ChangeStatusDialog extends DialogFragment {
         }
         database = AppDatabase.getInstance(requireContext());
         repository = new CertificationRepository(requireContext(), farmId);
+        database = AppDatabase.getInstance(requireContext());
+        repository = new CertificationRepository(requireContext(), farmId);
+        sessionManager = new SessionManager(requireContext());
+        loadData();
         loadData();
     }
 
@@ -231,6 +237,14 @@ public class ChangeStatusDialog extends DialogFragment {
     }
 
     private void performTransition(CertificationEntity.CertificationStatus target) {
+        if (!sessionManager.canChangeCertificationStatus()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Cannot change status")
+                    .setMessage("Status changes are restricted to the Compliance Officer and the CEO.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         String reason = checkFor(target);
         if (reason != null) {
             new MaterialAlertDialogBuilder(requireContext())
