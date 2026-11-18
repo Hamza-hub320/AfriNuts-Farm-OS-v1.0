@@ -52,7 +52,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return true;
+        return !sessionManager.isFieldOfficer();
     }
 
     private void initViews() {
