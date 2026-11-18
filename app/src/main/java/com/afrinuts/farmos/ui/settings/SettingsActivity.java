@@ -1,5 +1,6 @@
 package com.afrinuts.farmos.ui.settings;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
+import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.utils.LanguageHelper;
 import com.github.mikephil.charting.BuildConfig;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -305,10 +307,18 @@ public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not 
                                                 user.setPasswordHash(newHash);
                                                 database.userDao().update(user);
 
-                                                runOnUiThread(() ->
-                                                        Toast.makeText(this,
-                                                                "Password updated successfully!",
-                                                                Toast.LENGTH_SHORT).show());
+                                                runOnUiThread(() -> {
+                                                    Toast.makeText(
+                                                            SettingsActivity.this,
+                                                            "Password updated. Please sign in again.",
+                                                            Toast.LENGTH_LONG).show();
+                                                    FirebaseAuth.getInstance().signOut();
+                                                    sessionManager.logout();
+                                                    Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                    finish();
+                                                });
                                             }).start();
                                         })
                                         .addOnFailureListener(e ->
