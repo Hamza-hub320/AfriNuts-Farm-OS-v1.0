@@ -68,7 +68,10 @@ public class FarmHubActivity extends BaseHubActivity {
         else if (sessionManager.isWorker()) {
             visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
         }
-        // Investors don't see anything (redirected by BaseActivity)
+        // Field Officers only see Suppliers tab
+        else if (sessionManager.isFieldOfficer()) {
+            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS));
+        }
     }
 
     private void initViews() {
@@ -136,13 +139,14 @@ public class FarmHubActivity extends BaseHubActivity {
             });
             fabAdd.show();
         }
-        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager())) {
+        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isFieldOfficer())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
                 if (fragment instanceof SuppliersFragment) {
                     ((SuppliersFragment) fragment).showAddSupplierDialog();
-                } else {
+                }
+                else {
                     Toast.makeText(this, "Error: Fragment not ready", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -171,12 +175,13 @@ public class FarmHubActivity extends BaseHubActivity {
     protected boolean checkRoleAccess() {
         // Owners, Managers, and Workers can access Farm Hub
         // Investors are blocked
-        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isWorker();
+        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isWorker()
+                || sessionManager.isFieldOfficer();
     }
 
     @Override
     protected String getAccessDeniedMessage() {
-        return "Farm operations are only accessible to Owners, Managers, and Workers";
+        return "Farm operations are only accessible to Owners, Managers, Workers, and Field Officers";
     }
 
     // Tab types
