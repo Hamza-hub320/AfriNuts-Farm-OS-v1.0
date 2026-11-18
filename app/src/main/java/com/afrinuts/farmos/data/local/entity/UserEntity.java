@@ -54,7 +54,10 @@ public class UserEntity {
 
     public enum UserRole {
         OWNER("Owner", "👑", "Full access to all farm data", 100),
+        CEO("CEO", "🏛️", "Executive authority; approves certification status changes", 90),
+        COMPLIANCE_OFFICER("Compliance Officer", "🛡️", "Certification compliance; approves status changes and validations", 85),
         MANAGER("Manager", "📋", "Manage operations, no deletion", 80),
+        FIELD_OFFICER("Field Officer", "🌱", "Supplier onboarding: profiles, commitments, inspections", 50),
         WORKER("Worker", "👤", "View and update assigned tasks", 30),
         INVESTOR("Investor", "📈", "View-only reports and analytics", 10);
 
@@ -406,10 +409,6 @@ public class UserEntity {
         String[] parts = name.split(" ");
         if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase();
         return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
-    }
-
-    public boolean canAccess(int requiredAccessLevel) {
-        return role.getAccessLevel() >= requiredAccessLevel;
     }
 
     public String getDisplayRole() {

@@ -79,12 +79,12 @@ public class SessionManager {
         return getUserRole() == UserEntity.UserRole.MANAGER;
     }
 
-    public boolean isWorker() { return getUserRole() == UserEntity.UserRole.WORKER;}
+    public boolean isWorker() { return getUserRole() == UserEntity.UserRole.WORKER; }
 
-    public boolean isInvestor() {
-        return getUserRole() == UserEntity.UserRole.INVESTOR;
-    }
-
+    public boolean isInvestor() { return getUserRole() == UserEntity.UserRole.INVESTOR; }
+    public boolean isCEO() { return getUserRole() == UserEntity.UserRole.CEO; }
+    public boolean isComplianceOfficer() { return getUserRole() == UserEntity.UserRole.COMPLIANCE_OFFICER; }
+    public boolean isFieldOfficer() { return getUserRole() == UserEntity.UserRole.FIELD_OFFICER; }
     public boolean canManageUsers() {
         return isOwner();
     }
@@ -92,10 +92,12 @@ public class SessionManager {
     public boolean canEditData() {
         return isOwner() || isManager();
     }
-
-    public boolean canViewAnalytics() {
-        return true;
+    public boolean canChangeCertificationStatus() {
+        return isOwner() || isCEO() || isComplianceOfficer();
     }
+    public boolean canOnboardSuppliers() {return isOwner() || isManager() || isFieldOfficer();}
+    public boolean canManageAccounts() {return isOwner();}
+    public boolean canViewAnalytics() {return true;}
 
     public void logout() {
         Log.d("SessionManager", "Session cleared");
