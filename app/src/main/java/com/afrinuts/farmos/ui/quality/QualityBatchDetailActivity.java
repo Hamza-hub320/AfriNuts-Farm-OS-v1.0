@@ -393,11 +393,14 @@ public class QualityBatchDetailActivity extends BaseActivity {
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
+            if (btnGenerateTraceability != null) btnGenerateTraceability.setVisibility(View.GONE);
+            if (btnExportQR != null) btnExportQR.setVisibility(View.GONE);
+            if (btnShare != null) btnShare.setVisibility(View.GONE);
         }
 
         // Guard against mixed records
         if (hasRcnData && batch.getKernelQualityScore() > 0) {
-            Log.w(TAG, "⚠️ Mixed record: batch " + batch.getBatchNumber()
+            Log.w(TAG, "Mixed record: batch " + batch.getBatchNumber()
                     + " has both RCN and kernel quality scores");
         }
     }
