@@ -199,7 +199,7 @@ public class AddUserDialog extends DialogFragment {
         RoleAdapter adapter = new RoleAdapter(requireContext(), roleItems);
         etRole.setAdapter(adapter);
 
-        etRole.setText(roleItems.get(2).getDisplayName(), false);
+        etRole.setText(roleItems.get(5).getDisplayName(), false);
 
         etRole.setOnItemClickListener((parent, view, position, id) -> {
             RoleItem selectedItem = (RoleItem) parent.getItemAtPosition(position);
