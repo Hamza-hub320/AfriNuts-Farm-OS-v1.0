@@ -225,6 +225,8 @@ public class UserDetailActivity extends BaseActivity {
             chipUserStatus.setChipBackgroundColorResource(android.R.color.holo_red_dark);
         }
 
+        btnDeactivate.setText(user.isActive() ? "Deactivate" : "Activate");
+
         // ✅ Display Profile Details
         boolean hasProfileInfo = false;
 
