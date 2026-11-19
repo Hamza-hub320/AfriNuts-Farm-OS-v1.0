@@ -1,0 +1,151 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDocPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isActiveUser() {
+      return isSignedIn()
+        && exists(userDocPath())
+        && get(userDocPath()).data.get('isActive', true) != false;
+    }
+
+    function hasRole(role) {
+      return isActiveUser()
+        && get(userDocPath()).data.get('role', '') == role;
+    }
+
+    function isOwner() {
+      return hasRole('OWNER');
+    }
+
+    function isManager() {
+      return hasRole('MANAGER');
+    }
+
+    function isInternal() {
+      return isActiveUser()
+        && get(userDocPath()).data.get('role', '')
+          in ['OWNER', 'CEO', 'COMPLIANCE_OFFICER', 'MANAGER'];
+    }
+
+    function isFieldOfficer() {
+      return hasRole('FIELD_OFFICER');
+    }
+
+    function hasNoValidationStamps() {
+      return !request.resource.data.keys().hasAny(['validatedAt', 'validatedBy']);
+    }
+
+    function validationStampsUnchanged() {
+      return !request.resource.data.diff(resource.data)
+        .affectedKeys().hasAny(['validatedAt', 'validatedBy']);
+    }
+
+    match /farms/{farmId} {
+      allow read: if isInternal() || isFieldOfficer();
+      allow write: if isOwner() || isManager();
+
+      match /suppliers/{supplierId} {
+        allow read: if isInternal() || isFieldOfficer();
+        allow create: if isInternal() || (isFieldOfficer() && hasNoValidationStamps());
+        allow update, delete: if isInternal();
+      }
+
+      match /supplier_commitments/{commitmentId} {
+        allow read: if isInternal() || isFieldOfficer();
+        allow create: if isInternal() || (isFieldOfficer() && hasNoValidationStamps());
+        allow update: if isInternal() || (isFieldOfficer() && validationStampsUnchanged());
+        allow delete: if isInternal();
+      }
+
+      match /supplier_inspections/{inspectionId} {
+        allow read: if isInternal() || isFieldOfficer();
+        allow create: if isInternal() || (isFieldOfficer() && hasNoValidationStamps());
+        allow update: if isInternal() || (isFieldOfficer() && validationStampsUnchanged());
+        allow delete: if isInternal();
+      }
+
+      match /supplier_disputes/{disputeId} {
+        allow read, write: if isInternal();
+      }
+
+      match /supplier_score_history/{snapshotId} {
+        allow read: if isInternal() || isFieldOfficer();
+        allow write: if isInternal();
+      }
+
+      match /blocks/{blockId} {
+        allow read, write: if isInternal();
+      }
+
+      match /tasks/{taskId} {
+        allow read, write: if isInternal();
+      }
+
+      match /task_assignments/{assignmentId} {
+        allow read, write: if isInternal();
+      }
+
+      match /photos/{photoId} {
+        allow read, write: if isInternal();
+      }
+
+      match /quality_batches/{batchId} {
+        allow read, write: if isInternal();
+      }
+
+      match /batch_traceability/{traceabilityId} {
+        allow read, write: if isInternal();
+      }
+
+      match /master_traceability/{traceabilityId} {
+        allow read, write: if isInternal();
+      }
+
+      match /revenues/{revenueId} {
+        allow read, write: if isInternal();
+      }
+
+      match /expenses/{expenseId} {
+        allow read, write: if isInternal();
+      }
+
+      match /certifications/{certificationId} {
+        allow read, write: if isInternal();
+      }
+
+      match /audits/{auditId} {
+        allow read, write: if isInternal();
+      }
+
+      match /inspections/{inspectionId} {
+        allow read, write: if isInternal();
+      }
+
+      match /verifications/{verificationId} {
+        allow read, write: if isInternal();
+      }
+
+      match /documents/{documentId} {
+        allow read, write: if isInternal();
+      }
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner()
+        || (isActiveUser() && request.auth.uid == uid);
+      allow write: if isOwner();
+      allow update: if isActiveUser()
+        && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys().hasAny(['role', 'isActive', 'investorTier', 'farmId']);
+    }
+  }
+}
