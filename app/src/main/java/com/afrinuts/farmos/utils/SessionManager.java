@@ -90,12 +90,12 @@ public class SessionManager {
     }
 
     public boolean canEditData() {
-        return isOwner() || isManager();
+        return isOwner() || isManager() || isCEO();
     }
     public boolean canChangeCertificationStatus() {
         return isOwner() || isCEO() || isComplianceOfficer();
     }
-    public boolean canOnboardSuppliers() {return isOwner() || isManager() || isFieldOfficer();}
+    public boolean canOnboardSuppliers() {return isOwner() || isManager() || isFieldOfficer() || isCEO();}
     public boolean canManageAccounts() {return isOwner();}
     public boolean canViewAnalytics() {return true;}
 

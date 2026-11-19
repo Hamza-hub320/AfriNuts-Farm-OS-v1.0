@@ -110,13 +110,13 @@ public class FinanceHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Only Owners and Managers can access expenses
-        return sessionManager.isOwner() || sessionManager.isManager();
+        // Only Owners, Managers and CEO can access expenses
+        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO();
     }
 
     @Override
     protected String getAccessDeniedMessage() {
-        return "Expenses are only accessible to Owners and Managers";
+        return "Expenses are only accessible to Owners, Managers and CEO";
     }
 
     // ViewPager Adapter

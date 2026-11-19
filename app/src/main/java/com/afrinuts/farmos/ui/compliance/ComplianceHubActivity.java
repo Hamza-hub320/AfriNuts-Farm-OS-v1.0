@@ -308,12 +308,12 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return sessionManager.isOwner() || sessionManager.isManager();
+        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO();
     }
 
     @Override
     protected String getAccessDeniedMessage() {
-        return "Compliance is only accessible to Owners and Managers";
+        return "Compliance is only accessible to Owners, Managers and CEO";
     }
 
     // Tab types

@@ -57,8 +57,8 @@ public class FarmHubActivity extends BaseHubActivity {
     private void determineVisibleTabs() {
         visibleTabs.clear();
 
-        // Owners and Managers see all tabs
-        if (sessionManager.isOwner() || sessionManager.isManager()) {
+        // Owners, Managers and CEO see all tabs
+        if (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO()) {
             visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS));
             visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
             visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS));
@@ -115,7 +115,7 @@ public class FarmHubActivity extends BaseHubActivity {
         fabAdd.setOnClickListener(null);
 
         // Set FAB based on tab type
-        if (tabItem.type == TabType.BLOCKS && (sessionManager.isOwner() || sessionManager.isManager())) {
+        if (tabItem.type == TabType.BLOCKS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
@@ -139,7 +139,7 @@ public class FarmHubActivity extends BaseHubActivity {
             });
             fabAdd.show();
         }
-        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isFieldOfficer())) {
+        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isFieldOfficer() || sessionManager.isCEO())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
@@ -173,15 +173,15 @@ public class FarmHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Owners, Managers, and Workers can access Farm Hub
+        // Owners, Managers, CEO and Workers can access Farm Hub
         // Investors are blocked
         return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isWorker()
-                || sessionManager.isFieldOfficer();
+                || sessionManager.isFieldOfficer() || sessionManager.isCEO();
     }
 
     @Override
     protected String getAccessDeniedMessage() {
-        return "Farm operations are only accessible to Owners, Managers, Workers, and Field Officers";
+        return "Farm operations are only accessible to Owners, Managers, CEO, Workers, and Field Officers";
     }
 
     // Tab types
