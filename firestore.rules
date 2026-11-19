@@ -7,7 +7,7 @@ service cloud.firestore {
     }
 
     function userDocPath() {
-      return /databases/$(database)/documents/users/$(request.auth.uid);
+      return path('/databases/$(database)/documents/users/$(request.auth.uid)');
     }
 
     function isActiveUser() {
