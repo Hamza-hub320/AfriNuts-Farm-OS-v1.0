@@ -323,7 +323,7 @@ public class AuditDetailActivity extends BaseActivity {
                 "CLOSED - Resolved"
         };
 
-        String[] statusValues = {"OPEN", "IN PROGRESS", "CLOSED"};
+        String[] statusValues = {"OPEN", "IN_PROGRESS", "CLOSED"};
 
         // Find current selection
         int currentSelection = 0;
