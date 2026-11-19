@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView netProfitText;
     private TextView revenueTrend;
     private TextView expenseTrend;
-    private TextView viewFinancialDetails;
 
     // Recent Activity
     private LinearLayout recentActivityContainer;
@@ -345,7 +344,6 @@ public class MainActivity extends AppCompatActivity {
         netProfitText = findViewById(R.id.netProfitText);
         revenueTrend = findViewById(R.id.revenueTrend);
         expenseTrend = findViewById(R.id.expenseTrend);
-        viewFinancialDetails = findViewById(R.id.viewFinancialDetails);
 
         // Recent Activity
         recentActivityContainer = findViewById(R.id.recentActivityContainer);
