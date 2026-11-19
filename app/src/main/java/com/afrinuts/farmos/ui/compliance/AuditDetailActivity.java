@@ -14,6 +14,7 @@ import androidx.cardview.widget.CardView;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.AuditEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.repository.AuditRepository;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
@@ -144,13 +145,16 @@ public class AuditDetailActivity extends BaseActivity {
 
                 audit = auditRepository.getAuditByIdSync(auditId);
 
+                String validatedByDisplayName = audit == null || audit.getValidatedAt() == null
+                        ? null : resolveValidatorName(audit.getValidatedBy());
+
                 if (audit != null && audit.getCertificationId() != null) {
                     certification = certificationRepository.getCertificationByIdSync(audit.getCertificationId());
                 }
 
                 runOnUiThread(() -> {
                     if (audit != null) {
-                        displayAuditData();
+                        displayAuditData(validatedByDisplayName);
                         loadSupersededState();
                     } else {
                         Toast.makeText(this, "Audit not found", Toast.LENGTH_SHORT).show();
@@ -185,7 +189,18 @@ public class AuditDetailActivity extends BaseActivity {
         });
     }
 
-    private void displayAuditData() {
+    private String resolveValidatorName(String uid) {
+        if (uid == null || uid.isEmpty()) return uid;
+        try {
+            UserEntity validator = database.userDao().getUserByUid(uid);
+            String name = validator != null ? validator.getName() : null;
+            return name != null && !name.trim().isEmpty() ? name : uid;
+        } catch (Exception ignored) {
+            return uid;
+        }
+    }
+
+    private void displayAuditData(String validatedByDisplayName) {
         // Basic Info
         tvAuditId.setText(audit.getAuditId());
         tvAuditType.setText(audit.getAuditTypeDisplay());
@@ -227,7 +242,7 @@ public class AuditDetailActivity extends BaseActivity {
         if (audit.getValidatedAt() == null) {
             tvValidated.setText("—");
         } else {
-            tvValidated.setText("Validated by " + audit.getValidatedBy()
+            tvValidated.setText("Validated by " + validatedByDisplayName
                     + " on " + DateFormatter.formatDateOrDash(audit.getValidatedAt()));
         }
 

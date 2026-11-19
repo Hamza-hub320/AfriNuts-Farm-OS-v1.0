@@ -14,6 +14,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.VerificationEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.VerificationRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
@@ -135,13 +136,16 @@ public class VerificationDetailActivity extends BaseActivity {
 
                 verification = verificationRepository.getVerificationByIdSync(verificationId);
 
+                String validatedByDisplayName = verification == null || verification.getValidatedAt() == null
+                        ? null : resolveValidatorName(verification.getValidatedBy());
+
                 if (verification != null && verification.getCertificationId() != null) {
                     certification = certificationRepository.getCertificationByIdSync(verification.getCertificationId());
                 }
 
                 runOnUiThread(() -> {
                     if (verification != null) {
-                        displayVerificationData();
+                        displayVerificationData(validatedByDisplayName);
                         loadSupersededState();
                     } else {
                         Toast.makeText(this, "Verification not found", Toast.LENGTH_SHORT).show();
@@ -172,7 +176,18 @@ public class VerificationDetailActivity extends BaseActivity {
             });
         });
     }
-    private void displayVerificationData() {
+    private String resolveValidatorName(String uid) {
+        if (uid == null || uid.isEmpty()) return uid;
+        try {
+            UserEntity validator = database.userDao().getUserByUid(uid);
+            String name = validator != null ? validator.getName() : null;
+            return name != null && !name.trim().isEmpty() ? name : uid;
+        } catch (Exception ignored) {
+            return uid;
+        }
+    }
+
+    private void displayVerificationData(String validatedByDisplayName) {
         tvVerificationId.setText(verification.getVerificationId());
         tvVerificationType.setText(verification.getVerificationTypeDisplay());
 
@@ -206,7 +221,7 @@ public class VerificationDetailActivity extends BaseActivity {
         if (verification.getValidatedAt() == null) {
             tvValidated.setText("—");
         } else {
-            tvValidated.setText("Validated by " + verification.getValidatedBy()
+            tvValidated.setText("Validated by " + validatedByDisplayName
                     + " on " + DateFormatter.formatDateOrDash(verification.getValidatedAt()));
         }
     }

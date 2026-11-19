@@ -15,6 +15,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
@@ -145,13 +146,16 @@ public class InspectionDetailActivity extends BaseActivity {
 
                 inspection = inspectionRepository.getInspectionByIdSync(inspectionId);
 
+                String validatedByDisplayName = inspection == null || inspection.getValidatedAt() == null
+                        ? null : resolveValidatorName(inspection.getValidatedBy());
+
                 if (inspection != null && inspection.getCertificationId() != null) {
                     certification = certificationRepository.getCertificationByIdSync(inspection.getCertificationId());
                 }
 
                 runOnUiThread(() -> {
                     if (inspection != null) {
-                        displayInspectionData();
+                        displayInspectionData(validatedByDisplayName);
                         loadSupersededState();
                     } else {
                         Toast.makeText(this, "Inspection not found", Toast.LENGTH_SHORT).show();
@@ -184,7 +188,18 @@ public class InspectionDetailActivity extends BaseActivity {
         });
     }
 
-    private void displayInspectionData() {
+    private String resolveValidatorName(String uid) {
+        if (uid == null || uid.isEmpty()) return uid;
+        try {
+            UserEntity validator = database.userDao().getUserByUid(uid);
+            String name = validator != null ? validator.getName() : null;
+            return name != null && !name.trim().isEmpty() ? name : uid;
+        } catch (Exception ignored) {
+            return uid;
+        }
+    }
+
+    private void displayInspectionData(String validatedByDisplayName) {
         // Basic Info
         tvInspectionId.setText(inspection.getInspectionId());
         tvRequirementCategory.setText(inspection.getRequirementCategoryDisplay());
@@ -229,7 +244,7 @@ public class InspectionDetailActivity extends BaseActivity {
         if (inspection.getValidatedAt() == null) {
             tvValidated.setText("—");
         } else {
-            tvValidated.setText("Validated by " + inspection.getValidatedBy()
+            tvValidated.setText("Validated by " + validatedByDisplayName
                     + " on " + DateFormatter.formatDateOrDash(inspection.getValidatedAt()));
         }
 
