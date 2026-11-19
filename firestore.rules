@@ -40,12 +40,15 @@ service cloud.firestore {
     }
 
     function hasNoValidationStamps() {
-      return !request.resource.data.keys().hasAny(['validatedAt', 'validatedBy']);
+      return !(request.resource.data.get('validatedAt', 0) > 0)
+        && request.resource.data.get('validatedBy', null) == null;
     }
 
     function validationStampsUnchanged() {
-      return !request.resource.data.diff(resource.data)
-        .affectedKeys().hasAny(['validatedAt', 'validatedBy']);
+      return request.resource.data.get('validatedAt', null)
+          == resource.data.get('validatedAt', null)
+        && request.resource.data.get('validatedBy', null)
+          == resource.data.get('validatedBy', null);
     }
 
     match /farms/{farmId} {
