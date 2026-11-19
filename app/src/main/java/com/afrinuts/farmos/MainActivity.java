@@ -16,8 +16,6 @@ import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
 
@@ -181,12 +179,6 @@ public class MainActivity extends AppCompatActivity {
     private RevenueRepository revenueRepository;
     private TaskRepository taskRepository;
 
-    // Firestore Listeners
-    private ListenerRegistration blocksListener;
-    private ListenerRegistration expensesListener;
-    private ListenerRegistration revenuesListener;
-    private ListenerRegistration tasksListener;
-
     // Navigation state
     // Change from 3 to 4
     private int currentNavItem = 0; // 0=Home, 1=Farm, 2=Finance, 3=Analytics, 4=Compliance
@@ -294,10 +286,6 @@ public class MainActivity extends AppCompatActivity {
         if (weatherRepository != null) {
             weatherRepository.shutdown();
         }
-        if (blocksListener != null) blocksListener.remove();
-        if (expensesListener != null) expensesListener.remove();
-        if (revenuesListener != null) revenuesListener.remove();
-        if (tasksListener != null) tasksListener.remove();
     }
 
     // ========================================
@@ -872,7 +860,6 @@ public class MainActivity extends AppCompatActivity {
                 if (sessionManager.isOwner()) {
                     loadUsersFromFirestore();
                 }
-                startAllListeners();
 
                 if (locationText != null) {
                     locationText.setText("Odienné, Côte d'Ivoire");
@@ -1516,190 +1503,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "❌ Failed to load users from Firestore", e);
                     }
                 });
-    }
-
-    // ========================================
-    // FIRESTORE REAL-TIME LISTENERS
-    // ========================================
-
-    private void startAllListeners() {
-        if (currentFarm == null) return;
-
-        String farmId = String.valueOf(currentFarm.getId());
-        Log.d(TAG, "Starting real-time listeners for farm: " + farmId);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        blocksListener = db.collection("blocks")
-                .whereEqualTo("farmId", farmId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Blocks listener failed", error);
-                        return;
-                    }
-                    handleDataChanges("blocks", snapshots);
-                });
-
-        expensesListener = db.collection("expenses")
-                .whereEqualTo("farmId", farmId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Expenses listener failed", error);
-                        return;
-                    }
-                    handleDataChanges("expenses", snapshots);
-                });
-
-        revenuesListener = db.collection("revenues")
-                .whereEqualTo("farmId", farmId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Revenues listener failed", error);
-                        return;
-                    }
-                    handleDataChanges("revenues", snapshots);
-                });
-
-        tasksListener = db.collection("tasks")
-                .whereEqualTo("farmId", farmId)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Tasks listener failed", error);
-                        return;
-                    }
-                    handleDataChanges("tasks", snapshots);
-                });
-    }
-
-    private void handleDataChanges(String collection, QuerySnapshot snapshots) {
-        if (snapshots == null) return;
-
-        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-            DocumentSnapshot document = dc.getDocument();
-
-            switch (dc.getType()) {
-                case ADDED:
-                    Log.d(TAG, "New " + collection + " added remotely");
-                    handleDocumentAdded(collection, document);
-                    break;
-                case MODIFIED:
-                    Log.d(TAG, collection + " modified remotely");
-                    handleDocumentModified(collection, document);
-                    break;
-                case REMOVED:
-                    Log.d(TAG, collection + " removed remotely");
-                    handleDocumentRemoved(collection, document);
-                    break;
-            }
-        }
-
-        runOnUiThread(this::loadFarmData);
-    }
-
-    private void handleDocumentAdded(String collection, DocumentSnapshot doc) {
-        databaseExecutor.execute(() -> {
-            try {
-                switch (collection) {
-                    case "blocks":
-                        BlockEntity block = documentToBlock(doc);
-                        if (block != null) {
-                            blockRepository.syncBlockFromFirestore(doc);
-                        }
-                        break;
-                    case "expenses":
-                        ExpenseEntity expense = documentToExpense(doc);
-                        if (expense != null) {
-                            expenseRepository.syncExpenseFromFirestore(doc);
-                        }
-                        break;
-                    case "revenues":
-                        RevenueEntity revenue = documentToRevenue(doc);
-                        if (revenue != null) {
-                            revenueRepository.syncRevenueFromFirestore(doc);
-                        }
-                        break;
-                    case "tasks":
-                        TaskEntity task = documentToTask(doc);
-                        if (task != null) {
-                            taskRepository.syncTaskFromFirestore(doc);
-                        }
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error handling added document", e);
-            }
-        });
-    }
-
-    private void handleDocumentModified(String collection, DocumentSnapshot doc) {
-        databaseExecutor.execute(() -> {
-            try {
-                switch (collection) {
-                    case "blocks":
-                        BlockEntity block = documentToBlock(doc);
-                        if (block != null) {
-                            blockRepository.syncBlockFromFirestore(doc);
-                        }
-                        break;
-                    case "expenses":
-                        ExpenseEntity expense = documentToExpense(doc);
-                        if (expense != null) {
-                            expenseRepository.syncExpenseFromFirestore(doc);
-                        }
-                        break;
-                    case "revenues":
-                        RevenueEntity revenue = documentToRevenue(doc);
-                        if (revenue != null) {
-                            revenueRepository.syncRevenueFromFirestore(doc);
-                        }
-                        break;
-                    case "tasks":
-                        TaskEntity task = documentToTask(doc);
-                        if (task != null) {
-                            taskRepository.syncTaskFromFirestore(doc);
-                        }
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error handling modified document", e);
-            }
-        });
-    }
-
-    private void handleDocumentRemoved(String collection, DocumentSnapshot doc) {
-        databaseExecutor.execute(() -> {
-            try {
-                long id = doc.getLong("id");
-                switch (collection) {
-                    case "blocks":
-                        BlockEntity block = database.blockDao().getBlockById(id);
-                        if (block != null) {
-                            database.blockDao().delete(block);
-                        }
-                        break;
-                    case "expenses":
-                        ExpenseEntity expense = database.expenseDao().getExpenseById(id);
-                        if (expense != null) {
-                            database.expenseDao().delete(expense);
-                        }
-                        break;
-                    case "revenues":
-                        RevenueEntity revenue = database.revenueDao().getRevenueById(id);
-                        if (revenue != null) {
-                            database.revenueDao().delete(revenue);
-                        }
-                        break;
-                    case "tasks":
-                        TaskEntity task = database.taskDao().getTaskById(id);
-                        if (task != null) {
-                            database.taskDao().deleteTask(task);
-                        }
-                        break;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error handling removed document", e);
-            }
-        });
     }
 
     // ========================================
