@@ -305,6 +305,47 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <LinearLayout
+                    android:id="@+id/layoutInvestorTier"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Investor Tier"
+                        style="@style/Text.H5"
+                        android:textColor="?attr/colorPrimaryVariant"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:endIconMode="dropdown_menu"
+                        app:endIconDrawable="@drawable/ic_arrow_drop_down"
+                        app:boxBackgroundColor="@color/surface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="?attr/colorPrimaryVariant">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/etInvestorTier"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Select Investor Tier *"
+                            android:inputType="none"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textColorHint="?attr/colorOnSurface" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

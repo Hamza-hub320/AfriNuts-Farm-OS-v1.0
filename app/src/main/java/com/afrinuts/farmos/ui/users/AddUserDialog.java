@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -47,6 +48,8 @@ public class AddUserDialog extends DialogFragment {
     private TextInputEditText etPhone;
     private TextInputEditText etEmail;
     private MaterialAutoCompleteTextView etRole;
+    private LinearLayout layoutInvestorTier;
+    private MaterialAutoCompleteTextView etInvestorTier;
     private MaterialButtonToggleGroup toggleAuthMethod;
     private LinearLayout layoutPassword;
     private TextInputEditText etPassword;
@@ -63,6 +66,7 @@ public class AddUserDialog extends DialogFragment {
     private long farmId;
 
     private UserEntity.UserRole selectedRole = UserEntity.UserRole.WORKER;
+    private String selectedInvestorTier = "NDA_SIGNED";
     private UserEntity.AuthMethod selectedAuthMethod = UserEntity.AuthMethod.PIN;
 
     // Custom buttons
@@ -111,6 +115,7 @@ public class AddUserDialog extends DialogFragment {
 
         initViews(view);
         setupRoleDropdown();
+        setupInvestorTierDropdown();
         setupAuthMethodToggle();
 
         // Find custom buttons from layout
@@ -139,6 +144,8 @@ public class AddUserDialog extends DialogFragment {
         etPhone = view.findViewById(R.id.etPhone);
         etEmail = view.findViewById(R.id.etEmail);
         etRole = view.findViewById(R.id.etRole);
+        layoutInvestorTier = view.findViewById(R.id.layoutInvestorTier);
+        etInvestorTier = view.findViewById(R.id.etInvestorTier);
         toggleAuthMethod = view.findViewById(R.id.toggleAuthMethod);
         layoutPassword = view.findViewById(R.id.layoutPassword);
         etPassword = view.findViewById(R.id.etPassword);
@@ -217,6 +224,26 @@ public class AddUserDialog extends DialogFragment {
                 layoutPin.setVisibility(View.GONE);
                 selectedAuthMethod = UserEntity.AuthMethod.PASSWORD;
             }
+
+            layoutInvestorTier.setVisibility(
+                    selectedRole == UserEntity.UserRole.INVESTOR ? View.VISIBLE : View.GONE
+            );
+        });
+    }
+
+    private void setupInvestorTierDropdown() {
+        String[] tierCodes = {"PROSPECT", "NDA_SIGNED", "INVESTED"};
+        String[] tierLabels = {"Prospect", "NDA Signed", "Invested"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                tierLabels
+        );
+        etInvestorTier.setAdapter(adapter);
+        etInvestorTier.setText(tierLabels[1], false);
+        selectedInvestorTier = tierCodes[1];
+        etInvestorTier.setOnItemClickListener((parent, view, position, id) -> {
+            selectedInvestorTier = tierCodes[position];
         });
     }
 
@@ -477,6 +504,9 @@ public class AddUserDialog extends DialogFragment {
         // ✅ Core fields (Admin Entered - Required)
         userMap.put("name", user.getName());
         userMap.put("role", user.getRole().name());
+        if (user.getRole() == UserEntity.UserRole.INVESTOR) {
+            userMap.put("investorTier", selectedInvestorTier);
+        }
         userMap.put("email", user.getEmail());
         userMap.put("phone", user.getPhone());
 
