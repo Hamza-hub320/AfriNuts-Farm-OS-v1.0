@@ -6,21 +6,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function userDocPath() {
-      return path('/databases/$(database)/documents/users/$(request.auth.uid)');
-    }
-
     function isActiveUser() {
       return isSignedIn()
-        && exists(userDocPath())
-        && get(userDocPath()).data.get('isActive', true) != false;
+      && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isActive', true) != false;
     }
 
     function hasRole(role) {
       return isActiveUser()
-        && get(userDocPath()).data.get('role', '') == role;
+      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == role;
     }
-
     function isOwner() {
       return hasRole('OWNER');
     }
@@ -31,8 +26,8 @@ service cloud.firestore {
 
     function isInternal() {
       return isActiveUser()
-        && get(userDocPath()).data.get('role', '')
-          in ['OWNER', 'CEO', 'COMPLIANCE_OFFICER', 'MANAGER'];
+      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '')
+      in ['OWNER', 'CEO', 'COMPLIANCE_OFFICER', 'MANAGER'];
     }
 
     function isFieldOfficer() {
