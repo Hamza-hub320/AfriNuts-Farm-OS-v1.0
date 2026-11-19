@@ -861,7 +861,7 @@ public class MainActivity extends AppCompatActivity {
                 taskRepository = new TaskRepository(MainActivity.this, farmId);
 
                 firestoreSyncManager = FirestoreSyncManager.getInstance(MainActivity.this);
-                firestoreSyncManager.startListening(String.valueOf(farmId));
+                firestoreSyncManager.startListening(String.valueOf(farmId), sessionManager.isOwner());
 
                 loadFarmData();
 
@@ -869,7 +869,9 @@ public class MainActivity extends AppCompatActivity {
                     initializeSyncListener();
                 }
 
-                loadUsersFromFirestore();
+                if (sessionManager.isOwner()) {
+                    loadUsersFromFirestore();
+                }
                 startAllListeners();
 
                 if (locationText != null) {

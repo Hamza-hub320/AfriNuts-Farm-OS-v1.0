@@ -191,8 +191,9 @@ public class LoginActivity extends AppCompatActivity {
                         displayUserChips();
                         showLoginFieldsForReturningUser();
                     } else {
-                        Log.d(TAG, "No local users → fetching from Firestore...");
-                        fetchUsersFromFirestore();
+                        Log.d(TAG, "No local users → showing first-time email and password login");
+                        isFirstTimeLogin = true;
+                        showLoginFieldsForFirstTimeUser();
                     }
                 });
             } catch (Exception e) {
@@ -203,32 +204,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
-    }
-
-    private void fetchUsersFromFirestore() {
-        FirebaseFirestore.getInstance().collection("users")
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) {
-                        runOnUiThread(this::showLoginFieldsForFirstTimeUser);
-                        return;
-                    }
-
-                    databaseExecutor.execute(() -> {
-                        for (DocumentSnapshot doc : querySnapshot) {
-                            UserEntity user = documentToUser(doc);
-                            if (user != null && user.isActive()) {
-                                database.userDao().insert(user);
-                            }
-                        }
-
-                        runOnUiThread(this::loadLocalUsers);
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to fetch users", e);
-                    runOnUiThread(this::showLoginFieldsForFirstTimeUser);
-                });
     }
 
     private void showLoginFieldsForFirstTimeUser() {

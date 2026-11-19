@@ -104,7 +104,7 @@ public class FirestoreSyncManager {
     /**
      * Start listening for all changes for a farm
      */
-    public void startListening(String farmId) {
+    public void startListening(String farmId, boolean isOwner) {
         this.farmId = farmId;
         Log.d(TAG, "Starting Firestore listeners for farm: " + farmId);
 
@@ -113,7 +113,9 @@ public class FirestoreSyncManager {
         listenToRevenues();
         listenToTasks();
         listenToPhotos();
-        listenToUsers();
+        if (isOwner) {
+            listenToUsers();
+        }
         listenToAssignments();
         listenToQualityBatches();
         listenToSuppliers();
