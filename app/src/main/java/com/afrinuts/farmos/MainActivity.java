@@ -18,6 +18,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
@@ -42,6 +48,7 @@ import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.ui.sync.SyncStatusReceiver;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,22 +116,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView navComplianceText;
 
     // UI Elements - Toolbar
-    private ImageButton btnProfile;
+    private View btnProfile;
     private TextView toolbarSyncStatus;
     private TextView toolbarUserName;
     private View syncStatusDot;
     private ImageButton btnToolbarSync;
-    private ImageButton btnToolbarLogout;
-
-    // Welcome Header
-    private TextView welcomeUserName;
-    private TextView locationText;
-
-    private Handler greetingHandler;
-    private Runnable greetingUpdater;
-
-    // UI Elements
-    private TextView greetingText;
 
     // Financial Snapshot
     private TextView monthlyRevenueText;
@@ -224,14 +220,6 @@ public class MainActivity extends AppCompatActivity {
         ensureFarmExists();
 
         setupSyncManager();
-        setupWeather();
-
-        loadWeatherData();
-
-        // Setup Financial Snapshot Click Listener
-        setupFinancialSnapshotClick();
-
-        startGreetingUpdater();
     }
 
     @Override
@@ -301,49 +289,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Toolbar
         btnToolbarSync = findViewById(R.id.btnToolbarSync);
-        btnToolbarLogout = findViewById(R.id.btnToolbarLogout);
         btnProfile = findViewById(R.id.btnProfile);
         toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
         syncStatusDot = findViewById(R.id.syncStatusDot);
 
         // Welcome Header
-        welcomeUserName = findViewById(R.id.welcomeUserName);
-        locationText = findViewById(R.id.locationText);
-        greetingText = findViewById(R.id.greetingText);
         TextView overviewDateText = findViewById(R.id.overviewDateText);
         if (overviewDateText != null) {
-            overviewDateText.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
+            overviewDateText.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()) + " · Odienné");
         }
 
         // Financial Snapshot
-        monthlyRevenueText = findViewById(R.id.monthlyRevenueText);
-        monthlyExpensesText = findViewById(R.id.monthlyExpensesText);
-        netProfitText = findViewById(R.id.netProfitText);
-        revenueTrend = findViewById(R.id.revenueTrend);
-        expenseTrend = findViewById(R.id.expenseTrend);
 
         // Recent Activity
-        recentActivityContainer = findViewById(R.id.recentActivityContainer);
 
         // Weather
-        weatherCard = findViewById(R.id.weatherCard);
-        weatherIcon = findViewById(R.id.weatherIcon);
-        weatherTemp = findViewById(R.id.weatherTemp);
-        weatherCondition = findViewById(R.id.weatherCondition);
-        weatherFeelsLike = findViewById(R.id.weatherFeelsLike);
-        weatherHumidity = findViewById(R.id.weatherHumidity);
-        weatherWind = findViewById(R.id.weatherWind);
-        weatherUpdateTime = findViewById(R.id.weatherUpdateTime);
-        weatherLocationDetail = findViewById(R.id.weatherLocationDetail);
-        forecastContainer = findViewById(R.id.forecastContainer);
 
         // Offline Banner
         offlineBanner = findViewById(R.id.offlineBanner);
-    }
-
-    private void setupFinancialSnapshotClick() {
-        // Listener intentionally removed — ProfitDashboardActivity is deleted (40→41).
-        // Card numbers are computed in MainActivity and remain visible.
     }
 
     private void setupBottomNavigation() {
@@ -424,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavItemSelected(int position) {
-        int inactiveColor = getThemeColor(R.attr.navbarIconColor);
+        int inactiveColor = Color.rgb(201, 194, 180);
         int activeColor = ContextCompat.getColor(this, android.R.color.white);
         setHomeNavState(navHome, navHomeIcon, navHomeText, position == 0, inactiveColor, activeColor);
         setHomeNavState(navFarm, navFarmIcon, navFarmText, position == 1, inactiveColor, activeColor);
@@ -437,14 +400,23 @@ public class MainActivity extends AppCompatActivity {
                                  int inactiveColor, int activeColor) {
         item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         item.setGravity(android.view.Gravity.CENTER);
-        item.setPadding(active ? 12 : 6, 4, active ? 12 : 6, 4);
+        item.setPadding(active ? dp(16) : 0, 0, active ? dp(16) : 0, 0);
         item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
+        LinearLayout.LayoutParams fixedItem = (LinearLayout.LayoutParams) item.getLayoutParams();
+        fixedItem.height = dp(48);
+        item.setLayoutParams(fixedItem);
+        ViewGroup.LayoutParams iconParams = icon.getLayoutParams();
+        iconParams.width = dp(20);
+        iconParams.height = dp(20);
+        icon.setLayoutParams(iconParams);
+        label.setTextSize(14);
+        label.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
         label.setVisibility(active ? View.VISIBLE : View.GONE);
         label.setTextColor(active ? activeColor : inactiveColor);
         label.setAlpha(1f);
         LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
         labelParams.topMargin = active ? 0 : 4;
-        labelParams.setMarginStart(active ? 6 : 0);
+        labelParams.setMarginStart(active ? dp(7) : 0);
         label.setLayoutParams(labelParams);
         icon.setColorFilter(active ? activeColor : inactiveColor);
         ViewGroup.LayoutParams raw = item.getLayoutParams();
@@ -479,9 +451,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        if (btnToolbarLogout != null) {
-            btnToolbarLogout.setOnClickListener(v -> showLogoutDialog());
-        }
     }
 
     private void setupProfileButton() {
@@ -491,26 +460,78 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showProfileMenu() {
-        String[] options;
-        if (sessionManager.canManageUsers()) {
-            options = new String[]{"Team", "Settings"};
-        } else {
-            options = new String[]{"Settings"};
-        }
+        if (btnProfile == null) return;
+        PopupWindow popup = new PopupWindow(this);
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(8), dp(8), dp(8), dp(8));
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(Color.WHITE);
+        background.setCornerRadius(dp(20));
+        background.setStroke(dp(1), 0xFFE9E1CF);
+        menu.setBackground(background);
+        menu.setElevation(dp(8));
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Account")
-                .setItems(options, (dialog, which) -> {
-                    if (options[which].equals("Team")) {
-                        if (currentFarm != null) {
-                            Intent intent = new Intent(MainActivity.this, com.afrinuts.farmos.ui.users.UsersListActivity.class);
-                            startActivity(intent);
-                        }
-                    } else if (options[which].equals("Settings")) {
-                        startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.settings.SettingsActivity.class));
-                    }
-                })
-                .show();
+        if (sessionManager.canManageUsers()) {
+            addAccountMenuItem(menu, popup, "Team", R.drawable.ic_person_add, 0xFF1C1B1A, false, () -> {
+                if (currentFarm != null) {
+                    startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.users.UsersListActivity.class));
+                }
+            });
+        }
+        addAccountMenuItem(menu, popup, "Settings", R.drawable.ic_settings, 0xFF1C1B1A, false,
+                () -> startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.settings.SettingsActivity.class)));
+        View divider = new View(this);
+        divider.setBackgroundColor(0xFFE9E1CF);
+        menu.addView(divider, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+        addAccountMenuItem(menu, popup, "Logout", R.drawable.ic_logout, 0xFFB3402A, true,
+                this::showLogoutDialog);
+
+        popup.setContentView(menu);
+        popup.setWidth(dp(196));
+        popup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+        popup.setElevation(dp(8));
+        popup.showAsDropDown(btnProfile, -dp(152), dp(8));
+    }
+
+    private void addAccountMenuItem(LinearLayout menu, PopupWindow popup, String title, int iconRes,
+                                    int textColor, boolean bold, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setBackground(new RippleDrawable(ColorStateList.valueOf(0xFFEFEAE2),
+                new ColorDrawable(Color.TRANSPARENT), null));
+
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(iconRes);
+        icon.setColorFilter(textColor);
+        row.addView(icon, new LinearLayout.LayoutParams(dp(18), dp(18)));
+
+        TextView label = new TextView(this);
+        label.setText(title);
+        label.setTextColor(textColor);
+        label.setTextSize(15);
+        label.setTypeface(Typeface.create(bold ? "sans-serif" : "sans-serif-medium",
+                bold ? Typeface.BOLD : Typeface.NORMAL));
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelParams.setMarginStart(dp(12));
+        row.addView(label, labelParams);
+
+        menu.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+        row.setOnClickListener(v -> {
+            popup.dismiss();
+            action.run();
+        });
+    }
+
+    private int dp(float value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     // ========================================
@@ -565,16 +586,6 @@ public class MainActivity extends AppCompatActivity {
                         toolbarUserName.setVisibility(View.VISIBLE);
                     }
 
-                    if (welcomeUserName != null) {
-                        welcomeUserName.setText(firstName);
-                    }
-
-                    // ✅ ADD THIS: Initialize greeting
-                    TextView greetingText = findViewById(R.id.greetingText);
-                    if (greetingText != null) {
-                        greetingText.setText(getTimeBasedGreeting());
-                    }
-
                     // Only initialize sync if user is active
                     if (currentUser.isActive()) {
                         initializeSyncListener();
@@ -586,45 +597,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
-    }
-
-    private String getTimeBasedGreeting() {
-        Calendar calendar = Calendar.getInstance();
-        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-
-        if (hourOfDay >= 5 && hourOfDay < 12) {
-            return "Good morning";
-        } else if (hourOfDay >= 12 && hourOfDay < 17) {
-            return "Good afternoon";
-        } else if (hourOfDay >= 17 && hourOfDay < 21) {
-            return "Good evening";
-        } else {
-            return "Good night";
-        }
-    }
-
-    private void startGreetingUpdater() {
-        greetingHandler = new Handler(Looper.getMainLooper());
-        greetingUpdater = new Runnable() {
-            @Override
-            public void run() {
-                TextView greetingText = findViewById(R.id.greetingText);
-                if (greetingText != null) {
-                    greetingText.setText(getTimeBasedGreeting());
-                }
-                // Update every minute (60000 ms) or you can use 3600000 for hourly
-                greetingHandler.postDelayed(this, 60000);
-            }
-        };
-        greetingHandler.post(greetingUpdater);
-    }
-
-    private void stopGreetingUpdater() {
-        if (greetingHandler != null && greetingUpdater != null) {
-            greetingHandler.removeCallbacks(greetingUpdater);
-            greetingHandler = null;
-            greetingUpdater = null;
-        }
     }
 
     private void fetchUserFromFirestore(String userUid) {
@@ -673,9 +645,6 @@ public class MainActivity extends AppCompatActivity {
                                     String firstName = user.getName().split(" ")[0];
                                     if (toolbarUserName != null) {
                                         toolbarUserName.setText("Hi, " + firstName);
-                                    }
-                                    if (welcomeUserName != null) {
-                                        welcomeUserName.setText(firstName);
                                     }
 
                                     Toast.makeText(this, "Welcome back, " + firstName, Toast.LENGTH_SHORT).show();
@@ -845,9 +814,6 @@ public class MainActivity extends AppCompatActivity {
                     loadUsersFromFirestore();
                 }
 
-                if (locationText != null) {
-                    locationText.setText("Odienné, Côte d'Ivoire");
-                }
             });
         });
     }
@@ -868,42 +834,11 @@ public class MainActivity extends AppCompatActivity {
                         List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
                         loadHomeQualityMetrics(farm.getId());
 
-                        int totalBlocks = blocks.size();
-                        int plantedBlocks = 0;
-                        int totalAliveTrees = 0;
-                        double totalSurvivalRate = 0;
-
-                        for (BlockEntity block : blocks) {
-                            if (block.isPlanted()) {
-                                plantedBlocks++;
-                                totalAliveTrees += block.getAliveTrees();
-                                totalSurvivalRate += block.getSurvivalRate();
-                            }
-                        }
-
-                        double avgSurvivalRate = plantedBlocks > 0 ?
-                                totalSurvivalRate / plantedBlocks : 0;
-                        int plantedProgressValue = totalBlocks > 0 ?
-                                (plantedBlocks * 100 / totalBlocks) : 0;
-
-                        final int finalTotalBlocks = totalBlocks;
-                        final int finalPlantedBlocks = plantedBlocks;
-                        final int finalTotalAliveTrees = totalAliveTrees;
-                        final double finalAvgSurvivalRate = avgSurvivalRate;
-                        final int finalPlantedProgress = plantedProgressValue;
                         final FarmEntity finalFarm = farm;
                         final List<BlockEntity> finalBlocks = blocks;
-
                         runOnUiThread(() -> {
                             currentFarm = finalFarm;
                             allBlocks = finalBlocks;
-                            updateUI(
-                                    finalTotalBlocks,
-                                    finalPlantedBlocks,
-                                    finalTotalAliveTrees,
-                                    finalAvgSurvivalRate,
-                                    finalPlantedProgress
-                            );
                         });
                     }
                 } catch (Exception e) {
@@ -915,22 +850,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
-                          double avgSurvivalRate, int plantedProgressValue) {
-        if (currentFarm == null) return;
-        welcomeUserName.setText(sessionManager.getUserName() != null
-                ? sessionManager.getUserName() : "Farmer");
-        updateFinancialSnapshot();
-        loadRecentActivity();
-    }
-
     private void loadHomeQualityMetrics(long farmId) {
         if (databaseExecutor == null || databaseExecutor.isShutdown()) return;
         try {
             databaseExecutor.execute(() -> {
                 try {
                     Calendar now = Calendar.getInstance();
-                    int year = now.get(Calendar.YEAR);
                     Calendar start = (Calendar) now.clone();
                     start.set(Calendar.DAY_OF_YEAR, 1);
                     start.set(Calendar.HOUR_OF_DAY, 0);
@@ -970,24 +895,24 @@ public class MainActivity extends AppCompatActivity {
                     final float[] finalMonthlyKg = monthlyKg;
                     final int finalPremium = premium, finalStandard = standard, finalReject = reject;
                     final int finalGraded = graded, finalOnboarded = onboarded;
-                    final int finalSupplierTotal = suppliers.size(), finalYear = year;
+                    final int finalSupplierTotal = suppliers.size();
                     runOnUiThread(() -> {
-                        TextView rcn = findViewById(R.id.homeRcnValue);
-                        TextView season = findViewById(R.id.homeSeasonText);
+                        TextView rcn = findViewById(R.id.homeRcnNumber);
                         TextView premiumShare = findViewById(R.id.homePremiumShare);
                         TextView gradedCount = findViewById(R.id.homeGradedCount);
-                        TextView gradeBreakdown = findViewById(R.id.homeGradeBreakdown);
-                        TextView supplierCount = findViewById(R.id.homeSupplierCount);
+                        TextView supplierOnboarded = findViewById(R.id.homeSupplierOnboarded);
+                        TextView supplierTotal = findViewById(R.id.homeSupplierTotal);
+                        TextView supplierRemaining = findViewById(R.id.homeSupplierRemaining);
                         TextView supplierProgressText = findViewById(R.id.homeSupplierProgressText);
                         ProgressBar supplierProgress = findViewById(R.id.homeSupplierProgress);
                         HomeChartView area = findViewById(R.id.homeRcnChart);
                         HomeChartView donut = findViewById(R.id.homeGradeDonut);
                         HomeChartView bars = findViewById(R.id.homeGradeBars);
-                        if (rcn == null || area == null || donut == null || bars == null) return;
-                        rcn.setText(String.format(Locale.getDefault(), "%,.0f kg", finalRcnKg));
-                        season.setText(finalYear + " season to date");
+                        if (rcn == null || premiumShare == null || gradedCount == null || supplierOnboarded == null
+                                || supplierTotal == null || supplierRemaining == null || supplierProgressText == null
+                                || supplierProgress == null || area == null || donut == null || bars == null) return;
+                        rcn.setText(String.format(Locale.getDefault(), "%,.0f", finalRcnKg));
                         area.setMode(HomeChartView.Mode.AREA);
-                        area.setHero(true);
                         area.setValues(finalMonthlyKg);
                         donut.setMode(HomeChartView.Mode.DONUT);
                         donut.setValues(new float[]{finalPremium, finalStandard, finalReject});
@@ -996,9 +921,10 @@ public class MainActivity extends AppCompatActivity {
                         int share = finalGraded == 0 ? 0 : Math.round(finalPremium * 100f / finalGraded);
                         premiumShare.setText(share + "%");
                         gradedCount.setText(String.valueOf(finalGraded));
-                        gradeBreakdown.setText(String.format(Locale.getDefault(), "Premium %d · Standard %d · Reject %d",
-                                finalPremium, finalStandard, finalReject));
-                        supplierCount.setText(String.format(Locale.getDefault(), "%d / %d", finalOnboarded, finalSupplierTotal));
+                        supplierOnboarded.setText(String.valueOf(finalOnboarded));
+                        supplierTotal.setText(String.valueOf(finalSupplierTotal));
+                        int toGo = Math.max(finalSupplierTotal - finalOnboarded, 0);
+                        supplierRemaining.setText(toGo + " to go");
                         int percent = finalSupplierTotal == 0 ? 0 : Math.round(finalOnboarded * 100f / finalSupplierTotal);
                         supplierProgress.setProgress(percent);
                         supplierProgressText.setText(percent + "%");
