@@ -4,399 +4,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="#FCF9F1"
+    android:paddingTop="14dp">
 
-    <!-- Summary Cards Row -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutSearch"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="14dp"
+        app:boxBackgroundColor="#FFFFFF"
+        app:boxCornerRadiusTopStart="24dp"
+        app:boxCornerRadiusTopEnd="24dp"
+        app:boxCornerRadiusBottomStart="24dp"
+        app:boxCornerRadiusBottomEnd="24dp"
+        app:boxStrokeColor="#E9E1CF"
+        app:hintEnabled="false"
+        app:startIconDrawable="@drawable/ic_search"
+        app:startIconTint="#6B675F">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Search supplier"
+            android:singleLine="true"
+            android:textColor="#1C1B1A"
+            android:textColorHint="#59544C"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
-        android:weightSum="4">
-
-        <!-- Total Suppliers -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="1dp"
-            style="@style/Widget.AfriNuts.CardView">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_people"
-                        app:tint="?attr/colorPrimary" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/tvTotalSuppliers"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Active Suppliers -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="1dp"
-            style="@style/Widget.AfriNuts.CardView">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_check_circle"
-                        app:tint="?attr/colorSecondary" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/tvActiveSuppliers"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorSecondary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Active"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Certified Suppliers -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="1dp"
-            style="@style/Widget.AfriNuts.CardView">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_star"
-                        app:tint="?attr/colorPrimary" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/tvCertifiedSuppliers"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Certified"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Avg Rating -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="1dp"
-            style="@style/Widget.AfriNuts.CardView">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_star"
-                        app:tint="?attr/colorSecondary" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/tvAvgRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 ★"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorSecondary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Avg Rating"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="11sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
+        android:layout_marginBottom="14dp">
+        <LinearLayout
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.15"
+            android:layout_marginEnd="6dp" android:background="@drawable/bg_farm_summary_green"
+            android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total suppliers" android:textColor="#D2FFFFFF" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvTotalSuppliers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#FFFFFF" android:textSize="30sp" android:textStyle="bold" android:fontFamily="sans-serif-black" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Across villages" android:textColor="#BFFFFFFF" android:textSize="12sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:layout_marginStart="6dp" android:background="@drawable/bg_farm_summary_white"
+            android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Average trust" android:textColor="#59544C" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvAvgRating" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— / 100" android:textColor="#1C1B1A" android:textSize="27sp" android:textStyle="bold" android:fontFamily="sans-serif-black" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Of scored suppliers" android:textColor="#59544C" android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Filter Chips -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        android:paddingVertical="2dp">
+    <TextView android:id="@+id/tvActiveSuppliers" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <TextView android:id="@+id/tvCertifiedSuppliers" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:scrollbars="none" android:layout_marginBottom="8dp">
         <com.google.android.material.chip.ChipGroup
-            android:id="@+id/filterChipGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            app:selectionRequired="true"
-            app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Widget.AfriNuts.Chip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="All"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_view_list"
-                app:chipIconTint="?attr/colorPrimary" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipActive"
-                style="@style/Widget.AfriNuts.Chip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Active"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="?attr/colorSecondary" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCertified"
-                style="@style/Widget.AfriNuts.Chip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Certified"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_star"
-                app:chipIconTint="?attr/colorPrimary" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCooperative"
-                style="@style/Widget.AfriNuts.Chip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cooperatives"
-                android:textSize="13sp"
-                app:chipIcon="@drawable/ic_people"
-                app:chipIconTint="?attr/colorPrimary" />
-
+            android:id="@+id/filterChipGroup" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingEnd="8dp" app:singleSelection="true" app:selectionRequired="true">
+            <com.google.android.material.chip.Chip android:id="@+id/chipAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:checked="true" android:text="All" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipActive" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Active" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipCertified" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="At risk" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipCooperative" android:visibility="gone" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Cooperative" />
         </com.google.android.material.chip.ChipGroup>
-
     </HorizontalScrollView>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="12dp"
-        style="@style/Widget.AfriNuts.EditText"
-        android:hint="       Search suppliers"
-        app:startIconDrawable="@drawable/ic_search"
-        app:startIconTint="?attr/colorOnSurface"
-        app:endIconMode="clear_text"
-        app:endIconTint="?attr/colorOnSurface"
-        app:boxBackgroundColor="@color/surface"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="?attr/colorPrimary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_rounded_description"
-            android:inputType="text"
-            android:imeOptions="actionSearch"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Progress Bar -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="24dp"
-        style="@style/Widget.AfriNuts.ProgressBar"
-        android:indeterminateTint="?attr/colorPrimary"
-        android:visibility="gone" />
-
-    <!-- Empty State -->
-    <LinearLayout
-        android:id="@+id/emptyView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_marginTop="48dp"
-        android:visibility="gone">
-
-        <FrameLayout
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/bg_icon_sand"
-            android:padding="8dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_people"
-                app:tint="?attr/colorOnSurface"
-                android:alpha="0.5" />
-
-        </FrameLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No suppliers"
-            style="@style/Text.H4"
-            android:textSize="18sp"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginTop="12dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add your first supplier"
-            style="@style/Text.Caption"
-            android:textSize="13sp"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.7"
-            android:layout_marginTop="4dp" />
-
+    <ProgressBar android:id="@+id/progressBar" style="@style/Widget.AfriNuts.ProgressBar" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:visibility="gone" />
+    <LinearLayout android:id="@+id/emptyView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:orientation="vertical" android:gravity="center" android:visibility="gone">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No suppliers" android:textColor="#1C1B1A" android:textSize="18sp" android:textStyle="bold" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add your first supplier" android:textColor="#59544C" android:textSize="14sp" android:layout_marginTop="6dp" />
     </LinearLayout>
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="6dp"
-        android:clipToPadding="false"
-        android:visibility="gone"
-        android:background="@color/background" />
-
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerView" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingBottom="100dp" />
 </LinearLayout>

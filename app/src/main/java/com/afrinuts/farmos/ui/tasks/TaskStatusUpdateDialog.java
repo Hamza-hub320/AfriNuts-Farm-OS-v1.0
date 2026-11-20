@@ -21,7 +21,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.google.android.material.button.MaterialButton;
 
-public class TaskStatusUpdateDialog extends DialogFragment {
+public class TaskStatusUpdateDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_CURRENT_STATUS = "current_status";
     private static final String ARG_TASK_ID = "task_id";

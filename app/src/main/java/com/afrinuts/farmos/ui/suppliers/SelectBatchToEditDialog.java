@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SelectBatchToEditDialog extends DialogFragment {
+public class SelectBatchToEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_SUPPLIER_ID = "supplier_id";
 

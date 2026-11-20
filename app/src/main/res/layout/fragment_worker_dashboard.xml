@@ -1,313 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
-
-    <!-- SwipeRefreshLayout wrapper for pull-to-refresh -->
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="12dp"
-            android:fillViewport="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Overall Stats Card - Compact -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    style="@style/Widget.AfriNuts.CardView"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
-                    android:background="@color/surface">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp"
-                        android:background="@color/surface">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Workforce"
-                            style="@style/Text.H5"
-                            android:textColor="?attr/colorPrimary"
-                            android:layout_marginBottom="8dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="3"
-                            android:layout_marginBottom="8dp">
-
-                            <!-- Total Workers -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <FrameLayout
-                                    android:layout_width="36dp"
-                                    android:layout_height="36dp"
-                                    android:background="@drawable/bg_icon_sand"
-                                    android:layout_marginBottom="4dp">
-
-                                    <ImageView
-                                        android:layout_width="18dp"
-                                        android:layout_height="18dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_people"
-                                        app:tint="?attr/colorPrimary" />
-
-                                </FrameLayout>
-
-                                <TextView
-                                    android:id="@+id/totalWorkersValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0"
-                                    style="@style/Text.Stat"
-                                    android:textSize="20sp"
-                                    android:textColor="?attr/colorPrimary" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Workers"
-                                    style="@style/Text.Caption.Small"
-                                    android:textSize="10sp"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:alpha="0.7" />
-
-                            </LinearLayout>
-
-                            <!-- Total Tasks -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <FrameLayout
-                                    android:layout_width="36dp"
-                                    android:layout_height="36dp"
-                                    android:background="@drawable/bg_icon_sand"
-                                    android:layout_marginBottom="4dp">
-
-                                    <ImageView
-                                        android:layout_width="18dp"
-                                        android:layout_height="18dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_task"
-                                        app:tint="?attr/colorPrimary" />
-
-                                </FrameLayout>
-
-                                <TextView
-                                    android:id="@+id/totalTasksValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0"
-                                    style="@style/Text.Stat"
-                                    android:textSize="20sp"
-                                    android:textColor="?attr/colorPrimary" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Tasks"
-                                    style="@style/Text.Caption.Small"
-                                    android:textSize="10sp"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:alpha="0.7" />
-
-                            </LinearLayout>
-
-                            <!-- Completion Rate -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-
-                                <FrameLayout
-                                    android:layout_width="36dp"
-                                    android:layout_height="36dp"
-                                    android:background="@drawable/bg_icon_sand"
-                                    android:layout_marginBottom="4dp">
-
-                                    <ImageView
-                                        android:layout_width="18dp"
-                                        android:layout_height="18dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_check_circle"
-                                        app:tint="?attr/colorSecondary" />
-
-                                </FrameLayout>
-
-                                <TextView
-                                    android:id="@+id/completionRateValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0%"
-                                    style="@style/Text.Stat"
-                                    android:textSize="20sp"
-                                    android:textColor="?attr/colorSecondary" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Complete"
-                                    style="@style/Text.Caption.Small"
-                                    android:textSize="10sp"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:alpha="0.7" />
-
-                            </LinearLayout>
-
-                        </LinearLayout>
-
-                        <!-- Average Time Card - Compact -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:background="@color/surface"
-                            android:padding="10dp"
-                            android:gravity="center_vertical"
-                            app:cardCornerRadius="12dp">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_timer"
-                                app:tint="?attr/colorPrimary"
-                                android:layout_marginEnd="8dp"
-                                android:background="@drawable/bg_icon_sand"
-                                android:padding="2dp" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Avg. Completion Time"
-                                style="@style/Text.Caption"
-                                android:textSize="11sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.8" />
-
-                            <TextView
-                                android:id="@+id/avgTaskTimeValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0h"
-                                style="@style/Text.Label"
-                                android:textSize="12sp"
-                                android:textColor="?attr/colorPrimary" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <!-- Worker Performance List Title - Compact -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Worker Performance"
-                    style="@style/Text.Caption"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="@style/Widget.AfriNuts.ProgressBar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="24dp"
-                    android:indeterminate="true"
-                    android:visibility="gone" />
-
-                <!-- Empty State - Compact -->
-                <LinearLayout
-                    android:id="@+id/emptyView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginTop="48dp"
-                    android:visibility="gone">
-
-                    <FrameLayout
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_icon_sand">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_people"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No workers yet"
-                        style="@style/Text.H4"
-                        android:textSize="16sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Assign tasks to see performance"
-                        style="@style/Text.Caption"
-                        android:textSize="11sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:layout_marginTop="4dp" />
-
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipeRefreshLayout" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#FCF9F1">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:paddingTop="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/layoutWorkerSearch" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="14dp" app:boxBackgroundColor="#FFFFFF" app:boxCornerRadiusTopStart="24dp" app:boxCornerRadiusTopEnd="24dp" app:boxCornerRadiusBottomStart="24dp" app:boxCornerRadiusBottomEnd="24dp" app:boxStrokeColor="#E9E1CF" app:hintEnabled="false" app:startIconDrawable="@drawable/ic_search" app:startIconTint="#6B675F">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/etWorkerSearch" android:layout_width="match_parent" android:layout_height="match_parent" android:hint="Search worker" android:singleLine="true" android:textColor="#1C1B1A" android:textColorHint="#59544C" android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.15" android:layout_marginEnd="6dp" android:background="@drawable/bg_farm_summary_green" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total workers" android:textColor="#D2FFFFFF" android:textSize="13sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/totalWorkersValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#FFFFFF" android:textSize="30sp" android:fontFamily="sans-serif-black" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="All roles &amp; teams" android:textColor="#BFFFFFFF" android:textSize="12sp" />
                 </LinearLayout>
-
-                <!-- Worker Cards Container -->
-                <LinearLayout
-                    android:id="@+id/workerCardsContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:background="@drawable/bg_farm_summary_white" android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active tasks" android:textColor="#59544C" android:textSize="13sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/totalTasksValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="sans-serif-black" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="From current assignments" android:textColor="#59544C" android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
-
-        </ScrollView>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-</LinearLayout>
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:layout_marginBottom="8dp">
+                <com.google.android.material.chip.ChipGroup android:id="@+id/workerFilterGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" app:singleSelection="true" app:selectionRequired="true">
+                    <com.google.android.material.chip.Chip android:id="@+id/chipWorkersAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:checked="true" android:text="All" />
+                    <com.google.android.material.chip.Chip android:id="@+id/chipWorkersActive" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Active tasks" />
+                    <com.google.android.material.chip.Chip android:id="@+id/chipWorkersNoActive" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="No active tasks" />
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+            <TextView android:id="@+id/completionRateValue" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/avgTaskTimeValue" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <ProgressBar android:id="@+id/progressBar" style="@style/Widget.AfriNuts.ProgressBar" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:visibility="gone" />
+            <LinearLayout android:id="@+id/emptyView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="vertical" android:gravity="center" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No workers yet" android:textColor="#1C1B1A" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assign tasks to see worker records" android:textColor="#59544C" android:textSize="14sp" android:layout_marginTop="6dp" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/workerCardsContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="110dp" />
+        </LinearLayout>
+    </ScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

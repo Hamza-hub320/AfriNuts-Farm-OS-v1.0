@@ -133,6 +133,8 @@ public class WorkerDetailActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Worker Details");
         }
+
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
     }
 
     @Override

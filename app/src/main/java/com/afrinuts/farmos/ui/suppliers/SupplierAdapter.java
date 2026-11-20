@@ -1,7 +1,5 @@
 package com.afrinuts.farmos.ui.suppliers;
 
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,152 +7,78 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.SupplierViewHolder> {
-
     private List<SupplierEntity> suppliers;
-    private OnSupplierClickListener listener;
+    private final OnSupplierClickListener listener;
+    private Map<Long, Double> trustScores = Collections.emptyMap();
+    private Map<Long, Integer> batchCounts = Collections.emptyMap();
 
-    public interface OnSupplierClickListener {
-        void onSupplierClick(SupplierEntity supplier);
-    }
+    public interface OnSupplierClickListener { void onSupplierClick(SupplierEntity supplier); }
 
     public SupplierAdapter(List<SupplierEntity> suppliers, OnSupplierClickListener listener) {
         this.suppliers = suppliers;
         this.listener = listener;
     }
 
-    @NonNull
-    @Override
-    public SupplierViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_supplier, parent, false);
-        return new SupplierViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull SupplierViewHolder holder, int position) {
-        SupplierEntity supplier = suppliers.get(position);
-        holder.bind(supplier, listener);
-    }
-
-    @Override
-    public int getItemCount() {
-        return suppliers != null ? suppliers.size() : 0;
-    }
-
-    public void updateSuppliers(List<SupplierEntity> newSuppliers) {
-        this.suppliers = newSuppliers;
+    public void setTrustData(Map<Long, Double> scores, Map<Long, Integer> counts) {
+        trustScores = scores == null ? Collections.emptyMap() : scores;
+        batchCounts = counts == null ? Collections.emptyMap() : counts;
         notifyDataSetChanged();
     }
 
+    @NonNull @Override public SupplierViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new SupplierViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_supplier, parent, false));
+    }
+
+    @Override public void onBindViewHolder(@NonNull SupplierViewHolder holder, int position) {
+        SupplierEntity supplier = suppliers.get(position);
+        holder.bind(supplier, trustScores.get(supplier.getId()), batchCounts.getOrDefault(supplier.getId(), 0), position, listener);
+    }
+
+    @Override public int getItemCount() { return suppliers == null ? 0 : suppliers.size(); }
+    public void updateSuppliers(List<SupplierEntity> newSuppliers) { suppliers = newSuppliers; notifyDataSetChanged(); }
+
     static class SupplierViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView tvSupplierName;
-        private TextView tvSupplierType;
-        private ImageView ivRatingIcon;
-        private TextView tvRating;
-        private TextView tvContactPerson;
-        private TextView tvPhone;
-        private ImageView ivStatusIcon;
-        private TextView tvStatus;
-        private TextView tvVolume;
-        private TextView tvCertification;
-        private View layoutCertification;
-        private CardView cardView;
-
+        final TextView name, meta, score, avatar;
+        final ImageView statusDot;
         SupplierViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvSupplierName = itemView.findViewById(R.id.tvSupplierName);
-            tvSupplierType = itemView.findViewById(R.id.tvSupplierType);
-            ivRatingIcon = itemView.findViewById(R.id.ivRatingIcon);
-            tvRating = itemView.findViewById(R.id.tvRating);
-            tvContactPerson = itemView.findViewById(R.id.tvContactPerson);
-            tvPhone = itemView.findViewById(R.id.tvPhone);
-            ivStatusIcon = itemView.findViewById(R.id.ivStatusIcon);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
-            tvVolume = itemView.findViewById(R.id.tvVolume);
-            tvCertification = itemView.findViewById(R.id.tvCertification);
-            layoutCertification = itemView.findViewById(R.id.layoutCertification);
-            cardView = (CardView) itemView;
+            name = itemView.findViewById(R.id.tvSupplierName);
+            meta = itemView.findViewById(R.id.tvSupplierType);
+            score = itemView.findViewById(R.id.tvRating);
+            avatar = itemView.findViewById(R.id.tvSupplierAvatar);
+            statusDot = itemView.findViewById(R.id.ivStatusIcon);
         }
-
-        void bind(SupplierEntity supplier, OnSupplierClickListener listener) {
-            tvSupplierName.setText(supplier.getName());
-            tvSupplierType.setText(supplier.getType().getDisplayName());
-            tvRating.setText(String.valueOf(supplier.getRating()));
-
-            // ✅ Show special badge for Own Farm
-            if (supplier.getType() == SupplierEntity.SupplierType.OWN_FARM) {
-                tvSupplierType.setText(supplier.getType().getDisplayName());
-                // Add a special indicator
-                tvSupplierName.setTextColor(itemView.getContext().getColor(R.color.primary));
-                tvSupplierName.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_own_farm, 0, 0, 0);
-            }
-
-            // ✅ Set rating icon color
-            ivRatingIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent));
-
-            // Contact info
-            tvContactPerson.setText(supplier.getContactPerson() != null ?
-                    supplier.getContactPerson() : "No contact");
-            tvPhone.setText(supplier.getPhone() != null ?
-                    supplier.getPhone() : "No phone");
-
-            // ✅ Status with icon
-            tvStatus.setText(supplier.getStatus().getDisplayName());
-            switch (supplier.getStatus()) {
-                case ACTIVE:
-                    ivStatusIcon.setImageResource(R.drawable.ic_check_circle);
-                    ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_green_light));
-                    break;
-                case PENDING:
-                    ivStatusIcon.setImageResource(R.drawable.ic_hourglass);
-                    ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_orange_light));
-                    break;
-                case SUSPENDED:
-                    ivStatusIcon.setImageResource(R.drawable.ic_warning);
-                    ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_light));
-                    break;
-                case INACTIVE:
-                    ivStatusIcon.setImageResource(R.drawable.ic_cancel);
-                    ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.darker_gray));
-                    break;
-                default:
-                    ivStatusIcon.setImageResource(R.drawable.ic_check_circle);
-                    ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
-                    break;
-            }
-
-            // Volume with icon
-            tvVolume.setText(String.format(Locale.getDefault(),
-                    "%.0f kg", supplier.getAnnualVolumeKg()));
-
-            // Certification badge
-            if (supplier.isCertified() && supplier.getCertificationType() != null) {
-                layoutCertification.setVisibility(View.VISIBLE);
-                tvCertification.setText(supplier.getCertificationType());
-            } else {
-                layoutCertification.setVisibility(View.GONE);
-            }
-
-            // Click listener
-            cardView.setOnClickListener(v -> {
-                android.content.Context context = itemView.getContext();
-                android.content.Intent intent = new android.content.Intent(context, SupplierDetailActivity.class);
-                intent.putExtra(SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
-                context.startActivity(intent);
-            });
+        void bind(SupplierEntity supplier, Double trust, int batches, int position, OnSupplierClickListener listener) {
+            String fullName = supplier.getName() == null ? "" : supplier.getName().trim();
+            name.setText(fullName);
+            String[] parts = fullName.split("\\s+");
+            String initials = parts.length > 1 ? parts[0].substring(0, 1) + parts[1].substring(0, 1)
+                    : (fullName.isEmpty() ? "?" : fullName.substring(0, 1));
+            avatar.setText(initials.toUpperCase(Locale.ROOT));
+            int[] backgrounds = {R.drawable.bg_supplier_avatar_green, R.drawable.bg_supplier_avatar_sand, R.drawable.bg_supplier_avatar_plain};
+            int[] foregrounds = {0xFF0A5530, 0xFF7A5F22, 0xFF6B675F};
+            avatar.setBackgroundResource(backgrounds[position % backgrounds.length]);
+            avatar.setTextColor(foregrounds[position % foregrounds.length]);
+            String location = supplier.getLocation() == null || supplier.getLocation().trim().isEmpty()
+                    ? "Location unavailable" : supplier.getLocation().trim();
+            meta.setText(String.format(Locale.getDefault(), "%s · %s · %d batches", supplier.getStatus().getDisplayName(), location, batches));
+            score.setText(trust == null ? "—" : String.format(Locale.getDefault(), "%.0f", trust));
+            score.setTextColor(trust != null && trust < 40 ? 0xFFB3402A : 0xFF1C1B1A);
+            int dotColor = supplier.getStatus() == SupplierEntity.SupplierStatus.ACTIVE ? 0xFF0E6B3C
+                    : supplier.getStatus() == SupplierEntity.SupplierStatus.PENDING ? 0xFFC9A227 : 0xFFB3402A;
+            statusDot.setImageTintList(android.content.res.ColorStateList.valueOf(dotColor));
+            itemView.setOnClickListener(v -> listener.onSupplierClick(supplier));
         }
     }
 }

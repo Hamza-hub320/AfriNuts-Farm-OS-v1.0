@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BlockDialog extends DialogFragment {
+public class BlockDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private String suggestedBlockName;
     private static final String ARG_FARM_ID = "farm_id";

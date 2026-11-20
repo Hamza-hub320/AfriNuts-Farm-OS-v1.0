@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LinkBatchesDialog extends DialogFragment {
+public class LinkBatchesDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
     private static final String TAG = "LinkBatchesDialog";
     private static final String ARG_COMMITMENT_ID = "commitment_id";
     private static final String ARG_SUPPLIER_ID = "supplier_id";

@@ -13,7 +13,7 @@ public class BlockGroup {
     public BlockGroup(String rowName) {
         this.rowName = rowName;
         this.blocks = new ArrayList<>();
-        this.isExpanded = false; // Default to collapsed for better UX
+        this.isExpanded = true;
     }
 
     public String getRowName() {

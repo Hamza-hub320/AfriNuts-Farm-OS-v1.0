@@ -38,7 +38,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RecordDeliveryDialog extends DialogFragment {
+public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_SUPPLIER_ID = "supplier_id";
 

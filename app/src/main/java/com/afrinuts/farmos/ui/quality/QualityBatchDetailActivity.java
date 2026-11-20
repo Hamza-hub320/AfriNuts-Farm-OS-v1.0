@@ -230,6 +230,8 @@ public class QualityBatchDetailActivity extends BaseActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Batch Details");
         }
+
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
     }
 
     @Override

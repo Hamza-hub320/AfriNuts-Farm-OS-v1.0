@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +47,8 @@ public class TasksFragment extends Fragment {
     private TextView inProgressTasksValue;
     private TextView completedTasksValue;
     private ChipGroup filterChipGroup;
+    private TextInputEditText searchInput;
+    private String searchQuery = "";
 
     private AppDatabase database;
     private FarmEntity currentFarm;
@@ -83,12 +86,22 @@ public class TasksFragment extends Fragment {
         completedTasksValue = view.findViewById(R.id.completedTasksValue);
 
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
+        searchInput = view.findViewById(R.id.etTaskSearch);
+        searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ROOT);
+                applyFilter();
+            }
+            @Override public void afterTextChanged(android.text.Editable s) { }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         setupFilters();
     }
 
     private void setupFilters() {
+        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filterChipGroup);
         // Get chips from the ChipGroup
         Chip chipAll = filterChipGroup.findViewById(R.id.chipAll);
 
@@ -105,7 +118,7 @@ public class TasksFragment extends Fragment {
         if (chipPending != null) {
             chipPending.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    currentFilter = "PENDING";
+                    currentFilter = "TODAY";
                     applyFilter();
                 }
             });
@@ -125,7 +138,7 @@ public class TasksFragment extends Fragment {
         if (chipCompleted != null) {
             chipCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    currentFilter = "COMPLETED";
+                    currentFilter = "DONE";
                     applyFilter();
                 }
             });
@@ -181,7 +194,16 @@ public class TasksFragment extends Fragment {
                         @Override
                         public void onChanged(List<TaskEntity> tasks) {
                             if (tasks != null) {
-                                processTasks(tasks);
+                                List<TaskEntity> snapshot = new ArrayList<>(tasks);
+                                executor.execute(() -> {
+                                    Map<Long, String> assignedNames = new HashMap<>();
+                                    for (TaskEntity task : snapshot) {
+                                        com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity assignment =
+                                                database.taskAssignmentDao().getCurrentAssignment(task.getId());
+                                        if (assignment != null) assignedNames.put(task.getId(), assignment.getAssignedTo());
+                                    }
+                                    if (getActivity() != null) getActivity().runOnUiThread(() -> processTasks(snapshot, assignedNames));
+                                });
                             } else {
                                 showError("No tasks data received");
                             }
@@ -195,14 +217,14 @@ public class TasksFragment extends Fragment {
         });
     }
 
-    private void processTasks(List<TaskEntity> tasks) {
+    private void processTasks(List<TaskEntity> tasks, Map<Long, String> assignedNames) {
         allTasks.clear();
         for (TaskEntity task : tasks) {
             String blockName = null;
             if (task.getBlockId() != null) {
                 blockName = blockNameMap.get(task.getBlockId());
             }
-            allTasks.add(new TaskWithBlockName(task, blockName));
+            allTasks.add(new TaskWithBlockName(task, blockName, assignedNames.get(task.getId())));
         }
 
         showLoading(false);
@@ -217,32 +239,42 @@ public class TasksFragment extends Fragment {
     }
 
     private void updateSummaryCounts() {
-        int pending = 0;
-        int inProgress = 0;
-        int completed = 0;
+        int open = 0;
+        int completedThisWeek = 0;
+        java.util.Calendar monday = java.util.Calendar.getInstance();
+        monday.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+        monday.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        monday.set(java.util.Calendar.MINUTE, 0);
+        monday.set(java.util.Calendar.SECOND, 0);
+        monday.set(java.util.Calendar.MILLISECOND, 0);
+        long weekStart = monday.getTimeInMillis();
+        java.util.Calendar friday = (java.util.Calendar) monday.clone();
+        friday.add(java.util.Calendar.DAY_OF_MONTH, 5);
+        long weekEnd = friday.getTimeInMillis();
 
         for (TaskWithBlockName item : allTasks) {
-            switch (item.getTask().getStatus()) {
-                case PENDING:
-                    pending++;
-                    break;
-                case IN_PROGRESS:
-                    inProgress++;
-                    break;
-                case COMPLETED:
-                    completed++;
-                    break;
+            TaskEntity task = item.getTask();
+            if (task.getStatus() == TaskEntity.TaskStatus.PENDING || task.getStatus() == TaskEntity.TaskStatus.IN_PROGRESS) open++;
+            if (task.getStatus() == TaskEntity.TaskStatus.COMPLETED) {
+                long completedAt = task.getCompletedDate() == null ? task.getUpdatedAt() : task.getCompletedDate();
+                if (completedAt >= weekStart && completedAt < weekEnd) completedThisWeek++;
             }
         }
 
-        if (pendingTasksValue != null) pendingTasksValue.setText(String.valueOf(pending));
-        if (inProgressTasksValue != null) inProgressTasksValue.setText(String.valueOf(inProgress));
-        if (completedTasksValue != null) completedTasksValue.setText(String.valueOf(completed));
+        if (pendingTasksValue != null) pendingTasksValue.setText(String.valueOf(open));
+        if (inProgressTasksValue != null) inProgressTasksValue.setText("0");
+        if (completedTasksValue != null) completedTasksValue.setText(String.valueOf(completedThisWeek));
     }
 
     private void applyFilter() {
         filteredTasks.clear();
-        long currentTime = System.currentTimeMillis();
+        java.util.Calendar today = java.util.Calendar.getInstance();
+        today.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        today.set(java.util.Calendar.MINUTE, 0);
+        today.set(java.util.Calendar.SECOND, 0);
+        today.set(java.util.Calendar.MILLISECOND, 0);
+        long todayStart = today.getTimeInMillis();
+        long tomorrow = todayStart + 24L * 60 * 60 * 1000;
 
         for (TaskWithBlockName item : allTasks) {
             TaskEntity task = item.getTask();
@@ -251,8 +283,9 @@ public class TasksFragment extends Fragment {
                 case "ALL":
                     filteredTasks.add(item);
                     break;
-                case "PENDING":
-                    if (task.getStatus() == TaskEntity.TaskStatus.PENDING) {
+                case "TODAY":
+                    if (task.getStatus() != TaskEntity.TaskStatus.COMPLETED
+                            && task.getDueDate() >= todayStart && task.getDueDate() < tomorrow) {
                         filteredTasks.add(item);
                     }
                     break;
@@ -262,6 +295,7 @@ public class TasksFragment extends Fragment {
                     }
                     break;
                 case "COMPLETED":
+                case "DONE":
                     if (task.getStatus() == TaskEntity.TaskStatus.COMPLETED) {
                         filteredTasks.add(item);
                     }
@@ -273,6 +307,15 @@ public class TasksFragment extends Fragment {
                     break;
             }
         }
+
+        if (!searchQuery.isEmpty()) {
+            filteredTasks.removeIf(item -> {
+                String title = item.getTask().getTitle() == null ? "" : item.getTask().getTitle().toLowerCase(Locale.ROOT);
+                String scope = item.getScopeDisplay().toLowerCase(Locale.ROOT);
+                return !title.contains(searchQuery) && !scope.contains(searchQuery);
+            });
+        }
+        filteredTasks.sort((a, b) -> Boolean.compare(!a.isOverdue(), !b.isOverdue()));
 
         adapter = new TaskAdapter(filteredTasks, task -> {
             Intent intent = new Intent(getContext(), TaskDetailActivity.class);

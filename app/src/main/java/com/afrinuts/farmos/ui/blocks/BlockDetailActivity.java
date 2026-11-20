@@ -191,6 +191,8 @@ public class BlockDetailActivity extends BaseActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Block Details");
         }
+
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
     }
 
     @Override

@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -44,6 +47,12 @@ public class BlocksFragment extends Fragment {
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocksList; // Store all blocks for name generation
     private AppDatabase database;
+    private TextView totalBlocksSummary;
+    private TextView averageSurvivalSummary;
+    private TextInputEditText searchInput;
+    private ChipGroup blockFilterGroup;
+    private String searchQuery = "";
+    private String blockFilter = "ALL";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -63,9 +72,35 @@ public class BlocksFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         emptyView = view.findViewById(R.id.emptyView);
         summaryLayout = view.findViewById(R.id.summaryLayout);
+        totalBlocksSummary = view.findViewById(R.id.totalBlocksSummary);
+        averageSurvivalSummary = view.findViewById(R.id.averageSurvivalSummary);
+        searchInput = view.findViewById(R.id.etBlockSearch);
+        blockFilterGroup = view.findViewById(R.id.blockFilterGroup);
+        com.afrinuts.farmos.ui.farm.FarmTabChips.style(blockFilterGroup);
+        searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ROOT);
+                if (allBlocksList != null) processBlocks(allBlocksList);
+            }
+            @Override public void afterTextChanged(android.text.Editable s) { }
+        });
+        setupBlockFilters();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
+    }
+
+    private void setupBlockFilters() {
+        int[] ids = {R.id.chipBlockAll, R.id.chipBlockPlanted, R.id.chipBlockNotPlanted, R.id.chipBlockAttention};
+        String[] filters = {"ALL", "PLANTED", "NOT_PLANTED", "ATTENTION"};
+        for (int i = 0; i < ids.length; i++) {
+            final String filter = filters[i];
+            Chip chip = blockFilterGroup.findViewById(ids[i]);
+            chip.setOnCheckedChangeListener((button, checked) -> {
+                if (checked) { blockFilter = filter; if (allBlocksList != null) processBlocks(allBlocksList); }
+            });
+        }
     }
 
     private void loadFarmData() {
@@ -102,8 +137,18 @@ public class BlocksFragment extends Fragment {
         if (allBlocks == null) allBlocks = new ArrayList<>();
 
         Map<String, List<BlockEntity>> groupedBlocks = new HashMap<>();
+        List<BlockEntity> visibleBlocks = new ArrayList<>();
         for (BlockEntity block : allBlocks) {
-            String row = block.getBlockName().substring(0, 1);
+            String name = block.getBlockName() == null ? "" : block.getBlockName().trim();
+            boolean matchesFilter = "ALL".equals(blockFilter)
+                    || ("PLANTED".equals(blockFilter) && block.isPlanted())
+                    || ("NOT_PLANTED".equals(blockFilter) && !block.isPlanted())
+                    || ("ATTENTION".equals(blockFilter) && block.isPlanted() && block.getSurvivalRate() < 70);
+            if (!matchesFilter || (!searchQuery.isEmpty() && !name.toLowerCase(Locale.ROOT).contains(searchQuery))) continue;
+            visibleBlocks.add(block);
+            String upperName = name.toUpperCase(Locale.ROOT);
+            String row = !upperName.isEmpty() && upperName.charAt(0) >= 'A' && upperName.charAt(0) <= 'E'
+                    ? upperName.substring(0, 1) : "OTHER";
             if (!groupedBlocks.containsKey(row)) {
                 groupedBlocks.put(row, new ArrayList<>());
             }
@@ -111,11 +156,12 @@ public class BlocksFragment extends Fragment {
         }
 
         List<BlockGroup> newGroups = new ArrayList<>();
-        String[] rows = {"A", "B", "C", "D", "E"};
+        String[] rows = {"A", "B", "C", "D", "E", "OTHER"};
 
         for (String row : rows) {
             if (groupedBlocks.containsKey(row)) {
                 BlockGroup group = new BlockGroup(row);
+                group.setExpanded(true);
                 List<BlockEntity> blocksForRow = groupedBlocks.get(row);
                 blocksForRow.sort((b1, b2) -> {
                     String name1 = b1.getBlockName() == null ? "" : b1.getBlockName().trim();
@@ -130,16 +176,17 @@ public class BlocksFragment extends Fragment {
             }
         }
 
-        final List<BlockEntity> finalAllBlocks = allBlocks;
+        final List<BlockEntity> finalAllBlocks = new ArrayList<>(allBlocks);
+        final List<BlockEntity> finalVisibleBlocks = visibleBlocks;
         final List<BlockGroup> finalNewGroups = newGroups;
 
         requireActivity().runOnUiThread(() -> {
+            updateFarmSummary(finalAllBlocks);
             if (finalNewGroups.isEmpty()) {
                 showEmpty(true);
             } else {
                 showEmpty(false);
                 blockGroups = finalNewGroups;
-                updateFarmSummary(finalAllBlocks);
 
                 expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
                     Intent intent = new Intent(getContext(), BlockDetailActivity.class);
@@ -178,35 +225,15 @@ public class BlocksFragment extends Fragment {
             }
         }
 
-        if (summaryLayout == null) return;
-
-        summaryLayout.removeAllViews();
-        summaryLayout.setVisibility(View.VISIBLE);
-
-        View summaryView = getLayoutInflater().inflate(R.layout.item_farm_summary, summaryLayout, false);
-
-        TextView blocksPlantedText = summaryView.findViewById(R.id.blocksPlantedText);
-        TextView treesAliveText = summaryView.findViewById(R.id.treesAliveText);
-        ProgressBar blocksProgress = summaryView.findViewById(R.id.blocksProgress);
-        ProgressBar treesProgress = summaryView.findViewById(R.id.treesProgress);
-        TextView blocksPercentText = summaryView.findViewById(R.id.blocksPercentText);
-        TextView treesPercentText = summaryView.findViewById(R.id.treesPercentText);
-
-        int blocksPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
-        int treesPercent = totalExpectedTrees > 0 ? (totalAliveTrees * 100 / totalExpectedTrees) : 0;
-
-        blocksPlantedText.setText(String.format(Locale.getDefault(),
-                "%d/%d blocks planted", plantedBlocks, totalBlocks));
-        treesAliveText.setText(String.format(Locale.getDefault(),
-                "%d/%d trees alive", totalAliveTrees, totalExpectedTrees));
-
-        blocksProgress.setProgress(blocksPercent);
-        treesProgress.setProgress(treesPercent);
-
-        blocksPercentText.setText(blocksPercent + "%");
-        treesPercentText.setText(treesPercent + "%");
-
-        summaryLayout.addView(summaryView);
+        totalBlocksSummary.setText(String.valueOf(totalBlocks));
+        double average = plantedBlocks == 0 ? 0 : allBlocks.stream().filter(BlockEntity::isPlanted)
+                .mapToDouble(BlockEntity::getSurvivalRate).average().orElse(0);
+        averageSurvivalSummary.setText(plantedBlocks == 0 ? "—%" : String.format(Locale.getDefault(), "%.0f%%", average));
+        ((Chip) blockFilterGroup.findViewById(R.id.chipBlockAll)).setText("All · " + totalBlocks);
+        ((Chip) blockFilterGroup.findViewById(R.id.chipBlockPlanted)).setText("Planted · " + plantedBlocks);
+        ((Chip) blockFilterGroup.findViewById(R.id.chipBlockNotPlanted)).setText("Not planted · " + (totalBlocks - plantedBlocks));
+        long attention = allBlocks.stream().filter(b -> b.isPlanted() && b.getSurvivalRate() < 70).count();
+        ((Chip) blockFilterGroup.findViewById(R.id.chipBlockAttention)).setText("Attention · " + attention);
     }
 
     /**

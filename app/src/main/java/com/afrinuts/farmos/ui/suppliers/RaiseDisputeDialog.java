@@ -29,7 +29,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RaiseDisputeDialog extends DialogFragment {
+public class RaiseDisputeDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
     private static final String TAG = "RaiseDisputeDialog";
     private static final String ARG_SUPPLIER_ID = "supplier_id";
     private static final String ARG_FARM_ID = "farm_id";

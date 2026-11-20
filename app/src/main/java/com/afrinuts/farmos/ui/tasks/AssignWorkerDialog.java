@@ -31,7 +31,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class AssignWorkerDialog extends DialogFragment {
+public class AssignWorkerDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_TASK_ID = "task_id";
 

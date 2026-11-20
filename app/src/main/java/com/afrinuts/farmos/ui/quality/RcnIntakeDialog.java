@@ -47,7 +47,7 @@ import java.util.concurrent.Executors;
  *
  * Only batches whose RCN measurements are still blank are selectable.
  */
-public class RcnIntakeDialog extends DialogFragment {
+public class RcnIntakeDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String TAG = "RcnIntakeDialog";
     private static final String ARG_FARM_ID = "farm_id";

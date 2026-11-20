@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class StatusUpdateDialog extends DialogFragment {
+public class StatusUpdateDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_BLOCK_ID = "block_id";
     private static final String ARG_CURRENT_STATUS = "current_status";

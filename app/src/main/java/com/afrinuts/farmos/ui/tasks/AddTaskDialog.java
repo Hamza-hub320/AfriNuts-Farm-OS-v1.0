@@ -40,7 +40,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddTaskDialog extends DialogFragment {
+public class AddTaskDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
 

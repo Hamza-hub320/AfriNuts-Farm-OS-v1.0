@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class EditHarvestDialog extends DialogFragment {
+public class EditHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String TAG = "EditHarvestDialog";
     private static final String ARG_BLOCK_ID = "block_id";

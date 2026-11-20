@@ -218,6 +218,8 @@ public class SupplierDetailActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Supplier Details");
         }
+
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
     }
 
     private void openMap() {

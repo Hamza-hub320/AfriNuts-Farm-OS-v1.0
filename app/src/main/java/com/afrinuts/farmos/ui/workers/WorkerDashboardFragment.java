@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,6 +62,9 @@ public class WorkerDashboardFragment extends Fragment {
     private LinearLayout workerCardsContainer;
     private ProgressBar progressBar;
     private LinearLayout emptyLayout;
+    private TextInputEditText searchInput;
+    private String workerSearchQuery = "";
+    private String workerFilter = "ALL";
 
     private List<WorkerPerformance> workerPerformances = new ArrayList<>();
 
@@ -90,6 +94,26 @@ public class WorkerDashboardFragment extends Fragment {
         workerCardsContainer = view.findViewById(R.id.workerCardsContainer);
         progressBar = view.findViewById(R.id.progressBar);
         emptyLayout = view.findViewById(R.id.emptyView);
+        searchInput = view.findViewById(R.id.etWorkerSearch);
+        searchInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                workerSearchQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.ROOT);
+                displayWorkerCards();
+            }
+            @Override public void afterTextChanged(android.text.Editable s) { }
+        });
+        com.google.android.material.chip.ChipGroup filters = view.findViewById(R.id.workerFilterGroup);
+        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filters);
+        int[] filterIds = {R.id.chipWorkersAll, R.id.chipWorkersActive, R.id.chipWorkersNoActive};
+        String[] filterKeys = {"ALL", "ACTIVE", "NO_ACTIVE"};
+        for (int i = 0; i < filterIds.length; i++) {
+            final String key = filterKeys[i];
+            com.google.android.material.chip.Chip chip = filters.findViewById(filterIds[i]);
+            chip.setOnCheckedChangeListener((button, checked) -> {
+                if (checked) { workerFilter = key; displayWorkerCards(); }
+            });
+        }
     }
 
     private void setupSwipeRefresh() {
@@ -227,11 +251,13 @@ public class WorkerDashboardFragment extends Fragment {
     private void updateOverallStats() {
         int totalWorkers = workerPerformances.size();
         int totalTasks = 0;
+        int activeTasks = 0;
         int completedTasks = 0;
         long totalDays = 0;
 
         for (WorkerPerformance worker : workerPerformances) {
             totalTasks += worker.getTotalTasks();
+            activeTasks += worker.getInProgressTasks();
             completedTasks += worker.getCompletedTasks();
             totalDays += worker.getTotalDays();
         }
@@ -243,7 +269,7 @@ public class WorkerDashboardFragment extends Fragment {
             totalWorkersValue.setText(String.valueOf(totalWorkers));
         }
         if (totalTasksValue != null) {
-            totalTasksValue.setText(String.valueOf(totalTasks));
+            totalTasksValue.setText(String.valueOf(activeTasks));
         }
         if (completionRateValue != null) {
             completionRateValue.setText(String.format(Locale.getDefault(), "%.0f%%", completionRate));
@@ -260,27 +286,45 @@ public class WorkerDashboardFragment extends Fragment {
 
         workerCardsContainer.removeAllViews();
 
+        int rowIndex = 0;
         for (WorkerPerformance worker : workerPerformances) {
+            String searchableName = worker.getWorkerName() == null ? "" : worker.getWorkerName().toLowerCase(Locale.ROOT);
+            if (!workerSearchQuery.isEmpty() && !searchableName.contains(workerSearchQuery)) continue;
+            if ("ACTIVE".equals(workerFilter) && worker.getInProgressTasks() == 0) continue;
+            if ("NO_ACTIVE".equals(workerFilter) && worker.getInProgressTasks() > 0) continue;
             View cardView = getLayoutInflater().inflate(
-                    R.layout.item_worker_card, workerCardsContainer, false);
+                    R.layout.item_farm_worker_row, workerCardsContainer, false);
 
             TextView tvWorkerName = cardView.findViewById(R.id.tvWorkerName);
             TextView tvWorkerStats = cardView.findViewById(R.id.tvWorkerStats);
             TextView tvCompletionRate = cardView.findViewById(R.id.tvCompletionRate);
+            TextView tvWorkerAvatar = cardView.findViewById(R.id.tvWorkerAvatar);
+            TextView tvActiveTasksLabel = cardView.findViewById(R.id.tvActiveTasksLabel);
+            View statusDot = cardView.findViewById(R.id.workerStatusDot);
             ProgressBar workerProgress = cardView.findViewById(R.id.workerProgress);
             TextView tvTotalTime = cardView.findViewById(R.id.tvTotalTime);
             TextView tvAvgTime = cardView.findViewById(R.id.tvAvgTime);
             LinearLayout taskTypeContainer = cardView.findViewById(R.id.taskTypeContainer);
 
             // Set worker info
-            tvWorkerName.setText(worker.getWorkerName());
-            tvWorkerStats.setText(String.format(Locale.getDefault(),
-                    "%d tasks • %d completed",
+            String workerName = worker.getWorkerName() == null ? "" : worker.getWorkerName().trim();
+            tvWorkerName.setText(workerName.isEmpty() ? "Unnamed worker" : workerName);
+            String[] initials = workerName.split("\\s+");
+            tvWorkerAvatar.setText((initials.length > 1 ? initials[0].substring(0, 1) + initials[1].substring(0, 1)
+                    : (workerName.isEmpty() ? "?" : workerName.substring(0, 1))).toUpperCase(Locale.ROOT));
+            int[] avatarBackgrounds = {R.drawable.bg_supplier_avatar_green, R.drawable.bg_supplier_avatar_sand, R.drawable.bg_supplier_avatar_plain};
+            int[] avatarColors = {0xFF0A5530, 0xFF7A5F22, 0xFF6B675F};
+            tvWorkerAvatar.setBackgroundResource(avatarBackgrounds[rowIndex % avatarBackgrounds.length]);
+            tvWorkerAvatar.setTextColor(avatarColors[rowIndex % avatarColors.length]);
+            rowIndex++;
+            tvWorkerStats.setText(String.format(Locale.getDefault(), "Worker · %d tasks · %d completed",
                     worker.getTotalTasks(), worker.getCompletedTasks()));
+            statusDot.setBackgroundTintList(android.content.res.ColorStateList.valueOf(worker.getInProgressTasks() > 0 ? 0xFF0E6B3C : 0xFFC9C2B4));
 
             // Set completion rate
             double rate = worker.getCompletionRate();
-            tvCompletionRate.setText(String.format(Locale.getDefault(), "%.0f%%", rate));
+            tvCompletionRate.setText(String.valueOf(worker.getInProgressTasks()));
+            tvActiveTasksLabel.setText("Active tasks");
             workerProgress.setProgress((int) rate);
 
             // Set time stats

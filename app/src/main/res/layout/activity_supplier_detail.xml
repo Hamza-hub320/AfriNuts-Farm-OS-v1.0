@@ -4,48 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="#F6F1E7">
 
     <!-- Modern Glass Morphism Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/surface"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_height="56dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/transparent"
         android:elevation="0dp"
-        android:translationZ="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        app:contentInsetStartWithNavigation="0dp">
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_afrinuts_foreground"
-                android:alpha="0.95"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Supplier Details"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.01" />
-
-        </LinearLayout>
-
+            android:layout_gravity="center"
+            android:text="Supplier details"
+            android:textColor="#1C1B1A"
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-black" />
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
@@ -63,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
@@ -144,7 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
@@ -286,7 +265,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
@@ -521,7 +500,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
 
@@ -651,7 +630,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="@color/surface">
 
@@ -745,7 +724,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="@color/surface">
 
@@ -839,7 +818,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="@color/surface">
 
@@ -910,7 +889,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
                 android:background="@color/surface">
 

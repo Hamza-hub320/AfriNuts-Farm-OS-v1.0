@@ -35,7 +35,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EditSupplierDialog extends DialogFragment {
+public class EditSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_SUPPLIER_ID = "supplier_id";
     private static final String CONSENT_VERSION = "1.0";

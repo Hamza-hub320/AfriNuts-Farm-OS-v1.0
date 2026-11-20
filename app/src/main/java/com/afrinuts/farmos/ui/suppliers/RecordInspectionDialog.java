@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class RecordInspectionDialog extends DialogFragment {
+public class RecordInspectionDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
     private static final String TAG = "RecordInspectionDialog";
     private static final String ARG_SUPPLIER_ID = "supplier_id";
     private static final String ARG_FARM_ID = "farm_id";

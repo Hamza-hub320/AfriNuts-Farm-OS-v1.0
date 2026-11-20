@@ -1,7 +1,16 @@
 package com.afrinuts.farmos.ui.farm;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,12 +24,23 @@ import com.afrinuts.farmos.ui.blocks.BlocksFragment;
 import com.afrinuts.farmos.ui.tasks.TasksFragment;
 import com.afrinuts.farmos.ui.workers.WorkerDashboardFragment;
 import com.afrinuts.farmos.ui.suppliers.SuppliersFragment;
+import com.afrinuts.farmos.data.remote.WeatherResponse;
+import com.afrinuts.farmos.data.repository.WeatherRepository;
+import com.afrinuts.farmos.ui.settings.SettingsActivity;
+import com.afrinuts.farmos.ui.users.UsersListActivity;
+import com.afrinuts.farmos.ui.auth.LoginActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FarmHubActivity extends BaseHubActivity {
 
@@ -49,7 +69,133 @@ public class FarmHubActivity extends BaseHubActivity {
         initViews();
         setupViewPager();
         setupFab();
+        setupFarmHeader();
+        applyFarmBottomNavStyle();
     }
+
+    private void setupFarmHeader() {
+        TextView date = findViewById(R.id.farmDate);
+        TextView weatherChip = findViewById(R.id.farmWeatherChip);
+        View profile = findViewById(R.id.farmProfileButton);
+        date.setText(new SimpleDateFormat("EEE, MMM d · Odienné", Locale.getDefault()).format(new Date()));
+        profile.setOnClickListener(v -> showFarmAccountMenu(profile));
+
+        WeatherRepository repository = new WeatherRepository(this);
+        repository.getCurrentWeather(new WeatherRepository.WeatherCallback() {
+            @Override public void onSuccess(WeatherResponse weather) {
+                if (weather == null || weather.getCurrent() == null) return;
+                runOnUiThread(() -> {
+                    String condition = weather.getCurrent().getCondition() == null ? "" : weather.getCurrent().getCondition().getText();
+                    weatherChip.setText(String.format(Locale.getDefault(), "%.0f° · %s", weather.getCurrent().getTempC(), condition));
+                    weatherChip.setOnClickListener(v -> {
+                        Intent intent = new Intent(FarmHubActivity.this, com.afrinuts.farmos.ui.weather.WeatherActivity.class);
+                        intent.putExtra("weather_json", new Gson().toJson(weather));
+                        startActivity(intent);
+                    });
+                });
+            }
+            @Override public void onError(String error) {
+                runOnUiThread(() -> {
+                    weatherChip.setText("Weather");
+                    weatherChip.setOnClickListener(v -> startActivity(new Intent(FarmHubActivity.this,
+                            com.afrinuts.farmos.ui.weather.WeatherActivity.class)));
+                });
+            }
+        });
+    }
+
+    private void showFarmAccountMenu(View anchor) {
+        PopupWindow popup = new PopupWindow(this);
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(8), dp(8), dp(8), dp(8));
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setColor(Color.WHITE);
+        bg.setCornerRadius(dp(20));
+        bg.setStroke(dp(1), 0xFFE9E1CF);
+        menu.setBackground(bg);
+        if (sessionManager.canManageUsers()) addMenuRow(menu, popup, "Team", R.drawable.ic_person_add, () ->
+                startActivity(new Intent(this, UsersListActivity.class)));
+        addMenuRow(menu, popup, "Settings", R.drawable.ic_settings, () -> startActivity(new Intent(this, SettingsActivity.class)));
+        View divider = new View(this);
+        divider.setBackgroundColor(0xFFE9E1CF);
+        menu.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));
+        addMenuRow(menu, popup, "Logout", R.drawable.ic_logout, () -> new MaterialAlertDialogBuilder(this)
+                .setTitle("Logout").setMessage("Are you sure you want to logout?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    sessionManager.logout();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }).show());
+        popup.setContentView(menu);
+        popup.setWidth(dp(196));
+        popup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+        popup.setElevation(dp(8));
+        popup.showAsDropDown(anchor, -dp(152), dp(8));
+    }
+
+    private void addMenuRow(LinearLayout menu, PopupWindow popup, String title, int iconRes, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0xFFEFEAE2),
+                new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT), null));
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(iconRes);
+        icon.setColorFilter(title.equals("Logout") ? 0xFFB3402A : 0xFF1C1B1A);
+        row.addView(icon, new LinearLayout.LayoutParams(dp(18), dp(18)));
+        TextView text = new TextView(this);
+        text.setText(title);
+        text.setTextColor(title.equals("Logout") ? 0xFFB3402A : 0xFF1C1B1A);
+        text.setTextSize(15);
+        text.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(0, -2, 1);
+        textParams.setMarginStart(dp(12));
+        row.addView(text, textParams);
+        menu.addView(row, new LinearLayout.LayoutParams(-1, dp(48)));
+        row.setOnClickListener(v -> { popup.dismiss(); action.run(); });
+    }
+
+    private void applyFarmBottomNavStyle() {
+        int[] itemIds = {R.id.navHome, R.id.navFarm, R.id.navFinance, R.id.navAnalytics, R.id.navCompliance};
+        int[] iconIds = {R.id.navHomeIcon, R.id.navFarmIcon, R.id.navFinanceIcon, R.id.navAnalyticsIcon, R.id.navComplianceIcon};
+        int[] labelIds = {R.id.navHomeText, R.id.navFarmText, R.id.navFinanceText, R.id.navAnalyticsText, R.id.navComplianceText};
+        for (int i = 0; i < itemIds.length; i++) {
+            LinearLayout item = findViewById(itemIds[i]);
+            ImageView icon = findViewById(iconIds[i]);
+            TextView label = findViewById(labelIds[i]);
+            boolean active = i == 1;
+            item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+            item.setGravity(Gravity.CENTER);
+            item.setPadding(active ? dp(16) : 0, 0, active ? dp(16) : 0, 0);
+            item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) item.getLayoutParams();
+            params.height = dp(48);
+            params.weight = active ? 1.8f : 0.8f;
+            item.setLayoutParams(params);
+            ViewGroup.LayoutParams iconParams = icon.getLayoutParams();
+            iconParams.width = dp(20); iconParams.height = dp(20); icon.setLayoutParams(iconParams);
+            label.setVisibility(active ? View.VISIBLE : View.GONE);
+            label.setTextSize(14);
+            label.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
+            label.setTextColor(active ? Color.WHITE : 0xFFC9C2B4);
+            icon.setColorFilter(active ? Color.WHITE : 0xFFC9C2B4);
+            LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
+            labelParams.setMarginStart(active ? dp(7) : 0);
+            labelParams.topMargin = 0;
+            label.setLayoutParams(labelParams);
+        }
+    }
+
+    private int dp(float value) { return (int) (value * getResources().getDisplayMetrics().density + 0.5f); }
 
     /**
      * Determine which tabs to show based on user role

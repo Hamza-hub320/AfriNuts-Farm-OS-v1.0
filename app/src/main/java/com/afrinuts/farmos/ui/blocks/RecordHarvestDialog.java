@@ -31,7 +31,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 
-public class RecordHarvestDialog extends DialogFragment {
+public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String TAG = "RecordHarvestDialog";
     private static final String ARG_BLOCK_ID = "block_id";

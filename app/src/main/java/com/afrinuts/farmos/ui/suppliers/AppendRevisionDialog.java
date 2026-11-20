@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class AppendRevisionDialog extends DialogFragment {
+public class AppendRevisionDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
     private static final String TAG = "AppendRevisionDialog";
     private static final String ARG_COMMITMENT_ID = "commitment_id";
     private static final String ARG_FARM_ID = "farm_id";

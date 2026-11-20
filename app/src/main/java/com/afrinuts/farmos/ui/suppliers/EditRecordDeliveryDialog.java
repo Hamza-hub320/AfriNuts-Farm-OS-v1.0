@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EditRecordDeliveryDialog extends DialogFragment {
+public class EditRecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_BATCH_ID = "batch_id";
 

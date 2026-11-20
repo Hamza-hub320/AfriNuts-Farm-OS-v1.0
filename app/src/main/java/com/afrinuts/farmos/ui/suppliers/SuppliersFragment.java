@@ -21,6 +21,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -28,6 +29,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -117,10 +120,10 @@ public class SuppliersFragment extends Fragment {
     }
 
     private void setupFilters() {
+        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filterChipGroup);
         Chip chipAll = getView().findViewById(R.id.chipAll);
         Chip chipActive = getView().findViewById(R.id.chipActive);
-        Chip chipCertified = getView().findViewById(R.id.chipCertified);
-        Chip chipCooperative = getView().findViewById(R.id.chipCooperative);
+        Chip chipAtRisk = getView().findViewById(R.id.chipCertified);
 
         chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) { currentFilter = "ALL"; applyCombinedFilter(); }
@@ -128,11 +131,8 @@ public class SuppliersFragment extends Fragment {
         chipActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) { currentFilter = "ACTIVE"; applyCombinedFilter(); }
         });
-        chipCertified.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) { currentFilter = "CERTIFIED"; applyCombinedFilter(); }
-        });
-        chipCooperative.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) { currentFilter = "COOPERATIVE"; applyCombinedFilter(); }
+        chipAtRisk.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) { currentFilter = "AT_RISK"; applyCombinedFilter(); }
         });
     }
 
@@ -195,8 +195,7 @@ public class SuppliersFragment extends Fragment {
                     showEmpty(true);
                 } else {
                     showEmpty(false);
-                    updateSummaryStats();
-                    applyCombinedFilter();
+                    loadTrustEngineData(new ArrayList<>(allSuppliers));
                 }
             }
         });
@@ -248,10 +247,11 @@ public class SuppliersFragment extends Fragment {
                 return true;
             case "ACTIVE":
                 return s.isActive();
-            case "CERTIFIED":
-                return s.isCertified();
-            case "COOPERATIVE":
-                return s.getType() == SupplierEntity.SupplierType.COOPERATIVE;
+            case "AT_RISK":
+                Double score = trustScores.get(s.getId());
+                return s.getStatus() == SupplierEntity.SupplierStatus.SUSPENDED
+                        || s.getStatus() == SupplierEntity.SupplierStatus.INACTIVE
+                        || (score != null && score < 40);
             default:
                 return true;
         }
@@ -268,24 +268,35 @@ public class SuppliersFragment extends Fragment {
         return name.contains(query) || location.contains(query);
     }
 
-    private void updateSummaryStats() {
-        int total = allSuppliers.size();
-        int active = 0;
-        int certified = 0;
-        double totalRating = 0;
+    private final Map<Long, Double> trustScores = new HashMap<>();
 
-        for (SupplierEntity supplier : allSuppliers) {
-            if (supplier.isActive()) active++;
-            if (supplier.isCertified()) certified++;
-            totalRating += supplier.getRating();
-        }
-
-        double avgRating = total > 0 ? totalRating / total : 0;
-
-        tvTotalSuppliers.setText(String.valueOf(total));
-        tvActiveSuppliers.setText(String.valueOf(active));
-        tvCertifiedSuppliers.setText(String.valueOf(certified));
-        tvAvgRating.setText(String.format(Locale.getDefault(), "%.1f ★", avgRating));
+    private void loadTrustEngineData(List<SupplierEntity> suppliers) {
+        executor.execute(() -> {
+            Map<Long, Double> scores = new HashMap<>();
+            Map<Long, Integer> batches = new HashMap<>();
+            double sum = 0;
+            int scored = 0;
+            for (SupplierEntity supplier : suppliers) {
+                SupplierScoreSnapshotEntity snapshot = database.supplierScoreSnapshotDao().getLatestBySupplierId(supplier.getId());
+                if (snapshot != null && snapshot.getOverall() != null) {
+                    scores.put(supplier.getId(), snapshot.getOverall());
+                    sum += snapshot.getOverall();
+                    scored++;
+                }
+                batches.put(supplier.getId(), database.qualityBatchDao().getBatchCountBySupplierId(supplier.getId()));
+            }
+            final double average = scored == 0 ? Double.NaN : sum / scored;
+            requireActivity().runOnUiThread(() -> {
+                trustScores.clear();
+                trustScores.putAll(scores);
+                adapter.setTrustData(scores, batches);
+                tvTotalSuppliers.setText(String.valueOf(allSuppliers.size()));
+                tvActiveSuppliers.setText(String.valueOf(allSuppliers.stream().filter(SupplierEntity::isActive).count()));
+                tvCertifiedSuppliers.setText("0");
+                tvAvgRating.setText(Double.isNaN(average) ? "— / 100" : String.format(Locale.getDefault(), "%.0f / 100", average));
+                applyCombinedFilter();
+            });
+        });
     }
 
     private void showLoading(boolean show) {

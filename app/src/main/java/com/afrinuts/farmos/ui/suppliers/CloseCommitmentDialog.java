@@ -23,7 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class CloseCommitmentDialog extends DialogFragment {
+public class CloseCommitmentDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
     private static final String TAG = "CloseCommitmentDialog";
     private static final String ARG_COMMITMENT_ID = "commitment_id";
     private static final String ARG_FARM_ID = "farm_id";

@@ -43,7 +43,7 @@ import com.afrinuts.farmos.data.local.entity.ConsentScope;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddSupplierDialog extends DialogFragment {
+public class AddSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;

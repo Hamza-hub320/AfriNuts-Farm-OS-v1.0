@@ -252,6 +252,8 @@ public class TaskDetailActivity extends BaseActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
             getSupportActionBar().setTitle("Task Details");
         }
+
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
     }
 
     private void loadData() {
