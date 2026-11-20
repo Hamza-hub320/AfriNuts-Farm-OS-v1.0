@@ -110,8 +110,8 @@ public class FinanceHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Only Owners, Managers and CEO can access expenses
-        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

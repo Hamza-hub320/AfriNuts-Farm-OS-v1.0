@@ -381,6 +381,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToCompliance() {
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(4, sessionManager.getUserRole())) {
+            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (currentNavItem == 4) return;
         currentNavItem = 4;
         setNavItemSelected(4);
@@ -400,6 +404,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToFarm() {
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(1, sessionManager.getUserRole())) {
+            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (currentNavItem == 1) return;
         currentNavItem = 1;
         setNavItemSelected(1);
@@ -409,6 +417,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToFinance() {
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(2, sessionManager.getUserRole())) {
+            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (currentNavItem == 2) return;
         currentNavItem = 2;
         setNavItemSelected(2);
@@ -418,6 +430,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToAnalytics() {
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(3, sessionManager.getUserRole())) {
+            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (currentNavItem == 3) return;
         currentNavItem = 3;
         setNavItemSelected(3);

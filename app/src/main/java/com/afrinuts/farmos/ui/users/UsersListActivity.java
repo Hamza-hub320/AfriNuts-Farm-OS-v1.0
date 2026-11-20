@@ -44,7 +44,8 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
 
     @Override
     protected boolean checkRoleAccess() {
-        return sessionManager.isOwner();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

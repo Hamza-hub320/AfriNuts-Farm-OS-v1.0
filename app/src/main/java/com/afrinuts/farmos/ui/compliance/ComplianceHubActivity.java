@@ -147,6 +147,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
         // Set click listener based on tab type
         switch (tabItem.type) {
             case CERTIFICATIONS:
+                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_CERTIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
                             .findFragmentByTag("f" + viewPager.getCurrentItem());
@@ -160,6 +161,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 break;
 
             case AUDITS:
+                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_AUDIT", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
                             .findFragmentByTag("f" + viewPager.getCurrentItem());
@@ -171,6 +173,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 break;
 
             case INSPECTIONS:
+                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_INSPECTION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
                             .findFragmentByTag("f" + viewPager.getCurrentItem());
@@ -182,6 +185,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 break;
 
             case VERIFICATIONS:
+                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_VERIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
                             .findFragmentByTag("f" + viewPager.getCurrentItem());
@@ -193,6 +197,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 break;
 
             case DOCUMENTS:
+                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_DOCUMENT", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
                             .findFragmentByTag("f" + viewPager.getCurrentItem());
@@ -223,6 +228,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
     private void setupBottomNavigation() {
         navHome.setOnClickListener(v -> {
+            if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(0, sessionManager.getUserRole())) {
+                Toast.makeText(this, "This section is not available for your role", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, com.afrinuts.farmos.MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -231,6 +240,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         });
 
         navFarm.setOnClickListener(v -> {
+            if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(1, sessionManager.getUserRole())) {
+                Toast.makeText(this, "This section is not available for your role", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, FarmHubActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -238,6 +251,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         });
 
         navFinance.setOnClickListener(v -> {
+            if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(2, sessionManager.getUserRole())) {
+                Toast.makeText(this, "This section is not available for your role", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, FinanceHubActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -245,6 +262,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         });
 
         navAnalytics.setOnClickListener(v -> {
+            if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(3, sessionManager.getUserRole())) {
+                Toast.makeText(this, "This section is not available for your role", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, AnalyticsHubActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -309,7 +330,8 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

@@ -88,8 +88,8 @@ public class UserDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Only Owners can access UserDetailActivity
-        return sessionManager.isOwner();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

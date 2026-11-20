@@ -225,6 +225,7 @@ public class WeatherActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return true;
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 }

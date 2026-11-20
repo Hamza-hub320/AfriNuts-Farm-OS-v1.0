@@ -50,8 +50,8 @@ public class BlocksActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Investors cannot access blocks
-        return !sessionManager.isInvestor();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

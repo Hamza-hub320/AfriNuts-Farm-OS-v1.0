@@ -112,7 +112,8 @@ public class ExpenseDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return !sessionManager.isInvestor();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

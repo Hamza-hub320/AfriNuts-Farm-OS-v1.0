@@ -111,7 +111,8 @@ public class SupplierDetailActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isFieldOfficer() || sessionManager.isCEO();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

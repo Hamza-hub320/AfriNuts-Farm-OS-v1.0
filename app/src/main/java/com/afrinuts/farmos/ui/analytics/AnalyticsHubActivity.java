@@ -52,7 +52,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return !sessionManager.isFieldOfficer();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     private void initViews() {

@@ -63,8 +63,8 @@ public class TasksListActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Investors cannot access tasks
-        return !sessionManager.isInvestor();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

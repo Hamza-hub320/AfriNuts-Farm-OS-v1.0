@@ -62,8 +62,8 @@ public class ExpensesListActivity extends BaseSyncActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Managers and Owners can access Expenses, Investors cannot
-        return !sessionManager.isInvestor();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

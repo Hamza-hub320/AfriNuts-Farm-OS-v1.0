@@ -57,20 +57,14 @@ public class FarmHubActivity extends BaseHubActivity {
     private void determineVisibleTabs() {
         visibleTabs.clear();
 
-        // Owners, Managers and CEO see all tabs
-        if (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO()) {
-            visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS));
-            visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
-            visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS));
-            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS));
-        }
-        // Workers only see Tasks tab
-        else if (sessionManager.isWorker()) {
-            visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS));
-        }
-        // Field Officers only see Suppliers tab
-        else if (sessionManager.isFieldOfficer()) {
-            visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS));
+        for (String key : com.afrinuts.farmos.utils.AccessMap.farmTabs(sessionManager.getUserRole())) {
+            switch (key) {
+                case "BLOCKS": visibleTabs.add(new TabItem("Blocks", R.drawable.ic_view_list, TabType.BLOCKS)); break;
+                case "SUPPLIERS": visibleTabs.add(new TabItem("Suppliers", R.drawable.ic_people, TabType.SUPPLIERS)); break;
+                case "TASKS": visibleTabs.add(new TabItem("Tasks", R.drawable.ic_task, TabType.TASKS)); break;
+                case "WORKERS": visibleTabs.add(new TabItem("Workers", R.drawable.ic_people, TabType.WORKERS)); break;
+                default: throw new IllegalStateException("Unknown Farm tab: " + key);
+            }
         }
     }
 
@@ -115,7 +109,7 @@ public class FarmHubActivity extends BaseHubActivity {
         fabAdd.setOnClickListener(null);
 
         // Set FAB based on tab type
-        if (tabItem.type == TabType.BLOCKS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isCEO())) {
+        if (tabItem.type == TabType.BLOCKS && com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_BLOCK", sessionManager.getUserRole())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
@@ -127,7 +121,7 @@ public class FarmHubActivity extends BaseHubActivity {
             });
             fabAdd.show();
         }
-        else if (tabItem.type == TabType.TASKS) {
+        else if (tabItem.type == TabType.TASKS && com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_TASK", sessionManager.getUserRole())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
@@ -139,7 +133,7 @@ public class FarmHubActivity extends BaseHubActivity {
             });
             fabAdd.show();
         }
-        else if (tabItem.type == TabType.SUPPLIERS && (sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isFieldOfficer() || sessionManager.isCEO())) {
+        else if (tabItem.type == TabType.SUPPLIERS && com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_SUPPLIER", sessionManager.getUserRole())) {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
@@ -173,10 +167,8 @@ public class FarmHubActivity extends BaseHubActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        // Owners, Managers, CEO and Workers can access Farm Hub
-        // Investors are blocked
-        return sessionManager.isOwner() || sessionManager.isManager() || sessionManager.isWorker()
-                || sessionManager.isFieldOfficer() || sessionManager.isCEO();
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

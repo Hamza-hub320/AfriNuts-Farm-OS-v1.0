@@ -70,7 +70,8 @@ public class ReportsActivity extends BaseActivity {
 
     @Override
     protected boolean checkRoleAccess() {
-        return true; // All roles can generate reports
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

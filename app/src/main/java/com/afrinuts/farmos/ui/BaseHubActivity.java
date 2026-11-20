@@ -203,6 +203,10 @@ public abstract class BaseHubActivity extends BaseActivity {
 
     private void navigateTo(Class<?> targetActivity, int targetNavItem) {
         if (currentNavItem == targetNavItem) return;
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(targetNavItem, sessionManager.getUserRole())) {
+            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         Intent intent = new Intent(this, targetActivity);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

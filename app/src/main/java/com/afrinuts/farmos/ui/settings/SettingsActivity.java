@@ -57,7 +57,8 @@ public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not 
 
     @Override
     protected boolean checkRoleAccess() {
-        return true;
+        return com.afrinuts.farmos.utils.AccessMap.canOpenScreen(
+                getClass().getSimpleName(), sessionManager.getUserRole());
     }
 
     @Override

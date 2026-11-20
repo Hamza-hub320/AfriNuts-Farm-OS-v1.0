@@ -85,19 +85,13 @@ public class SessionManager {
     public boolean isCEO() { return getUserRole() == UserEntity.UserRole.CEO; }
     public boolean isComplianceOfficer() { return getUserRole() == UserEntity.UserRole.COMPLIANCE_OFFICER; }
     public boolean isFieldOfficer() { return getUserRole() == UserEntity.UserRole.FIELD_OFFICER; }
-    public boolean canManageUsers() {
-        return isOwner();
-    }
+    public boolean canManageUsers() { return AccessMap.canManageUsers(getUserRole()); }
 
-    public boolean canEditData() {
-        return isOwner() || isManager() || isCEO();
-    }
-    public boolean canChangeCertificationStatus() {
-        return isOwner() || isCEO() || isComplianceOfficer();
-    }
-    public boolean canOnboardSuppliers() {return isOwner() || isManager() || isFieldOfficer() || isCEO();}
-    public boolean canManageAccounts() {return isOwner();}
-    public boolean canViewAnalytics() {return true;}
+    public boolean canEditData() { return AccessMap.canEditData(getUserRole()); }
+    public boolean canChangeCertificationStatus() { return AccessMap.canChangeCertificationStatus(getUserRole()); }
+    public boolean canOnboardSuppliers() { return AccessMap.canOnboardSuppliers(getUserRole()); }
+    public boolean canManageAccounts() { return AccessMap.canManageAccounts(getUserRole()); }
+    public boolean canViewAnalytics() { return AccessMap.canViewAnalytics(getUserRole()); }
 
     public void logout() {
         Log.d("SessionManager", "Session cleared");
