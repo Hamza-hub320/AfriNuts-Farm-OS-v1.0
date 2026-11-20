@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackground">
@@ -31,12 +31,12 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <FrameLayout
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="2dp">
 
                     <ImageView
@@ -79,7 +79,7 @@
             android:layout_weight="1"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackground">
@@ -90,12 +90,12 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <FrameLayout
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="2dp">
 
                     <ImageView
@@ -137,7 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
             android:foreground="?android:attr/selectableItemBackground">
@@ -148,12 +148,12 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="8dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <FrameLayout
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="2dp">
 
                     <ImageView
@@ -259,8 +259,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
                     style="@style/Widget.AfriNuts.CardView">
 
                     <LinearLayout
@@ -268,7 +268,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp"
-                        android:background="?attr/cardBackgroundPrimary">
+                        android:background="@color/surface">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -283,7 +283,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="320dp"
                             android:minHeight="320dp"
-                            android:background="?attr/cardBackgroundSecondary"/>
+                            android:background="@color/surface"/>
 
                     </LinearLayout>
 
@@ -294,9 +294,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
-                    android:background="?attr/cardBackgroundSecondary"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    android:background="@color/surface"
                     style="@style/Widget.AfriNuts.CardView">
 
                     <LinearLayout
@@ -304,7 +304,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp"
-                        android:background="?attr/cardBackgroundPrimary">
+                        android:background="@color/surface">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -318,7 +318,7 @@
                             android:id="@+id/barChart"
                             android:layout_width="match_parent"
                             android:layout_height="320dp"
-                            android:background="?attr/cardBackgroundSecondary"/>
+                            android:background="@color/surface"/>
 
                     </LinearLayout>
 
@@ -329,9 +329,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
-                    android:background="?attr/cardBackgroundPrimary"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    android:background="@color/surface"
                     style="@style/Widget.AfriNuts.CardView">
 
                     <LinearLayout
@@ -339,7 +339,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp"
-                        android:background="?attr/cardBackgroundPrimary">
+                        android:background="@color/surface">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -353,7 +353,7 @@
                             android:id="@+id/lineChart"
                             android:layout_width="match_parent"
                             android:layout_height="320dp"
-                            android:background="?attr/cardBackgroundSecondary"/>
+                            android:background="@color/surface"/>
 
                     </LinearLayout>
 
@@ -398,7 +398,7 @@
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="?attr/iconBackgroundGlass">
+                        android:background="@drawable/bg_icon_sand">
 
                         <ImageView
                             android:layout_width="40dp"

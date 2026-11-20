@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/cardBackgroundPrimary"
+            android:background="@color/surface"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
@@ -33,9 +33,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
-                    android:background="?attr/cardBackgroundAccent"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    android:background="@color/surface"
                     style="@style/Widget.AfriNuts.CardView">
 
                     <LinearLayout
@@ -44,7 +44,7 @@
                         android:orientation="horizontal"
                         android:padding="16dp"
                         android:weightSum="3"
-                        android:background="?attr/cardBackgroundPrimary">
+                        android:background="@color/surface">
 
                         <!-- Total -->
                         <LinearLayout
@@ -57,7 +57,7 @@
                             <FrameLayout
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:background="?attr/iconBackgroundGlass">
+                                android:background="@drawable/bg_icon_sand">
 
                                 <ImageView
                                     android:layout_width="20dp"
@@ -100,7 +100,7 @@
                             <FrameLayout
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:background="?attr/iconBackgroundGlass">
+                                android:background="@drawable/bg_icon_sand">
 
                                 <ImageView
                                     android:layout_width="20dp"
@@ -143,7 +143,7 @@
                             <FrameLayout
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:background="?attr/iconBackgroundGlass">
+                                android:background="@drawable/bg_icon_sand">
 
                                 <ImageView
                                     android:layout_width="20dp"
@@ -257,7 +257,7 @@
                     <FrameLayout
                         android:layout_width="72dp"
                         android:layout_height="72dp"
-                        android:background="@drawable/bg_icon_glass_large">
+                        android:background="@drawable/bg_icon_sand">
 
                         <ImageView
                             android:layout_width="36dp"
@@ -312,7 +312,7 @@
         android:layout_marginBottom="24dp"
         android:src="@drawable/ic_person_add"
         android:contentDescription="Add team member"
-        app:backgroundTint="?attr/colorSecondary"
+        app:backgroundTint="@color/primary"
         app:tint="@android:color/white"
         app:rippleColor="@color/primary_light" />
 

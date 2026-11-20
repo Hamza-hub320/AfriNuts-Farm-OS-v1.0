@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/cardBackgroundPrimary"
+        android:background="@color/surface"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -65,9 +65,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                android:background="?attr/cardBackgroundPrimary"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <ImageView
@@ -77,7 +77,7 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_photo_placeholder"
                     android:contentDescription="Full photo"
-                    android:background="?attr/cardBackgroundPrimary"/>
+                    android:background="@color/surface"/>
 
             </androidx.cardview.widget.CardView>
 
@@ -86,9 +86,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                android:background="?attr/cardBackgroundSecondary"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <!-- Caption Section -->
                     <TextView
@@ -189,7 +189,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit Caption"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart"/>
 
@@ -200,7 +200,7 @@
                     android:layout_height="46dp"
                     android:layout_weight="1"
                     android:text="Share"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="textStart"/>
 
@@ -212,7 +212,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:text="Delete Photo"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                style="@style/Widget.AfriNuts.Button.Danger"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
                 app:iconTint="@color/error"

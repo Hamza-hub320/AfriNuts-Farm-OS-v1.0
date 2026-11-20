@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Top Row: Name + Type + Rating -->
         <LinearLayout
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:padding="8dp"
             android:layout_marginBottom="8dp">
 
@@ -212,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="?attr/cardBackgroundSecondary"
+                android:background="@color/surface"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 app:cornerRadius="12dp"

@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/cardBackgroundPrimary"
+        android:background="@color/surface"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -64,9 +64,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                android:background="?attr/cardBackgroundAccent"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:id="@+id/tvMasterBatchNumber"
@@ -103,8 +103,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -112,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <!-- Buyer -->
                     <LinearLayout
@@ -299,8 +299,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -308,7 +308,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -333,8 +333,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
@@ -342,7 +342,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -380,7 +380,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:text="Generate QR Code"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     android:layout_marginBottom="8dp"
                     app:icon="@drawable/ic_qr_code"
                     app:iconGravity="textStart"
@@ -391,7 +391,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:text="Share"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     android:layout_marginBottom="8dp"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="textStart"
@@ -402,7 +402,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                    style="@style/Widget.AfriNuts.Button.Danger"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white" />

@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 android:background="@drawable/bg_card_selector_accent"
                 style="@style/Widget.AfriNuts.CardView"
@@ -37,12 +37,12 @@
                     android:orientation="vertical"
                     android:padding="12dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <FrameLayout
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="?attr/iconBackgroundGlass"
+                        android:background="@drawable/bg_icon_sand"
                         android:layout_marginBottom="4dp">
 
                         <ImageView
@@ -82,8 +82,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_selector"
                 style="@style/Widget.AfriNuts.CardView"
                 android:clipChildren="false"
@@ -96,14 +96,14 @@
                     android:orientation="vertical"
                     android:padding="24dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary"
+                    android:background="@color/surface"
                     android:outlineProvider="background"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <FrameLayout
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:background="?attr/iconBackgroundGlass"
+                        android:background="@drawable/bg_icon_sand"
                         android:layout_marginBottom="12dp">
 
                         <ImageView
@@ -138,7 +138,7 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardCornerRadius="24dp"
+                        app:cardCornerRadius="20dp"
                         android:padding="8dp"
                         android:background="@drawable/bg_card_selector_secondary"
                         android:clipChildren="false"
@@ -150,7 +150,7 @@
                             android:layout_height="wrap_content"
                             android:columnCount="2"
                             android:rowCount="2"
-                            android:background="?attr/cardBackgroundAccent">
+                            android:background="@color/surface">
 
                             <!-- Feels Like -->
                             <LinearLayout
@@ -273,8 +273,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_selector_secondary"
                 style="@style/Widget.AfriNuts.CardView"
                 android:clipChildren="false"
@@ -286,7 +286,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundAccent"
+                    android:background="@color/surface"
                     android:outlineProvider="background"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
@@ -300,7 +300,7 @@
                         <FrameLayout
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:background="?attr/iconBackgroundGlass"
+                            android:background="@drawable/bg_icon_sand"
                             android:layout_marginBottom="8dp">
 
                             <ImageView
@@ -341,7 +341,7 @@
                         <FrameLayout
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:background="?attr/iconBackgroundGlass"
+                            android:background="@drawable/bg_icon_sand"
                             android:layout_marginBottom="8dp">
 
                             <ImageView
@@ -382,8 +382,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_selector_accent"
                 style="@style/Widget.AfriNuts.CardView"
                 android:clipChildren="false"
@@ -396,14 +396,14 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundSecondary"
+                    android:background="@color/surface"
                     android:outlineProvider="background"
                     android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="?attr/iconBackgroundGlass"
+                        android:background="@drawable/bg_icon_sand"
                         android:layout_marginEnd="12dp">
 
                         <ImageView
@@ -470,7 +470,7 @@
 
     </ScrollView>
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR - NIKE STYLE GLASS -->
+    <!-- Compact dark pill navigation -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -479,23 +479,23 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="32dp"
+        app:cardBackgroundColor="@color/nav_pill_bg"
+        app:cardCornerRadius="999dp"
         app:cardElevation="18dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="true">
+        app:cardUseCompatPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="8dp"
+            android:paddingVertical="4dp"
             android:paddingHorizontal="8dp"
             android:weightSum="4"
-            android:background="?attr/navbarBackground"
-            android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
+            android:background="@color/nav_pill_bg"
+            >
 
             <!-- Home -->
             <LinearLayout

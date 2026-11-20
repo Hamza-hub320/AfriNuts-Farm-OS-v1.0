@@ -50,12 +50,6 @@
             android:layout_height="match_parent"
             android:background="@drawable/card_edge_effect" />
 
-        <!-- Glassy Overlay -->
-        <View
-            android:id="@+id/glassOverlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/card_glass_overlay" />
 
         <!-- Inner Shadow -->
         <View

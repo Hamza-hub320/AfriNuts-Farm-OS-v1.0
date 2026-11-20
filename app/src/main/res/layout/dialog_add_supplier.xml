@@ -18,12 +18,12 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginBottom="24dp"
-            android:background="?attr/cardBackgroundPrimary">
+            android:background="@color/surface">
 
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="16dp">
 
                 <!-- Edge Effect -->
@@ -37,7 +37,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:alpha="0.4" />
 
                 <!-- Inner Shadow -->
@@ -678,7 +678,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:padding="12dp"
             android:layout_marginBottom="8dp"
             app:cornerRadius="12dp">
@@ -705,7 +705,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:padding="12dp"
             android:layout_marginBottom="8dp"
             app:cornerRadius="12dp">
@@ -732,7 +732,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:padding="12dp"
             android:layout_marginBottom="12dp"
             app:cornerRadius="12dp">
@@ -776,7 +776,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:padding="12dp"
             android:layout_marginBottom="8dp"
             app:cornerRadius="12dp">
@@ -905,7 +905,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                style="@style/Widget.AfriNuts.Button.Secondary"
                 android:layout_marginEnd="12dp"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
@@ -917,7 +917,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Add Supplier"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                style="@style/Widget.AfriNuts.Button"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"

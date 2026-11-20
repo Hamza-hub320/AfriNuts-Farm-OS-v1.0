@@ -18,9 +18,10 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/cardBackgroundPrimary"
-            app:tabIndicatorColor="?attr/colorPrimary"
-            app:tabSelectedTextColor="?attr/colorPrimary"
+            android:background="@drawable/bg_tabs_container"
+            app:tabIndicatorColor="@android:color/transparent"
+            app:tabIndicatorHeight="0dp"
+            app:tabSelectedTextColor="@android:color/white"
             app:tabTextColor="?attr/colorOnSurface"
             app:tabMode="fixed"
             app:tabGravity="fill"
@@ -29,7 +30,7 @@
             android:elevation="1dp"
             android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
-            app:tabBackground="@drawable/tab_selector_glass"
+            app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.TabCompact"
             app:tabMinWidth="60dp"
             app:tabMaxWidth="120dp"
@@ -64,13 +65,13 @@
         android:layout_marginBottom="126dp"
         android:src="@drawable/ic_add"
         android:contentDescription="Action"
-        app:backgroundTint="?attr/colorSecondary"
+        app:backgroundTint="@color/primary"
         app:tint="@android:color/white"
         app:fabSize="normal"
         app:elevation="4dp"
         app:rippleColor="#80FFFFFF" />
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR - NIKE STYLE GLASS -->
+    <!-- Compact dark pill navigation -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
@@ -79,23 +80,23 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/nav_pill_bg"
+        app:cardCornerRadius="999dp"
+        app:cardElevation="2dp"
         android:elevation="8dp"
         app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="true">
+        app:cardUseCompatPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="8dp"
+            android:paddingVertical="4dp"
             android:paddingHorizontal="8dp"
             android:weightSum="5"
-            android:background="?attr/navbarBackground"
-            android:theme="@style/ThemeOverlay.AfriNuts.GlassNavbar">
+            android:background="@color/nav_pill_bg"
+            >
 
             <!-- Home -->
             <LinearLayout

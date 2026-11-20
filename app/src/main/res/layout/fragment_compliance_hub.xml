@@ -23,7 +23,7 @@
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="12dp">
 
                 <ImageView
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Add"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                style="@style/Widget.AfriNuts.Button"
                 app:icon="@drawable/ic_add"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:layout_margin="4dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -94,7 +94,7 @@
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:id="@+id/tvTotalCertifications"
@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:layout_margin="4dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -136,7 +136,7 @@
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:id="@+id/tvActiveCertifications"
@@ -165,7 +165,7 @@
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:layout_margin="4dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -178,7 +178,7 @@
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:id="@+id/tvExpiringCertifications"
@@ -207,7 +207,7 @@
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
                 android:layout_margin="4dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -220,7 +220,7 @@
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:id="@+id/tvExpiredCertifications"

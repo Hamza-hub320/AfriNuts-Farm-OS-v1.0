@@ -6,9 +6,9 @@
     android:layout_margin="8dp"
     android:layout_marginBottom="4dp"
     style="@style/Widget.AfriNuts.CardView"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="4dp"
-    android:background="?attr/cardBackgroundPrimary"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    android:background="@color/surface"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -21,7 +21,7 @@
         android:padding="12dp"
         android:clickable="true"
         android:focusable="true"
-        android:background="?attr/cardBackgroundAccent">
+        android:background="@color/surface">
 
         <!-- Row Header -->
         <LinearLayout
@@ -78,7 +78,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginEnd="6dp"
-                android:background="?attr/cardBackgroundSecondary"
+                android:background="@color/surface"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="24dp">
@@ -86,7 +86,7 @@
                 <FrameLayout
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginEnd="6dp">
 
                     <ImageView
@@ -120,7 +120,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginHorizontal="3dp"
-                android:background="?attr/cardBackgroundSecondary"
+                android:background="@color/surface"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="24dp">
@@ -128,7 +128,7 @@
                 <FrameLayout
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginEnd="6dp">
 
                     <ImageView
@@ -162,7 +162,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginStart="6dp"
-                android:background="?attr/cardBackgroundSecondary"
+                android:background="@color/surface"
                 android:paddingVertical="4dp"
                 android:paddingHorizontal="8dp"
                 app:cornerRadius="24dp">
@@ -170,7 +170,7 @@
                 <FrameLayout
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginEnd="6dp">
 
                     <ImageView

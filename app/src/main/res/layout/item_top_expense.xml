@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
-    android:background="?attr/cardBackgroundSecondary"
+    android:background="@color/surface"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -18,13 +18,13 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="10dp"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Rank Badge (Optional - adds visual hierarchy) -->
         <FrameLayout
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="?attr/iconBackgroundGlass"
+            android:background="@drawable/bg_icon_sand"
             android:layout_marginEnd="12dp">
 
             <TextView
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundPrimary"
+            android:background="@color/surface"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:layout_marginStart="4dp"

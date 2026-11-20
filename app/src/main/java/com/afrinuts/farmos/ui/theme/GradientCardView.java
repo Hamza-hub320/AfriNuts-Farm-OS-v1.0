@@ -21,7 +21,6 @@ public class GradientCardView extends FrameLayout {
     private CardView cardView;
     private View gradientOverlay;
     private View edgeEffect;
-    private View glassOverlay;
     private View innerShadow;
     private ImageView iconView;
     private TextView titleText;
@@ -58,7 +57,6 @@ public class GradientCardView extends FrameLayout {
         cardView = findViewById(R.id.cardView);
         gradientOverlay = findViewById(R.id.gradientOverlay);
         edgeEffect = findViewById(R.id.edgeEffect);
-        glassOverlay = findViewById(R.id.glassOverlay);
         innerShadow = findViewById(R.id.innerShadow);
         iconView = findViewById(R.id.iconView);
         titleText = findViewById(R.id.titleText);

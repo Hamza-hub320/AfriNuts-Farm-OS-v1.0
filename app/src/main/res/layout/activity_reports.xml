@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_glass_toolbar"
+        android:background="@color/surface"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp">
@@ -63,7 +63,7 @@
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_primary">
 
                 <LinearLayout
@@ -183,7 +183,7 @@
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 android:background="@drawable/bg_card_secondary">
 
                 <LinearLayout
@@ -223,7 +223,7 @@
                             <FrameLayout
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:background="@drawable/bg_icon_glass"
+                                android:background="@drawable/bg_icon_sand"
                                 android:layout_marginEnd="12dp">
 
                                 <ImageView
@@ -289,7 +289,7 @@
                             <FrameLayout
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:background="@drawable/bg_icon_glass"
+                                android:background="@drawable/bg_icon_sand"
                                 android:layout_marginEnd="12dp">
 
                                 <ImageView

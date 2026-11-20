@@ -6,7 +6,7 @@
     android:layout_marginBottom="8dp"
     style="@style/Widget.AfriNuts.CardView"
     app:cardElevation="2dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     android:background="@drawable/bg_card_primary">
 
     <LinearLayout
@@ -15,13 +15,13 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Icon with Glass Container -->
         <FrameLayout
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_icon_glass"
+            android:background="@drawable/bg_icon_sand"
             android:layout_marginEnd="16dp">
 
             <ImageView

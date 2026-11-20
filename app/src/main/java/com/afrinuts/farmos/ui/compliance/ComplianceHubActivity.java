@@ -268,32 +268,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
     }
 
     private void highlightNavItem(int selectedIndex) {
-        int inactiveColor = getThemeColor(R.attr.navbarIconColor);
-        int activeColor = ContextCompat.getColor(this, R.color.primary);
-
-        resetNavItem(navHomeIcon, navHomeText, inactiveColor);
-        resetNavItem(navFarmIcon, navFarmText, inactiveColor);
-        resetNavItem(navFinanceIcon, navFinanceText, inactiveColor);
-        resetNavItem(navAnalyticsIcon, navAnalyticsText, inactiveColor);
-        resetNavItem(navComplianceIcon, navComplianceText, inactiveColor);
-
-        switch (selectedIndex) {
-            case 0:
-                setActiveNavItem(navHomeIcon, navHomeText, activeColor);
-                break;
-            case 1:
-                setActiveNavItem(navFarmIcon, navFarmText, activeColor);
-                break;
-            case 2:
-                setActiveNavItem(navFinanceIcon, navFinanceText, activeColor);
-                break;
-            case 3:
-                setActiveNavItem(navAnalyticsIcon, navAnalyticsText, activeColor);
-                break;
-            case 4:
-                setActiveNavItem(navComplianceIcon, navComplianceText, activeColor);
-                break;
-        }
+        updateNavSelection(selectedIndex);
     }
 
     private void resetNavItem(ImageView icon, TextView text, int color) {

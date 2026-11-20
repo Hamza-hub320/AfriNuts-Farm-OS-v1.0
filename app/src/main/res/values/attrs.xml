@@ -27,10 +27,6 @@
     </declare-styleable>
 
     <!-- Liquid Glass Theme Attributes -->
-    <attr name="buttonLiquidGlass" format="reference" />
-    <attr name="buttonLiquidGlassPrimary" format="reference" />
-    <attr name="buttonLiquidGlassAccent" format="reference" />
-    <attr name="buttonLiquidGlassDanger" format="reference" />
     <attr name="colorOnPrimary" format="color" />
     <attr name="navbarIconColor" format="color" />
     <attr name="navbarTextColor" format="color" />

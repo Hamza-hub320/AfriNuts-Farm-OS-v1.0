@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="?attr/cardBackgroundSecondary"
+    android:background="@color/surface"
     android:padding="8dp"
     android:layout_marginBottom="8dp"
     app:cornerRadius="8dp">
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="42dp"
         android:text="Remove"
-        style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+        style="@style/Widget.AfriNuts.Button.Secondary"
         android:textSize="11sp"
         android:minHeight="28dp"
         android:paddingStart="8dp"

@@ -5,7 +5,6 @@ import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
-import com.afrinuts.farmos.ui.theme.CircularProgressView;
 import com.afrinuts.farmos.ui.weather.WeatherActivity;
 
 import com.afrinuts.farmos.data.remote.WeatherResponse;
@@ -26,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.MotionEvent;
 import java.text.SimpleDateFormat;
 
@@ -55,6 +55,9 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
+import com.afrinuts.farmos.ui.theme.HomeChartView;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -122,21 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
     // UI Elements
     private TextView greetingText;
-
-    // Stats Cards
-    private TextView totalHectaresText;
-    private TextView totalTreesText;
-
-    // Progress Ring
-    private CircularProgressView progressRing;
-
-    // Farm Summary Views
-    private TextView blocksPlantedText;
-    private TextView treesAliveText;
-    private ProgressBar blocksProgress;
-    private ProgressBar treesProgress;
-    private TextView blocksPercentText;
-    private TextView treesPercentText;
 
     // Financial Snapshot
     private TextView monthlyRevenueText;
@@ -322,21 +310,10 @@ public class MainActivity extends AppCompatActivity {
         welcomeUserName = findViewById(R.id.welcomeUserName);
         locationText = findViewById(R.id.locationText);
         greetingText = findViewById(R.id.greetingText);
-
-        // Stats Cards
-        totalHectaresText = findViewById(R.id.totalHectaresText);
-        totalTreesText = findViewById(R.id.totalTreesText);
-
-        // Progress Ring
-        progressRing = findViewById(R.id.progressRing);
-
-        // Farm Summary
-        blocksPlantedText = findViewById(R.id.blocksPlantedText);
-        treesAliveText = findViewById(R.id.treesAliveText);
-        blocksProgress = findViewById(R.id.blocksProgress);
-        treesProgress = findViewById(R.id.treesProgress);
-        blocksPercentText = findViewById(R.id.blocksPercentText);
-        treesPercentText = findViewById(R.id.treesPercentText);
+        TextView overviewDateText = findViewById(R.id.overviewDateText);
+        if (overviewDateText != null) {
+            overviewDateText.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
+        }
 
         // Financial Snapshot
         monthlyRevenueText = findViewById(R.id.monthlyRevenueText);
@@ -382,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToCompliance() {
         if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(4, sessionManager.getUserRole())) {
-            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(4), android.widget.Toast.LENGTH_LONG).show();
             return;
         }
         if (currentNavItem == 4) return;
@@ -395,6 +372,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToHome() {
+        if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(0, sessionManager.getUserRole())) {
+            Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(0), Toast.LENGTH_LONG).show();
+            return;
+        }
         if (currentNavItem == 0) return;
         currentNavItem = 0;
         setNavItemSelected(0);
@@ -405,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToFarm() {
         if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(1, sessionManager.getUserRole())) {
-            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(1), android.widget.Toast.LENGTH_LONG).show();
             return;
         }
         if (currentNavItem == 1) return;
@@ -418,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToFinance() {
         if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(2, sessionManager.getUserRole())) {
-            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(2), android.widget.Toast.LENGTH_LONG).show();
             return;
         }
         if (currentNavItem == 2) return;
@@ -431,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToAnalytics() {
         if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(3, sessionManager.getUserRole())) {
-            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(3), android.widget.Toast.LENGTH_LONG).show();
             return;
         }
         if (currentNavItem == 3) return;
@@ -443,46 +424,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavItemSelected(int position) {
-        // Get colors - WHITE for inactive, PRIMARY for active
         int inactiveColor = getThemeColor(R.attr.navbarIconColor);
-        int activeColor = ContextCompat.getColor(this, R.color.primary);
+        int activeColor = ContextCompat.getColor(this, android.R.color.white);
+        setHomeNavState(navHome, navHomeIcon, navHomeText, position == 0, inactiveColor, activeColor);
+        setHomeNavState(navFarm, navFarmIcon, navFarmText, position == 1, inactiveColor, activeColor);
+        setHomeNavState(navFinance, navFinanceIcon, navFinanceText, position == 2, inactiveColor, activeColor);
+        setHomeNavState(navAnalytics, navAnalyticsIcon, navAnalyticsText, position == 3, inactiveColor, activeColor);
+        setHomeNavState(navCompliance, navComplianceIcon, navComplianceText, position == 4, inactiveColor, activeColor);
+    }
 
-        // Reset all icons
-        navHomeIcon.setColorFilter(inactiveColor);
-        navFarmIcon.setColorFilter(inactiveColor);
-        navFinanceIcon.setColorFilter(inactiveColor);
-        navAnalyticsIcon.setColorFilter(inactiveColor);
-        navComplianceIcon.setColorFilter(inactiveColor);
-
-        // Reset all text colors
-        navHomeText.setTextColor(inactiveColor);
-        navFarmText.setTextColor(inactiveColor);
-        navFinanceText.setTextColor(inactiveColor);
-        navAnalyticsText.setTextColor(inactiveColor);
-        navComplianceText.setTextColor(inactiveColor);
-
-        // Set selected item
-        switch (position) {
-            case 0:
-                navHomeIcon.setColorFilter(activeColor);
-                navHomeText.setTextColor(activeColor);
-                break;
-            case 1:
-                navFarmIcon.setColorFilter(activeColor);
-                navFarmText.setTextColor(activeColor);
-                break;
-            case 2:
-                navFinanceIcon.setColorFilter(activeColor);
-                navFinanceText.setTextColor(activeColor);
-                break;
-            case 3:
-                navAnalyticsIcon.setColorFilter(activeColor);
-                navAnalyticsText.setTextColor(activeColor);
-                break;
-            case 4:
-                navComplianceIcon.setColorFilter(activeColor);
-                navComplianceText.setTextColor(activeColor);
-                break;
+    private void setHomeNavState(LinearLayout item, ImageView icon, TextView label, boolean active,
+                                 int inactiveColor, int activeColor) {
+        item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        item.setGravity(android.view.Gravity.CENTER);
+        item.setPadding(active ? 12 : 6, 4, active ? 12 : 6, 4);
+        item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
+        label.setVisibility(active ? View.VISIBLE : View.GONE);
+        label.setTextColor(active ? activeColor : inactiveColor);
+        label.setAlpha(1f);
+        LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
+        labelParams.topMargin = active ? 0 : 4;
+        labelParams.setMarginStart(active ? 6 : 0);
+        label.setLayoutParams(labelParams);
+        icon.setColorFilter(active ? activeColor : inactiveColor);
+        ViewGroup.LayoutParams raw = item.getLayoutParams();
+        if (raw instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams itemParams = (LinearLayout.LayoutParams) raw;
+            itemParams.width = 0;
+            itemParams.weight = active ? 1.8f : 0.8f;
+            item.setLayoutParams(itemParams);
         }
     }
 
@@ -522,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showProfileMenu() {
         String[] options;
-        if (sessionManager.isOwner()) {
+        if (sessionManager.canManageUsers()) {
             options = new String[]{"Team", "Settings"};
         } else {
             options = new String[]{"Settings"};
@@ -896,6 +866,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (farm != null) {
                         List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(farm.getId());
+                        loadHomeQualityMetrics(farm.getId());
 
                         int totalBlocks = blocks.size();
                         int plantedBlocks = 0;
@@ -946,62 +917,99 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(int totalBlocks, int plantedBlocks, int totalAliveTrees,
                           double avgSurvivalRate, int plantedProgressValue) {
-
-        // Farm details (only for views that exist in new layout)
-        if (currentFarm != null) {
-            // Update Farm Summary Card
-            int blocksPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
-            int totalTrees = (int)(currentFarm.getCashewHectares() * currentFarm.getTreesPerHectare());
-            int treesPercent = totalTrees > 0 ? (totalAliveTrees * 100 / totalTrees) : 0;
-
-            blocksPlantedText.setText(String.format(Locale.getDefault(),
-                    "%d/%d", plantedBlocks, totalBlocks));
-            treesAliveText.setText(String.format(Locale.getDefault(),
-                    "%d/%d", totalAliveTrees, totalTrees));
-
-            blocksProgress.setProgress(blocksPercent);
-            treesProgress.setProgress(treesPercent);
-
-            blocksPercentText.setText(blocksPercent + "%");
-            treesPercentText.setText(treesPercent + "%");
-
-            // Update stats cards
-            totalHectaresText.setText(String.format(Locale.getDefault(),
-                    "%.0f", currentFarm.getTotalHectares()));
-
-            totalTreesText.setText(String.format(Locale.getDefault(),
-                    "%,d", totalTrees));
-
-            // Update welcome header
-            welcomeUserName.setText(sessionManager.getUserName() != null ?
-                    sessionManager.getUserName() : "Farmer");
-
-            // Update progress ring (circular progress)
-            updateProgressRing();
-
-            // Update financial snapshot (revenue, expenses, profit)
-            updateFinancialSnapshot();
-
-            // Load recent activity
-            loadRecentActivity();
-        }
+        if (currentFarm == null) return;
+        welcomeUserName.setText(sessionManager.getUserName() != null
+                ? sessionManager.getUserName() : "Farmer");
+        updateFinancialSnapshot();
+        loadRecentActivity();
     }
 
-    private void updateProgressRing() {
-        if (allBlocks == null || progressRing == null) return;
-
-        int totalBlocks = allBlocks.size();
-        int plantedBlocks = 0;
-
-        for (BlockEntity block : allBlocks) {
-            if (block.isPlanted()) {
-                plantedBlocks++;
-            }
+    private void loadHomeQualityMetrics(long farmId) {
+        if (databaseExecutor == null || databaseExecutor.isShutdown()) return;
+        try {
+            databaseExecutor.execute(() -> {
+                try {
+                    Calendar now = Calendar.getInstance();
+                    int year = now.get(Calendar.YEAR);
+                    Calendar start = (Calendar) now.clone();
+                    start.set(Calendar.DAY_OF_YEAR, 1);
+                    start.set(Calendar.HOUR_OF_DAY, 0);
+                    start.set(Calendar.MINUTE, 0);
+                    start.set(Calendar.SECOND, 0);
+                    start.set(Calendar.MILLISECOND, 0);
+                    long startOfYear = start.getTimeInMillis();
+                    Calendar end = (Calendar) start.clone();
+                    end.add(Calendar.YEAR, 1);
+                    long endOfYear = end.getTimeInMillis();
+                    List<QualityBatchEntity> batches = database.qualityBatchDao().getBatchesByFarmId(farmId);
+                    List<SupplierEntity> suppliers = database.supplierDao().getSuppliersByFarmId(farmId);
+                    double rcnKg = 0;
+                    float[] monthlyKg = new float[12];
+                    int premium = 0, standard = 0, reject = 0;
+                    for (QualityBatchEntity batch : batches) {
+                        if (batch == null || !batch.isRcn()) continue;
+                        long date = batch.getProcessingDate();
+                        if (date < startOfYear || date >= endOfYear) continue;
+                        double kg = Math.max(0, batch.getWeightKg());
+                        rcnKg += kg;
+                        Calendar batchDate = Calendar.getInstance();
+                        batchDate.setTimeInMillis(date);
+                        int month = batchDate.get(Calendar.MONTH);
+                        monthlyKg[month] += (float) kg;
+                        QualityBatchEntity.QualityGrade grade = batch.getQualityGrade();
+                        if (grade == QualityBatchEntity.QualityGrade.PREMIUM) premium++;
+                        else if (grade == QualityBatchEntity.QualityGrade.STANDARD) standard++;
+                        else if (grade == QualityBatchEntity.QualityGrade.REJECT) reject++;
+                    }
+                    int graded = premium + standard + reject;
+                    int onboarded = 0;
+                    for (SupplierEntity supplier : suppliers) {
+                        if (supplier.getStatus() == SupplierEntity.SupplierStatus.ACTIVE) onboarded++;
+                    }
+                    final double finalRcnKg = rcnKg;
+                    final float[] finalMonthlyKg = monthlyKg;
+                    final int finalPremium = premium, finalStandard = standard, finalReject = reject;
+                    final int finalGraded = graded, finalOnboarded = onboarded;
+                    final int finalSupplierTotal = suppliers.size(), finalYear = year;
+                    runOnUiThread(() -> {
+                        TextView rcn = findViewById(R.id.homeRcnValue);
+                        TextView season = findViewById(R.id.homeSeasonText);
+                        TextView premiumShare = findViewById(R.id.homePremiumShare);
+                        TextView gradedCount = findViewById(R.id.homeGradedCount);
+                        TextView gradeBreakdown = findViewById(R.id.homeGradeBreakdown);
+                        TextView supplierCount = findViewById(R.id.homeSupplierCount);
+                        TextView supplierProgressText = findViewById(R.id.homeSupplierProgressText);
+                        ProgressBar supplierProgress = findViewById(R.id.homeSupplierProgress);
+                        HomeChartView area = findViewById(R.id.homeRcnChart);
+                        HomeChartView donut = findViewById(R.id.homeGradeDonut);
+                        HomeChartView bars = findViewById(R.id.homeGradeBars);
+                        if (rcn == null || area == null || donut == null || bars == null) return;
+                        rcn.setText(String.format(Locale.getDefault(), "%,.0f kg", finalRcnKg));
+                        season.setText(finalYear + " season to date");
+                        area.setMode(HomeChartView.Mode.AREA);
+                        area.setHero(true);
+                        area.setValues(finalMonthlyKg);
+                        donut.setMode(HomeChartView.Mode.DONUT);
+                        donut.setValues(new float[]{finalPremium, finalStandard, finalReject});
+                        bars.setMode(HomeChartView.Mode.BARS);
+                        bars.setValues(new float[]{finalPremium, finalStandard, finalReject});
+                        int share = finalGraded == 0 ? 0 : Math.round(finalPremium * 100f / finalGraded);
+                        premiumShare.setText(share + "%");
+                        gradedCount.setText(String.valueOf(finalGraded));
+                        gradeBreakdown.setText(String.format(Locale.getDefault(), "Premium %d · Standard %d · Reject %d",
+                                finalPremium, finalStandard, finalReject));
+                        supplierCount.setText(String.format(Locale.getDefault(), "%d / %d", finalOnboarded, finalSupplierTotal));
+                        int percent = finalSupplierTotal == 0 ? 0 : Math.round(finalOnboarded * 100f / finalSupplierTotal);
+                        supplierProgress.setProgress(percent);
+                        supplierProgressText.setText(percent + "%");
+                    });
+                } catch (Exception e) {
+                    Log.e(TAG, "Error loading Home quality metrics", e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            Log.w(TAG, "Home quality metrics load rejected", e);
         }
-
-        int progressPercent = totalBlocks > 0 ? (plantedBlocks * 100 / totalBlocks) : 0;
-        progressRing.setProgress(progressPercent);
-        progressRing.setMax(100);
     }
 
     private void updateFinancialSnapshot() {

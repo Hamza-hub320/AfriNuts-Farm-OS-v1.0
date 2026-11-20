@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="4dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="?attr/cardBackgroundPrimary"
+    android:background="@color/surface"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,7 +30,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="12dp">
 
                 <ImageView
@@ -68,7 +68,7 @@
                     <FrameLayout
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:background="?attr/iconBackgroundGlass"
+                        android:background="@drawable/bg_icon_sand"
                         android:layout_marginEnd="6dp">
 
                         <ImageView
@@ -98,7 +98,7 @@
             <FrameLayout
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:visibility="visible">
 
                 <ImageView
@@ -118,7 +118,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="?attr/cardBackgroundAccent"
+            android:background="@color/surface"
             android:padding="12dp"
             app:cardCornerRadius="12dp">
 

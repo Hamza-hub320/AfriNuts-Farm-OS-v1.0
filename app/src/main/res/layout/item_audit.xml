@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Top Row: Audit ID + Status -->
         <LinearLayout

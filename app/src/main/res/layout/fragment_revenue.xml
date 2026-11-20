@@ -20,10 +20,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
-            android:background="?attr/cardBackgroundPrimary">
+            android:background="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -31,12 +31,12 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="12dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <FrameLayout
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="4dp">
 
                     <ImageView
@@ -78,10 +78,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
             style="@style/Widget.AfriNuts.CardView"
-            android:background="?attr/cardBackgroundSecondary">
+            android:background="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -89,12 +89,12 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="12dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <FrameLayout
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="4dp">
 
                     <ImageView
@@ -218,7 +218,7 @@
         <FrameLayout
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/bg_icon_glass_large">
+            android:background="@drawable/bg_icon_sand">
 
             <ImageView
                 android:layout_width="32dp"

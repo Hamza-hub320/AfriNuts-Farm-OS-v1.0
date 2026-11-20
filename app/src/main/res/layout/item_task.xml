@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
-    android:background="?attr/cardBackgroundPrimary"
+    android:background="@color/surface"
     android:clickable="true"
     android:focusable="true">
 
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Top Row: Icon + Title + Status -->
         <LinearLayout
@@ -30,7 +30,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginEnd="10dp"
-                android:background="?attr/iconBackgroundGlass">
+                android:background="@drawable/bg_icon_sand">
 
                 <ImageView
                     android:id="@+id/tvTaskIcon"
@@ -98,7 +98,7 @@
             android:layout_marginBottom="8dp"
             android:maxLines="2"
             android:ellipsize="end"
-            android:background="?attr/cardBackgroundAccent"
+            android:background="@color/surface"
             android:padding="8dp" />
 
         <!-- Bottom Row: Due Date + Overdue Warning - Compact -->
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundAccent"
+            android:background="@color/surface"
             android:padding="8dp"
             app:cardCornerRadius="10dp">
 

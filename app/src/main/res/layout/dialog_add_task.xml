@@ -18,12 +18,12 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginBottom="24dp"
-            android:background="?attr/cardBackgroundPrimary">
+            android:background="@color/surface">
 
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -50,9 +50,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
-            android:background="?attr/cardBackgroundAccent">
+            android:background="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,7 +60,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="16dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -97,16 +97,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundPrimary">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -170,9 +170,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundSecondary">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -185,7 +185,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
+                android:background="@color/surface"
                 android:alpha="0.4" />
 
             <!-- Inner Shadow -->
@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -241,9 +241,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundAccent">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -256,7 +256,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
+                android:background="@color/surface"
                 android:alpha="0.4" />
 
             <!-- Inner Shadow -->
@@ -270,7 +270,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -343,16 +343,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundPrimary">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -398,14 +398,14 @@
             android:layout_marginBottom="16dp"
             android:visibility="gone"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundPrimary">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <View android:layout_width="match_parent" android:layout_height="match_parent"
                 android:background="@drawable/bg_edge_effect" android:alpha="0.3" />
             <View android:layout_width="match_parent" android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay" android:alpha="0.4" />
+                android:background="@color/surface" android:alpha="0.4" />
             <View android:layout_width="match_parent" android:layout_height="match_parent"
                 android:background="@drawable/bg_inner_shadow" />
 
@@ -414,7 +414,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -477,9 +477,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             style="@style/Widget.AfriNuts.CardView"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            android:background="?attr/cardBackgroundSecondary">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            android:background="@color/surface">
 
             <!-- Edge Effect (3D border) -->
             <View
@@ -492,7 +492,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_glassy_overlay"
+                android:background="@color/surface"
                 android:alpha="0.4" />
 
             <!-- Inner Shadow -->
@@ -506,7 +506,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="@color/surface">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -556,7 +556,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                style="@style/Widget.AfriNuts.Button.Secondary"
                 android:layout_marginEnd="12dp"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
@@ -568,7 +568,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Save"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                style="@style/Widget.AfriNuts.Button"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"

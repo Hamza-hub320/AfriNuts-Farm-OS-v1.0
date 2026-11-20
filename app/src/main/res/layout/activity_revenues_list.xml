@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_glass_toolbar"
+        android:background="@color/surface"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp">
@@ -59,7 +59,7 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
+            app:cardElevation="2dp"
             android:background="@drawable/bg_card_primary"
             style="@style/Widget.AfriNuts.CardView">
 
@@ -73,7 +73,7 @@
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="8dp">
 
                     <ImageView
@@ -113,7 +113,7 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
+            app:cardElevation="2dp"
             android:background="@drawable/bg_card_secondary"
             style="@style/Widget.AfriNuts.CardView">
 
@@ -127,7 +127,7 @@
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginBottom="8dp">
 
                     <ImageView
@@ -251,7 +251,7 @@
         <FrameLayout
             android:layout_width="96dp"
             android:layout_height="96dp"
-            android:background="@drawable/bg_icon_glass_large">
+            android:background="@drawable/bg_icon_sand">
 
             <ImageView
                 android:layout_width="48dp"
@@ -299,7 +299,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         android:contentDescription="Add revenue"
-        app:backgroundTint="@color/accent"
+        app:backgroundTint="@color/primary"
         app:tint="@android:color/white"
         app:rippleColor="@color/primary_light" />
 

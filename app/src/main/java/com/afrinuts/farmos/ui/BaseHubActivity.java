@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -204,7 +205,7 @@ public abstract class BaseHubActivity extends BaseActivity {
     private void navigateTo(Class<?> targetActivity, int targetNavItem) {
         if (currentNavItem == targetNavItem) return;
         if (!com.afrinuts.farmos.utils.AccessMap.canOpenHub(targetNavItem, sessionManager.getUserRole())) {
-            android.widget.Toast.makeText(this, "This section is not available for your role", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(this, com.afrinuts.farmos.utils.AccessMap.hubDeniedMessage(targetNavItem), android.widget.Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -217,43 +218,34 @@ public abstract class BaseHubActivity extends BaseActivity {
 
     protected void updateNavSelection(int selectedPosition) {
         int inactiveColor = getThemeColor(R.attr.navbarIconColor);
-        int activeColor = ContextCompat.getColor(this, R.color.primary);
+        int activeColor = ContextCompat.getColor(this, android.R.color.white);
+        setNavItemState(navHome, navHomeIcon, navHomeText, selectedPosition == 0, inactiveColor, activeColor);
+        setNavItemState(navFarm, navFarmIcon, navFarmText, selectedPosition == 1, inactiveColor, activeColor);
+        setNavItemState(navFinance, navFinanceIcon, navFinanceText, selectedPosition == 2, inactiveColor, activeColor);
+        setNavItemState(navAnalytics, navAnalyticsIcon, navAnalyticsText, selectedPosition == 3, inactiveColor, activeColor);
+        setNavItemState(navCompliance, navComplianceIcon, navComplianceText, selectedPosition == 4, inactiveColor, activeColor);
+    }
 
-        // Reset all icons and text colors
-        navHomeIcon.setColorFilter(inactiveColor);
-        navFarmIcon.setColorFilter(inactiveColor);
-        navFinanceIcon.setColorFilter(inactiveColor);
-        navAnalyticsIcon.setColorFilter(inactiveColor);
-        navComplianceIcon.setColorFilter(inactiveColor);
-
-        navHomeText.setTextColor(inactiveColor);
-        navFarmText.setTextColor(inactiveColor);
-        navFinanceText.setTextColor(inactiveColor);
-        navAnalyticsText.setTextColor(inactiveColor);
-        navComplianceText.setTextColor(inactiveColor);
-
-        // Set selected item
-        switch (selectedPosition) {
-            case 0:
-                navHomeIcon.setColorFilter(activeColor);
-                navHomeText.setTextColor(activeColor);
-                break;
-            case 1:
-                navFarmIcon.setColorFilter(activeColor);
-                navFarmText.setTextColor(activeColor);
-                break;
-            case 2:
-                navFinanceIcon.setColorFilter(activeColor);
-                navFinanceText.setTextColor(activeColor);
-                break;
-            case 3:
-                navAnalyticsIcon.setColorFilter(activeColor);
-                navAnalyticsText.setTextColor(activeColor);
-                break;
-            case 4:
-                navComplianceIcon.setColorFilter(activeColor);
-                navComplianceText.setTextColor(activeColor);
-                break;
+    private void setNavItemState(LinearLayout item, ImageView icon, TextView label, boolean active,
+                                 int inactiveColor, int activeColor) {
+        item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        item.setGravity(android.view.Gravity.CENTER);
+        item.setPadding(active ? 12 : 6, 4, active ? 12 : 6, 4);
+        item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
+        label.setVisibility(active ? View.VISIBLE : View.GONE);
+        label.setTextColor(active ? activeColor : inactiveColor);
+        label.setAlpha(1f);
+        LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
+        labelParams.topMargin = active ? 0 : 4;
+        labelParams.setMarginStart(active ? 6 : 0);
+        label.setLayoutParams(labelParams);
+        icon.setColorFilter(active ? activeColor : inactiveColor);
+        ViewGroup.LayoutParams raw = item.getLayoutParams();
+        if (raw instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams itemParams = (LinearLayout.LayoutParams) raw;
+            itemParams.width = 0;
+            itemParams.weight = active ? 1.8f : 0.8f;
+            item.setLayoutParams(itemParams);
         }
     }
 

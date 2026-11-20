@@ -78,6 +78,15 @@ public final class AccessMap {
         }
     }
 
+    public static String hubDeniedMessage(int hub) {
+        switch (hub) {
+            case 1: return "Farm operations are only accessible to Owners, Managers, CEO, Workers, and Field Officers";
+            case 2: return "Expenses are only accessible to Owners, Managers and CEO";
+            case 4: return "Compliance is only accessible to Owners, Managers and CEO";
+            default: return "You don't have permission to access this section";
+        }
+    }
+
     public static String[] farmTabs(UserRole role) {
         if (role == UserRole.OWNER || role == UserRole.MANAGER || role == UserRole.CEO) {
             return new String[]{"BLOCKS", "SUPPLIERS", "TASKS", "WORKERS"};

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    app:cardCornerRadius="24dp">
+    app:cardCornerRadius="20dp">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="?attr/cardBackgroundPrimary">
+            android:background="@color/surface">
 
             <!-- Date Range Card - Compact -->
             <androidx.cardview.widget.CardView
@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="12dp"
-                    android:background="?attr/cardBackgroundAccent">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -151,16 +151,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="@color/surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="12dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -181,8 +181,8 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="24dp"
-                        android:background="?attr/cardBackgroundSecondary">
+                        app:cardCornerRadius="20dp"
+                        android:background="@color/surface">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -190,12 +190,12 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="10dp"
-                            android:background="?attr/cardBackgroundSecondary">
+                            android:background="@color/surface">
 
                             <FrameLayout
                                 android:layout_width="36dp"
                                 android:layout_height="36dp"
-                                android:background="?attr/iconBackgroundGlass"
+                                android:background="@drawable/bg_icon_sand"
                                 android:layout_marginEnd="10dp">
 
                                 <ImageView
@@ -251,8 +251,8 @@
                         android:foreground="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardCornerRadius="24dp"
-                        android:background="?attr/cardBackgroundPrimary">
+                        app:cardCornerRadius="20dp"
+                        android:background="@color/surface">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -260,12 +260,12 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="10dp"
-                            android:background="?attr/cardBackgroundAccent">
+                            android:background="@color/surface">
 
                             <FrameLayout
                                 android:layout_width="36dp"
                                 android:layout_height="36dp"
-                                android:background="?attr/iconBackgroundGlass"
+                                android:background="@drawable/bg_icon_sand"
                                 android:layout_marginEnd="10dp">
 
                                 <ImageView
@@ -334,7 +334,7 @@
                 android:visibility="gone"
                 android:padding="20dp"
                 android:elevation="6dp"
-                android:background="?attr/cardBackgroundPrimary"
+                android:background="@color/surface"
                 app:cardCornerRadius="16dp">
 
                 <ProgressBar

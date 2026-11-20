@@ -22,7 +22,7 @@
             <FrameLayout
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="16dp">
 
                 <ImageView
@@ -77,7 +77,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
                 android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                style="@style/Widget.AfriNuts.Button.Secondary"
                 android:minWidth="100dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />

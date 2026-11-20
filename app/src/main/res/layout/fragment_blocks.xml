@@ -30,7 +30,7 @@
         <FrameLayout
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:background="?attr/iconBackgroundGlass">
+            android:background="@drawable/bg_icon_sand">
 
             <ImageView
                 android:layout_width="40dp"

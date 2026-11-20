@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/cardBackgroundPrimary"
+        android:background="@color/surface"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="0dp"
         android:translationZ="0dp"
@@ -63,10 +63,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -74,14 +74,14 @@
                     android:orientation="horizontal"
                     android:padding="20dp"
                     android:gravity="center_vertical"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <!-- Icon Container with Gradient Background -->
                     <FrameLayout
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:layout_marginEnd="16dp"
-                        android:background="?attr/iconBackgroundGlass">
+                        android:background="@drawable/bg_icon_sand">
 
                         <ImageView
                             android:id="@+id/tvTaskIcon"
@@ -161,10 +161,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="@color/surface">
 
                 <!-- Edge Effect -->
                 <View
@@ -177,7 +177,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_glassy_overlay"
+                    android:background="@color/surface"
                     android:alpha="0.4" />
 
                 <!-- Inner Shadow -->
@@ -191,7 +191,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -223,7 +223,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Update"
-                            style="@style/Widget.AfriNuts.Button.LiquidGlass.Accent"
+                            style="@style/Widget.AfriNuts.Button.Secondary"
                             app:icon="@drawable/ic_sync"
                             app:iconTint="?attr/colorAccent"
                             app:cornerRadius="20dp" />
@@ -339,10 +339,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
-                android:background="?attr/cardBackgroundPrimary">
+                android:background="@color/surface">
 
                 <!-- Edge Effect -->
                 <View
@@ -355,7 +355,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_glassy_overlay"
+                    android:background="@color/surface"
                     android:alpha="0.4" />
 
                 <!-- Inner Shadow -->
@@ -369,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -572,7 +572,7 @@
                 android:orientation="horizontal"
                 android:padding="12dp"
                 android:visibility="gone"
-                android:background="?attr/cardBackgroundAccent"
+                android:background="@color/surface"
                 app:cornerRadius="12dp">
 
                 <TextView
@@ -598,9 +598,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                android:background="?attr/cardBackgroundAccent"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                android:background="@color/surface"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true">
@@ -612,12 +612,12 @@
                     android:gravity="center_vertical"
                     android:padding="16dp"
                     android:id="@+id/btnPhotoGallery"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="?attr/iconBackgroundGlass"
+                        android:background="@drawable/bg_icon_sand"
                         android:layout_marginEnd="16dp">
 
                         <ImageView
@@ -667,10 +667,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
                 style="@style/Widget.AfriNuts.CardView"
-                android:background="?attr/cardBackgroundSecondary">
+                android:background="@color/surface">
 
                 <!-- Edge Effect -->
                 <View
@@ -683,7 +683,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_glassy_overlay"
+                    android:background="@color/surface"
                     android:alpha="0.4" />
 
                 <!-- Inner Shadow -->
@@ -697,7 +697,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:background="@color/surface">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -719,7 +719,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Assign"
-                            style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                            style="@style/Widget.AfriNuts.Button"
                             app:icon="@drawable/ic_add"
                             app:cornerRadius="20dp" />
 
@@ -814,7 +814,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     app:icon="@drawable/ic_edit"
                     app:iconGravity="textStart" />
 
@@ -826,7 +826,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Save"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Primary"
+                    style="@style/Widget.AfriNuts.Button"
                     app:icon="@drawable/ic_save"
                     app:iconGravity="textStart"
                     android:visibility="gone" />
@@ -838,7 +838,7 @@
                     android:layout_height="46dp"
                     android:layout_weight="1"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button.LiquidGlass.Danger"
+                    style="@style/Widget.AfriNuts.Button.Danger"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
                     app:iconTint="@color/error" />
@@ -858,7 +858,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_sync"
         android:contentDescription="Update status"
-        app:backgroundTint="?attr/colorSecondary"
+        app:backgroundTint="@color/primary"
         app:tint="@android:color/white"
         app:fabSize="normal" />
 

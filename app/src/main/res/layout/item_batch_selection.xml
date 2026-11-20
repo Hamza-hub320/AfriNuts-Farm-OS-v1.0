@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
@@ -18,13 +18,13 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical"
-        android:background="?attr/cardBackgroundPrimary">
+        android:background="@color/surface">
 
         <!-- Grade Icon -->
         <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/iconBackgroundGlass"
+            android:background="@drawable/bg_icon_sand"
             android:layout_marginEnd="12dp">
 
             <ImageView
@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="?attr/cardBackgroundSecondary"
+            android:background="@color/surface"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             app:cornerRadius="12dp">

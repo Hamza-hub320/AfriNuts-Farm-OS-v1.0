@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="1dp"
-    android:background="?attr/cardBackgroundSecondary"
+    android:background="@color/surface"
     style="@style/Widget.AfriNuts.CardView">
 
     <LinearLayout
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="10dp"
-        android:background="?attr/cardBackgroundSecondary">
+        android:background="@color/surface">
 
         <!-- Worker and Duration Row -->
         <LinearLayout
@@ -27,7 +27,7 @@
             <FrameLayout
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="10dp">
 
                 <ImageView
@@ -64,7 +64,7 @@
                     android:layout_height="12dp"
                     android:src="@drawable/ic_timer"
                     app:tint="?attr/colorSecondary"
-                    android:background="?attr/iconBackgroundGlass"
+                    android:background="@drawable/bg_icon_sand"
                     android:layout_marginEnd="2dp"
                     android:contentDescription="Duration" />
 
@@ -91,7 +91,7 @@
             <FrameLayout
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:background="?attr/iconBackgroundGlass"
+                android:background="@drawable/bg_icon_sand"
                 android:layout_marginEnd="10dp">
 
                 <ImageView

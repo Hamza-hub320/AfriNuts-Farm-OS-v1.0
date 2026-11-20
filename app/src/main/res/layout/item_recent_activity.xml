@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
     style="@style/Widget.AfriNuts.CardView">
 
@@ -16,13 +16,13 @@
         android:gravity="center_vertical"
         android:clickable="true"
         android:focusable="true"
-        android:background="?attr/cardBackgroundSecondary">
+        android:background="@color/surface">
 
         <!-- Icon Container with Theme-Aware Gradient Background -->
         <FrameLayout
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/iconBackgroundGlass"
+            android:background="@drawable/bg_icon_sand"
             android:layout_marginEnd="12dp">
 
             <ImageView
