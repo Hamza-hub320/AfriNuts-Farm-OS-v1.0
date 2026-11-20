@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:text="Batch: BATCH-001 | Supplier: ABC Ltd"
                     style="@style/Text.Caption.Small"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:alpha="0.8"
                     android:visibility="gone"
                     android:layout_marginTop="2dp" />
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:text="5,250,000 XAF"
                 style="@style/Text.Stat.Small"
-                android:textColor="?attr/colorSecondary" />
+                android:textColor="@color/accent_ink" />
 
         </LinearLayout>
 
@@ -164,7 +164,7 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_shopping_cart"
-                    app:tint="?attr/colorSecondary"
+                    app:tint="@color/accent_ink"
                     android:layout_marginEnd="4dp" />
 
                 <TextView
@@ -173,7 +173,7 @@
                     android:text="Procurement"
                     style="@style/Text.Caption.Small"
                     android:textSize="10sp"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:textStyle="bold" />
 
             </LinearLayout>

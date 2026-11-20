@@ -476,7 +476,7 @@ public class RevenueDetailActivity extends BaseActivity {
         switch (revenue.getQuality()) {
             case PREMIUM:
                 tvQualityIcon.setImageResource(R.drawable.ic_star);
-                tvQualityIcon.setColorFilter(getColor(R.color.accent));
+                tvQualityIcon.setColorFilter(getColor(R.color.accent_ink));
                 break;
             case STANDARD:
                 tvQualityIcon.setImageResource(R.drawable.ic_check_circle);

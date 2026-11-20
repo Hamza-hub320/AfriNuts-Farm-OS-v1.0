@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:text="Premium"
             android:textSize="13sp"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 

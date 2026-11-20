@@ -107,7 +107,7 @@
                     android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_check_circle"
-                    app:tint="?attr/colorSecondary" />
+                    app:tint="@color/accent_ink" />
 
             </FrameLayout>
 

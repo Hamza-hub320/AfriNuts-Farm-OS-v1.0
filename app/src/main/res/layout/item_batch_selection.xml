@@ -33,7 +33,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_star"
-                app:tint="?attr/colorSecondary" />
+                app:tint="@color/accent_ink" />
 
         </FrameLayout>
 
@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:text="Premium"
                 style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorSecondary" />
+                android:textColor="@color/accent_ink" />
 
         </LinearLayout>
 

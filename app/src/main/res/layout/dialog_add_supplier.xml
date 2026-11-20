@@ -357,7 +357,7 @@
             android:layout_height="wrap_content"
             android:text="Cooperative (optional)"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp" />
 
@@ -437,7 +437,7 @@
             android:layout_height="wrap_content"
             android:text="Certification"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
 
@@ -449,7 +449,7 @@
             android:layout_marginBottom="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_certified"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -500,7 +500,7 @@
             android:layout_marginBottom="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_today"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -552,7 +552,7 @@
             android:layout_height="wrap_content"
             android:text="Farmer Profile"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
 
@@ -618,7 +618,7 @@
             android:layout_marginBottom="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_quote"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -668,7 +668,7 @@
             android:layout_height="wrap_content"
             android:text="Sustainability Practices"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp" />
 
@@ -759,7 +759,7 @@
             android:layout_height="wrap_content"
             android:text="Farmer Data Consent"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="4dp" />
 

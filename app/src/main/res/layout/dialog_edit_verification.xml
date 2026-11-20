@@ -152,7 +152,7 @@
             android:layout_height="wrap_content"
             android:text="Evidence"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp" />
 

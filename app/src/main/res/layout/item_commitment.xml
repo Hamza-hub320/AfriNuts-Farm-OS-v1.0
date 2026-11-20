@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="PENDING"
                 style="@style/Widget.AfriNuts.Chip"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:textStyle="bold"
                 android:clickable="false"
                 android:checkable="false"
@@ -85,7 +85,7 @@
                 android:gravity="end"
                 android:text="Delivered: 0 kg"
                 style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:textStyle="bold" />
         </LinearLayout>
 

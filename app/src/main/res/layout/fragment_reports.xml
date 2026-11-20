@@ -168,7 +168,7 @@
                         android:text="Report Types"
                         style="@style/Text.H6"
                         android:textSize="14sp"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="10dp" />
 
                     <!-- Farm Summary Report -->
@@ -236,7 +236,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:src="@drawable/ic_arrow_forward"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
 
                         </LinearLayout>
 
@@ -306,7 +306,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:src="@drawable/ic_arrow_forward"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
 
                         </LinearLayout>
 

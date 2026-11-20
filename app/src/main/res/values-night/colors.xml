@@ -3,6 +3,7 @@
     <!-- iOS Dark Mode Colors -->
     <color name="primary">#0E6B3C</color>
     <color name="accent">#D9C7A7</color>
+    <color name="accent_ink">#D9C7A7</color>
     <color name="dark_orange">#B55A2A</color>
     <color name="secondary">#E3EFE6</color>
 

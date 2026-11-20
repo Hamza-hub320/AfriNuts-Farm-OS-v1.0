@@ -112,7 +112,7 @@
                         android:layout_marginTop="4dp"
                         android:text="Premium Grade"
                         android:textSize="16sp"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:textStyle="bold" />
 
                     <!-- QR Code -->
@@ -432,7 +432,7 @@
                             android:layout_weight="1"
                             android:text="Premium"
                             style="@style/Text.Body"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnViewBatch"
@@ -825,7 +825,7 @@
                             android:layout_weight="1"
                             android:text="25.0%"
                             style="@style/Text.Body"
-                            android:textColor="?attr/colorSecondary"
+                            android:textColor="@color/accent_ink"
                             android:textStyle="bold" />
 
                     </LinearLayout>
@@ -1181,7 +1181,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_certified"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -1219,7 +1219,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_packing"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -1260,7 +1260,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_invoice"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -1288,7 +1288,7 @@
                         android:layout_height="wrap_content"
                         android:text="External Documents"
                         style="@style/Text.Label"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp" />
 
@@ -1309,7 +1309,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_phyto"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -1347,7 +1347,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_insurance"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -1375,7 +1375,7 @@
                         android:layout_height="wrap_content"
                         android:text="Additional Documents"
                         style="@style/Text.Label"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp"
                         android:visibility="gone" />

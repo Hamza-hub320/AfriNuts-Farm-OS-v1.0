@@ -171,7 +171,7 @@
                     android:layout_height="28dp"
                     android:src="@drawable/ic_check_circle"
                     android:background="@drawable/bg_icon_container"
-                    app:tint="@color/accent"
+                    app:tint="@color/accent_ink"
                     android:contentDescription="Completed tasks" />
 
                 <TextView
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     style="@style/Text.Stat"
-                    android:textColor="@color/accent"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginTop="4dp" />
 
                 <TextView
@@ -248,7 +248,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="@color/accent"
+                app:chipIconTint="@color/accent_ink"
                 android:text="Completed" />
 
             <com.google.android.material.chip.Chip
@@ -257,7 +257,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:chipIcon="@drawable/ic_warning"
-                app:chipIconTint="@color/accent"
+                app:chipIconTint="@color/accent_ink"
                 android:text="Overdue" />
 
         </com.google.android.material.chip.ChipGroup>

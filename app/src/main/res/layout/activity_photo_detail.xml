@@ -167,7 +167,7 @@
                         android:layout_height="wrap_content"
                         android:text="Block Photo"
                         style="@style/Text.Body"
-                        android:textColor="?attr/colorSecondary" />
+                        android:textColor="@color/accent_ink" />
 
                 </LinearLayout>
 

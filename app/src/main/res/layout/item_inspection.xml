@@ -135,7 +135,7 @@
                 android:layout_height="wrap_content"
                 android:text="2 actions (1 open)"
                 style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:visibility="gone" />
 
         </LinearLayout>

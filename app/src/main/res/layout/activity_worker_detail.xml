@@ -6,30 +6,12 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="12dp"
-        android:background="@android:color/transparent"
-        android:elevation="0dp"
-        app:contentInsetStartWithNavigation="0dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Worker details"
-            android:textColor="#1C1B1A"
-            android:textSize="17sp"
-            android:fontFamily="sans-serif-black" />
-    </androidx.appcompat.widget.Toolbar>
+    <include layout="@layout/view_farm_detail_header" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true">
 
         <LinearLayout
@@ -40,6 +22,7 @@
 
             <!-- Worker Header Card - Modern Glass -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/workerHeroCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -57,18 +40,20 @@
                     android:background="@color/surface">
 
                     <FrameLayout
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
                         android:layout_marginEnd="16dp">
 
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_people"
-                            app:tint="?attr/colorPrimary"
-                            android:contentDescription="Worker icon" />
+                        <TextView
+                            android:id="@+id/workerAvatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:background="@drawable/bg_supplier_avatar_green"
+                            android:textColor="#0A5530"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-black"
+                            android:contentDescription="Worker initials" />
 
                     </FrameLayout>
 
@@ -83,18 +68,19 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="John Doe"
-                            style="@style/Text.H2"
-                            android:textColor="?attr/colorPrimary" />
+                            android:textColor="#1C1B1A"
+                            android:textSize="21sp"
+                            android:fontFamily="sans-serif-black" />
 
                         <TextView
                             android:id="@+id/workerStatsText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="15 total tasks • 12 completed"
-                            style="@style/Text.Body.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            android:layout_marginTop="4dp" />
+                            android:textColor="#59544C"
+                            android:textSize="13.5sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="3dp" />
 
                     </LinearLayout>
 
@@ -104,7 +90,7 @@
                         android:layout_height="wrap_content"
                         android:text="80%"
                         style="@style/Widget.AfriNuts.StatusBadge"
-                        android:backgroundTint="?attr/colorSecondary"
+                        android:visibility="gone"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="6dp"
                         app:cornerRadius="20dp" />
@@ -118,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:weightSum="3">
 
                 <!-- Total Tasks Card -->
@@ -143,6 +129,7 @@
                         android:background="@color/surface">
 
                         <FrameLayout
+                            android:visibility="gone"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:background="@drawable/bg_icon_sand"
@@ -153,7 +140,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_assignment"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
 
                         </FrameLayout>
 
@@ -163,7 +150,7 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             style="@style/Text.Stat"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -200,6 +187,7 @@
                         android:background="@color/surface">
 
                         <FrameLayout
+                            android:visibility="gone"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:background="@drawable/bg_icon_sand"
@@ -256,6 +244,7 @@
                         android:background="@color/surface">
 
                         <FrameLayout
+                            android:visibility="gone"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:background="@drawable/bg_icon_sand"
@@ -266,7 +255,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_percent"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
 
                         </FrameLayout>
 
@@ -276,7 +265,7 @@
                             android:layout_height="wrap_content"
                             android:text="0%"
                             style="@style/Text.Stat"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -316,7 +305,7 @@
                         android:layout_height="wrap_content"
                         android:text="Time Analysis"
                         style="@style/Text.H5"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -389,7 +378,7 @@
                         android:layout_height="6dp"
                         android:progress="0"
                         android:max="100"
-                        android:progressTint="?attr/colorSecondary"
+                        android:progressTint="@color/primary"
                         android:layout_marginTop="8dp" />
 
                 </LinearLayout>
@@ -453,7 +442,7 @@
                         android:layout_height="wrap_content"
                         android:text="Recent Tasks"
                         style="@style/Text.H5"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout

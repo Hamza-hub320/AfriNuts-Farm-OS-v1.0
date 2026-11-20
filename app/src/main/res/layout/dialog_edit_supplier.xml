@@ -145,7 +145,7 @@
             android:layout_height="wrap_content"
             android:text="Cooperative Linkage"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginBottom="4dp" />
 
         <TextView
@@ -243,7 +243,7 @@
             android:layout_height="wrap_content"
             android:text="Farmer Profile"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginBottom="12dp" />
 
         <!-- Years Farming -->
@@ -325,7 +325,7 @@
             android:layout_height="wrap_content"
             android:text="Sustainability Practices"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginBottom="12dp" />
 
         <!-- Firebreak Protection -->
@@ -423,7 +423,7 @@
             android:layout_height="wrap_content"
             android:text="Farmer Data Consent"
             style="@style/Text.H5"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="@color/accent_ink"
             android:layout_marginBottom="4dp" />
 
         <TextView

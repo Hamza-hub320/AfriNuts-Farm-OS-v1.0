@@ -106,7 +106,7 @@
                         android:layout_height="wrap_content"
                         android:text="★★★★★"
                         android:textSize="20sp"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="8dp" />
 
                     <!-- ✅ Status Chip with Icon -->
@@ -315,7 +315,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_farmer"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
 
                         </FrameLayout>
 
@@ -324,7 +324,7 @@
                             android:layout_height="wrap_content"
                             android:text="Farmer Profile"
                             style="@style/Text.H5"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                     </LinearLayout>
 
@@ -389,7 +389,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_quote"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:alpha="0.6"
                             android:layout_marginEnd="12dp" />
 
@@ -400,7 +400,7 @@
                             android:layout_weight="1"
                             android:text="Quality over quantity"
                         style="@style/Text.Body"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:textStyle="italic" />
 
                     </LinearLayout>
@@ -586,7 +586,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 style="@style/Text.H3"
-                                android:textColor="?attr/colorSecondary" />
+                                android:textColor="@color/accent_ink" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -615,7 +615,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_certified"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
 
 
@@ -633,7 +633,7 @@
                             android:layout_height="wrap_content"
                             android:text="Expires: Dec 2025"
                             style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                     </LinearLayout>
 
@@ -774,7 +774,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check_circle"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
                         </FrameLayout>
 
                         <TextView
@@ -783,7 +783,7 @@
                             android:layout_weight="1"
                             android:text="Inspections"
                             style="@style/Text.H4"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddInspection"
@@ -939,7 +939,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_star"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/accent_ink" />
                         </FrameLayout>
 
                         <TextView
@@ -948,7 +948,7 @@
                             android:layout_weight="1"
                             android:text="Latest Trust Score"
                             style="@style/Text.H4"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -965,7 +965,7 @@
                             android:text="—"
                             style="@style/Text.Stat"
                             android:textSize="28sp"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <TextView
                             android:layout_width="wrap_content"

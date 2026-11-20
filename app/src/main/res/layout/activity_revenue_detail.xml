@@ -129,7 +129,7 @@
                             android:layout_height="32dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_star"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:contentDescription="Quality grade icon" />
 
                     </FrameLayout>
@@ -146,7 +146,7 @@
                             android:layout_height="wrap_content"
                             android:text="Premium Grade"
                             style="@style/Text.H3"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <TextView
                             android:id="@+id/tvSource"
@@ -461,7 +461,7 @@
                                     android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_calculator"
-                                    app:tint="?attr/colorSecondary" />
+                                    app:tint="@color/accent_ink" />
 
                             </FrameLayout>
 
@@ -470,7 +470,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Total:"
                                 style="@style/Text.Label"
-                                android:textColor="?attr/colorSecondary"
+                                android:textColor="@color/accent_ink"
                                 android:layout_marginEnd="8dp" />
 
                             <TextView
@@ -480,7 +480,7 @@
                                 android:layout_weight="1"
                                 android:text="525,000 XAF"
                                 style="@style/Text.Stat"
-                                android:textColor="?attr/colorSecondary"
+                                android:textColor="@color/accent_ink"
                                 android:gravity="end" />
 
                         </LinearLayout>
@@ -648,7 +648,7 @@
                             android:layout_height="wrap_content"
                             android:text="Procurement Details"
                             style="@style/Text.H5"
-                            android:textColor="?attr/colorSecondary"
+                            android:textColor="@color/accent_ink"
                             android:layout_marginBottom="12dp" />
 
                         <!-- Batch Number -->
@@ -980,7 +980,7 @@
                         style="@style/Widget.AfriNuts.EditText"
                         app:endIconMode="custom"
                         app:endIconDrawable="@drawable/ic_today"
-                        app:endIconTint="?attr/colorSecondary"
+                        app:endIconTint="@color/accent_ink"
                         app:boxBackgroundColor="?attr/colorSurface"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
@@ -1048,7 +1048,7 @@
                             android:layout_height="wrap_content"
                             android:text="Procurement Details"
                             style="@style/Text.H5"
-                            android:textColor="?attr/colorSecondary"
+                            android:textColor="@color/accent_ink"
                             android:layout_marginBottom="12dp" />
 
                         <!-- Supplier Edit -->
@@ -1060,7 +1060,7 @@
                             style="@style/Widget.AfriNuts.EditText"
                             app:endIconMode="dropdown_menu"
                             app:endIconDrawable="@drawable/ic_arrow_drop_down"
-                            app:endIconTint="?attr/colorSecondary"
+                            app:endIconTint="@color/accent_ink"
                             app:boxBackgroundColor="?attr/colorSurface"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"
@@ -1088,7 +1088,7 @@
                             style="@style/Widget.AfriNuts.EditText"
                             app:endIconMode="dropdown_menu"
                             app:endIconDrawable="@drawable/ic_arrow_drop_down"
-                            app:endIconTint="?attr/colorSecondary"
+                            app:endIconTint="@color/accent_ink"
                             app:boxBackgroundColor="?attr/colorSurface"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"

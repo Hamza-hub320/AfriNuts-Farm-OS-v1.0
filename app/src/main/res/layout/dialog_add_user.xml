@@ -147,7 +147,7 @@
                     android:layout_height="wrap_content"
                     android:text="Profile Details"
                     style="@style/Text.H5"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginBottom="16dp" />
 
                 <!-- Bio (Optional) -->
@@ -372,7 +372,7 @@
                     android:layout_height="wrap_content"
                     android:text="Authentication Method"
                     style="@style/Text.H5"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButtonToggleGroup
@@ -546,9 +546,9 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 app:iconGravity="textStart"
-                app:iconTint="?attr/colorSecondary"
+                app:iconTint="@color/accent_ink"
                 app:cornerRadius="28dp"
-                android:textColor="?attr/colorAccent" />
+                android:textColor="@color/accent_ink" />
 
             <Button
                 android:id="@+id/btnSave"

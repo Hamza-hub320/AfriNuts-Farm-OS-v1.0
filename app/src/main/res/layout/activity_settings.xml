@@ -91,7 +91,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 
@@ -146,7 +146,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 
@@ -195,7 +195,7 @@
                             android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_language"
-                            app:tint="?attr/colorSecondary" />
+                            app:tint="@color/accent_ink" />
 
                     </FrameLayout>
 
@@ -220,7 +220,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 
@@ -284,7 +284,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 
@@ -323,7 +323,7 @@
                             android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_dark_mode"
-                            app:tint="?attr/colorSecondary" />
+                            app:tint="@color/accent_ink" />
 
                     </FrameLayout>
 
@@ -418,7 +418,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 
@@ -467,7 +467,7 @@
                             android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_info"
-                            app:tint="?attr/colorSecondary" />
+                            app:tint="@color/accent_ink" />
 
                     </FrameLayout>
 
@@ -492,7 +492,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 

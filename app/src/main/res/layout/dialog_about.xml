@@ -238,7 +238,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_email"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </FrameLayout>
 
@@ -260,7 +260,7 @@
                         android:layout_height="wrap_content"
                         android:text="support@afrinuts.com"
                         style="@style/Text.H6"
-                        android:textColor="?attr/colorSecondary" />
+                        android:textColor="@color/accent_ink" />
 
                 </LinearLayout>
 

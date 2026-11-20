@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:text="1,500 XAF/kg"
                 style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorSecondary" />
+                android:textColor="@color/accent_ink" />
 
         </LinearLayout>
 

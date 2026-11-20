@@ -220,7 +220,7 @@ public class WeatherActivity extends BaseHubActivity {
             imageView.setImageResource(R.drawable.ic_wb_sunny);
         }
 
-        imageView.setColorFilter(getColor(R.color.accent));
+        imageView.setColorFilter(getColor(R.color.accent_ink));
     }
 
     @Override

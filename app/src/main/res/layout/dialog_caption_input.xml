@@ -50,7 +50,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_note"
-            app:tint="@color/accent"
+            app:tint="@color/accent_ink"
             android:layout_marginEnd="12dp" />
 
         <TextView

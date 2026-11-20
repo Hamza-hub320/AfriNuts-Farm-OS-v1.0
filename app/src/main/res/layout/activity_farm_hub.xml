@@ -88,7 +88,7 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="64dp"
             android:layout_marginTop="16dp"
             android:padding="4dp"
             android:background="@drawable/bg_tabs_container"
@@ -96,6 +96,8 @@
             app:tabIndicatorHeight="0dp"
             app:tabSelectedTextColor="#0A5530"
             app:tabTextColor="#59544C"
+            app:tabPaddingTop="4dp"
+            app:tabPaddingBottom="4dp"
             app:tabMode="fixed"
             app:tabGravity="fill"
             app:cardCornerRadius="20dp"

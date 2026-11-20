@@ -89,7 +89,7 @@
                         android:layout_height="18dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_info"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </FrameLayout>
 

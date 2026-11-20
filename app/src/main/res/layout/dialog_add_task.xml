@@ -73,7 +73,7 @@
                         android:layout_height="wrap_content"
                         android:text="Work already done"
                         style="@style/Text.H6"
-                        android:textColor="?attr/colorSecondary" />
+                        android:textColor="@color/accent_ink" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -277,7 +277,7 @@
                     android:layout_height="wrap_content"
                     android:text="Task Scope"
                     style="@style/Text.H5"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButtonToggleGroup
@@ -294,6 +294,7 @@
                         android:layout_weight="1"
                         android:text="Farm-Wide"
                         style="@style/Widget.AfriNuts.Button.Outlined"
+                        app:cornerRadius="16dp"
                         app:iconGravity="textStart" />
 
                     <Button
@@ -303,6 +304,7 @@
                         android:layout_weight="1"
                         android:text="Per Block"
                         style="@style/Widget.AfriNuts.Button.Outlined"
+                        app:cornerRadius="16dp"
                         app:iconGravity="textStart" />
 
                 </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -421,7 +423,7 @@
                     android:layout_height="wrap_content"
                     android:text="Work Dates"
                     style="@style/Text.H5"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout

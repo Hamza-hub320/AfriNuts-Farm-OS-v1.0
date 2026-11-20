@@ -126,8 +126,6 @@ public class BlockDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -183,16 +181,14 @@ public class BlockDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Block Details");
-        }
-
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
+                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
+                findViewById(R.id.farmDetailMore), "Block details" );
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.blockNameText, R.id.farmInfoText, R.id.statusBadge);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
+                new String[]{"Alive trees", "Survival rate", "Total harvest"},
+                new int[]{R.id.aliveTreesText, R.id.etSurvivalRate, R.id.tvTotalHarvest });
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnEdit, R.id.btnRecordHarvest);
     }
 
     @Override

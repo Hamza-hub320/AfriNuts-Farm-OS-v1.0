@@ -84,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:text="Existing Worker"
                     style="@style/Text.H6"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginBottom="12dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -215,7 +215,7 @@
                 android:text="Cancel"
                 style="@style/Widget.AfriNuts.Button.Danger"
                 app:iconGravity="textStart"
-                app:iconTint="?attr/colorSecondary" />
+                app:iconTint="@color/accent_ink" />
 
             <!-- Assign Button -->
             <com.google.android.material.button.MaterialButton

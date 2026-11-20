@@ -139,8 +139,6 @@ public class SupplierDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         tvSupplierName = findViewById(R.id.tvSupplierName);
         tvSupplierType = findViewById(R.id.tvSupplierType);
@@ -212,14 +210,14 @@ public class SupplierDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Supplier Details");
-        }
-
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
+                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
+                findViewById(R.id.farmDetailMore), "Supplier details" );
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvSupplierName, R.id.tvLocation, R.id.chipStatus);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
+                new String[]{"Trust score", "Batches", "Total volume"},
+                new int[]{R.id.tvOverallScore, R.id.tvTotalBatches, R.id.tvTotalBatchVolume });
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnEditSupplier, R.id.btnRecordDelivery);
     }
 
     private void openMap() {

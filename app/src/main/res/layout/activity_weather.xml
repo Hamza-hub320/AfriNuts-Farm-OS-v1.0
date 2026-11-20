@@ -50,7 +50,7 @@
                             android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_location"
-                            app:tint="?attr/colorSecondary" />
+                            app:tint="@color/accent_ink" />
 
                     </FrameLayout>
 
@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.H3"
                         android:text="Odienné, Côte d'Ivoire"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:visibility="gone" />
 
                     <TextView
@@ -112,7 +112,7 @@
                             android:layout_height="56dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_wb_sunny"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:contentDescription="Weather icon" />
 
                     </FrameLayout>
@@ -131,7 +131,7 @@
                         android:layout_height="wrap_content"
                         style="@style/Text.H4"
                         android:text="Sunny"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="20dp" />
 
                     <!-- Weather Details Grid - Modern Card Layout -->
@@ -308,7 +308,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_wb_sunny"
-                                app:tint="?attr/colorSecondary"
+                                app:tint="@color/accent_ink"
                                 android:contentDescription="Sunrise icon" />
 
                         </FrameLayout>
@@ -349,7 +349,7 @@
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_wb_sunny"
-                                app:tint="?attr/colorSecondary"
+                                app:tint="@color/accent_ink"
                                 android:contentDescription="Sunset icon" />
 
                         </FrameLayout>
@@ -412,7 +412,7 @@
                             android:layout_height="24dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_park"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:contentDescription="Farm advice icon" />
 
                     </FrameLayout>

@@ -177,7 +177,7 @@
                             android:layout_height="wrap_content"
                             android:text="Current Year Prediction"
                             style="@style/Text.H5"
-                            android:textColor="@color/accent"
+                            android:textColor="@color/accent_ink"
                             android:layout_marginBottom="16dp" />
 
                         <LinearLayout
@@ -200,7 +200,7 @@
                                     android:layout_gravity="center"
                                     android:text="2026"
                                     style="@style/Text.H2"
-                                    android:textColor="@color/accent" />
+                                    android:textColor="@color/accent_ink" />
 
                             </FrameLayout>
 
@@ -249,7 +249,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="75%"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/accent" />
+                                    android:textColor="@color/accent_ink" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -273,7 +273,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Medium"
                                     style="@style/Text.H4"
-                                    android:textColor="@color/accent" />
+                                    android:textColor="@color/accent_ink" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -405,7 +405,7 @@
                                 android:layout_weight="1"
                                 android:text="Revenue Trend"
                                 style="@style/Text.H5"
-                                android:textColor="@color/accent" />
+                                android:textColor="@color/accent_ink" />
 
                             <TextView
                                 android:id="@+id/tvRevenueTrend"
@@ -704,7 +704,7 @@
                                 android:layout_gravity="center"
                                 android:text="2028"
                                 style="@style/Text.H3"
-                                android:textColor="@color/accent" />
+                                android:textColor="@color/accent_ink" />
 
                         </FrameLayout>
 

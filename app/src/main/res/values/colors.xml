@@ -4,6 +4,7 @@
     <color name="primary">#0E6B3C</color>
     <color name="primary_light">#E3EFE6</color>
     <color name="accent">#D9C7A7</color>
+    <color name="accent_ink">#6B5737</color>
     <color name="dark_orange">#9C3D10</color>
     <color name="secondary">#A0C800</color>
     <color name="surface">#FFFFFF</color>

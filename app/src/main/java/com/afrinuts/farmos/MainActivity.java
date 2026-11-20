@@ -1712,7 +1712,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             ivIcon.setImageResource(iconRes);
-            ivIcon.setColorFilter(getColor(R.color.accent));
+            ivIcon.setColorFilter(getColor(R.color.accent_ink));
 
             // Set temperature
             tvTemp.setText(String.format(Locale.getDefault(), "%.0f°", day.getDay().getAvgtempC()));
@@ -1747,7 +1747,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         weatherIcon.setImageResource(iconRes);
-        weatherIcon.setColorFilter(getColor(R.color.accent));
+        weatherIcon.setColorFilter(getColor(R.color.accent_ink));
     }
 
     // ========================================

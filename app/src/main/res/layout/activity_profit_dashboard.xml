@@ -96,7 +96,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Profit &amp; Loss Summary"
                                 style="@style/Text.H5"
-                                android:textColor="?attr/colorSecondary"
+                                android:textColor="@color/accent_ink"
                                 android:layout_marginBottom="16dp" />
 
                             <!-- Revenue Row -->
@@ -124,7 +124,7 @@
                                             android:layout_height="16dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_attach_money"
-                                            app:tint="?attr/colorSecondary" />
+                                            app:tint="@color/accent_ink" />
 
                                     </FrameLayout>
 
@@ -400,7 +400,7 @@
                                             android:layout_height="24dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_trending_up"
-                                            app:tint="?attr/colorSecondary" />
+                                            app:tint="@color/accent_ink" />
 
                                     </FrameLayout>
 
@@ -410,7 +410,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="0%"
                                         style="@style/Text.Stat.Small"
-                                        android:textColor="?attr/colorSecondary" />
+                                        android:textColor="@color/accent_ink" />
 
                                     <TextView
                                         android:layout_width="wrap_content"

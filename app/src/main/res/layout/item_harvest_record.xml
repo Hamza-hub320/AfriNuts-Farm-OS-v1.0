@@ -54,7 +54,7 @@
                 android:layout_weight="1"
                 android:text="Premium"
                 style="@style/Text.Caption"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:background="@color/surface"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"

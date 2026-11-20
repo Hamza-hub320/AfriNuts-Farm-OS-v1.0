@@ -172,7 +172,7 @@
                 style="@style/Widget.AfriNuts.EditText"
                 app:endIconMode="custom"
                 app:endIconDrawable="@drawable/ic_today"
-                app:endIconTint="@color/accent"
+                app:endIconTint="@color/accent_ink"
                 app:boxBackgroundColor="@android:color/white"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"

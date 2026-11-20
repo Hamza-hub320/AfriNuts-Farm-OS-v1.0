@@ -209,7 +209,7 @@
                 android:layout_height="wrap_content"
                 android:text="Premium"
                 app:chipIcon="@drawable/ic_star"
-                app:chipIconTint="@color/accent"
+                app:chipIconTint="@color/accent_ink"
                 app:iconStartPadding="4dp"
                 style="@style/Widget.AfriNuts.Chip" />
 

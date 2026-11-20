@@ -6,30 +6,12 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="12dp"
-        android:background="@android:color/transparent"
-        android:elevation="0dp"
-        app:contentInsetStartWithNavigation="0dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Batch details"
-            android:textColor="#1C1B1A"
-            android:textSize="17sp"
-            android:fontFamily="sans-serif-black" />
-    </androidx.appcompat.widget.Toolbar>
+    <include layout="@layout/view_farm_detail_header" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="16dp"
         android:fillViewport="true">
 
@@ -185,7 +167,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_handshake"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="8dp" />
 
                         <TextView
@@ -270,7 +252,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_organic"
-                            app:tint="?attr/colorSecondary"
+                            app:tint="@color/accent_ink"
                             android:layout_marginEnd="8dp" />
 
                         <TextView
@@ -614,7 +596,7 @@
                             android:layout_height="wrap_content"
                             android:text="100%"
                             style="@style/Text.Stat"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                     </LinearLayout>
 

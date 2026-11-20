@@ -104,7 +104,7 @@
                         android:layout_height="14dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_cancel"
-                        app:tint="?attr/colorSecondary"
+                        app:tint="@color/accent_ink"
                         android:contentDescription="Defective rate" />
 
                 </FrameLayout>
@@ -116,7 +116,7 @@
                     android:text="0%"
                     style="@style/Text.Stat"
                     android:textSize="16sp"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginTop="2dp" />
 
                 <TextView
@@ -377,7 +377,7 @@
                 android:text="Standard"
                 android:textSize="12sp"
                 app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="?attr/colorSecondary" />
+                app:chipIconTint="@color/accent_ink" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReject"

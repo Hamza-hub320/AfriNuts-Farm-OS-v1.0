@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="OPEN"
                 style="@style/Widget.AfriNuts.Chip"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:textStyle="bold"
                 android:clickable="false"
                 android:checkable="false"

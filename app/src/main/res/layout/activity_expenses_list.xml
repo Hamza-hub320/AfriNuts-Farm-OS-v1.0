@@ -73,7 +73,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_attach_money"
-                    app:tint="@color/accent" />
+                    app:tint="@color/accent_ink" />
 
             </FrameLayout>
 
@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
                     style="@style/Text.Stat"
-                    android:textColor="@color/accent"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>

@@ -141,8 +141,6 @@ public class QualityBatchDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         // Header
         tvBatchNumber = findViewById(R.id.tvBatchNumber);
@@ -222,16 +220,14 @@ public class QualityBatchDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Batch Details");
-        }
-
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
+                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
+                findViewById(R.id.farmDetailMore), "Batch details" );
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvBatchNumber, R.id.tvBatchDate, R.id.tvGrade);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
+                new String[]{"Grade", "Quality score", "Weight"},
+                new int[]{R.id.tvGrade, R.id.tvQualityScore, R.id.tvWeightValue });
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnShare, R.id.btnGenerateTraceability);
     }
 
     @Override
@@ -283,7 +279,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
         int gradeIcon;
         switch (batch.getQualityGrade()) {
             case PREMIUM:
-                gradeColor = getColor(R.color.accent);
+                gradeColor = getColor(R.color.accent_ink);
                 gradeIcon = R.drawable.ic_star;
                 break;
             case STANDARD:

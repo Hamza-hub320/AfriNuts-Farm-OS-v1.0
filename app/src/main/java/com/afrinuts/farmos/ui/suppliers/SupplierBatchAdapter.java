@@ -111,7 +111,7 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
                 switch (batch.getQualityGrade()) {
                     case PREMIUM:
                         ivGradeIcon.setImageResource(R.drawable.ic_star);
-                        ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.accent));
+                        ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.accent_ink));
                         break;
                     case STANDARD:
                         ivGradeIcon.setImageResource(R.drawable.ic_check_circle);
@@ -123,7 +123,7 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
                         break;
                     default:
                         ivGradeIcon.setImageResource(R.drawable.ic_star);
-                        ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.accent));
+                        ivGradeIcon.setColorFilter(itemView.getContext().getColor(R.color.accent_ink));
                         break;
                 }
             }

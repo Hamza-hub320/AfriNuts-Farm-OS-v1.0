@@ -103,8 +103,8 @@
             android:layout_weight="1"
             android:text="Delete"
             style="@style/Widget.AfriNuts.Button.Secondary"
-            app:iconTint="?attr/colorAccent"
-            android:textColor="?attr/colorAccent" />
+            app:iconTint="@color/accent_ink"
+            android:textColor="@color/accent_ink" />
 
         <View
             android:layout_width="8dp"

@@ -114,7 +114,7 @@
                         android:layout_height="wrap_content"
                         android:text="CTO"
                         style="@style/Text.Body"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="4dp"
                         android:visibility="gone" />
 
@@ -428,7 +428,7 @@
                         android:layout_height="wrap_content"
                         android:text="Access Level"
                         style="@style/Text.H5"
-                        android:textColor="?attr/colorSecondary"
+                        android:textColor="@color/accent_ink"
                         android:layout_marginBottom="16dp" />
 
                     <LinearLayout
@@ -452,7 +452,7 @@
                             android:layout_height="wrap_content"
                             android:text="Owner"
                             style="@style/Text.Body"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                     </LinearLayout>
 
@@ -477,7 +477,7 @@
                             android:layout_height="wrap_content"
                             android:text="100 (Full Access)"
                             style="@style/Text.Body"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                     </LinearLayout>
 

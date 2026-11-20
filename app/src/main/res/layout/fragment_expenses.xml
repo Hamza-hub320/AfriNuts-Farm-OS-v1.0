@@ -36,7 +36,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_attach_money"
-                    app:tint="?attr/colorSecondary" />
+                    app:tint="@color/accent_ink" />
 
             </FrameLayout>
 
@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:text="0 XAF"
                     style="@style/Text.Stat"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="@color/accent_ink"
                     android:layout_marginTop="4dp"
                     android:maxLines="1"
                     android:ellipsize="end"
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:text="Procurement"
                 app:chipIcon="@drawable/ic_shopping_cart"
-                app:chipIconTint="?attr/colorSecondary"
+                app:chipIconTint="@color/accent_ink"
                 style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>

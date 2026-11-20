@@ -195,11 +195,11 @@ public abstract class BaseHubActivity extends BaseActivity {
         currentNavItem = getCurrentNavItem();
         updateNavSelection(currentNavItem);
 
-        navHome.setOnClickListener(v -> navigateTo(MainActivity.class, 0));
-        navFarm.setOnClickListener(v -> navigateTo(FarmHubActivity.class, 1));
-        navFinance.setOnClickListener(v -> navigateTo(FinanceHubActivity.class, 2));
-        navAnalytics.setOnClickListener(v -> navigateTo(AnalyticsHubActivity.class, 3));
-        navCompliance.setOnClickListener(v -> navigateTo(ComplianceHubActivity.class, 4));
+        if (navHome != null) navHome.setOnClickListener(v -> navigateTo(MainActivity.class, 0));
+        if (navFarm != null) navFarm.setOnClickListener(v -> navigateTo(FarmHubActivity.class, 1));
+        if (navFinance != null) navFinance.setOnClickListener(v -> navigateTo(FinanceHubActivity.class, 2));
+        if (navAnalytics != null) navAnalytics.setOnClickListener(v -> navigateTo(AnalyticsHubActivity.class, 3));
+        if (navCompliance != null) navCompliance.setOnClickListener(v -> navigateTo(ComplianceHubActivity.class, 4));
     }
 
     private void navigateTo(Class<?> targetActivity, int targetNavItem) {
@@ -228,6 +228,8 @@ public abstract class BaseHubActivity extends BaseActivity {
 
     private void setNavItemState(LinearLayout item, ImageView icon, TextView label, boolean active,
                                  int inactiveColor, int activeColor) {
+        // Some secondary screens, such as Weather, intentionally expose only a subset of hub tabs.
+        if (item == null || icon == null || label == null) return;
         item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         item.setGravity(android.view.Gravity.CENTER);
         item.setPadding(active ? 12 : 6, 4, active ? 12 : 6, 4);

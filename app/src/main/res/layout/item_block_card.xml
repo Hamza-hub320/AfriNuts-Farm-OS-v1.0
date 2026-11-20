@@ -105,7 +105,7 @@
                 android:text="View details"
                 style="@style/Text.Caption"
                 android:textSize="12sp"
-                android:textColor="?attr/colorSecondary" />
+                android:textColor="@color/accent_ink" />
 
             <FrameLayout
                 android:layout_width="24dp"
@@ -118,7 +118,7 @@
                     android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_expand_more"
-                    app:tint="?attr/colorSecondary" />
+                    app:tint="@color/accent_ink" />
 
             </FrameLayout>
 

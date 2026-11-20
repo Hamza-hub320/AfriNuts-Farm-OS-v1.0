@@ -32,7 +32,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_pin"
-                    app:tint="@color/accent" />
+                    app:tint="@color/accent_ink" />
 
             </FrameLayout>
 
@@ -216,7 +216,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_note"
-                        app:tint="@color/accent"
+                        app:tint="@color/accent_ink"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
@@ -278,7 +278,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_security"
-                    app:tint="@color/accent"
+                    app:tint="@color/accent_ink"
                     android:layout_marginEnd="12dp" />
 
                 <TextView

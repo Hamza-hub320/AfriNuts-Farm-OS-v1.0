@@ -76,7 +76,7 @@
                 android:text="75%"
                 style="@style/Text.Label"
                 android:textSize="12sp"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/accent_ink"
                 android:background="@drawable/bg_icon_sand"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
@@ -172,7 +172,7 @@
                 android:text="3h"
                 style="@style/Text.Label"
                 android:textSize="11sp"
-                android:textColor="?attr/colorSecondary" />
+                android:textColor="@color/accent_ink" />
 
         </LinearLayout>
 

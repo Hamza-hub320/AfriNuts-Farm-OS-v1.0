@@ -77,7 +77,7 @@ public class FarmHubActivity extends BaseHubActivity {
         TextView date = findViewById(R.id.farmDate);
         TextView weatherChip = findViewById(R.id.farmWeatherChip);
         View profile = findViewById(R.id.farmProfileButton);
-        date.setText(new SimpleDateFormat("EEE, MMM d · Odienné", Locale.getDefault()).format(new Date()));
+        date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()) + " · Odienné");
         profile.setOnClickListener(v -> showFarmAccountMenu(profile));
 
         WeatherRepository repository = new WeatherRepository(this);

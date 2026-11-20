@@ -120,7 +120,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
                 tvProductType.setText(isRcn ? "RCN" : "KERNEL");
                 tvProductType.setTextColor(ContextCompat.getColor(
                         itemView.getContext(),
-                        isRcn ? R.color.accent : R.color.primary));
+                        isRcn ? R.color.accent_ink : R.color.primary));
             }
 
             // --- Source type (unchanged) ---
@@ -152,7 +152,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             switch (batch.getQualityGrade()) {
                 case PREMIUM:
                     ivGradeIcon.setImageResource(R.drawable.ic_star);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent));
+                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent_ink));
                     break;
                 case STANDARD:
                     ivGradeIcon.setImageResource(R.drawable.ic_check_circle);
@@ -164,7 +164,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
                     break;
                 default:
                     ivGradeIcon.setImageResource(R.drawable.ic_star);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent));
+                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent_ink));
                     break;
             }
 

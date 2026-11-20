@@ -464,7 +464,7 @@ public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not 
 
     private int getStrengthColor(int strength) {
         if (strength < 30) return R.color.dark_orange;
-        if (strength < 60) return R.color.accent;
+        if (strength < 60) return R.color.accent_ink;
         if (strength < 80) return R.color.primary;
         return R.color.secondary;
     }

@@ -6,30 +6,12 @@
     android:orientation="vertical"
     android:background="#F6F1E7">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="12dp"
-        android:background="@android:color/transparent"
-        android:elevation="0dp"
-        app:contentInsetStartWithNavigation="0dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Task details"
-            android:textColor="#1C1B1A"
-            android:textSize="17sp"
-            android:fontFamily="sans-serif-black" />
-    </androidx.appcompat.widget.Toolbar>
+    <include layout="@layout/view_farm_detail_header" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="16dp">
 
         <LinearLayout
@@ -204,7 +186,7 @@
                             android:text="Update"
                             style="@style/Widget.AfriNuts.Button.Secondary"
                             app:icon="@drawable/ic_sync"
-                            app:iconTint="?attr/colorAccent"
+                            app:iconTint="@color/accent_ink"
                             app:cornerRadius="20dp" />
 
                     </LinearLayout>
@@ -604,7 +586,7 @@
                             android:layout_height="28dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_photo"
-                            app:tint="?attr/colorSecondary" />
+                            app:tint="@color/accent_ink" />
 
                     </FrameLayout>
 
@@ -619,7 +601,7 @@
                             android:layout_height="wrap_content"
                             android:text="Photos"
                             style="@style/Text.H5"
-                            android:textColor="?attr/colorSecondary" />
+                            android:textColor="@color/accent_ink" />
 
                         <TextView
                             android:id="@+id/tvPhotoCount"
@@ -635,7 +617,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_arrow_forward"
-                        app:tint="?attr/colorSecondary" />
+                        app:tint="@color/accent_ink" />
 
                 </LinearLayout>
 

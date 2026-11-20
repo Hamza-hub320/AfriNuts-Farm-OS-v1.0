@@ -120,7 +120,7 @@
             android:layout_marginBottom="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_today"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -141,7 +141,7 @@
             android:layout_marginBottom="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_today"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -162,7 +162,7 @@
             android:layout_marginBottom="16dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_today"
-            app:endIconTint="?attr/colorSecondary"
+            app:endIconTint="@color/accent_ink"
             app:boxBackgroundColor="?attr/colorSurface">
 
             <com.google.android.material.textfield.TextInputEditText

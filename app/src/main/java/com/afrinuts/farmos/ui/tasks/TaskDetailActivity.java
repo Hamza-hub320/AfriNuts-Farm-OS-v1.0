@@ -151,8 +151,6 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Task Details");
@@ -244,16 +242,15 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Task Details");
-        }
-
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
+                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
+                findViewById(R.id.farmDetailMore), "Task details" );
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvTaskTitle, R.id.tvTaskType, R.id.tvCurrentStatus);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.moveTaskStatusToHero(this);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
+                new String[]{"Status", "Due date", "Assigned worker"},
+                new int[]{R.id.tvCurrentStatus, R.id.tvDueDate, R.id.tvCurrentWorker });
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnAssignWorker, R.id.btnUpdateStatus);
     }
 
     private void loadData() {

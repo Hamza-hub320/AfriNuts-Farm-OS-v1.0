@@ -166,9 +166,9 @@ public class SelectBatchToEditDialog extends com.afrinuts.farmos.ui.farm.FarmDia
                 switch (batch.getQualityGrade()) {
                     case PREMIUM:
                         tvBatchGrade.setText("Premium");
-                        tvBatchGrade.setTextColor(view.getContext().getColor(R.color.accent));
+                        tvBatchGrade.setTextColor(view.getContext().getColor(R.color.accent_ink));
                         ivGradeIcon.setImageResource(R.drawable.ic_star);
-                        ivGradeIcon.setColorFilter(view.getContext().getColor(R.color.accent));
+                        ivGradeIcon.setColorFilter(view.getContext().getColor(R.color.accent_ink));
                         break;
                     case STANDARD:
                         tvBatchGrade.setText("Standard");

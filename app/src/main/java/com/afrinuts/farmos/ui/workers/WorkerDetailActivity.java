@@ -52,6 +52,7 @@ public class WorkerDetailActivity extends AppCompatActivity {
     // UI Elements
     private TextView workerNameText;
     private TextView workerStatsText;
+    private TextView workerAvatar;
     private TextView completionRateBadge;
     private TextView totalTasksValue;
     private TextView completedTasksValue;
@@ -105,11 +106,10 @@ public class WorkerDetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         workerNameText = findViewById(R.id.workerNameText);
         workerStatsText = findViewById(R.id.workerStatsText);
+        workerAvatar = findViewById(R.id.workerAvatar);
         completionRateBadge = findViewById(R.id.completionRateBadge);
         totalTasksValue = findViewById(R.id.totalTasksValue);
         completedTasksValue = findViewById(R.id.completedTasksValue);
@@ -122,19 +122,24 @@ public class WorkerDetailActivity extends AppCompatActivity {
         noTasksText = findViewById(R.id.noTasksText);
 
         workerNameText.setText(workerName);
+        workerAvatar.setText(workerInitials(workerName));
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Worker Details");
-        }
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
+                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
+                findViewById(R.id.farmDetailMore), "Worker details");
+        androidx.cardview.widget.CardView hero = findViewById(R.id.workerHeroCard);
+        hero.setRadius(28 * getResources().getDisplayMetrics().density);
+        hero.setCardElevation(0);
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomShortcuts(this, "Performance", R.id.taskTypesContainer, "Recent tasks", R.id.recentTasksContainer);
+    }
 
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this, toolbar);
+    private String workerInitials(String name) {
+        if (name == null || name.trim().isEmpty()) return "•";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase(Locale.ROOT);
+        return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase(Locale.ROOT);
     }
 
     @Override
