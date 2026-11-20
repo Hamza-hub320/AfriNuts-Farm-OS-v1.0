@@ -81,6 +81,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
         tabs.add(new TabItem("Compliance inspections", R.drawable.ic_inspection, TabType.INSPECTIONS));
         tabs.add(new TabItem("Verifications", R.drawable.ic_verified, TabType.VERIFICATIONS));
         tabs.add(new TabItem("Documents", R.drawable.ic_document, TabType.DOCUMENTS));
+        tabs.add(new TabItem("Due & expiring", R.drawable.ic_progress_clock, TabType.DUE_EXPIRING));
     }
 
     private void initViews() {
@@ -322,7 +323,8 @@ public class ComplianceHubActivity extends BaseHubActivity {
         AUDITS,
         INSPECTIONS,
         VERIFICATIONS,
-        DOCUMENTS
+        DOCUMENTS,
+        DUE_EXPIRING
     }
 
     // Tab item class
@@ -360,6 +362,8 @@ public class ComplianceHubActivity extends BaseHubActivity {
                     return new VerificationListFragment();
                 case DOCUMENTS:
                     return new DocumentListFragment();
+                case DUE_EXPIRING:
+                    return new DueExpiringFragment();
                 default:
                     return new CertificationListFragment();
             }

@@ -301,6 +301,7 @@ public class SyncManager {
     }
 
     private void schedulePeriodicSync() {
+        scheduleCertificationDueCheck();
         if (isPeriodicSyncScheduled) {
             Log.d(TAG, "Periodic sync already scheduled");
             return;
@@ -335,6 +336,30 @@ public class SyncManager {
 
         Log.d(TAG, "Periodic sync scheduled every 6 hours");
         isPeriodicSyncScheduled = true;
+    }
+
+    private void scheduleCertificationDueCheck() {
+        if (currentFarmId <= 0) {
+            Log.d(TAG, "No farm ID, skipping certification due check scheduling");
+            return;
+        }
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build();
+        Data inputData = new Data.Builder()
+                .putLong("farmId", currentFarmId)
+                .build();
+        PeriodicWorkRequest dueCheckWork =
+                new PeriodicWorkRequest.Builder(CertificationDueCheckWorker.class, 24, TimeUnit.HOURS)
+                        .setConstraints(constraints)
+                        .setInputData(inputData)
+                        .build();
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                CertificationDueCheckWorker.PERIODIC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                dueCheckWork);
+        Log.d(TAG, "Certification due check scheduled every 24 hours");
     }
 
     public void forceSyncNow() {
