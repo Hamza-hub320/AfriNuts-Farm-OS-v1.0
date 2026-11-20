@@ -12,7 +12,9 @@ import android.view.View;
 
 /** Compact, dependency-free charts used only by the Home overview. */
 public class HomeChartView extends View {
-    public enum Mode { AREA, DONUT, BARS }
+    public enum Mode { AREA, PIE, BARS }
+
+    private static final int[] GRADE_COLORS = {0xFF0E6B3C, 0xFFC9A86A, 0xFFB3402A};
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Mode mode = Mode.AREA;
@@ -24,7 +26,7 @@ public class HomeChartView extends View {
 
     @Override protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mode == Mode.DONUT) drawDonut(canvas);
+        if (mode == Mode.PIE) drawPie(canvas);
         else if (mode == Mode.BARS) drawBars(canvas);
         else drawArea(canvas);
     }
@@ -69,42 +71,43 @@ public class HomeChartView extends View {
         canvas.drawCircle(width - pad, lastY, dp(4.5f), paint);
     }
 
-    private void drawDonut(Canvas canvas) {
+    private void drawPie(Canvas canvas) {
         float side = Math.min(getWidth(), getHeight());
         if (side <= 0) return;
-        float stroke = dp(13);
-        float inset = stroke / 2f + dp(1);
-        float premium = values.length > 0 ? Math.max(0, values[0]) : 0;
+        float inset = dp(2);
+        float right = side - inset;
         float total = 0;
         for (float value : values) total += Math.max(0, value);
-        float sweep = total <= 0 ? 0 : 360f * Math.min(premium / total, 1f);
-        float right = side - inset;
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(stroke);
-        paint.setStrokeCap(Paint.Cap.BUTT);
-        paint.setColor(0xFFF3EAD8);
-        canvas.drawArc(inset, inset, right, right, 0, 360, false, paint);
-        if (sweep > 0) {
-            paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setColor(0xFF0E6B3C);
-            canvas.drawArc(inset, inset, right, right, -90, sweep, false, paint);
-        }
         paint.setStyle(Paint.Style.FILL);
+        if (total <= 0) {
+            paint.setColor(0xFFE9E1CF);
+            canvas.drawCircle(side / 2f, side / 2f, (side - 2 * inset) / 2f, paint);
+            return;
+        }
+
+        float startAngle = -90;
+        for (int i = 0; i < GRADE_COLORS.length; i++) {
+            float value = i < values.length ? Math.max(0, values[i]) : 0;
+            if (value <= 0) continue;
+            float sweep = 360f * value / total;
+            paint.setColor(GRADE_COLORS[i]);
+            canvas.drawArc(inset, inset, right, right, startAngle, sweep, true, paint);
+            startAngle += sweep;
+        }
     }
 
     private void drawBars(Canvas canvas) {
         float width = getWidth(), height = getHeight();
         if (width <= 0 || height <= 0) return;
         String[] labels = {"Premium", "Standard", "Reject"};
-        int[] colors = {0xFF0E6B3C, 0xFFC9A86A, 0xFFB3402A};
         float max = 0;
         for (float value : values) max = Math.max(max, value);
 
-        float cellWidth = width / 3f;
-        float barWidth = Math.min(dp(30), cellWidth * .62f);
+        float edgeInset = dp(4);
+        float cellWidth = (width - 2 * edgeInset) / 3f;
+        float barWidth = Math.min(dp(22), cellWidth * .46f);
         float valueSize = sp(13);
-        float gradeSize = sp(12);
+        float gradeSize = sp(11);
         float baseline = height - gradeSize - dp(8);
         float chartTop = valueSize + dp(8);
         float maxBarHeight = Math.max(0, baseline - chartTop);
@@ -113,7 +116,7 @@ public class HomeChartView extends View {
 
         for (int i = 0; i < labels.length; i++) {
             float value = i < values.length ? Math.max(0, values[i]) : 0;
-            float center = cellWidth * (i + .5f);
+            float center = edgeInset + cellWidth * (i + .5f);
             float barHeight = max <= 0 ? 0 : maxBarHeight * value / max;
             float top = baseline - barHeight;
 
@@ -123,13 +126,17 @@ public class HomeChartView extends View {
             canvas.drawText(String.valueOf(Math.round(value)), center, Math.max(valueSize, top - dp(4)), paint);
 
             if (barHeight > 0) {
-                paint.setColor(colors[i]);
+                paint.setColor(GRADE_COLORS[i]);
                 canvas.drawRoundRect(center - barWidth / 2f, top, center + barWidth / 2f, baseline,
                         dp(6), dp(6), paint);
             }
 
             paint.setColor(0xFF3D3A35);
             paint.setTextSize(gradeSize);
+            while (paint.measureText(labels[i]) > cellWidth - dp(6) && gradeSize > sp(9)) {
+                gradeSize -= sp(.5f);
+                paint.setTextSize(gradeSize);
+            }
             canvas.drawText(labels[i], center, height - dp(1), paint);
         }
         paint.setTextAlign(Paint.Align.LEFT);

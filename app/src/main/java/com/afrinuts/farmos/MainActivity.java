@@ -898,7 +898,9 @@ public class MainActivity extends AppCompatActivity {
                     final int finalSupplierTotal = suppliers.size();
                     runOnUiThread(() -> {
                         TextView rcn = findViewById(R.id.homeRcnNumber);
-                        TextView premiumShare = findViewById(R.id.homePremiumShare);
+                        TextView premiumPercent = findViewById(R.id.homePremiumGradePercent);
+                        TextView standardPercent = findViewById(R.id.homeStandardGradePercent);
+                        TextView rejectPercent = findViewById(R.id.homeRejectGradePercent);
                         TextView gradedCount = findViewById(R.id.homeGradedCount);
                         TextView supplierOnboarded = findViewById(R.id.homeSupplierOnboarded);
                         TextView supplierTotal = findViewById(R.id.homeSupplierTotal);
@@ -906,20 +908,23 @@ public class MainActivity extends AppCompatActivity {
                         TextView supplierProgressText = findViewById(R.id.homeSupplierProgressText);
                         ProgressBar supplierProgress = findViewById(R.id.homeSupplierProgress);
                         HomeChartView area = findViewById(R.id.homeRcnChart);
-                        HomeChartView donut = findViewById(R.id.homeGradeDonut);
+                        HomeChartView pie = findViewById(R.id.homeGradePie);
                         HomeChartView bars = findViewById(R.id.homeGradeBars);
-                        if (rcn == null || premiumShare == null || gradedCount == null || supplierOnboarded == null
-                                || supplierTotal == null || supplierRemaining == null || supplierProgressText == null
-                                || supplierProgress == null || area == null || donut == null || bars == null) return;
+                        if (rcn == null || premiumPercent == null || standardPercent == null || rejectPercent == null
+                                || gradedCount == null || supplierOnboarded == null || supplierTotal == null
+                                || supplierRemaining == null || supplierProgressText == null || supplierProgress == null
+                                || area == null || pie == null || bars == null) return;
                         rcn.setText(String.format(Locale.getDefault(), "%,.0f", finalRcnKg));
                         area.setMode(HomeChartView.Mode.AREA);
                         area.setValues(finalMonthlyKg);
-                        donut.setMode(HomeChartView.Mode.DONUT);
-                        donut.setValues(new float[]{finalPremium, finalStandard, finalReject});
+                        pie.setMode(HomeChartView.Mode.PIE);
+                        pie.setValues(new float[]{finalPremium, finalStandard, finalReject});
                         bars.setMode(HomeChartView.Mode.BARS);
                         bars.setValues(new float[]{finalPremium, finalStandard, finalReject});
-                        int share = finalGraded == 0 ? 0 : Math.round(finalPremium * 100f / finalGraded);
-                        premiumShare.setText(share + "%");
+                        int[] gradePercentages = gradePercentages(finalPremium, finalStandard, finalReject);
+                        premiumPercent.setText(gradePercentages[0] + "%");
+                        standardPercent.setText(gradePercentages[1] + "%");
+                        rejectPercent.setText(gradePercentages[2] + "%");
                         gradedCount.setText(String.valueOf(finalGraded));
                         supplierOnboarded.setText(String.valueOf(finalOnboarded));
                         supplierTotal.setText(String.valueOf(finalSupplierTotal));
@@ -936,6 +941,32 @@ public class MainActivity extends AppCompatActivity {
         } catch (RejectedExecutionException e) {
             Log.w(TAG, "Home quality metrics load rejected", e);
         }
+    }
+
+    private static int[] gradePercentages(int premium, int standard, int reject) {
+        int[] counts = {Math.max(0, premium), Math.max(0, standard), Math.max(0, reject)};
+        int total = counts[0] + counts[1] + counts[2];
+        if (total == 0) return new int[]{0, 0, 0};
+
+        int[] percentages = new int[3];
+        float[] remainders = new float[3];
+        int assigned = 0;
+        for (int i = 0; i < counts.length; i++) {
+            float exact = counts[i] * 100f / total;
+            percentages[i] = (int) exact;
+            remainders[i] = exact - percentages[i];
+            assigned += percentages[i];
+        }
+        while (assigned < 100) {
+            int next = 0;
+            for (int i = 1; i < remainders.length; i++) {
+                if (remainders[i] > remainders[next]) next = i;
+            }
+            percentages[next]++;
+            remainders[next] = -1;
+            assigned++;
+        }
+        return percentages;
     }
 
     private void updateFinancialSnapshot() {

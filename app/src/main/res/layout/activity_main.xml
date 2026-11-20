@@ -205,49 +205,110 @@
                             android:textSize="15sp"
                             android:textStyle="bold" />
                         <FrameLayout
-                            android:layout_width="96dp"
-                            android:layout_height="96dp"
-                            android:layout_marginTop="14dp">
+                            android:layout_width="82dp"
+                            android:layout_height="82dp"
+                            android:layout_marginTop="10dp">
                             <com.afrinuts.farmos.ui.theme.HomeChartView
-                                android:id="@+id/homeGradeDonut"
+                                android:id="@+id/homeGradePie"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="vertical">
                             <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:orientation="vertical">
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:background="@drawable/circle_green"
+                                    android:backgroundTint="#0E6B3C" />
                                 <TextView
-                                    android:id="@+id/homePremiumShare"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="6dp"
+                                    android:includeFontPadding="false"
+                                    android:text="Premium"
+                                    android:textColor="#59544C"
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-medium" />
+                                <TextView
+                                    android:id="@+id/homePremiumGradePercent"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:includeFontPadding="false"
                                     android:text="0%"
                                     android:textColor="#1C1B1A"
-                                    android:textSize="24sp"
-                                    android:textStyle="bold"
-                                    android:fontFamily="sans-serif-black" />
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-bold" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:background="@drawable/circle_green"
+                                    android:backgroundTint="#C9A86A" />
                                 <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="6dp"
+                                    android:includeFontPadding="false"
+                                    android:text="Standard"
+                                    android:textColor="#59544C"
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-medium" />
+                                <TextView
+                                    android:id="@+id/homeStandardGradePercent"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:includeFontPadding="false"
-                                    android:text="Premium"
+                                    android:text="0%"
+                                    android:textColor="#1C1B1A"
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-bold" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+                                <View
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:background="@drawable/circle_green"
+                                    android:backgroundTint="#B3402A" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="6dp"
+                                    android:includeFontPadding="false"
+                                    android:text="Reject"
                                     android:textColor="#59544C"
                                     android:textSize="11sp"
-                                    android:textStyle="bold" />
+                                    android:fontFamily="sans-serif-medium" />
+                                <TextView
+                                    android:id="@+id/homeRejectGradePercent"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:includeFontPadding="false"
+                                    android:text="0%"
+                                    android:textColor="#1C1B1A"
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-bold" />
                             </LinearLayout>
-                        </FrameLayout>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:gravity="center"
-                            android:includeFontPadding="false"
-                            android:text="of graded RCN is Premium"
-                            android:textColor="#59544C"
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-medium" />
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
