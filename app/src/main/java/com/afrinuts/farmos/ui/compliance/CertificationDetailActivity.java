@@ -87,6 +87,7 @@ public class CertificationDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_certification_detail);
+        com.afrinuts.farmos.ui.TabletPane.attachList(this, savedInstanceState, new com.afrinuts.farmos.ui.compliance.CertificationListFragment());
 
         certificationId = getIntent().getStringExtra(EXTRA_CERTIFICATION_ID);
         if (certificationId == null || certificationId.isEmpty()) {

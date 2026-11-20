@@ -119,6 +119,7 @@ public class SupplierDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_supplier_detail);
+        com.afrinuts.farmos.ui.TabletPane.attachList(this, savedInstanceState, new com.afrinuts.farmos.ui.suppliers.SuppliersFragment());
 
         supplierId = getIntent().getLongExtra(EXTRA_SUPPLIER_ID, -1);
         if (supplierId == -1) {

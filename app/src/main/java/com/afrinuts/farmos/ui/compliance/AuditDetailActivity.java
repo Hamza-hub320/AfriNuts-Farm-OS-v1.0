@@ -75,6 +75,7 @@ public class AuditDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audit_detail);
+        com.afrinuts.farmos.ui.TabletPane.attachList(this, savedInstanceState, new com.afrinuts.farmos.ui.compliance.AuditListFragment());
 
         auditId = getIntent().getStringExtra(EXTRA_AUDIT_ID);
         if (auditId == null || auditId.isEmpty()) {

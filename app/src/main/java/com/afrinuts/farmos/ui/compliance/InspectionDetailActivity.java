@@ -75,6 +75,7 @@ public class InspectionDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inspection_detail);
+        com.afrinuts.farmos.ui.TabletPane.attachList(this, savedInstanceState, new com.afrinuts.farmos.ui.compliance.InspectionListFragment());
 
         inspectionId = getIntent().getStringExtra(EXTRA_INSPECTION_ID);
         if (inspectionId == null || inspectionId.isEmpty()) {

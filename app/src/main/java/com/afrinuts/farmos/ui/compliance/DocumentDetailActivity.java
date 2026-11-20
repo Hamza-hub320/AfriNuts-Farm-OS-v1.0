@@ -67,6 +67,7 @@ public class DocumentDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_document_detail);
+        com.afrinuts.farmos.ui.TabletPane.attachList(this, savedInstanceState, new com.afrinuts.farmos.ui.compliance.DocumentListFragment());
 
         documentId = getIntent().getStringExtra(EXTRA_DOCUMENT_ID);
         if (documentId == null || documentId.isEmpty()) {
