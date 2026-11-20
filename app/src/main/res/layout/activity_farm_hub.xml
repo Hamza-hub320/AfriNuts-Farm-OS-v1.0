@@ -191,7 +191,7 @@
                         android:id="@+id/navHomeIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_home"
+                        android:src="@drawable/ic_nav_home"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor"  />
 
@@ -242,7 +242,7 @@
                         android:id="@+id/navFarmIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_tractor"
+                        android:src="@drawable/ic_nav_sprout"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
 
@@ -293,7 +293,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:textStyle="bold"
-                        android:src="@drawable/ic_attach_money"
+                        android:src="@drawable/ic_nav_wallet"
                         app:tint="?attr/navbarIconColor" />
 
                     <View
@@ -343,7 +343,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:textStyle="bold"
-                        android:src="@drawable/ic_finance_analytics"
+                        android:src="@drawable/ic_nav_analytics"
                         app:tint="?attr/navbarIconColor" />
 
                     <View
@@ -387,7 +387,7 @@
                     android:id="@+id/navComplianceIcon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_certified"
+                    android:src="@drawable/ic_nav_shield_check"
                     app:tint="?attr/navbarIconColor" />
 
                 <TextView
