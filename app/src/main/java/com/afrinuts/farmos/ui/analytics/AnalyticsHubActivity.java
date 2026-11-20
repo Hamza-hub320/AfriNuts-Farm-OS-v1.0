@@ -63,27 +63,17 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     }
 
     private void setupViewPager() {
-        pagerAdapter = new AnalyticsPagerAdapter(this);
+        pagerAdapter = new AnalyticsPagerAdapter(this,
+                com.afrinuts.farmos.utils.AccessMap.hubTabs(3, sessionManager.getUserRole()));
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("Quality");
-                    tab.setIcon(R.drawable.ic_quality);
-                    break;
-                case 1:
-                    tab.setText("Reports");
-                    tab.setIcon(R.drawable.ic_pdf);
-                    break;
-                case 2:
-                    tab.setText("Traceability");
-                    tab.setIcon(R.drawable.ic_qr_code);
-                    break;
-                case 3:
-                    tab.setText("Bulk");
-                    tab.setIcon(R.drawable.ic_batch);
-                    break;
+            String key = pagerAdapter.getTabKey(position);
+            switch (key) {
+                case "QUALITY": tab.setText("Quality"); tab.setIcon(R.drawable.ic_quality); break;
+                case "TRACEABILITY": tab.setText("Traceability"); tab.setIcon(R.drawable.ic_qr_code); break;
+                case "BULK": tab.setText("Bulk"); tab.setIcon(R.drawable.ic_batch); break;
+                case "REPORTS": tab.setText("Reports"); tab.setIcon(R.drawable.ic_pdf); break;
             }
         }).attach();
 
@@ -96,12 +86,18 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         });
 
         qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(0);
-        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(2);
-        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(3);
+        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(1);
+        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(2);
     }
 
     private void updateFabForTab(int position) {
-        if (position == 0) {
+        if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ANALYTICS_EDIT", sessionManager.getUserRole())) {
+            fabAction.hide();
+            fabAction.setOnClickListener(null);
+            fabAction.setOnLongClickListener(null);
+            return;
+        }
+        if ("QUALITY".equals(pagerAdapter.getTabKey(position))) {
             // Quality tab — kernel batch on tap, RCN intake on long-press
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_add);
@@ -128,7 +124,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                 return true;
             });
 
-        } else if (position == 2) {
+        } else if ("TRACEABILITY".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_qr_code);
             fabAction.setOnLongClickListener(null);
@@ -137,7 +133,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
                     traceabilityFragment.showTraceabilityOptions();
                 }
             });
-        } else if (position == 3) {
+        } else if ("BULK".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
             fabAction.setImageResource(R.drawable.ic_add);
             fabAction.setOnLongClickListener(null);
@@ -172,49 +168,43 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         private final ReportsFragment reportsFragment;
         private final TraceabilityFragment traceabilityFragment;
         private final MasterTraceabilityFragment masterTraceabilityFragment;
+        private final String[] tabKeys;
 
-        public AnalyticsPagerAdapter(AnalyticsHubActivity activity) {
+        public AnalyticsPagerAdapter(AnalyticsHubActivity activity, String[] tabKeys) {
             super(activity);
+            this.tabKeys = tabKeys;
             metricsFragment = new QualityMetricsFragment();
             reportsFragment = new ReportsFragment();
             traceabilityFragment = new TraceabilityFragment();
             masterTraceabilityFragment = new MasterTraceabilityFragment();
         }
 
+        String getTabKey(int position) { return tabKeys[position]; }
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            switch (position) {
-                case 0:
-                    return metricsFragment;
-                case 1:
-                    return reportsFragment;
-                case 2:
-                    return traceabilityFragment;
-                case 3:
-                    return masterTraceabilityFragment;
-                default:
-                    return metricsFragment;
+            switch (tabKeys[position]) {
+                case "QUALITY": return metricsFragment;
+                case "TRACEABILITY": return traceabilityFragment;
+                case "BULK": return masterTraceabilityFragment;
+                case "REPORTS": return reportsFragment;
+                default: return metricsFragment;
             }
         }
 
         @Override
         public int getItemCount() {
-            return 4; // ✅ 4 tabs
+            return tabKeys.length;
         }
 
         public Fragment getFragment(int position) {
-            switch (position) {
-                case 0:
-                    return metricsFragment;
-                case 1:
-                    return reportsFragment;
-                case 2:
-                    return traceabilityFragment;
-                case 3:
-                    return masterTraceabilityFragment;
-                default:
-                    return metricsFragment;
+            switch (tabKeys[position]) {
+                case "QUALITY": return metricsFragment;
+                case "TRACEABILITY": return traceabilityFragment;
+                case "BULK": return masterTraceabilityFragment;
+                case "REPORTS": return reportsFragment;
+                default: return metricsFragment;
             }
         }
     }

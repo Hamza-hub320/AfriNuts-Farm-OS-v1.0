@@ -118,9 +118,12 @@ public class BlocksFragment extends Fragment {
                 BlockGroup group = new BlockGroup(row);
                 List<BlockEntity> blocksForRow = groupedBlocks.get(row);
                 blocksForRow.sort((b1, b2) -> {
-                    String num1 = b1.getBlockName().substring(1);
-                    String num2 = b2.getBlockName().substring(1);
-                    return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
+                    String name1 = b1.getBlockName() == null ? "" : b1.getBlockName().trim();
+                    String name2 = b2.getBlockName() == null ? "" : b2.getBlockName().trim();
+                    int number1 = leadingBlockNumber(name1);
+                    int number2 = leadingBlockNumber(name2);
+                    int numericOrder = Integer.compare(number1, number2);
+                    return numericOrder != 0 ? numericOrder : name1.compareToIgnoreCase(name2);
                 });
                 group.setBlocks(blocksForRow);
                 newGroups.add(group);
@@ -147,6 +150,19 @@ public class BlocksFragment extends Fragment {
             }
             showLoading(false);
         });
+    }
+
+    private int leadingBlockNumber(String blockName) {
+        int index = 0;
+        while (index < blockName.length() && Character.isLetter(blockName.charAt(index))) index++;
+        int digitStart = index;
+        while (index < blockName.length() && Character.isDigit(blockName.charAt(index))) index++;
+        if (digitStart == index) return Integer.MAX_VALUE;
+        try {
+            return Integer.parseInt(blockName.substring(digitStart, index));
+        } catch (NumberFormatException ignored) {
+            return Integer.MAX_VALUE;
+        }
     }
 
     private void updateFarmSummary(List<BlockEntity> allBlocks) {

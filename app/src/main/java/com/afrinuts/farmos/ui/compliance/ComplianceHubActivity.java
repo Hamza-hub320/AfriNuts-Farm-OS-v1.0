@@ -76,12 +76,15 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
     private void setupTabs() {
         tabs.clear();
-        tabs.add(new TabItem("Certifications", R.drawable.ic_certified, TabType.CERTIFICATIONS));
-        tabs.add(new TabItem("Audits", R.drawable.ic_audit, TabType.AUDITS));
-        tabs.add(new TabItem("Compliance inspections", R.drawable.ic_inspection, TabType.INSPECTIONS));
-        tabs.add(new TabItem("Verifications", R.drawable.ic_verified, TabType.VERIFICATIONS));
-        tabs.add(new TabItem("Documents", R.drawable.ic_document, TabType.DOCUMENTS));
-        tabs.add(new TabItem("Due & expiring", R.drawable.ic_progress_clock, TabType.DUE_EXPIRING));
+        for (String key : com.afrinuts.farmos.utils.AccessMap.hubTabs(4, sessionManager.getUserRole())) {
+            switch (key) {
+                case "PROGRAMMES": tabs.add(new TabItem("Programmes", R.drawable.ic_certified, TabType.PROGRAMMES)); break;
+                case "CHECKS": tabs.add(new TabItem("Checks", R.drawable.ic_audit, TabType.CHECKS)); break;
+                case "DOCUMENTS": tabs.add(new TabItem("Documents", R.drawable.ic_document, TabType.DOCUMENTS)); break;
+                case "DUE_EXPIRING": tabs.add(new TabItem("Due & expiring", R.drawable.ic_progress_clock, TabType.DUE_EXPIRING)); break;
+                default: throw new IllegalStateException("Unknown Compliance tab: " + key);
+            }
+        }
     }
 
     private void initViews() {
@@ -146,7 +149,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
         // Set click listener based on tab type
         switch (tabItem.type) {
-            case CERTIFICATIONS:
+            case PROGRAMMES:
                 if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_CERTIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()
@@ -160,39 +163,9 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 fabAdd.show();
                 break;
 
-            case AUDITS:
+            case CHECKS:
                 if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_AUDIT", sessionManager.getUserRole())) { fabAdd.hide(); break; }
-                fabAdd.setOnClickListener(v -> {
-                    Fragment fragment = getSupportFragmentManager()
-                            .findFragmentByTag("f" + viewPager.getCurrentItem());
-                    if (fragment instanceof AuditListFragment) {
-                        ((AuditListFragment) fragment).showAddAuditDialog();
-                    }
-                });
-                fabAdd.show();
-                break;
-
-            case INSPECTIONS:
-                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_INSPECTION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
-                fabAdd.setOnClickListener(v -> {
-                    Fragment fragment = getSupportFragmentManager()
-                            .findFragmentByTag("f" + viewPager.getCurrentItem());
-                    if (fragment instanceof InspectionListFragment) {
-                        ((InspectionListFragment) fragment).showAddInspectionDialog();
-                    }
-                });
-                fabAdd.show();
-                break;
-
-            case VERIFICATIONS:
-                if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_VERIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
-                fabAdd.setOnClickListener(v -> {
-                    Fragment fragment = getSupportFragmentManager()
-                            .findFragmentByTag("f" + viewPager.getCurrentItem());
-                    if (fragment instanceof VerificationListFragment) {
-                        ((VerificationListFragment) fragment).showAddVerificationDialog();
-                    }
-                });
+                fabAdd.setOnClickListener(v -> showCheckChooser());
                 fabAdd.show();
                 break;
 
@@ -212,6 +185,19 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 fabAdd.hide();
                 break;
         }
+    }
+
+    private void showCheckChooser() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Add check")
+                .setItems(new String[]{"Add audit", "Add compliance inspection", "Add verification"}, (dialog, which) -> {
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+                    if (!(fragment instanceof ChecksFragment)) return;
+                    ChecksFragment checks = (ChecksFragment) fragment;
+                    if (which == 0) checks.showAddAuditDialog();
+                    else if (which == 1) checks.showAddInspectionDialog();
+                    else checks.showAddVerificationDialog();
+                }).show();
     }
 
     private void setupFab() {
@@ -340,14 +326,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
     }
 
     // Tab types
-    private enum TabType {
-        CERTIFICATIONS,
-        AUDITS,
-        INSPECTIONS,
-        VERIFICATIONS,
-        DOCUMENTS,
-        DUE_EXPIRING
-    }
+    private enum TabType { PROGRAMMES, CHECKS, DOCUMENTS, DUE_EXPIRING }
 
     // Tab item class
     private static class TabItem {
@@ -374,14 +353,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         public Fragment createFragment(int position) {
             TabItem tab = tabs.get(position);
             switch (tab.type) {
-                case CERTIFICATIONS:
+                case PROGRAMMES:
                     return new CertificationListFragment();
-                case AUDITS:
-                    return new AuditListFragment();
-                case INSPECTIONS:
-                    return new InspectionListFragment();
-                case VERIFICATIONS:
-                    return new VerificationListFragment();
+                case CHECKS:
+                    return new ChecksFragment();
                 case DOCUMENTS:
                     return new DocumentListFragment();
                 case DUE_EXPIRING:

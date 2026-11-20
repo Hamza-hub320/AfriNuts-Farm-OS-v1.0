@@ -48,16 +48,18 @@ public class FinanceHubActivity extends BaseHubActivity {
     }
 
     private void setupViewPager() {
-        pagerAdapter = new FinancePagerAdapter(this);
+        pagerAdapter = new FinancePagerAdapter(this,
+                com.afrinuts.farmos.utils.AccessMap.hubTabs(2, sessionManager.getUserRole()));
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("Expenses");
-                tab.setIcon(R.drawable.ic_money_off);
-            } else if (position == 1) {
+            String key = pagerAdapter.getTabKey(position);
+            if ("REVENUE".equals(key)) {
                 tab.setText("Revenue");
                 tab.setIcon(R.drawable.ic_attach_money);
+            } else if ("EXPENSES".equals(key)) {
+                tab.setText("Expenses");
+                tab.setIcon(R.drawable.ic_money_off);
             }
         }).attach();
 
@@ -71,7 +73,24 @@ public class FinanceHubActivity extends BaseHubActivity {
     }
 
     private void updateFabForTab(int position) {
-        if (position == 0) {
+        String action = pagerAdapter.getTabKey(position).equals("REVENUE") ? "ADD_REVENUE" : "ADD_EXPENSE";
+        if (!com.afrinuts.farmos.utils.AccessMap.canUseFab(action, sessionManager.getUserRole())) {
+            fabAdd.hide();
+            fabAdd.setOnClickListener(null);
+            return;
+        }
+        if ("REVENUE".equals(pagerAdapter.getTabKey(position))) {
+            fabAdd.setVisibility(View.VISIBLE);
+            fabAdd.setImageResource(R.drawable.ic_add_business);
+            fabAdd.setOnClickListener(v -> {
+                RevenueFragment fragment = (RevenueFragment) pagerAdapter.getFragment(position);
+                if (fragment != null) {
+                    fragment.showAddRevenueDialog();
+                } else {
+                    Toast.makeText(this, "Error opening expense dialog", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else if ("EXPENSES".equals(pagerAdapter.getTabKey(position))) {
             fabAdd.setVisibility(View.VISIBLE);
             fabAdd.setImageResource(R.drawable.ic_add_business);
             fabAdd.setOnClickListener(v -> {
@@ -82,30 +101,11 @@ public class FinanceHubActivity extends BaseHubActivity {
                     Toast.makeText(this, "Error opening expense dialog", Toast.LENGTH_SHORT).show();
                 }
             });
-        } else if (position == 1) {
-            fabAdd.setVisibility(View.VISIBLE);
-            fabAdd.setImageResource(R.drawable.ic_add_business);
-            fabAdd.setOnClickListener(v -> {
-                RevenueFragment fragment = (RevenueFragment) pagerAdapter.getFragment(position);
-                if (fragment != null) {
-                    fragment.showAddRevenueDialog();
-                } else {
-                    Toast.makeText(this, "Error opening revenue dialog", Toast.LENGTH_SHORT).show();
-                }
-            });
         }
     }
 
     private void setupFab() {
-        // Initial state (Expenses tab)
-        fabAdd.setVisibility(View.VISIBLE);
-        fabAdd.setImageResource(R.drawable.ic_add);
-        fabAdd.setOnClickListener(v -> {
-            ExpensesFragment fragment = (ExpensesFragment) pagerAdapter.getFragment(0);
-            if (fragment != null) {
-                fragment.showAddExpenseDialog();
-            }
-        });
+        updateFabForTab(viewPager.getCurrentItem());
     }
 
     @Override
@@ -124,21 +124,21 @@ public class FinanceHubActivity extends BaseHubActivity {
 
         private final ExpensesFragment expensesFragment;
         private final RevenueFragment revenueFragment;
+        private final String[] tabKeys;
 
-        public FinancePagerAdapter(FinanceHubActivity activity) {
+        public FinancePagerAdapter(FinanceHubActivity activity, String[] tabKeys) {
             super(activity);
+            this.tabKeys = tabKeys;
             expensesFragment = new ExpensesFragment();
             revenueFragment = new RevenueFragment();
         }
 
+        String getTabKey(int position) { return tabKeys[position]; }
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
-                return expensesFragment;
-            } else {
-                return revenueFragment;
-            }
+            return "REVENUE".equals(tabKeys[position]) ? revenueFragment : expensesFragment;
         }
 
         @Override
@@ -147,11 +147,7 @@ public class FinanceHubActivity extends BaseHubActivity {
         }
 
         public Fragment getFragment(int position) {
-            if (position == 0) {
-                return expensesFragment;
-            } else {
-                return revenueFragment;
-            }
+            return "REVENUE".equals(tabKeys[position]) ? revenueFragment : expensesFragment;
         }
     }
 }
