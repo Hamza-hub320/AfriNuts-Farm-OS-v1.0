@@ -57,8 +57,8 @@
         <item name="iconBackgroundGlass">@drawable/bg_icon_glass</item>
         <item name="tabBackground">@drawable/bg_glass_tabs</item>
         <!-- Inside Theme.AfriNutsFarmOS -->
-        <item name="navbarIconColor">@android:color/white</item>
-        <item name="navbarTextColor">@android:color/white</item>
+        <item name="navbarIconColor">@color/text_tertiary</item>
+        <item name="navbarTextColor">@color/text_tertiary</item>
         <item name="navbarBackground">@drawable/bg_navbar_glass</item>
 
 

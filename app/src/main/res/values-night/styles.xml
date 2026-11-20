@@ -45,8 +45,8 @@
         <item name="cardBackgroundSecondary">@drawable/bg_card_secondary_dark</item>
         <item name="iconBackgroundGlass">@drawable/bg_icon_glass_dark</item>
         <item name="tabBackground">@drawable/bg_glass_tabs_dark</item>
-        <item name="navbarIconColor">@android:color/white</item>
-        <item name="navbarTextColor">@android:color/white</item>
+        <item name="navbarIconColor">@color/text_tertiary</item>
+        <item name="navbarTextColor">@color/text_tertiary</item>
         <item name="navbarBackground">@drawable/bg_navbar_glass_dark</item>
     </style>
 
