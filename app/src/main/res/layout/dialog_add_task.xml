@@ -39,7 +39,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Create New Task"
+                android:text="Create Task"
                 style="@style/Text.H2"
                 android:textColor="?attr/colorPrimary" />
 
@@ -285,7 +285,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    app:singleSelection="true">
+                    app:singleSelection="true"
+                    android:background="@drawable/bg_expense_scope_toggle">
 
                     <Button
                         android:id="@+id/btnFarmWide"

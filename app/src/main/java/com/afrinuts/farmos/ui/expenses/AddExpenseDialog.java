@@ -269,6 +269,8 @@ public class AddExpenseDialog extends FarmDialogFragment {
 
     private void roundScopeButtons() {
         if (toggleExpenseType == null) return;
+        toggleExpenseType.setBackgroundResource(R.drawable.bg_expense_scope_toggle);
+        toggleExpenseType.setClipToOutline(true);
         float radius = 16f * getResources().getDisplayMetrics().density;
         for (int i = 0; i < toggleExpenseType.getChildCount(); i++) {
             View child = toggleExpenseType.getChildAt(i);
@@ -279,6 +281,8 @@ public class AddExpenseDialog extends FarmDialogFragment {
                         .setAllCornerSizes(radius).build());
                 button.setInsetTop(0);
                 button.setInsetBottom(0);
+                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+                button.setStrokeColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
             }
         }
     }

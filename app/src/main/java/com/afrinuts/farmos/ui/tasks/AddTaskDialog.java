@@ -174,6 +174,7 @@ public class AddTaskDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
         // Default to farm-wide selected
         toggleTaskScope.check(R.id.btnFarmWide);
         layoutBlockSelector.setVisibility(View.GONE);
+        toggleTaskScope.post(this::roundTaskScope);
 
         swAlreadyDone = view.findViewById(R.id.swAlreadyDone);
         cardDueDate   = view.findViewById(R.id.cardDueDate);
@@ -376,6 +377,26 @@ public class AddTaskDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
                 }
             }
         });
+    }
+
+    private void roundTaskScope() {
+        if (toggleTaskScope == null) return;
+        toggleTaskScope.setBackgroundResource(R.drawable.bg_expense_scope_toggle);
+        toggleTaskScope.setClipToOutline(true);
+        float radius = 16f * getResources().getDisplayMetrics().density;
+        for (int i = 0; i < toggleTaskScope.getChildCount(); i++) {
+            View child = toggleTaskScope.getChildAt(i);
+            if (child instanceof com.google.android.material.button.MaterialButton) {
+                com.google.android.material.button.MaterialButton button =
+                        (com.google.android.material.button.MaterialButton) child;
+                button.setShapeAppearanceModel(button.getShapeAppearanceModel().toBuilder()
+                        .setAllCornerSizes(radius).build());
+                button.setInsetTop(0);
+                button.setInsetBottom(0);
+                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+                button.setStrokeColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+            }
+        }
     }
 
     private void loadBlocksForDropdown() {
