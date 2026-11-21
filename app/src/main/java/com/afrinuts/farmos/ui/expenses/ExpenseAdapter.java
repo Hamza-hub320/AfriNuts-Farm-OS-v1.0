@@ -22,7 +22,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
     private List<ExpenseWithBlockName> expenses = new ArrayList<>();
     private OnExpenseClickListener listener;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
 
     public interface OnExpenseClickListener {
         void onExpenseClick(ExpenseEntity expense);
@@ -99,28 +99,18 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             boolean isProcurement = expense.isProcurementRelated();
 
             if (isProcurement) {
-                // Procurement expense
-                tvSourceInfo.setText("Procurement");
-                tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.primary));
-
-                // Show procurement details
-                String procurementInfo = "";
-                if (expense.getBatchNumber() != null && !expense.getBatchNumber().isEmpty()) {
-                    procurementInfo += "Batch: " + expense.getBatchNumber();
+                StringBuilder source = new StringBuilder();
+                if (expense.getBatchNumber() != null && !expense.getBatchNumber().trim().isEmpty()) {
+                    source.append("Batch ").append(expense.getBatchNumber().trim());
                 }
-                if (expense.getSupplierName() != null && !expense.getSupplierName().isEmpty()) {
-                    if (!procurementInfo.isEmpty()) procurementInfo += " | ";
-                    procurementInfo += "Supplier: " + expense.getSupplierName();
+                if (expense.getSupplierName() != null && !expense.getSupplierName().trim().isEmpty()) {
+                    if (source.length() > 0) source.append(" · ");
+                    source.append("Supplier ").append(expense.getSupplierName().trim());
                 }
-                if (!procurementInfo.isEmpty()) {
-                    tvProcurementInfo.setVisibility(View.VISIBLE);
-                    tvProcurementInfo.setText(procurementInfo);
-                } else {
-                    tvProcurementInfo.setVisibility(View.GONE);
-                }
-
-                // Show procurement badge
-                layoutProcurementBadge.setVisibility(View.VISIBLE);
+                tvSourceInfo.setText(source.length() == 0 ? "Procurement source unavailable" : source.toString());
+                tvSourceInfo.setTextColor(0xFF59544C);
+                tvProcurementInfo.setVisibility(View.GONE);
+                layoutProcurementBadge.setVisibility(View.GONE);
 
             } else {
                 // Farm expense
@@ -128,11 +118,11 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
                 tvProcurementInfo.setVisibility(View.GONE);
 
                 if (blockName != null) {
-                    tvSourceInfo.setText("Block: " + blockName);
-                    tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.primary));
+                    tvSourceInfo.setText("Block " + blockName);
+                    tvSourceInfo.setTextColor(0xFF59544C);
                 } else {
                     tvSourceInfo.setText("Farm-Wide");
-                    tvSourceInfo.setTextColor(itemView.getContext().getColor(R.color.navy));
+                    tvSourceInfo.setTextColor(0xFF59544C);
                 }
             }
 
@@ -145,8 +135,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             }
 
             // Description
-            if (expense.getDescription() != null && !expense.getDescription().isEmpty()) {
-                tvDescription.setText(expense.getDescription());
+            if (expense.getDescription() != null && !expense.getDescription().trim().isEmpty()) {
+                tvDescription.setText(expense.getDescription().trim());
                 tvDescription.setVisibility(View.VISIBLE);
             } else {
                 tvDescription.setVisibility(View.GONE);

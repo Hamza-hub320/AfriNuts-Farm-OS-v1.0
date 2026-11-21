@@ -207,6 +207,7 @@ public class AddExpenseDialog extends FarmDialogFragment {
         // Default to farm-wide selected
         toggleExpenseType.check(R.id.btnFarmWide);
         layoutBlockSelector.setVisibility(View.GONE);
+        toggleExpenseType.post(this::roundScopeButtons);
 
         // Hide procurement section initially
         layoutProcurementSection.setVisibility(View.GONE);
@@ -261,8 +262,25 @@ public class AddExpenseDialog extends FarmDialogFragment {
                     isFarmWide = false;
                     layoutBlockSelector.setVisibility(View.VISIBLE);
                 }
+                toggleExpenseType.post(this::roundScopeButtons);
             }
         });
+    }
+
+    private void roundScopeButtons() {
+        if (toggleExpenseType == null) return;
+        float radius = 16f * getResources().getDisplayMetrics().density;
+        for (int i = 0; i < toggleExpenseType.getChildCount(); i++) {
+            View child = toggleExpenseType.getChildAt(i);
+            if (child instanceof com.google.android.material.button.MaterialButton) {
+                com.google.android.material.button.MaterialButton button =
+                        (com.google.android.material.button.MaterialButton) child;
+                button.setShapeAppearanceModel(button.getShapeAppearanceModel().toBuilder()
+                        .setAllCornerSizes(radius).build());
+                button.setInsetTop(0);
+                button.setInsetBottom(0);
+            }
+        }
     }
 
     private void loadBlocksForDropdown() {

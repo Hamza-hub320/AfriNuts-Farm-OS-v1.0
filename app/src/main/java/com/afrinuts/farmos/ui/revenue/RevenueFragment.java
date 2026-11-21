@@ -246,7 +246,7 @@ public class RevenueFragment extends Fragment {
         }
 
         totalRevenueValue.setText(String.format(Locale.getDefault(),
-                "%,.0f XAF", totalRevenue));
+                "%,.0f", totalRevenue));
         totalQuantityValue.setText(String.format(Locale.getDefault(),
                 "%,.1f kg", totalKg));
     }

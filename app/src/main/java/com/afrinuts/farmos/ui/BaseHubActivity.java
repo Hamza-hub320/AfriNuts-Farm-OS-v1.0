@@ -230,23 +230,23 @@ public abstract class BaseHubActivity extends BaseActivity {
                                  int inactiveColor, int activeColor) {
         // Some secondary screens, such as Weather, intentionally expose only a subset of hub tabs.
         if (item == null || icon == null || label == null) return;
-        item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        item.setOrientation(LinearLayout.VERTICAL);
         item.setGravity(android.view.Gravity.CENTER);
-        item.setPadding(active ? 12 : 6, 4, active ? 12 : 6, 4);
+        item.setPadding(active ? 10 : 6, 4, active ? 10 : 6, 4);
         item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
-        label.setVisibility(active ? View.VISIBLE : View.GONE);
+        label.setVisibility(View.VISIBLE);
         label.setTextColor(active ? activeColor : inactiveColor);
         label.setAlpha(1f);
         LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
-        labelParams.topMargin = active ? 0 : 4;
-        labelParams.setMarginStart(active ? 6 : 0);
+        labelParams.topMargin = 4;
+        labelParams.setMarginStart(0);
         label.setLayoutParams(labelParams);
         icon.setColorFilter(active ? activeColor : inactiveColor);
         ViewGroup.LayoutParams raw = item.getLayoutParams();
         if (raw instanceof LinearLayout.LayoutParams) {
             LinearLayout.LayoutParams itemParams = (LinearLayout.LayoutParams) raw;
             itemParams.width = 0;
-            itemParams.weight = active ? 1.8f : 0.8f;
+            itemParams.weight = active ? 1.45f : 1f;
             item.setLayoutParams(itemParams);
         }
     }

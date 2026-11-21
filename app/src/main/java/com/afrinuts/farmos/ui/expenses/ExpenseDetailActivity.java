@@ -34,7 +34,7 @@ import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.farm.FarmDetailChrome;
+import com.afrinuts.farmos.ui.finance.FinanceDetailChrome;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -237,8 +237,9 @@ public class ExpenseDetailActivity extends BaseActivity {
         installDetailFooter();
         if (fabEdit != null) fabEdit.setVisibility(View.GONE);
         headerEdit = findViewById(R.id.farmDetailEdit);
-        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
-                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Expense details");
+        FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailEdit),
+                findViewById(R.id.farmDetailMore), "Expense details");
     }
 
     private void installDetailFooter() {
@@ -453,12 +454,10 @@ public class ExpenseDetailActivity extends BaseActivity {
         if (expense.isProcurementRelated()) {
             // Procurement expense - show batch and supplier info
             String sourceInfo = "";
-            if (expense.getSupplierName() != null) {
-                sourceInfo += expense.getSupplierName();
-            }
-            if (expense.getBatchNumber() != null) {
-                if (!sourceInfo.isEmpty()) sourceInfo += " | ";
-                sourceInfo += expense.getBatchNumber();
+            if (expense.getBatchNumber() != null && !expense.getBatchNumber().trim().isEmpty()) sourceInfo = "Batch " + expense.getBatchNumber().trim();
+            if (expense.getSupplierName() != null && !expense.getSupplierName().trim().isEmpty()) {
+                if (!sourceInfo.isEmpty()) sourceInfo += " · ";
+                sourceInfo += "Supplier " + expense.getSupplierName().trim();
             }
             if (sourceInfo.isEmpty()) {
                 sourceInfo = "Procurement Expense";
@@ -532,10 +531,19 @@ public class ExpenseDetailActivity extends BaseActivity {
             etDescription.setText(expense.getDescription());
         }
 
-        FarmDetailChrome.addHero(this, R.id.tvCategoryName, R.id.tvBlockInfo, View.NO_ID);
-        FarmDetailChrome.addStats(this,
+        String sourceLabel = tvBlockInfo.getText() == null ? "" : tvBlockInfo.getText().toString().replace(" Expense", "");
+        String sourceText = sourceLabel;
+        String formattedDate = expense.getDate() > 0
+                ? new java.text.SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(expense.getDate()) : "Date not recorded";
+        if (!formattedDate.isEmpty()) sourceText += " · " + formattedDate;
+        tvBlockInfo.setText(sourceText);
+        ((TextView) findViewById(R.id.tvFinanceAmountDisplay)).setText(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount()));
+        ((TextView) findViewById(R.id.tvFinanceDateDisplay)).setText(formattedDate);
+        ((TextView) findViewById(R.id.tvFinanceSourceDisplay)).setText(sourceLabel);
+        FinanceDetailChrome.addHero(this, R.id.tvCategoryName, R.id.tvBlockInfo, View.NO_ID);
+        FinanceDetailChrome.addStats(this,
                 new String[]{"Amount", "Date", "Source"},
-                new int[]{R.id.etAmount, R.id.etDate, R.id.tvBlockInfo});
+                new int[]{R.id.tvFinanceAmountDisplay, R.id.tvFinanceDateDisplay, R.id.tvFinanceSourceDisplay});
     }
 
     private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {

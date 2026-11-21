@@ -3,49 +3,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginBottom="6dp"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="0dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="@color/surface"
-    style="@style/Widget.AfriNuts.CardView">
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/surface">
+        android:padding="12dp">
 
-        <!-- Top Row: Icon + Category + Amount -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:orientation="horizontal">
 
-            <!-- Icon with Glass Container -->
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_icon_sand"
-                android:layout_marginEnd="12dp">
-
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_expense_category_circle">
                 <ImageView
                     android:id="@+id/ivCategoryIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_attach_money"
-                    app:tint="?attr/colorPrimary"
-                    android:contentDescription="Category icon" />
-
+                    app:tint="#0A5530"
+                    android:contentDescription="Expense category" />
             </FrameLayout>
 
             <LinearLayout
@@ -53,136 +44,70 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
-
                 <TextView
                     android:id="@+id/tvCategory"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Land Clearing"
-                    style="@style/Text.H5"
-                    android:textColor="?attr/colorPrimary" />
-
-                <!-- ✅ Source Info: Farm-Wide, Block, or Procurement -->
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textColor="#1C1B1A"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/manrope_extrabold" />
                 <TextView
                     android:id="@+id/tvSourceInfo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Farm-Wide"
-                    style="@style/Text.Caption"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-                <!-- ✅ Batch/Supplier Info for Procurement -->
-                <TextView
-                    android:id="@+id/tvProcurementInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Batch: BATCH-001 | Supplier: ABC Ltd"
-                    style="@style/Text.Caption.Small"
-                    android:textColor="@color/accent_ink"
-                    android:alpha="0.8"
-                    android:visibility="gone"
-                    android:layout_marginTop="2dp" />
-
+                    android:layout_marginTop="2dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:textColor="#59544C"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/manrope_semibold" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5,250,000 XAF"
-                style="@style/Text.Stat.Small"
-                android:textColor="@color/accent_ink" />
-
-        </LinearLayout>
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            style="@style/Widget.AfriNuts.Divider"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Bottom Row: Date + Description -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="16dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_today"
-                    app:tint="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:layout_marginEnd="4dp"
-                    android:contentDescription="Date" />
-
+                android:layout_marginStart="8dp"
+                android:gravity="end"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="11sp"
+                    android:autoSizeMaxTextSize="17sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:textColor="#1C1B1A"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/manrope_extrabold" />
                 <TextView
                     android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Jan 15, 2024"
-                    style="@style/Text.Caption"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Land clearing for 35-hectare plantation"
-                style="@style/Text.Caption"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.8"
-                android:maxLines="2"
-                android:ellipsize="end" />
-
-            <!-- ✅ Procurement Badge -->
-            <LinearLayout
-                android:id="@+id/layoutProcurementBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_icon_sand"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:layout_marginStart="8dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp">
-
-                <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:src="@drawable/ic_shopping_cart"
-                    app:tint="@color/accent_ink"
-                    android:layout_marginEnd="4dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Procurement"
-                    style="@style/Text.Caption.Small"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="1"
+                    android:textColor="#59544C"
                     android:textSize="12sp"
-                    android:textColor="@color/accent_ink"
-                    android:textStyle="bold" />
-
+                    android:fontFamily="@font/manrope_semibold" />
             </LinearLayout>
-
         </LinearLayout>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#59544C"
+            android:textSize="13sp"
+            android:fontFamily="@font/manrope_semibold" />
 
+        <!-- Retained hidden ids for the existing adapter's compatibility. -->
+        <TextView android:id="@+id/tvProcurementInfo" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <LinearLayout android:id="@+id/layoutProcurementBadge" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

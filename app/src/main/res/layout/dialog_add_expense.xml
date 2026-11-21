@@ -324,9 +324,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     app:singleSelection="true"
-                    android:weightSum="2">
+                    android:weightSum="2"
+                    android:background="@android:color/transparent">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnFarmWide"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -341,7 +342,7 @@
                         android:singleLine="false"
                         android:maxLines="2" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnBlockSpecific"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

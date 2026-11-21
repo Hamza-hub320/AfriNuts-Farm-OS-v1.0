@@ -3,6 +3,8 @@ package com.afrinuts.farmos.ui.revenue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -67,6 +69,8 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
         private TextView tvDate;
         private TextView tvBuyer;
         private ImageView tvQualityIcon;
+        private View qualityIconContainer;
+        private View qualityBadge;
 
         public RevenueViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,6 +85,8 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
             tvDate = itemView.findViewById(R.id.tvDate);
             tvBuyer = itemView.findViewById(R.id.tvBuyer);
             tvQualityIcon = itemView.findViewById(R.id.tvQualityIcon);
+            qualityIconContainer = itemView.findViewById(R.id.qualityIconContainer);
+            qualityBadge = itemView.findViewById(R.id.qualityBadge);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
@@ -109,44 +115,64 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
             if (revenue.getSupplierName() != null && !revenue.getSupplierName().isEmpty()) {
                 tvSupplier.setText(revenue.getSupplierName());
             } else {
-                tvSupplier.setText("Supplier: " + (revenue.getSupplierId() != null ? revenue.getSupplierId() : "Unknown"));
+                tvSupplier.setText("Supplier not recorded");
             }
 
             // Amount
             tvAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount()));
 
             // Quantity
-            tvQuantity.setText(String.format(Locale.getDefault(), "%,.0f kg", revenue.getQuantityKg()));
+            tvQuantity.setText(String.format(Locale.getDefault(), "%,.0f kg · %,.0f XAF/kg",
+                    revenue.getQuantityKg(), revenue.getPricePerKg()));
 
             // Price
-            tvPrice.setText(String.format(Locale.getDefault(), "%,.0f XAF/kg", revenue.getPricePerKg()));
+            tvPrice.setVisibility(View.GONE);
 
             // Quality Badge
             if (revenue.getQuality() != null) {
                 tvQualityBadge.setText(revenue.getQuality().getDisplayName());
 
                 int iconRes;
-                int colorRes;
+                int iconColor;
+                int badgeColor;
+                int iconBackground;
+                int badgeBackground;
                 switch (revenue.getQuality()) {
                     case PREMIUM:
                         iconRes = R.drawable.ic_star;
-                        colorRes = android.R.color.holo_orange_dark;
+                        iconColor = 0xFF0A5530;
+                        badgeColor = 0xFF0A5530;
+                        iconBackground = R.drawable.bg_revenue_premium_icon;
+                        badgeBackground = R.drawable.bg_revenue_premium_badge;
                         break;
                     case STANDARD:
                         iconRes = R.drawable.ic_check_circle;
-                        colorRes = android.R.color.holo_blue_dark;
+                        iconColor = 0xFF7A5F22;
+                        badgeColor = 0xFF7A5F22;
+                        iconBackground = R.drawable.bg_revenue_standard_icon;
+                        badgeBackground = R.drawable.bg_revenue_standard_badge;
                         break;
                     case PROCESSING:
                         iconRes = R.drawable.ic_factory;
-                        colorRes = android.R.color.holo_purple;
+                        iconColor = 0xFF59544C;
+                        badgeColor = 0xFF59544C;
+                        iconBackground = R.drawable.bg_revenue_standard_icon;
+                        badgeBackground = R.drawable.bg_revenue_standard_badge;
                         break;
                     default:
                         iconRes = R.drawable.ic_star;
-                        colorRes = android.R.color.darker_gray;
+                        iconColor = 0xFF59544C;
+                        badgeColor = 0xFF59544C;
+                        iconBackground = R.drawable.bg_revenue_standard_icon;
+                        badgeBackground = R.drawable.bg_revenue_standard_badge;
                 }
                 tvQualityBadgeIcon.setImageResource(iconRes);
-                tvQualityBadgeIcon.setColorFilter(itemView.getContext().getColor(colorRes));
-                tvQualityBadge.setTextColor(itemView.getContext().getColor(colorRes));
+                tvQualityIcon.setImageResource(iconRes);
+                tvQualityIcon.setColorFilter(iconColor);
+                tvQualityBadgeIcon.setColorFilter(iconColor);
+                tvQualityBadge.setTextColor(badgeColor);
+                qualityIconContainer.setBackgroundResource(iconBackground);
+                qualityBadge.setBackgroundResource(badgeBackground);
             }
 
             // Date

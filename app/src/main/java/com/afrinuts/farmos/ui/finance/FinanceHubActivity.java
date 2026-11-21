@@ -13,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -61,6 +64,8 @@ public class FinanceHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+        TextView date = findViewById(R.id.financeDateText);
+        if (date != null) date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
         View profile = findViewById(R.id.financeProfileButton);
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
     }

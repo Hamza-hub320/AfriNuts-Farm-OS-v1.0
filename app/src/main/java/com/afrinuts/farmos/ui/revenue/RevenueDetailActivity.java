@@ -32,7 +32,7 @@ import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
-import com.afrinuts.farmos.ui.farm.FarmDetailChrome;
+import com.afrinuts.farmos.ui.finance.FinanceDetailChrome;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -152,8 +152,9 @@ public class RevenueDetailActivity extends BaseActivity {
         initViews();
         setupToolbar();
         setupRoleBasedUI();
-        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
-                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Revenue details");
+        FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailEdit),
+                findViewById(R.id.farmDetailMore), "Revenue details");
         headerEdit = findViewById(R.id.farmDetailEdit);
         loadData();
     }
@@ -613,14 +614,17 @@ public class RevenueDetailActivity extends BaseActivity {
         } else {
             tvBatchNumber.setText("Processing center sale");
         }
-        FarmDetailChrome.addHero(this, R.id.tvBatchNumber, R.id.tvSource, R.id.tvQualityGrade);
-        FarmDetailChrome.addStats(this,
-                new String[]{"Quantity", "Price/kg", "Total"},
+        FinanceDetailChrome.addHero(this, R.id.tvBatchNumber, R.id.tvSource, R.id.tvQualityGrade);
+        FinanceDetailChrome.addStats(this,
+                new String[]{"Quantity", "Price / kg", "Total (XAF)"},
                 new int[]{R.id.tvQuantity, R.id.tvPricePerKg, R.id.tvTotalAmount});
+        FinanceDetailChrome.splitRevenueSections(this);
+        FinanceDetailChrome.bindRevenueBatch(this, batch);
         footerViewBatch.setVisibility(revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
         if (btnViewBatch != null) btnViewBatch.setVisibility(View.GONE);
-        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
-                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Revenue details");
+        FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailEdit),
+                findViewById(R.id.farmDetailMore), "Revenue details");
         headerEdit = findViewById(R.id.farmDetailEdit);
     }
 

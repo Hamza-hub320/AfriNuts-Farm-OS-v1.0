@@ -238,10 +238,27 @@
     </style>
 
     <style name="TextAppearance.FinanceTab" parent="TextAppearance.MaterialComponents.Button">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13.5sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:fontFamily">@font/manrope_medium</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+    </style>
+
+    <style name="Widget.AfriNuts.FinanceChip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="android:minHeight">38dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/finance_chip_text</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="chipBackgroundColor">@color/finance_chip_background</item>
+        <item name="chipStrokeColor">@color/finance_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">999dp</item>
+        <item name="chipMinHeight">38dp</item>
+        <item name="chipStartPadding">14dp</item>
+        <item name="chipEndPadding">14dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipIconVisible">false</item>
+        <item name="rippleColor">#220E6B3C</item>
     </style>
 
     <!-- ======================================== -->

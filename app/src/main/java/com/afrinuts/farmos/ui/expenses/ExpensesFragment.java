@@ -182,7 +182,7 @@ public class ExpensesFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     showLoading(false);
                     showEmpty(true);
-                    totalExpensesText.setText("0 XAF");
+                    totalExpensesText.setText("0");
                     expensesRecordedText.setText("0");
                 });
             }
@@ -215,6 +215,11 @@ public class ExpensesFragment extends Fragment {
                 }
             }
 
+            // Keep the list audit-ready: a referenced block or procurement source must resolve to a name.
+            if (expense.isProcurementRelated()
+                    && (isBlank(batchNumber) && isBlank(supplierName))) continue;
+            if (!expense.isProcurementRelated() && expense.getBlockId() != null && isBlank(blockName)) continue;
+
             allExpenses.add(new ExpenseWithBlockName(expense, blockName));
         }
 
@@ -222,7 +227,7 @@ public class ExpensesFragment extends Fragment {
 
         if (allExpenses.isEmpty()) {
             showEmpty(true);
-            totalExpensesText.setText("0 XAF");
+            totalExpensesText.setText("0");
             expensesRecordedText.setText("0");
         } else {
             showEmpty(false);
@@ -274,8 +279,12 @@ public class ExpensesFragment extends Fragment {
         for (ExpenseWithBlockName item : filteredExpenses) {
             total += item.getExpense().getAmount();
         }
-        totalExpensesText.setText(String.format(Locale.getDefault(), "%,d XAF", (int) total));
+        totalExpensesText.setText(String.format(Locale.getDefault(), "%,d", (int) total));
         expensesRecordedText.setText(String.valueOf(filteredExpenses.size()));
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     public void showAddExpenseDialog() {

@@ -13,7 +13,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="20dp"
-        android:paddingBottom="76dp">
+        android:paddingBottom="152dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,15 +21,28 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Finance"
-                android:textColor="#1C1B1A"
-                android:textSize="28sp"
-                android:letterSpacing="-0.02"
-                android:fontFamily="@font/manrope_extrabold" />
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/financeDateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#59544C"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/manrope_semibold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Finance"
+                    android:textColor="#1C1B1A"
+                    android:textSize="28sp"
+                    android:lineSpacingExtra="0dp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/financeNotificationButton"
@@ -69,21 +82,20 @@
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
             app:tabIndicatorHeight="0dp"
-            app:tabSelectedTextColor="#0A5530"
-            app:tabTextColor="?attr/colorOnSurface"
-            app:tabPaddingTop="4dp"
-            app:tabPaddingBottom="4dp"
+            app:tabSelectedTextColor="#FFFFFF"
+            app:tabTextColor="#59544C"
+            app:tabPaddingTop="0dp"
+            app:tabPaddingBottom="0dp"
             app:tabMode="fixed"
             app:tabGravity="fill"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             android:elevation="1dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="0dp"
             app:tabRippleColor="#1A5A7411"
-            app:tabBackground="@drawable/bg_farm_tab_selector"
+            app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.FinanceTab"
             app:tabMinWidth="60dp"
-            app:tabMaxWidth="120dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
@@ -93,9 +105,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="4dp"
+            android:padding="0dp"
             android:clipToPadding="false"
-            android:paddingBottom="100dp"
+            android:paddingBottom="0dp"
             android:visibility="visible" />
 
         <!-- Spacer for bottom navigation -->
@@ -108,11 +120,11 @@
     <!-- Green primary action -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="92dp"
+        android:layout_marginBottom="96dp"
         android:src="@drawable/ic_add"
         android:contentDescription="Add"
         app:backgroundTint="@color/primary"
@@ -125,7 +137,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_gravity="bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
@@ -139,11 +151,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="4dp"
-            android:paddingHorizontal="8dp"
+            android:paddingVertical="6dp"
+            android:paddingHorizontal="6dp"
             android:weightSum="5"
             android:background="@color/nav_pill_bg"
             >
@@ -167,8 +179,8 @@
 
                     <ImageView
                         android:id="@+id/navHomeIcon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_nav_home"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor"  />
@@ -190,12 +202,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Home"
-                    android:textSize="11sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="@font/manrope_medium" />
+                    android:fontFamily="@font/manrope_extrabold" />
 
             </LinearLayout>
 
@@ -218,8 +230,8 @@
 
                     <ImageView
                         android:id="@+id/navFarmIcon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_nav_sprout"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
@@ -240,12 +252,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Farm"
-                    android:textSize="11sp"
+                    android:textSize="14sp"
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:textStyle="bold"
                     android:alpha="0.8"
-                    android:fontFamily="@font/manrope_medium" />
+                    android:fontFamily="@font/manrope_extrabold" />
 
             </LinearLayout>
 
@@ -268,8 +280,8 @@
 
                     <ImageView
                         android:id="@+id/navFinanceIcon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:textStyle="bold"
                         android:src="@drawable/ic_nav_wallet"
                         app:tint="?attr/navbarIconColor" />
@@ -290,12 +302,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Finance"
-                    android:textSize="11sp"
+                    android:textSize="14sp"
                     android:textColor="?attr/navbarTextColor"
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="@font/manrope_medium" />
+                    android:fontFamily="@font/manrope_extrabold" />
 
             </LinearLayout>
 
@@ -318,8 +330,8 @@
 
                     <ImageView
                         android:id="@+id/navAnalyticsIcon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:textStyle="bold"
                         android:src="@drawable/ic_nav_analytics"
                         app:tint="?attr/navbarIconColor" />
@@ -340,12 +352,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Analytics"
-                    android:textSize="11sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="@font/manrope_medium" />
+                    android:fontFamily="@font/manrope_extrabold" />
 
             </LinearLayout>
 
@@ -363,8 +375,8 @@
 
                 <ImageView
                     android:id="@+id/navComplianceIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_nav_shield_check"
                     app:tint="?attr/navbarIconColor" />
 
@@ -373,7 +385,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Compliance"
-                    android:textSize="10sp"
+                    android:textSize="14sp"
                     android:textColor="?attr/navbarIconColor"
                     android:layout_marginTop="2dp" />
 
