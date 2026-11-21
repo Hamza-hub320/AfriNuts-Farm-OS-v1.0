@@ -576,7 +576,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -626,7 +626,7 @@
                     android:layout_marginTop="4dp"
                     android:textStyle="bold"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -676,7 +676,7 @@
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -726,7 +726,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 

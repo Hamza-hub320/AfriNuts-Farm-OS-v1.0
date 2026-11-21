@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
+import com.afrinuts.farmos.R;
 import androidx.fragment.app.DialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -200,7 +202,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
                             fieldLabel.setText(text);
                             fieldLabel.setTextSize(13.5f);
                             fieldLabel.setTextColor(0xFF3D3A35);
-                            fieldLabel.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+                            fieldLabel.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
                             android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                             lp.bottomMargin = Math.round(8 * density);
@@ -240,7 +242,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
             if (heading != null) {
                 heading.setTextSize(16);
                 heading.setTextColor(0xFF1C1B1A);
-                heading.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+                heading.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
             }
         }
         if (view instanceof android.widget.LinearLayout || view instanceof android.widget.ScrollView) {
@@ -308,7 +310,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         if (view instanceof TextView) {
             TextView text = (TextView) view;
             if (text.getVisibility() == View.VISIBLE && text.getText() != null && !text.getText().toString().trim().isEmpty()) {
-                text.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+                text.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
                 text.setTextColor(0xFF1C1B1A);
                 text.setTextSize(20);
                 text.setIncludeFontPadding(false);
@@ -415,7 +417,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
             input.setMinHeight(Math.round(52 * density));
             input.setPadding(Math.round(16 * density), input.getPaddingTop(), Math.round(48 * density), input.getPaddingBottom());
             input.setTextSize(15);
-            input.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+            input.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope_medium), android.graphics.Typeface.NORMAL));
             input.setTextColor(0xFF1C1B1A);
             input.setHintTextColor(0xFF8A857B);
         }
@@ -445,7 +447,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         }
         button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
         button.setTextSize(15);
-        button.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+        button.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
         button.setTextSize(15);
         button.setMinHeight(Math.round(52 * density));
         button.setAllCaps(false);

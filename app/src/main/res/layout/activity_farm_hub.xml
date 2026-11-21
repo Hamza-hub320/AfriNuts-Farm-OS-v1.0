@@ -31,7 +31,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#59544C"
                     android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
                     android:textColor="#1C1B1A"
                     android:textSize="28sp"
                     android:letterSpacing="-0.02"
-                    android:fontFamily="sans-serif-black" />
+                    android:fontFamily="@font/manrope_extrabold" />
             </LinearLayout>
             <TextView
                 android:id="@+id/farmWeatherChip"
@@ -56,7 +56,7 @@
                 android:text="Weather"
                 android:textColor="#3D3A35"
                 android:textSize="12sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/manrope_bold" />
             <ImageButton
                 android:id="@+id/farmNotificationButton"
                 android:layout_width="44dp"
@@ -81,7 +81,7 @@
                 android:text="HS"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
-                android:fontFamily="sans-serif-black" />
+                android:fontFamily="@font/manrope_extrabold" />
         </LinearLayout>
 
         <!-- Tab Layout - Compact -->
@@ -219,7 +219,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -269,7 +269,7 @@
                     android:layout_marginTop="4dp"
                     android:textStyle="bold"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -319,7 +319,7 @@
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -369,7 +369,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 

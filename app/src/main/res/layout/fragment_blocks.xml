@@ -7,12 +7,12 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.15" android:layout_marginEnd="6dp" android:background="@drawable/bg_farm_summary_green" android:orientation="vertical" android:padding="16dp">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total blocks" android:textColor="#D2FFFFFF" android:textSize="13sp" android:textStyle="bold" />
-            <TextView android:id="@+id/totalBlocksSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#FFFFFF" android:textSize="30sp" android:fontFamily="sans-serif-black" />
+            <TextView android:id="@+id/totalBlocksSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#FFFFFF" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Across all rows" android:textColor="#BFFFFFFF" android:textSize="12sp" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:background="@drawable/bg_farm_summary_white" android:orientation="vertical" android:padding="16dp">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Average survival" android:textColor="#59544C" android:textSize="13sp" android:textStyle="bold" />
-            <TextView android:id="@+id/averageSurvivalSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—%" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="sans-serif-black" />
+            <TextView android:id="@+id/averageSurvivalSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—%" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Planted blocks" android:textColor="#59544C" android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>

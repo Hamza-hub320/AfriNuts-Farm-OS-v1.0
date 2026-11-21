@@ -51,7 +51,7 @@
                         android:text="Cooperative"
                         android:textSize="14sp"
                         android:textColor="#6B675F"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="@font/manrope_bold"
                         android:letterSpacing="0.06"
                         android:layout_marginBottom="8dp" />
 

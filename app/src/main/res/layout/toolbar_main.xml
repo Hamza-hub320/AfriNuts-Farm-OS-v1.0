@@ -75,7 +75,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
                 <TextView
                     android:id="@+id/toolbarSyncStatus"

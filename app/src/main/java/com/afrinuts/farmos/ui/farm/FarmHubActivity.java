@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -156,7 +157,7 @@ public class FarmHubActivity extends BaseHubActivity {
         text.setText(title);
         text.setTextColor(title.equals("Logout") ? 0xFFB3402A : 0xFF1C1B1A);
         text.setTextSize(15);
-        text.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        text.setTypeface(Typeface.create(ResourcesCompat.getFont(this, R.font.manrope_medium), Typeface.NORMAL));
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(0, -2, 1);
         textParams.setMarginStart(dp(12));
         row.addView(text, textParams);
@@ -185,7 +186,7 @@ public class FarmHubActivity extends BaseHubActivity {
             iconParams.width = dp(20); iconParams.height = dp(20); icon.setLayoutParams(iconParams);
             label.setVisibility(active ? View.VISIBLE : View.GONE);
             label.setTextSize(14);
-            label.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
+            label.setTypeface(Typeface.create(ResourcesCompat.getFont(this, R.font.manrope_extrabold), Typeface.NORMAL));
             label.setTextColor(active ? Color.WHITE : 0xFFC9C2B4);
             icon.setColorFilter(active ? Color.WHITE : 0xFFC9C2B4);
             LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();

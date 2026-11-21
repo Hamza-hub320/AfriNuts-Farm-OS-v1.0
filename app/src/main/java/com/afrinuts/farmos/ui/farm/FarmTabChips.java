@@ -4,6 +4,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.core.content.res.ResourcesCompat;
+import com.afrinuts.farmos.R;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -27,7 +29,7 @@ public final class FarmTabChips {
             chip.setChipCornerRadius(999 * density);
             chip.setChipMinHeight(38 * density);
             chip.setTextSize(13);
-            chip.setTypeface(Typeface.create("sans-serif-bold", Typeface.NORMAL));
+            chip.setTypeface(Typeface.create(ResourcesCompat.getFont(chip.getContext(), R.font.manrope_bold), Typeface.NORMAL));
             chip.setPadding(dp(chip, 14), 0, dp(chip, 14), 0);
         }
     }

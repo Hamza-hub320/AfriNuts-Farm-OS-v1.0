@@ -41,6 +41,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.afrinuts.farmos.data.sync.SyncService;
@@ -410,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
         iconParams.height = dp(20);
         icon.setLayoutParams(iconParams);
         label.setTextSize(14);
-        label.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
+        label.setTypeface(Typeface.create(ResourcesCompat.getFont(this, R.font.manrope_extrabold), Typeface.NORMAL));
         label.setVisibility(active ? View.VISIBLE : View.GONE);
         label.setTextColor(active ? activeColor : inactiveColor);
         label.setAlpha(1f);
@@ -517,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
         label.setText(title);
         label.setTextColor(textColor);
         label.setTextSize(15);
-        label.setTypeface(Typeface.create(bold ? "sans-serif" : "sans-serif-medium",
+        label.setTypeface(Typeface.create(ResourcesCompat.getFont(this, bold ? R.font.manrope : R.font.manrope_medium),
                 bold ? Typeface.BOLD : Typeface.NORMAL));
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         labelParams.setMarginStart(dp(12));

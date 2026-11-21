@@ -9,6 +9,8 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
+import androidx.core.content.res.ResourcesCompat;
+import com.afrinuts.farmos.R;
 
 /** Compact, dependency-free charts used only by the Home overview. */
 public class HomeChartView extends View {
@@ -153,7 +155,7 @@ public class HomeChartView extends View {
         float baseline = height - gradeSize - dp(8);
         float chartTop = valueSize + dp(8);
         float maxBarHeight = Math.max(0, baseline - chartTop);
-        paint.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
+        paint.setTypeface(Typeface.create(ResourcesCompat.getFont(getContext(), R.font.manrope_extrabold), Typeface.NORMAL));
         paint.setTextAlign(Paint.Align.CENTER);
 
         for (int i = 0; i < labels.length; i++) {

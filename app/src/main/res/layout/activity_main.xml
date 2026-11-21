@@ -45,7 +45,7 @@
                         android:text="Fri, Nov 20 · Odienné"
                         android:textColor="#59544C"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/manrope_medium" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -57,7 +57,7 @@
                         android:textColor="#1C1B1A"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:fontFamily="sans-serif-black" />
+                        android:fontFamily="@font/manrope_extrabold" />
                 </LinearLayout>
 
                 <ImageButton
@@ -87,7 +87,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                    android:fontFamily="sans-serif-black" />
+                    android:fontFamily="@font/manrope_extrabold" />
             </LinearLayout>
 
             <!-- RCN received this season -->
@@ -130,7 +130,7 @@
                             android:textColor="#1C1B1A"
                             android:textSize="40sp"
                             android:textStyle="bold"
-                            android:fontFamily="sans-serif-black" />
+                            android:fontFamily="@font/manrope_extrabold" />
                         <TextView
                             android:id="@+id/homeRcnUnit"
                             android:layout_width="wrap_content"
@@ -151,7 +151,7 @@
                         android:text="Season = calendar year · Jan – Dec"
                         android:textColor="#59544C"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/manrope_medium" />
 
                     <com.afrinuts.farmos.ui.theme.HomeChartView
                         android:id="@+id/homeRcnChart"
@@ -234,7 +234,7 @@
                                     android:text="Premium"
                                     android:textColor="#59544C"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-medium" />
+                                    android:fontFamily="@font/manrope_medium" />
                                 <TextView
                                     android:id="@+id/homePremiumGradePercent"
                                     android:layout_width="wrap_content"
@@ -243,7 +243,7 @@
                                     android:text="0%"
                                     android:textColor="#1C1B1A"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-bold" />
+                                    android:fontFamily="@font/manrope_bold" />
                             </LinearLayout>
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -264,7 +264,7 @@
                                     android:text="Standard"
                                     android:textColor="#59544C"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-medium" />
+                                    android:fontFamily="@font/manrope_medium" />
                                 <TextView
                                     android:id="@+id/homeStandardGradePercent"
                                     android:layout_width="wrap_content"
@@ -273,7 +273,7 @@
                                     android:text="0%"
                                     android:textColor="#1C1B1A"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-bold" />
+                                    android:fontFamily="@font/manrope_bold" />
                             </LinearLayout>
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -294,7 +294,7 @@
                                     android:text="Reject"
                                     android:textColor="#59544C"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-medium" />
+                                    android:fontFamily="@font/manrope_medium" />
                                 <TextView
                                     android:id="@+id/homeRejectGradePercent"
                                     android:layout_width="wrap_content"
@@ -303,7 +303,7 @@
                                     android:text="0%"
                                     android:textColor="#1C1B1A"
                                     android:textSize="11sp"
-                                    android:fontFamily="sans-serif-bold" />
+                                    android:fontFamily="@font/manrope_bold" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -346,7 +346,7 @@
                                 android:textColor="#1C1B1A"
                                 android:textSize="28sp"
                                 android:textStyle="bold"
-                                android:fontFamily="sans-serif-black" />
+                                android:fontFamily="@font/manrope_extrabold" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -403,7 +403,7 @@
                             android:textColor="#1C1B1A"
                             android:textSize="28sp"
                             android:textStyle="bold"
-                            android:fontFamily="sans-serif-black" />
+                            android:fontFamily="@font/manrope_extrabold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -423,7 +423,7 @@
                             android:textColor="#1C1B1A"
                             android:textSize="28sp"
                             android:textStyle="bold"
-                            android:fontFamily="sans-serif-black" />
+                            android:fontFamily="@font/manrope_extrabold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -458,7 +458,7 @@
                             android:text="0 to go"
                             android:textColor="#59544C"
                             android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/manrope_medium" />
                         <TextView
                             android:id="@+id/homeSupplierProgressText"
                             android:layout_width="wrap_content"
@@ -468,7 +468,7 @@
                             android:textColor="#0A5530"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:fontFamily="sans-serif-black" />
+                            android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -584,7 +584,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -634,7 +634,7 @@
                     android:layout_marginTop="4dp"
                     android:textStyle="bold"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -684,7 +684,7 @@
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 
@@ -734,7 +734,7 @@
                     android:textColor="?attr/navbarTextColor"
                     android:layout_marginTop="4dp"
                     android:alpha="0.8"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/manrope_medium" />
 
             </LinearLayout>
 

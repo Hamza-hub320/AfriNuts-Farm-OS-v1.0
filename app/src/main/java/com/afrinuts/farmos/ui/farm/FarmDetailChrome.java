@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public final class FarmDetailChrome {
         avatar.setGravity(android.view.Gravity.CENTER);
         avatar.setTextColor(0xFF0A5530);
         avatar.setTextSize(16);
-        avatar.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL));
+        avatar.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(avatar.getContext(), com.afrinuts.farmos.R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
         GradientDrawable avatarBg = new GradientDrawable();
         avatarBg.setColor(0xFFE3F0E7);
         avatarBg.setCornerRadius(dp(avatar, 999));
@@ -120,14 +121,14 @@ public final class FarmDetailChrome {
         name.setTag("farm-detail-hero-name");
         name.setTextColor(0xFF1C1B1A);
         name.setTextSize(21);
-        name.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL));
+        name.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(name.getContext(), com.afrinuts.farmos.R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
         name.setMaxLines(2);
         info.addView(name);
         TextView subtitle = new TextView(activity);
         subtitle.setTag("farm-detail-hero-subtitle");
         subtitle.setTextColor(0xFF59544C);
         subtitle.setTextSize(13.5f);
-        subtitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+        subtitle.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(subtitle.getContext(), com.afrinuts.farmos.R.font.manrope_medium), android.graphics.Typeface.NORMAL));
         subtitle.setMaxLines(1);
         subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
         LinearLayout.LayoutParams subtitleParams = new LinearLayout.LayoutParams(
@@ -145,7 +146,7 @@ public final class FarmDetailChrome {
         TextView status = new TextView(activity);
         status.setTag("farm-detail-hero-status");
         status.setTextSize(12.5f);
-        status.setTypeface(android.graphics.Typeface.create("sans-serif-bold", android.graphics.Typeface.NORMAL));
+        status.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(status.getContext(), com.afrinuts.farmos.R.font.manrope_bold), android.graphics.Typeface.NORMAL));
         status.setTextColor(0xFF0A5530);
         status.setPadding(dp(status, 12), dp(status, 6), dp(status, 12), dp(status, 6));
         GradientDrawable statusBg = new GradientDrawable();
@@ -216,7 +217,7 @@ public final class FarmDetailChrome {
             text.setTextColor(primary ? Color.WHITE : 0xFF59544C);
             if (text.getTextSize() / text.getResources().getDisplayMetrics().scaledDensity >= 16) {
                 text.setTextSize(22);
-                text.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL));
+                text.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(text.getContext(), com.afrinuts.farmos.R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
             } else text.setTextSize(12);
         }
         if (view instanceof ViewGroup) {
@@ -257,18 +258,18 @@ public final class FarmDetailChrome {
             value.setTag("farm-detail-stat-value:" + sourceIds[i]);
             value.setTextColor(i == 0 ? Color.WHITE : 0xFF1C1B1A);
             value.setTextSize(22);
-            value.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL));
+            value.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(value.getContext(), com.afrinuts.farmos.R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
             TextView unit = new TextView(activity);
             unit.setTag("farm-detail-stat-unit:" + sourceIds[i]);
             unit.setTextColor(i == 0 ? 0xC7FFFFFF : 0xFF59544C);
             unit.setTextSize(13);
-            unit.setTypeface(android.graphics.Typeface.create("sans-serif-bold", android.graphics.Typeface.NORMAL));
+            unit.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(unit.getContext(), com.afrinuts.farmos.R.font.manrope_bold), android.graphics.Typeface.NORMAL));
             card.addView(unit);
             TextView caption = new TextView(activity);
             caption.setText(labels[i]);
             caption.setTextColor(i == 0 ? 0xC7FFFFFF : 0xFF59544C);
             caption.setTextSize(12);
-            caption.setTypeface(android.graphics.Typeface.create("sans-serif-bold", android.graphics.Typeface.NORMAL));
+            caption.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(caption.getContext(), com.afrinuts.farmos.R.font.manrope_bold), android.graphics.Typeface.NORMAL));
             LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(0, dp(card, 96), 1f);
             cardParams.setMargins(i == 0 ? 0 : dp(card, 10), 0, 0, 0);
             row.addView(card, cardParams);
@@ -304,7 +305,7 @@ public final class FarmDetailChrome {
         ViewGroup heroText = (ViewGroup) taskType.getParent();
         if (status.getParent() instanceof ViewGroup) ((ViewGroup) status.getParent()).removeView(status);
         status.setTextSize(12);
-        status.setTypeface(android.graphics.Typeface.create("sans-serif-bold", android.graphics.Typeface.NORMAL));
+        status.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(status.getContext(), com.afrinuts.farmos.R.font.manrope_bold), android.graphics.Typeface.NORMAL));
         status.setTextColor(0xFF0E6B3C);
         status.setPadding(dp(status, 12), dp(status, 6), dp(status, 12), dp(status, 6));
         GradientDrawable pill = new GradientDrawable();
@@ -352,7 +353,7 @@ public final class FarmDetailChrome {
         MaterialButton button = new MaterialButton(activity);
         button.setText(text);
         button.setTextSize(15);
-        button.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.NORMAL));
+        button.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(button.getContext(), com.afrinuts.farmos.R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
         button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
         button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(primary ? 0xFF0E6B3C : 0xFFF3EAD8));
         button.setCornerRadius(dp(button, 999));
@@ -396,7 +397,7 @@ public final class FarmDetailChrome {
             if (heading != null) {
                 heading.setTextSize(16);
                 heading.setTextColor(0xFF1C1B1A);
-                heading.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+                heading.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(heading.getContext(), com.afrinuts.farmos.R.font.manrope), android.graphics.Typeface.BOLD));
             }
         }
         if (view instanceof MaterialButton) {

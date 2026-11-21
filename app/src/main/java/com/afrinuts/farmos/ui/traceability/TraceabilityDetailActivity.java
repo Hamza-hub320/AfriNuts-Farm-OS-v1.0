@@ -621,7 +621,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         WebView webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
+        webView.loadDataWithBaseURL("file:///android_res/", htmlContent, "text/html", "UTF-8", null);
 
         PrintManager printManager = (PrintManager) getSystemService(PRINT_SERVICE);
         PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("Traceability_" + traceability.getBatchNumber());
@@ -633,7 +633,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
     private String generatePrintHtml() {
         return "<html><head><style>" +
-                "body { font-family: Arial, sans-serif; padding: 20px; }" +
+                "@font-face { font-family: Manrope; src: url('font/manrope_regular.ttf'); font-weight: 400; }" +
+                "@font-face { font-family: Manrope; src: url('font/manrope_bold.ttf'); font-weight: 700; }" +
+                "body { font-family: Manrope; padding: 20px; }" +
                 ".header { text-align: center; border-bottom: 2px solid #5A7411; padding-bottom: 10px; }" +
                 ".title { font-size: 24px; color: #5A7411; }" +
                 ".batch { font-size: 18px; color: #333; }" +
