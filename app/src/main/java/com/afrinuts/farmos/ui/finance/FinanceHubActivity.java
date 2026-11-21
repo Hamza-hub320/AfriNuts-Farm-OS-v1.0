@@ -107,7 +107,7 @@ public class FinanceHubActivity extends BaseHubActivity {
         if (view instanceof TextView) {
             TextView label = (TextView) view;
             label.setGravity(Gravity.CENTER);
-            label.setTranslationY(-dp(4));
+            label.setIncludeFontPadding(false);
             return;
         }
         if (view instanceof ViewGroup) {
