@@ -299,11 +299,11 @@ public class QualityMetricsFragment extends Fragment {
 
     private void updateSummaryStats() {
         if (allBatches.isEmpty()) {
-            avgMoistureValue.setText("0.0%");
-            avgDefectiveValue.setText("0.0%");
-            avgQualityScoreValue.setText("0 / 100");
-            avgKernelValue.setText("0.0%");
-            avgNutCountValue.setText("0 / kg");
+            avgMoistureValue.setText("0.0");
+            avgDefectiveValue.setText("0.0");
+            avgQualityScoreValue.setText("0");
+            avgKernelValue.setText("0.0");
+            avgNutCountValue.setText("0");
             return;
         }
 
@@ -328,11 +328,11 @@ public class QualityMetricsFragment extends Fragment {
         double avgKernel = totalKernel / count;
         double avgNutCount = (double) totalNutCount / count;
 
-        avgMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgMoisture));
-        avgDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgDefective));
-        avgKernelValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgKernel));
-        avgNutCountValue.setText(String.format(Locale.getDefault(), "%.0f / kg", avgNutCount));
-        avgQualityScoreValue.setText(String.format(Locale.getDefault(), "%.0f / 100", avgScore));
+        avgMoistureValue.setText(String.format(Locale.getDefault(), "%.1f", avgMoisture));
+        avgDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f", avgDefective));
+        avgKernelValue.setText(String.format(Locale.getDefault(), "%.1f", avgKernel));
+        avgNutCountValue.setText(String.format(Locale.getDefault(), "%.0f", avgNutCount));
+        avgQualityScoreValue.setText(String.format(Locale.getDefault(), "%.0f", avgScore));
     }
 
     private void showLoading(boolean show) {

@@ -74,6 +74,10 @@ public class QualityBatchDetailActivity extends BaseActivity {
     private TextView tvNutCountValue;
     private TextView tvKernelValue;
     private TextView tvWeightValue;
+    private TextView tvSupplierLocation;
+    private TextView tvSupplierBatchCount;
+    private TextView tvReceivedAt;
+    private int supplierBatchCount;
 
     // UI Elements - Test Results
     private TextView tvAflatoxinValue;
@@ -97,7 +101,6 @@ public class QualityBatchDetailActivity extends BaseActivity {
     // UI Elements - Buttons
     private MaterialButton btnEdit;
     private MaterialButton btnDelete;
-    private MaterialButton btnViewSupplier;
     private MaterialButton btnGenerateTraceability;
     private MaterialButton btnExportQR;
     private MaterialButton btnShare;
@@ -153,6 +156,9 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
         // Source Info
         tvSourceType = findViewById(R.id.tvSourceType);
+        tvSupplierLocation = findViewById(R.id.tvSupplierLocation);
+        tvSupplierBatchCount = findViewById(R.id.tvSupplierBatchCount);
+        tvReceivedAt = findViewById(R.id.tvReceivedAt);
         tvSupplierName = findViewById(R.id.tvSupplierName);
         tvBatchType = findViewById(R.id.tvBatchType);
 
@@ -199,14 +205,12 @@ public class QualityBatchDetailActivity extends BaseActivity {
         // Buttons
         btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
-        btnViewSupplier = findViewById(R.id.btnViewSupplier);
         btnGenerateTraceability = findViewById(R.id.btnGenerateTraceability);
         btnExportQR = findViewById(R.id.btnExportQR);
         btnShare = findViewById(R.id.btnShare);
 
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
-        btnViewSupplier.setOnClickListener(v -> viewSupplier());
 
         if (btnGenerateTraceability != null) {
             btnGenerateTraceability.setOnClickListener(v -> openTraceability());
@@ -248,6 +252,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
             if (batch != null && batch.getSupplierId() != null) {
                 supplier = supplierRepository.getSupplierByIdSync(batch.getSupplierId());
+                supplierBatchCount = database.qualityBatchDao().getBatchCountBySupplierId(batch.getSupplierId());
             }
 
             runOnUiThread(() -> {
@@ -331,18 +336,19 @@ public class QualityBatchDetailActivity extends BaseActivity {
         if (qualityScoreLabValue != null) qualityScoreLabValue.setText(scoreInt + " / 100");
 
         // Source
-        String sourceLabel = cooperativeLabel.isEmpty() ? "—" : cooperativeLabel;
-        tvSourceType.setText(sourceLabel);
-        if (supplier != null && batch.getSupplierId() != null) {
-            tvSupplierName.setText(supplier.getName());
-            tvSupplierName.setVisibility(View.VISIBLE);
-            btnViewSupplier.setVisibility(View.VISIBLE);
-        } else {
-            tvSupplierName.setText(batch.getSourceType() == QualityBatchEntity.SourceType.OWN_FARM
-                    ? "AfriNuts farm" : "—");
-            tvSupplierName.setVisibility(View.VISIBLE);
-            btnViewSupplier.setVisibility(View.GONE);
-        }
+        String cooperativeName = supplier != null && supplier.getCooperativeName() != null
+                && !supplier.getCooperativeName().trim().isEmpty()
+                ? supplier.getCooperativeName().trim()
+                : (batch.getSourceType() == null ? "—" : batch.getSourceType().getDisplayName());
+        tvSourceType.setText(cooperativeName);
+        tvSupplierName.setText(supplier != null && supplier.getName() != null
+                ? supplier.getName() : (batch.getSourceType() == QualityBatchEntity.SourceType.OWN_FARM
+                ? "AfriNuts farm" : "—"));
+        String supplierLocation = supplier != null && supplier.getLocation() != null
+                && !supplier.getLocation().trim().isEmpty() ? supplier.getLocation().trim() : "—";
+        if (tvSupplierLocation != null) tvSupplierLocation.setText(supplierLocation);
+        if (tvSupplierBatchCount != null) tvSupplierBatchCount.setText(String.valueOf(supplierBatchCount));
+        if (tvReceivedAt != null) tvReceivedAt.setText(supplierLocation);
         TextView deliveryWeight = findViewById(R.id.tvWeightValue);
         if (deliveryWeight != null) deliveryWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
@@ -386,10 +392,12 @@ public class QualityBatchDetailActivity extends BaseActivity {
             displayKernelMetrics();
         } else if (isRcn || hasRcnData) {
             displayRcnMetrics();
-            tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
-            tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
+            tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f", batch.getMoistureContent()));
+            tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f", batch.getDefectiveRate()));
             tvKernelValue.setText(batch.getKorGPerKg() > 0
-                    ? String.format(Locale.getDefault(), "%.0f g/kg", batch.getKorGPerKg()) : "—");
+                    ? String.format(Locale.getDefault(), "%.0f", batch.getKorGPerKg()) : "—");
+            TextView kernelUnit = findViewById(R.id.tvKernelValueUnit);
+            if (kernelUnit != null) kernelUnit.setText("g/kg");
         } else {
             showEmptyRcnMetrics();
         }
@@ -435,10 +443,16 @@ public class QualityBatchDetailActivity extends BaseActivity {
     }
 
     private void displayKernelMetrics() {
-        tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
-        tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
+        tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f", batch.getMoistureContent()));
+        tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f", batch.getDefectiveRate()));
         tvNutCountValue.setText(String.valueOf(batch.getNutCountPerKg()));
-        tvKernelValue.setText(String.format(Locale.getDefault(), "%.0f%%", batch.getKernelRatio()));
+        tvKernelValue.setText(String.format(Locale.getDefault(), "%.0f", batch.getKernelRatio()));
+        TextView moistureUnit = findViewById(R.id.tvMoistureValueUnit);
+        TextView defectiveUnit = findViewById(R.id.tvDefectiveValueUnit);
+        TextView kernelUnit = findViewById(R.id.tvKernelValueUnit);
+        if (moistureUnit != null) moistureUnit.setText("%");
+        if (defectiveUnit != null) defectiveUnit.setText("%");
+        if (kernelUnit != null) kernelUnit.setText("%");
         // Weight is already set above
 
         // Test results: prefer the promoted ppb fields, fall back to legacy JSON
@@ -506,7 +520,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
             int score = batch.getSustainabilityScore();
             tvSustainabilityScore.setText(score + "%");
 
-            tvVerifiedDate.setText("Verified: " + batch.getFormattedVerifiedDate());
+            tvVerifiedDate.setText(batch.getFormattedVerifiedDate());
 
             tvNoChildLabor.setText(batch.isNoChildLabor() ? "Yes" : "No");
             tvFarmOsMonitored.setText(batch.isFarmOsMonitored() ? "Yes" : "No");

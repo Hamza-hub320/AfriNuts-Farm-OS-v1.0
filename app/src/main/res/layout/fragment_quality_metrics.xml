@@ -18,19 +18,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <androidx.cardview.widget.CardView
-                android:layout_width="0dp" android:layout_height="76dp" android:layout_weight="1" android:layout_marginEnd="5dp"
+                android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginEnd="5dp"
                 app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Moisture" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                    <TextView android:id="@+id/avgMoistureValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/avgMoistureValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="%" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="0dp" android:layout_height="76dp" android:layout_weight="1" android:layout_marginStart="5dp"
+                android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginStart="5dp"
                 app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defective" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                    <TextView android:id="@+id/avgDefectiveValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/avgDefectiveValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="%" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
@@ -38,29 +44,38 @@
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
             <androidx.cardview.widget.CardView
-                android:layout_width="0dp" android:layout_height="76dp" android:layout_weight="1" android:layout_marginEnd="5dp"
+                android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginEnd="5dp"
                 app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kernel" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                    <TextView android:id="@+id/avgKernelValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/avgKernelValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="%" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
-                android:layout_width="0dp" android:layout_height="76dp" android:layout_weight="1" android:layout_marginStart="5dp"
+                android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginStart="5dp"
                 app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nut Count" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                    <TextView android:id="@+id/avgNutCountValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="0 / kg" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/avgNutCountValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="/kg" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent" android:layout_height="76dp" android:layout_marginTop="10dp"
+            android:layout_width="match_parent" android:layout_height="100dp" android:layout_marginTop="10dp"
             app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avg Quality Score" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                <TextView android:id="@+id/avgQualityScoreValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="0 / 100" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/avgQualityScoreValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="/100" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -92,7 +107,7 @@
                 android:text="All"
                 android:textSize="13sp"
                 android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" />
+                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
@@ -102,7 +117,7 @@
                 android:text="Premium"
                 android:textSize="13sp"
                 android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" />
+                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStandard"
@@ -112,7 +127,7 @@
                 android:text="Standard"
                 android:textSize="13sp"
                 android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" />
+                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReject"
@@ -122,7 +137,7 @@
                 android:text="Reject"
                 android:textSize="13sp"
                 android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" />
+                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 

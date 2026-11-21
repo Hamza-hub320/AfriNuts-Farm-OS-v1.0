@@ -114,27 +114,27 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     <androidx.cardview.widget.CardView
-                        android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:layout_marginEnd="5dp"
+                        android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginEnd="5dp"
                         app:cardBackgroundColor="#0E6B3C" app:cardCornerRadius="20dp" app:cardElevation="0dp">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="10dp">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Moisture" android:textColor="#C7FFFFFF" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                            <TextView android:id="@+id/tvMoistureValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="8.2%" android:textColor="#FFFFFF" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal"><TextView android:id="@+id/tvMoistureValue" android:layout_width="wrap_content" android:layout_height="wrap_content"  android:text="8.2" android:textColor="#FFFFFF" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" /><TextView android:id="@+id/tvMoistureValueUnit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="3dp" android:text="%" android:textColor="#FFFFFF" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                     <androidx.cardview.widget.CardView
-                        android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:layout_marginHorizontal="5dp"
+                        android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginHorizontal="5dp"
                         app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defective" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                            <TextView android:id="@+id/tvDefectiveValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="3.1%" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="10dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defective" android:maxLines="1" android:includeFontPadding="false" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal"><TextView android:id="@+id/tvDefectiveValue" android:layout_width="wrap_content" android:layout_height="wrap_content"  android:text="3.1" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" /><TextView android:id="@+id/tvDefectiveValueUnit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="3dp" android:text="%" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                     <androidx.cardview.widget.CardView
-                        android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:layout_marginStart="5dp"
+                        android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginStart="5dp"
                         app:cardBackgroundColor="@color/surface" app:cardCornerRadius="20dp" app:cardElevation="0dp">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="10dp">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kernel" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                            <TextView android:id="@+id/tvKernelValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="52.4%" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal"><TextView android:id="@+id/tvKernelValue" android:layout_width="wrap_content" android:layout_height="wrap_content"  android:text="52.4" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" /><TextView android:id="@+id/tvKernelValueUnit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="3dp" android:text="%" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
@@ -161,13 +161,20 @@
                         </LinearLayout>
                         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
-                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cooperative / source" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cooperative" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
                             <TextView android:id="@+id/tvSourceType" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.3" android:gravity="end" android:text="Gbélégban Cooperative" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" />
                         </LinearLayout>
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnViewSupplier" android:layout_width="wrap_content" android:layout_height="44dp"
-                            android:text="View supplier" android:textColor="#0E6B3C" android:textSize="13.5sp" android:fontFamily="@font/manrope_extrabold"
-                            android:visibility="gone" app:backgroundTint="@android:color/transparent" app:icon="@drawable/ic_forward" app:iconGravity="textEnd" app:iconTint="#0E6B3C" />
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Village" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                            <TextView android:id="@+id/tvSupplierLocation" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.3" android:gravity="end" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" />
+                        </LinearLayout>
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Batches supplied" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                            <TextView android:id="@+id/tvSupplierBatchCount" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.3" android:gravity="end" android:text="0" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" />
+                        </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -190,6 +197,11 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Received" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
                         <TextView android:id="@+id/tvDeliveryDate" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.3" android:gravity="end" android:text="Nov 18, 2026" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Received at" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvReceivedAt" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.3" android:gravity="end" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
@@ -250,16 +262,22 @@
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/layoutSustainability"
-                android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
+                android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:visibility="gone"
                 app:cardBackgroundColor="@color/surface" app:cardCornerRadius="24dp" app:cardElevation="0dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingVertical="18dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sustainability verification" android:textColor="#1C1B1A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
-                    <TextView android:id="@+id/tvSustainabilityScore" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tvVerifiedDate" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tvNoChildLabor" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tvFarmOsMonitored" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tvFirebreakProtection" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tvSustainableHarvesting" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="10dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Score" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvSustainabilityScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Verified date" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvVerifiedDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="No child labor" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvNoChildLabor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Farm OS monitored" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvFarmOsMonitored" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Firebreak protection" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvFirebreakProtection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sustainable harvesting" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" /><TextView android:id="@+id/tvSustainableHarvesting" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" /></LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -278,8 +296,6 @@
             <TextView android:id="@+id/tvForeignMatter" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
             <TextView android:id="@+id/tvDryingMethod" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
-            <TextView android:id="@+id/tvSupplierCooperative" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-            <TextView android:id="@+id/tvSupplierLocation" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>
@@ -297,6 +313,9 @@
             android:id="@+id/btnEdit"
             android:layout_width="0dp"
             android:layout_height="52dp"
+            android:minWidth="0dp"
+            android:insetLeft="0dp" android:insetRight="0dp"
+            android:paddingStart="0dp" android:paddingEnd="0dp"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
             android:text="Edit"
@@ -309,6 +328,9 @@
             android:id="@+id/btnGenerateTraceability"
             android:layout_width="0dp"
             android:layout_height="52dp"
+            android:minWidth="0dp"
+            android:insetLeft="0dp" android:insetRight="0dp"
+            android:paddingStart="0dp" android:paddingEnd="0dp"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:text="View trace"

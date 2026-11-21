@@ -325,7 +325,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quality Metrics (Enter values)"
+                android:text="Quality Batch · Kernel"
                 style="@style/Text.Label"
                 android:textColor="?attr/colorPrimary" />
 
@@ -453,7 +453,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center_vertical"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
@@ -477,16 +477,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3">
+            android:orientation="vertical"
+            >
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.AfriNuts.EditText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
+
+                android:layout_marginBottom="10dp"
                 app:boxBackgroundColor="?attr/colorSurface"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -507,12 +506,11 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.AfriNuts.EditText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:layout_marginBottom="12dp"
+
+
+                android:layout_marginBottom="10dp"
                 app:boxBackgroundColor="?attr/colorSurface"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -533,11 +531,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.AfriNuts.EditText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="12dp"
+
+                android:layout_marginBottom="10dp"
                 app:boxBackgroundColor="?attr/colorSurface"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
