@@ -132,7 +132,6 @@ public class WorkerDetailActivity extends AppCompatActivity {
         androidx.cardview.widget.CardView hero = findViewById(R.id.workerHeroCard);
         hero.setRadius(28 * getResources().getDisplayMetrics().density);
         hero.setCardElevation(0);
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomShortcuts(this, "Performance", R.id.taskTypesContainer, "Recent tasks", R.id.recentTasksContainer);
     }
 
     private String workerInitials(String name) {

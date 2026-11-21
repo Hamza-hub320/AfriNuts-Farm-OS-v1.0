@@ -117,13 +117,6 @@ public class EditHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFra
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveHarvest());
-            view.findViewById(R.id.btnDelete).setOnClickListener(v -> confirmDelete());
-        });
-
         return dialog;
     }
 
@@ -135,6 +128,9 @@ public class EditHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFra
         btnSave = view.findViewById(R.id.btnSave);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnDelete = view.findViewById(R.id.btnDelete);
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveHarvest());
+        btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
     private void populateFields() {

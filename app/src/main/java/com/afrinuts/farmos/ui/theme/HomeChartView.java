@@ -88,7 +88,7 @@ public class HomeChartView extends View {
 
         float startAngle = -90;
         float gapAngle = 3f;
-        float cornerRadius = Math.min(dp(12), radius * 0.14f);
+        float cornerRadius = Math.min(dp(20), radius * 0.4f);
         float roundedAngle = (float) Math.toDegrees(cornerRadius / radius);
         for (int i = 0; i < GRADE_COLORS.length; i++) {
             float value = i < values.length ? Math.max(0, values[i]) : 0;

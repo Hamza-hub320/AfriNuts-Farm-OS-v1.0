@@ -206,7 +206,7 @@ public class SupplierEntity {
         this.location = location;
         this.registrationNumber = registrationNumber;
         this.status = SupplierStatus.PENDING;
-        this.isActive = true;
+        this.isActive = false;
         this.rating = 3;
         this.isSynced = false;
 

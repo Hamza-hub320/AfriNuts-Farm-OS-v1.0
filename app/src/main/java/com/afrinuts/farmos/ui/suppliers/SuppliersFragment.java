@@ -145,15 +145,18 @@ public class SuppliersFragment extends Fragment {
     }
 
     public void showAddSupplierDialog() {
+        if (!isAdded() || getContext() == null || getView() == null) return;
         if (currentFarm == null) {
-            Toast.makeText(getContext(), "Farm not loaded", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Farm is still loading. Please try again.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         AddSupplierDialog dialog = AddSupplierDialog.newInstance(currentFarm.getId());
         dialog.setOnSupplierAddedListener(() -> {
             loadFarmAndData();
-            Toast.makeText(getContext(), "Supplier added!", Toast.LENGTH_SHORT).show();
+            if (isAdded() && getContext() != null) {
+                Toast.makeText(requireContext(), "Supplier added!", Toast.LENGTH_SHORT).show();
+            }
         });
         dialog.show(getChildFragmentManager(), "AddSupplierDialog");
     }
@@ -246,7 +249,7 @@ public class SuppliersFragment extends Fragment {
             case "ALL":
                 return true;
             case "ACTIVE":
-                return s.isActive();
+                return s.getStatus() == SupplierEntity.SupplierStatus.ACTIVE;
             case "AT_RISK":
                 Double score = trustScores.get(s.getId());
                 return s.getStatus() == SupplierEntity.SupplierStatus.SUSPENDED
@@ -291,7 +294,9 @@ public class SuppliersFragment extends Fragment {
                 trustScores.putAll(scores);
                 adapter.setTrustData(scores, batches);
                 tvTotalSuppliers.setText(String.valueOf(allSuppliers.size()));
-                tvActiveSuppliers.setText(String.valueOf(allSuppliers.stream().filter(SupplierEntity::isActive).count()));
+                tvActiveSuppliers.setText(String.valueOf(allSuppliers.stream()
+                        .filter(supplier -> supplier.getStatus() == SupplierEntity.SupplierStatus.ACTIVE)
+                        .count()));
                 tvCertifiedSuppliers.setText("0");
                 tvAvgRating.setText(Double.isNaN(average) ? "— / 100" : String.format(Locale.getDefault(), "%.0f / 100", average));
                 applyCombinedFilter();

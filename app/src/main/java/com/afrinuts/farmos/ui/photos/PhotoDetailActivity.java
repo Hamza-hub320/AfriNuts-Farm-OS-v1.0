@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 
@@ -85,9 +84,6 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         ivFullPhoto = findViewById(R.id.ivFullPhoto);
         tvCaption = findViewById(R.id.tvCaption);
         tvDate = findViewById(R.id.tvDate);
@@ -103,14 +99,10 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Photo Details");
-        }
+        ((TextView) findViewById(R.id.farmDetailTitle)).setText("Photo details");
+        findViewById(R.id.farmDetailBack).setOnClickListener(v -> finish());
+        findViewById(R.id.farmDetailEdit).setVisibility(View.INVISIBLE);
+        findViewById(R.id.farmDetailMore).setVisibility(View.INVISIBLE);
     }
 
     private void loadPhotoData() {

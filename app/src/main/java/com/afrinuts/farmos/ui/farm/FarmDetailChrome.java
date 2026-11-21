@@ -170,6 +170,11 @@ public final class FarmDetailChrome {
             subtitle.setVisibility(subtitleText.isEmpty() ? View.GONE : View.VISIBLE);
             status.setText(statusText.isEmpty() ? "" : "•  " + statusText);
             statusRow.setVisibility(statusText.isEmpty() ? View.GONE : View.VISIBLE);
+            if (sourceStatus != null && sourceStatus.isClickable()) {
+                status.setClickable(true);
+                status.setFocusable(true);
+                status.setOnClickListener(v -> sourceStatus.performClick());
+            }
             if (++attempts[0] < 16 && !activity.isFinishing()) handler.postDelayed(refresh[0], 300);
         };
         handler.post(refresh[0]);
@@ -341,40 +346,6 @@ public final class FarmDetailChrome {
         primarySource.setVisibility(View.GONE);
         secondary.setOnClickListener(v -> secondarySource.performClick());
         primary.setOnClickListener(v -> primarySource.performClick());
-    }
-
-    public static void addBottomShortcuts(Activity activity, String leftText, int leftTargetId,
-                                          String rightText, int rightTargetId) {
-        ViewGroup content = activity.findViewById(android.R.id.content);
-        if (content.getChildCount() == 0 || !(content.getChildAt(0) instanceof ViewGroup)) return;
-        ViewGroup page = (ViewGroup) content.getChildAt(0);
-        if (page.findViewWithTag("farm-detail-actions") != null) return;
-        ScrollView scroll = findScroll(page);
-        View leftTarget = activity.findViewById(leftTargetId);
-        View rightTarget = activity.findViewById(rightTargetId);
-        if (scroll == null || leftTarget == null || rightTarget == null) return;
-        LinearLayout actions = new LinearLayout(activity);
-        actions.setTag("farm-detail-actions");
-        actions.setOrientation(LinearLayout.HORIZONTAL);
-        actions.setPadding(dp(actions, 20), dp(actions, 8), dp(actions, 20), dp(actions, 12));
-        actions.setBackgroundColor(0xFFF6F1E7);
-        MaterialButton left = makeAction(activity, leftText, false);
-        MaterialButton right = makeAction(activity, rightText, true);
-        LinearLayout.LayoutParams leftParams = new LinearLayout.LayoutParams(0, dp(actions, 52), 1f);
-        leftParams.setMargins(0, 0, dp(actions, 8), 0);
-        actions.addView(left, leftParams);
-        actions.addView(right, new LinearLayout.LayoutParams(0, dp(actions, 52), 1f));
-        page.addView(actions, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        left.setOnClickListener(v -> scrollTo(scroll, leftTarget));
-        right.setOnClickListener(v -> scrollTo(scroll, rightTarget));
-    }
-
-    private static void scrollTo(ScrollView scroll, View target) {
-        int[] targetLocation = new int[2];
-        int[] scrollLocation = new int[2];
-        target.getLocationOnScreen(targetLocation);
-        scroll.getLocationOnScreen(scrollLocation);
-        scroll.smoothScrollTo(0, Math.max(0, targetLocation[1] - scrollLocation[1] + scroll.getScrollY()));
     }
 
     private static MaterialButton makeAction(Activity activity, String text, boolean primary) {

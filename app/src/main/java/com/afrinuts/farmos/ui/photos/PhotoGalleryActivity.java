@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -113,14 +112,10 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle(getToolbarTitle());
-        }
+        ((android.widget.TextView) findViewById(R.id.farmDetailTitle)).setText(getToolbarTitle());
+        findViewById(R.id.farmDetailBack).setOnClickListener(v -> finish());
+        findViewById(R.id.farmDetailEdit).setVisibility(View.INVISIBLE);
+        findViewById(R.id.farmDetailMore).setVisibility(View.INVISIBLE);
     }
 
     private String getToolbarTitle() {

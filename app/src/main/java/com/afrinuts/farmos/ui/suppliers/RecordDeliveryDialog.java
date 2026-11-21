@@ -369,16 +369,50 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
             batch.setVerifiedAt(verifiedAt);
 
             batch.setSynced(false);
+            insertDeliveryBatch(batch);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void insertDeliveryBatch(QualityBatchEntity batch) {
+        executor.execute(() -> {
+            List<QualityBatchEntity> existing = null;
+            SupplierEntity currentSupplier = null;
+            try {
+                existing = qualityBatchRepository.getBatchesBySupplierIdSync(supplierId);
+                currentSupplier = supplierRepository.getSupplierByIdSync(supplierId);
+            } catch (Exception e) {
+                Log.e("RecordDeliveryDialog", "Could not check prior shipments", e);
+            }
+            boolean firstShipment = existing != null && existing.isEmpty();
+            SupplierEntity supplierBeforeDelivery = currentSupplier;
 
             qualityBatchRepository.insertBatch(batch, new QualityBatchRepository.InsertCallback() {
                 @Override
                 public void onSuccess(long id) {
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Delivery recorded!", Toast.LENGTH_SHORT).show();
-                            if (listener != null) listener.onDeliveryRecorded();
-                            dismiss();
-                        });
+                    boolean activateSupplier = firstShipment
+                            && supplierBeforeDelivery != null
+                            && supplierBeforeDelivery.getStatus() == SupplierEntity.SupplierStatus.PENDING;
+                    if (activateSupplier) {
+                        supplierBeforeDelivery.setStatus(SupplierEntity.SupplierStatus.ACTIVE);
+                        supplierBeforeDelivery.setActive(true);
+                        supplierBeforeDelivery.setUpdatedAt(System.currentTimeMillis());
+                        supplierRepository.updateSupplier(supplierBeforeDelivery,
+                                new SupplierRepository.RepositoryCallback<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean result) {
+                                        completeDelivery("Delivery recorded! Supplier is now Active.");
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+                                        completeDelivery("Delivery recorded, but supplier status could not be updated.");
+                                    }
+                                });
+                    } else {
+                        completeDelivery("Delivery recorded!");
                     }
                 }
 
@@ -391,10 +425,16 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
                     }
                 }
             });
+        });
+    }
 
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
-        }
+    private void completeDelivery(String message) {
+        if (getActivity() == null) return;
+        getActivity().runOnUiThread(() -> {
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            if (listener != null) listener.onDeliveryRecorded();
+            dismiss();
+        });
     }
 
     // ✅ Add this helper method to get batch type code

@@ -54,6 +54,8 @@ public class EditRecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDi
     private MaterialAutoCompleteTextView etSourceType;
     private MaterialAutoCompleteTextView etBatchType;
     private TextInputEditText etNotes;
+    private Button btnCancel;
+    private Button btnSave;
     private SessionManager sessionManager;
     private SwitchCompat switchNoChildLabor;
     private SwitchCompat switchFarmOsMonitored;
@@ -144,17 +146,6 @@ public class EditRecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDi
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> updateDelivery());
-        });
-
         return dialog;
     }
 
@@ -168,6 +159,10 @@ public class EditRecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDi
         etSourceType = view.findViewById(R.id.etSourceType);
         etBatchType = view.findViewById(R.id.etBatchType);
         etNotes = view.findViewById(R.id.etNotes);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> updateDelivery());
 
         switchNoChildLabor = view.findViewById(R.id.switchNoChildLabor);
         switchFarmOsMonitored = view.findViewById(R.id.switchFarmOsMonitored);

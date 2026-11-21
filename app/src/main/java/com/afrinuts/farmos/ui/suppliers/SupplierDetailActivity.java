@@ -409,6 +409,36 @@ public class SupplierDetailActivity extends BaseActivity {
     private void updateStatusDisplay() {
         String statusText = supplier.getStatusDisplay();
         chipStatus.setText(statusText);
+        TextView heroStatus = getWindow().getDecorView().findViewWithTag("farm-detail-hero-status");
+        if (heroStatus != null) {
+            heroStatus.setText("•  " + statusText);
+            int foreground;
+            int background;
+            switch (supplier.getStatus()) {
+                case ACTIVE:
+                    foreground = 0xFF0A5530;
+                    background = 0xFFE3F0E7;
+                    break;
+                case PENDING:
+                    foreground = 0xFF77580A;
+                    background = 0xFFFFF2D8;
+                    break;
+                case SUSPENDED:
+                    foreground = 0xFF8C1D18;
+                    background = 0xFFFDE8E7;
+                    break;
+                case INACTIVE:
+                default:
+                    foreground = 0xFF59544C;
+                    background = 0xFFF3EAD8;
+                    break;
+            }
+            heroStatus.setTextColor(foreground);
+            android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+            pill.setColor(background);
+            pill.setCornerRadius(999 * getResources().getDisplayMetrics().density);
+            heroStatus.setBackground(pill);
+        }
 
         // ✅ Set status icon
         if (ivStatusIcon != null) {
@@ -495,6 +525,7 @@ public class SupplierDetailActivity extends BaseActivity {
         if (supplier == null) return;
 
         supplier.setStatus(newStatus);
+        supplier.setActive(newStatus == SupplierEntity.SupplierStatus.ACTIVE);
         supplier.setUpdatedAt(System.currentTimeMillis());
 
         supplierRepository.updateSupplier(supplier, new SupplierRepository.RepositoryCallback<Boolean>() {

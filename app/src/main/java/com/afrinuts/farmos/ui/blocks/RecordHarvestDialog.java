@@ -110,17 +110,6 @@ public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogF
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSaveDialog = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancelDialog = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSaveDialog.setVisibility(View.GONE);
-            btnCancelDialog.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveHarvest());
-        });
-
         return dialog;
     }
 
@@ -135,6 +124,9 @@ public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogF
 
         // Set default date
         updateDateLabel();
+
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveHarvest());
 
         // ✅ Set default grade if available
         if (block != null && block.getHarvestCount() > 0) {

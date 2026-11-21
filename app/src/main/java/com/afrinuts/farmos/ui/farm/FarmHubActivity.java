@@ -283,7 +283,8 @@ public class FarmHubActivity extends BaseHubActivity {
             fabAdd.setImageResource(R.drawable.ic_add);
             fabAdd.setOnClickListener(v -> {
                 Fragment fragment = pagerAdapter.getFragment(position);
-                if (fragment instanceof SuppliersFragment) {
+                if (fragment instanceof SuppliersFragment && fragment.isAdded()
+                        && fragment.getView() != null) {
                     ((SuppliersFragment) fragment).showAddSupplierDialog();
                 }
                 else {

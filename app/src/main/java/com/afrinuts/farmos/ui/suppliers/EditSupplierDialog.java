@@ -77,6 +77,8 @@ public class EditSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
     private TextView tvConsentDate;
     private TextView tvConsentWithdrawn;
     private SessionManager sessionManager;
+    private Button btnCancel;
+    private Button btnSave;
 
     public interface OnSupplierUpdatedListener {
         void onSupplierUpdated();
@@ -135,17 +137,6 @@ public class EditSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveSupplier());
-        });
-
         return dialog;
     }
 
@@ -180,6 +171,11 @@ public class EditSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
         tvConsentSignedBy = view.findViewById(R.id.tvConsentSignedBy);
         tvConsentDate     = view.findViewById(R.id.tvConsentDate);
         tvConsentWithdrawn = view.findViewById(R.id.tvConsentWithdrawn);
+
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveSupplier());
     }
 
     private void setupTypeDropdown() {
