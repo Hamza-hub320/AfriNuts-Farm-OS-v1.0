@@ -88,7 +88,7 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:padding="4dp"
             android:background="@drawable/bg_tabs_container"
@@ -106,7 +106,6 @@
             android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
-            app:tabIconTint="@color/farm_tab_icon_tint"
             app:tabTextAppearance="@style/TextAppearance.TabCompact"
             app:tabMinWidth="60dp"
             app:tabMaxWidth="120dp"

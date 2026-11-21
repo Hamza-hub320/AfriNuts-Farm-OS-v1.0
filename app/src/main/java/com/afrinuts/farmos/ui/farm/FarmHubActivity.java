@@ -199,7 +199,6 @@ public class FarmHubActivity extends BaseHubActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             TabItem tabItem = visibleTabs.get(position);
             tab.setText(tabItem.title);
-            tab.setIcon(tabItem.iconRes);
         }).attach();
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
