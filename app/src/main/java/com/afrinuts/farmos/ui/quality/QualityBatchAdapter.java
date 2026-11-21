@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -16,6 +18,7 @@ import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Date;
 import java.util.Locale;
 
 public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapter.BatchViewHolder> {
@@ -104,15 +107,14 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
 
             // --- Supplier (unchanged) ---
             if (batch.getSupplierName() != null && !batch.getSupplierName().isEmpty()) {
-                tvSupplierName.setText(batch.getSupplierName());
+                String source = batch.getSourceType() == null ? "" : batch.getSourceType().getDisplayName();
+                tvSupplierName.setText(source.isEmpty() ? batch.getSupplierName()
+                        : batch.getSupplierName() + " · " + source);
                 tvSupplierName.setVisibility(View.VISIBLE);
-                ivSupplierIcon.setVisibility(View.VISIBLE);
-                ivSupplierIcon.setImageResource(R.drawable.ic_person);
-                ivSupplierIcon.setColorFilter(ContextCompat.getColor(
-                        itemView.getContext(), R.color.on_surface));
+                if (ivSupplierIcon != null) ivSupplierIcon.setVisibility(View.GONE);
             } else {
                 tvSupplierName.setVisibility(View.GONE);
-                ivSupplierIcon.setVisibility(View.GONE);
+                if (ivSupplierIcon != null) ivSupplierIcon.setVisibility(View.GONE);
             }
 
             // --- ✅ Product type chip ---
@@ -126,20 +128,12 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             // --- Source type (unchanged) ---
             if (batch.getSourceType() != null) {
                 tvSourceType.setText(batch.getSourceType().getDisplayName());
-                tvSourceType.setVisibility(View.VISIBLE);
-                ivSourceIcon.setVisibility(View.VISIBLE);
-                switch (batch.getSourceType()) {
-                    case OWN_FARM:           ivSourceIcon.setImageResource(R.drawable.ic_farm);           break;
-                    case COOPERATIVE:        ivSourceIcon.setImageResource(R.drawable.ic_handshake);      break;
-                    case INDEPENDENT:        ivSourceIcon.setImageResource(R.drawable.ic_person);         break;
-                    case REGIONAL_SUPPLIER:  ivSourceIcon.setImageResource(R.drawable.ic_local_shipping); break;
-                    case PROCESSING_CENTER:  ivSourceIcon.setImageResource(R.drawable.ic_factory);        break;
-                    default:                 ivSourceIcon.setImageResource(R.drawable.ic_handshake);      break;
-                }
-                ivSourceIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                tvSourceType.setVisibility(View.GONE);
+                if (ivSourceIcon != null) ivSourceIcon.setVisibility(View.GONE);
+                // Source is included in the supplier subtitle for this card.
             } else {
                 tvSourceType.setVisibility(View.GONE);
-                ivSourceIcon.setVisibility(View.GONE);
+                if (ivSourceIcon != null) ivSourceIcon.setVisibility(View.GONE);
             }
 
             // --- Batch number (unchanged) ---
@@ -148,27 +142,35 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
                     ? "#" + batchNumber : "#—");
 
             // --- Grade (unchanged — repository computes it) ---
-            tvGrade.setText(batch.getQualityGrade().getDisplayName());
+            tvGrade.setText(batch.getQualityGrade().getDisplayName().toUpperCase(Locale.ROOT));
+            int badgeBackground;
+            int badgeForeground;
             switch (batch.getQualityGrade()) {
                 case PREMIUM:
-                    ivGradeIcon.setImageResource(R.drawable.ic_star);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent_ink));
+                    badgeBackground = Color.rgb(227, 240, 231);
+                    badgeForeground = Color.rgb(10, 85, 48);
                     break;
                 case STANDARD:
-                    ivGradeIcon.setImageResource(R.drawable.ic_check_circle);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                    badgeBackground = Color.rgb(243, 234, 216);
+                    badgeForeground = Color.rgb(122, 95, 34);
                     break;
                 case REJECT:
-                    ivGradeIcon.setImageResource(R.drawable.ic_cancel);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark));
+                    badgeBackground = Color.rgb(248, 229, 226);
+                    badgeForeground = Color.rgb(179, 64, 42);
                     break;
                 default:
-                    ivGradeIcon.setImageResource(R.drawable.ic_star);
-                    ivGradeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.accent_ink));
+                    badgeBackground = Color.rgb(227, 240, 231);
+                    badgeForeground = Color.rgb(10, 85, 48);
                     break;
             }
+            tvGrade.setTextColor(badgeForeground);
+            GradientDrawable gradePill = new GradientDrawable();
+            gradePill.setColor(badgeBackground);
+            gradePill.setCornerRadius(itemView.getResources().getDisplayMetrics().density * 999f);
+            tvGrade.setBackground(gradePill);
+            if (ivGradeIcon != null) ivGradeIcon.setVisibility(View.GONE);
 
-            // --- ✅ Score: use the correct score for the product type ---
+            // --- Score: use the correct score for the product type ---
             double score = isRcn ? batch.getRcnQualityScore() : batch.getKernelQualityScore();
             if (score <= 0 && batch.getQualityScore() > 0) {
                 // Fallback for batches created before Step 2 recomputation
@@ -182,13 +184,13 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
 
             if (isRcn) {
                 // Third cell = KOR
-                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.0f%%", batch.getKorPercent()));
+                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getKernelRatio()));
                 if (ivThirdMetricIcon != null) {
                     ivThirdMetricIcon.setImageResource(R.drawable.ic_grain);
                 }
             } else {
                 // Third cell = Kernel yield
-                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.0f%%", batch.getKernelRatio()));
+                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getKernelRatio()));
                 if (ivThirdMetricIcon != null) {
                     ivThirdMetricIcon.setImageResource(R.drawable.ic_grain);
                 }
@@ -197,7 +199,8 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             tvWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
             // --- Date (unchanged) ---
-            tvDate.setText(batch.getFormattedDate());
+            tvDate.setText(new SimpleDateFormat("MMM d", Locale.getDefault())
+                    .format(new Date(batch.getRelevantDate())));
 
             // --- Click (unchanged) ---
             cardView.setOnClickListener(v -> listener.onBatchClick(batch));

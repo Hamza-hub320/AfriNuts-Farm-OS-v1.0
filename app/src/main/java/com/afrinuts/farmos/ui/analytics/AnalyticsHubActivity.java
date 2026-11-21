@@ -1,8 +1,18 @@
 package com.afrinuts.farmos.ui.analytics;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.Toast;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -22,6 +32,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class AnalyticsHubActivity extends BaseHubActivity {
 
@@ -60,6 +75,12 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAction = findViewById(R.id.fabAction);
+        TextView date = findViewById(R.id.analyticsDateText);
+        if (date != null) {
+            date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
+        }
+        View profile = findViewById(R.id.analyticsProfileButton);
+        if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
     }
 
     private void setupViewPager() {
@@ -70,10 +91,10 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             String key = pagerAdapter.getTabKey(position);
             switch (key) {
-                case "QUALITY": tab.setText("Quality"); tab.setIcon(R.drawable.ic_quality); break;
-                case "TRACEABILITY": tab.setText("Traceability"); tab.setIcon(R.drawable.ic_qr_code); break;
-                case "BULK": tab.setText("Bulk"); tab.setIcon(R.drawable.ic_batch); break;
-                case "REPORTS": tab.setText("Reports"); tab.setIcon(R.drawable.ic_pdf); break;
+                case "QUALITY": tab.setText("Quality"); break;
+                case "TRACEABILITY": tab.setText("Traceability"); break;
+                case "BULK": tab.setText("Bulk"); break;
+                case "REPORTS": tab.setText("Reports"); break;
             }
         }).attach();
 
@@ -146,7 +167,73 @@ public class AnalyticsHubActivity extends BaseHubActivity {
     }
 
     private void setupFab() {
-        fabAction.hide();
+        updateFabForTab(viewPager.getCurrentItem());
+    }
+
+    private void showAccountMenu(View anchor) {
+        PopupWindow popup = new PopupWindow(this);
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(8), dp(8), dp(8), dp(8));
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setColor(Color.WHITE);
+        bg.setCornerRadius(dp(20));
+        bg.setStroke(dp(1), 0xFFE9E1CF);
+        menu.setBackground(bg);
+        if (sessionManager.canManageUsers()) {
+            addMenuRow(menu, popup, "Team", R.drawable.ic_person_add, () ->
+                    startActivity(new Intent(this, com.afrinuts.farmos.ui.users.UsersListActivity.class)));
+        }
+        addMenuRow(menu, popup, "Settings", R.drawable.ic_settings, () ->
+                startActivity(new Intent(this, com.afrinuts.farmos.ui.settings.SettingsActivity.class)));
+        View divider = new View(this);
+        divider.setBackgroundColor(0xFFE9E1CF);
+        menu.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));
+        addMenuRow(menu, popup, "Logout", R.drawable.ic_logout, () -> new MaterialAlertDialogBuilder(this)
+                .setTitle("Logout").setMessage("Are you sure you want to logout?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    sessionManager.logout();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(this, com.afrinuts.farmos.ui.auth.LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }).show());
+        popup.setContentView(menu);
+        popup.setWidth(dp(196));
+        popup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+        popup.setElevation(dp(8));
+        popup.showAsDropDown(anchor, -dp(152), dp(8));
+    }
+
+    private void addMenuRow(LinearLayout menu, PopupWindow popup, String title, int iconRes, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setBackground(new android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0xFFEFEAE2), new ColorDrawable(Color.TRANSPARENT), null));
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(iconRes);
+        icon.setColorFilter("Logout".equals(title) ? 0xFFB3402A : 0xFF1C1B1A);
+        row.addView(icon, new LinearLayout.LayoutParams(dp(18), dp(18)));
+        TextView text = new TextView(this);
+        text.setText(title);
+        text.setTextColor("Logout".equals(title) ? 0xFFB3402A : 0xFF1C1B1A);
+        text.setTextSize(15);
+        text.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_medium));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, -2, 1);
+        params.setMarginStart(dp(12));
+        row.addView(text, params);
+        menu.addView(row, new LinearLayout.LayoutParams(-1, dp(48)));
+        row.setOnClickListener(v -> { popup.dismiss(); action.run(); });
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showCreateMasterDialog() {

@@ -57,7 +57,7 @@ public class QualityMetricsFragment extends Fragment {
     private List<QualityBatchEntity> allBatches = new ArrayList<>();
     private List<QualityBatchEntity> filteredBatches = new ArrayList<>();
 
-    private String currentFilter = "ALL"; // ALL, PREMIUM, STANDARD, PROCESSING
+    private String currentFilter = "ALL"; // ALL, PREMIUM, STANDARD, REJECT
 
     // Flag to track if fragment is destroyed
     private boolean isDestroyed = false;
@@ -299,11 +299,11 @@ public class QualityMetricsFragment extends Fragment {
 
     private void updateSummaryStats() {
         if (allBatches.isEmpty()) {
-            avgMoistureValue.setText("0%");
-            avgDefectiveValue.setText("0%");
-            avgQualityScoreValue.setText("0");
-            avgKernelValue.setText("0%");
-            avgNutCountValue.setText("0");
+            avgMoistureValue.setText("0.0%");
+            avgDefectiveValue.setText("0.0%");
+            avgQualityScoreValue.setText("0 / 100");
+            avgKernelValue.setText("0.0%");
+            avgNutCountValue.setText("0 / kg");
             return;
         }
 
@@ -330,9 +330,9 @@ public class QualityMetricsFragment extends Fragment {
 
         avgMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgMoisture));
         avgDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgDefective));
-        avgQualityScoreValue.setText(String.valueOf((int) avgScore));
-        avgKernelValue.setText(String.format(Locale.getDefault(), "%.0f%%", avgKernel));
-        avgNutCountValue.setText(String.format(Locale.getDefault(), "%.0f", avgNutCount));
+        avgKernelValue.setText(String.format(Locale.getDefault(), "%.1f%%", avgKernel));
+        avgNutCountValue.setText(String.format(Locale.getDefault(), "%.0f / kg", avgNutCount));
+        avgQualityScoreValue.setText(String.format(Locale.getDefault(), "%.0f / 100", avgScore));
     }
 
     private void showLoading(boolean show) {

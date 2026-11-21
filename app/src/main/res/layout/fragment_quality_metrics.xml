@@ -4,347 +4,137 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
-    <!-- Summary Cards Row - 4 cards across with Glass Morphism -->
+    <!-- Five season averages, presented as compact white cards. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:weightSum="4">
+        android:orientation="vertical"
+        android:layout_marginBottom="10dp">
 
-        <!-- Avg Moisture Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_water_drop"
-                        app:tint="?attr/colorPrimary"
-                        android:contentDescription="Moisture" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/avgMoistureValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Moisture"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Avg Defective Rate Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_cancel"
-                        app:tint="@color/accent_ink"
-                        android:contentDescription="Defective rate" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/avgDefectiveValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="@color/accent_ink"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Defective"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Avg Kernel Ratio Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_grain"
-                        app:tint="?attr/colorPrimary"
-                        android:contentDescription="Kernel ratio" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/avgKernelValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Kernel"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Avg Nut Count Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_inventory"
-                        app:tint="?attr/colorPrimary"
-                        android:contentDescription="Nut count" />
-
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/avgNutCountValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    style="@style/Text.Stat"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="2dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nut Count"
-                    style="@style/Text.Caption.Small"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-    </LinearLayout>
-
-    <!-- Row 2: Quality Score with Glass Morphism -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingBottom="8dp">
-
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            style="@style/Widget.AfriNuts.CardView"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="@color/surface">
-
-                <FrameLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_icon_sand">
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_star"
-                        app:tint="?attr/colorPrimary"
-                        android:contentDescription="Quality score" />
-
-                </FrameLayout>
-
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="76dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
                     android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginStart="8dp">
-
-                    <TextView
-                        android:id="@+id/avgQualityScoreValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        style="@style/Text.Stat"
-                        android:textSize="18sp"
-                        android:textColor="?attr/colorPrimary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Avg Quality Score"
-                        style="@style/Text.Caption.Small"
-                        android:textSize="10sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7" />
-
+                    android:paddingHorizontal="10dp">
+                    <TextView android:id="@+id/avgMoistureValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Moisture" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_semibold" />
                 </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-            </LinearLayout>
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="76dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="10dp">
+                    <TextView android:id="@+id/avgDefectiveValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defective" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="76dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="10dp">
+                    <TextView android:id="@+id/avgKernelValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0%" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kernel" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="76dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp">
+                    <TextView android:id="@+id/avgNutCountValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 / kg" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nut Count" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="76dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp">
+                    <TextView android:id="@+id/avgQualityScoreValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 / 100" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avg Quality Score" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Filter Chips with Glass Morphism -->
+    <!-- Grade chips stay in a single horizontally scrollable row. -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        android:paddingVertical="2dp">
+        android:layout_marginBottom="8dp"
+        android:fillViewport="false"
+        android:scrollbars="none">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            app:singleLine="true"
             app:selectionRequired="true"
             app:singleSelection="true">
 
@@ -355,9 +145,9 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="All"
-                android:textSize="12sp"
-                app:chipIcon="@drawable/ic_view_list"
-                app:chipIconTint="?attr/colorPrimary" />
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_bold"
+                app:chipCornerRadius="999dp" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
@@ -365,9 +155,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Premium"
-                android:textSize="12sp"
-                app:chipIcon="@drawable/ic_star"
-                app:chipIconTint="?attr/colorPrimary" />
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_bold"
+                app:chipCornerRadius="999dp" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStandard"
@@ -375,9 +165,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Standard"
-                android:textSize="12sp"
-                app:chipIcon="@drawable/ic_check_circle"
-                app:chipIconTint="@color/accent_ink" />
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_bold"
+                app:chipCornerRadius="999dp" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReject"
@@ -385,15 +175,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reject"
-                android:textSize="12sp"
-                app:chipIcon="@drawable/ic_cancel"
-                app:chipIconTint="?attr/colorOnSurface" />
-
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_bold"
+                app:chipCornerRadius="999dp" />
         </com.google.android.material.chip.ChipGroup>
-
     </HorizontalScrollView>
 
-    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="36dp"
@@ -404,7 +191,6 @@
         android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone" />
 
-    <!-- Empty State with Glass Morphism -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -419,27 +205,9 @@
             android:layout_height="72dp"
             android:background="@drawable/bg_icon_sand"
             android:padding="8dp">
-
-            <!-- Edge Effect -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_edge_effect"
-                android:alpha="0.3" />
-
-            <!-- Glassy Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/surface"
-                android:alpha="0.4" />
-
-            <!-- Inner Shadow -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_inner_shadow" />
-
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_edge_effect" android:alpha="0.3" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/surface" android:alpha="0.4" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_inner_shadow" />
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -448,7 +216,6 @@
                 app:tint="?attr/colorOnSurface"
                 android:alpha="0.5"
                 android:contentDescription="No batches" />
-
         </FrameLayout>
 
         <TextView
@@ -469,18 +236,17 @@
             android:textColor="?attr/colorOnSurface"
             android:alpha="0.7"
             android:layout_marginTop="4dp" />
-
     </LinearLayout>
 
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="4dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="20dp"
         android:clipToPadding="false"
         android:visibility="gone"
-        android:background="?android:attr/colorBackground" />
+        android:background="@android:color/transparent" />
 
 </LinearLayout>
