@@ -2,5 +2,5 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_selected="true"><shape android:shape="rectangle"><solid android:color="@color/primary"/><corners android:radius="999dp"/></shape></item>
     <item android:state_pressed="true"><shape android:shape="rectangle"><solid android:color="@color/primary_light"/><corners android:radius="999dp"/></shape></item>
-    <item><shape android:shape="rectangle"><solid android:color="@color/surface"/><corners android:radius="999dp"/></shape></item>
+    <item><shape android:shape="rectangle"><solid android:color="@android:color/transparent"/><corners android:radius="999dp"/></shape></item>
 </selector>
