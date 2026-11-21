@@ -79,6 +79,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
         private ImageView ivGradeIcon;
         private TextView tvProductType;
         private TextView tvThirdMetricValue;
+        private TextView tvMetricKernelLabel;
         private ImageView ivThirdMetricIcon;
 
 
@@ -99,6 +100,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             ivGradeIcon = itemView.findViewById(R.id.ivGradeIcon);
             tvProductType = itemView.findViewById(R.id.tvProductType);
             tvThirdMetricValue = itemView.findViewById(R.id.tvThirdMetricValue);
+            tvMetricKernelLabel = itemView.findViewById(R.id.tvMetricKernelLabel);
             ivThirdMetricIcon = itemView.findViewById(R.id.ivThirdMetricIcon);
         }
 
@@ -120,9 +122,13 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             // --- ✅ Product type chip ---
             if (tvProductType != null) {
                 tvProductType.setText(isRcn ? "RCN" : "KERNEL");
-                tvProductType.setTextColor(ContextCompat.getColor(
-                        itemView.getContext(),
-                        isRcn ? R.color.accent_ink : R.color.primary));
+                int typeFill = isRcn ? Color.rgb(239, 234, 224) : Color.rgb(227, 240, 231);
+                int typeInk = isRcn ? Color.rgb(61, 58, 53) : Color.rgb(10, 85, 48);
+                tvProductType.setTextColor(typeInk);
+                GradientDrawable typePill = new GradientDrawable();
+                typePill.setColor(typeFill);
+                typePill.setCornerRadius(itemView.getResources().getDisplayMetrics().density * 999f);
+                tvProductType.setBackground(typePill);
             }
 
             // --- Source type (unchanged) ---
@@ -183,13 +189,15 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             tvDefectiveRate.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
 
             if (isRcn) {
-                // Third cell = KOR
-                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getKernelRatio()));
+                // RCN cards report KOR in g/kg in the third metric cell.
+                if (tvMetricKernelLabel != null) tvMetricKernelLabel.setText("KOR");
+                tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.0f g/kg", batch.getKorGPerKg()));
                 if (ivThirdMetricIcon != null) {
                     ivThirdMetricIcon.setImageResource(R.drawable.ic_grain);
                 }
             } else {
-                // Third cell = Kernel yield
+                // Kernel cards report the kernel ratio as a percentage.
+                if (tvMetricKernelLabel != null) tvMetricKernelLabel.setText("KERNEL");
                 tvThirdMetricValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getKernelRatio()));
                 if (ivThirdMetricIcon != null) {
                     ivThirdMetricIcon.setImageResource(R.drawable.ic_grain);
@@ -199,7 +207,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             tvWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
             // --- Date (unchanged) ---
-            tvDate.setText(new SimpleDateFormat("MMM d", Locale.getDefault())
+            tvDate.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
                     .format(new Date(batch.getRelevantDate())));
 
             // --- Click (unchanged) ---

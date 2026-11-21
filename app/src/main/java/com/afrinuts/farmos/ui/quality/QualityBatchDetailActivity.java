@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.quality;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import com.afrinuts.farmos.data.sync.SyncManager;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.utils.QRCodeGenerator;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
@@ -207,7 +209,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
         btnViewSupplier.setOnClickListener(v -> viewSupplier());
 
         if (btnGenerateTraceability != null) {
-            btnGenerateTraceability.setOnClickListener(v -> generateTraceability());
+            btnGenerateTraceability.setOnClickListener(v -> openTraceability());
         }
 
         if (btnExportQR != null) {
@@ -222,12 +224,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
     private void setupToolbar() {
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
                 findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
-                findViewById(R.id.farmDetailMore), "Batch details" );
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvBatchNumber, R.id.tvBatchDate, R.id.tvGrade);
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
-                new String[]{"Grade", "Quality score", "Weight"},
-                new int[]{R.id.tvGrade, R.id.tvQualityScore, R.id.tvWeightValue });
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnShare, R.id.btnGenerateTraceability);
+                findViewById(R.id.farmDetailMore), "Batch details");
     }
 
     @Override
@@ -266,14 +263,33 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
     private void displayBatchData() {
         // Header
-        tvBatchNumber.setText("#" + batch.getBatchNumber());
+        tvBatchNumber.setText(batch.getBatchNumber() == null ? "—" : batch.getBatchNumber());
         long displayDate = batch.getRelevantDate();
-        if (displayDate > 0) {
-            tvBatchDate.setText(dateFormat.format(displayDate));
-        } else {
-            tvBatchDate.setText("—");
+        String dateText = displayDate > 0 ? dateFormat.format(displayDate) : "—";
+        String supplierLabel = supplier == null ? "" : supplier.getName();
+        String cooperativeLabel = supplier != null && supplier.getCooperativeName() != null
+                && !supplier.getCooperativeName().trim().isEmpty()
+                ? supplier.getCooperativeName().trim()
+                : (batch.getSourceType() == null ? "" : batch.getSourceType().getDisplayName());
+        StringBuilder subtitle = new StringBuilder();
+        if (!supplierLabel.isEmpty()) subtitle.append(supplierLabel);
+        if (!cooperativeLabel.isEmpty()) {
+            if (subtitle.length() > 0) subtitle.append(" · ");
+            subtitle.append(cooperativeLabel);
         }
+        if (!dateText.equals("—")) {
+            if (subtitle.length() > 0) subtitle.append(" · ");
+            subtitle.append(dateText);
+        }
+        tvBatchDate.setText(subtitle.length() == 0 ? dateText : subtitle.toString());
         tvGrade.setText(batch.getQualityGrade().getDisplayName());
+        tvBatchType.setText(batch.isRcn() ? "RCN batch" : "Kernel batch");
+        TextView deliveryBatch = findViewById(R.id.tvDeliveryBatch);
+        TextView deliveryDate = findViewById(R.id.tvDeliveryDate);
+        TextView qualityScoreLab = findViewById(R.id.tvQualityScoreLab);
+        if (deliveryBatch != null) deliveryBatch.setText(batch.getBatchNumber() == null ? "—" : batch.getBatchNumber());
+        if (deliveryDate != null) deliveryDate.setText(dateText);
+        if (qualityScoreLab != null) qualityScoreLab.setText("— / 100");
 
         int gradeColor;
         int gradeIcon;
@@ -293,47 +309,48 @@ public class QualityBatchDetailActivity extends BaseActivity {
                 break;
         }
         tvGrade.setTextColor(gradeColor);
-        qualityProgress.setIndicatorColor(gradeColor);
+        int gradeFill = batch.getQualityGrade() == QualityBatchEntity.QualityGrade.PREMIUM
+                ? 0xFFE3F0E7 : batch.getQualityGrade() == QualityBatchEntity.QualityGrade.STANDARD
+                ? 0xFFF3EAD8 : 0xFFF8E4DD;
+        if (tvGrade instanceof Chip) {
+            ((Chip) tvGrade).setChipBackgroundColor(android.content.res.ColorStateList.valueOf(gradeFill));
+            ((Chip) tvGrade).setCheckedIconVisible(false);
+        }
+        if (qualityProgress != null) qualityProgress.setIndicatorColor(gradeColor);
 
         double score = batch.isKernel()
                 ? batch.getKernelQualityScore()
                 : batch.getRcnQualityScore();
         int scoreInt = (int) Math.round(score);
         tvQualityScore.setText(scoreInt + "%");
-        qualityProgress.setProgress(scoreInt);
-        qualityProgress.setMax(100);
+        if (qualityProgress != null) {
+            qualityProgress.setProgress(scoreInt);
+            qualityProgress.setMax(100);
+        }
+        TextView qualityScoreLabValue = findViewById(R.id.tvQualityScoreLab);
+        if (qualityScoreLabValue != null) qualityScoreLabValue.setText(scoreInt + " / 100");
 
         // Source
-        if (batch.getSourceType() != null) {
-            tvSourceType.setText(batch.getSourceType().getDisplayName());
-        }
+        String sourceLabel = cooperativeLabel.isEmpty() ? "—" : cooperativeLabel;
+        tvSourceType.setText(sourceLabel);
         if (supplier != null && batch.getSupplierId() != null) {
             tvSupplierName.setText(supplier.getName());
             tvSupplierName.setVisibility(View.VISIBLE);
             btnViewSupplier.setVisibility(View.VISIBLE);
         } else {
-            tvSupplierName.setVisibility(View.GONE);
+            tvSupplierName.setText(batch.getSourceType() == QualityBatchEntity.SourceType.OWN_FARM
+                    ? "AfriNuts farm" : "—");
+            tvSupplierName.setVisibility(View.VISIBLE);
             btnViewSupplier.setVisibility(View.GONE);
         }
-        if (batch.isRcn() && batch.getInspectedBy() != null
-                && !batch.getInspectedBy().isEmpty()) {
-            tvBatchDate.setText(dateFormat.format(displayDate) + " · " + batch.getInspectedBy());
-        } else if (displayDate > 0) {
-            tvBatchDate.setText(dateFormat.format(displayDate));
-        } else {
-            tvBatchDate.setText("—");
-        }
+        TextView deliveryWeight = findViewById(R.id.tvWeightValue);
+        if (deliveryWeight != null) deliveryWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
         // ✅ SOP §4.5 + §4.6: disable ship/sale actions for non-saleable batches
         if (btnGenerateTraceability != null) {
-            boolean canSell = batch.isSaleable();
-            btnGenerateTraceability.setEnabled(canSell);
-            btnGenerateTraceability.setAlpha(canSell ? 1f : 0.4f);
-            btnGenerateTraceability.setText(canSell
-                    ? "Generate Traceability"
-                    : (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.REJECT
-                    ? "Cannot ship — rejected"
-                    : "Cannot ship — not inspected"));
+            btnGenerateTraceability.setEnabled(true);
+            btnGenerateTraceability.setAlpha(1f);
+            btnGenerateTraceability.setText("View trace");
         }
 
         if (btnExportQR != null) {
@@ -363,20 +380,17 @@ public class QualityBatchDetailActivity extends BaseActivity {
         boolean isRcn = batch.isRcn();
         boolean hasRcnData = batch.getKorPercent() > 0;
 
+        cardKernelMetrics.setVisibility(View.VISIBLE);
+        cardRcnMetrics.setVisibility(View.GONE);
         if (isKernel) {
-            // Phase Two: Kernel batch
-            cardKernelMetrics.setVisibility(View.VISIBLE);
-            cardRcnMetrics.setVisibility(View.GONE);
             displayKernelMetrics();
         } else if (isRcn || hasRcnData) {
-            // Phase One: RCN batch (or legacy batch with RCN data)
-            cardKernelMetrics.setVisibility(View.GONE);
-            cardRcnMetrics.setVisibility(View.VISIBLE);
             displayRcnMetrics();
+            tvMoistureValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()));
+            tvDefectiveValue.setText(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()));
+            tvKernelValue.setText(batch.getKorGPerKg() > 0
+                    ? String.format(Locale.getDefault(), "%.0f g/kg", batch.getKorGPerKg()) : "—");
         } else {
-            // Unclassified (No quality check done yet) -> Default to RCN view
-            cardKernelMetrics.setVisibility(View.GONE);
-            cardRcnMetrics.setVisibility(View.VISIBLE);
             showEmptyRcnMetrics();
         }
 
@@ -392,7 +406,9 @@ public class QualityBatchDetailActivity extends BaseActivity {
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
-            if (btnGenerateTraceability != null) btnGenerateTraceability.setVisibility(View.GONE);
+            if (btnGenerateTraceability != null) btnGenerateTraceability.setVisibility(View.VISIBLE);
+            View headerEdit = findViewById(R.id.farmDetailEdit);
+            if (headerEdit != null) headerEdit.setVisibility(View.GONE);
             if (btnExportQR != null) btnExportQR.setVisibility(View.GONE);
             if (btnShare != null) btnShare.setVisibility(View.GONE);
         }
@@ -442,7 +458,10 @@ public class QualityBatchDetailActivity extends BaseActivity {
                 tvPesticideValue.setText(String.format(Locale.getDefault(), "%.2f", legacy.getPesticideResidue()));
                 tvHeavyMetalsValue.setText(String.format(Locale.getDefault(), "%.2f", legacy.getHeavyMetals()));
             } else {
-                cardTestResults.setVisibility(View.GONE);
+                tvAflatoxinValue.setText("—");
+                tvPesticideValue.setText("—");
+                tvHeavyMetalsValue.setText("—");
+                cardTestResults.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -471,8 +490,11 @@ public class QualityBatchDetailActivity extends BaseActivity {
             layoutKorAudit.setVisibility(View.GONE);
         }
 
-        // RCN batches have no lab results, so hide that card
-        cardTestResults.setVisibility(View.GONE);
+        // Keep the standard Lab results section visible; unavailable tests show an em dash.
+        cardTestResults.setVisibility(View.VISIBLE);
+        tvAflatoxinValue.setText("—");
+        tvPesticideValue.setText("—");
+        tvHeavyMetalsValue.setText("—");
     }
 
     private void displaySustainabilityData() {
@@ -586,6 +608,22 @@ public class QualityBatchDetailActivity extends BaseActivity {
     }
 
     // ✅ Generate Traceability
+    private void openTraceability() {
+        if (batch == null) return;
+        executor.execute(() -> {
+            BatchTraceabilityEntity trace = database.batchTraceabilityDao().getByQualityBatchId(batch.getId());
+            runOnUiThread(() -> {
+                if (trace == null) {
+                    Toast.makeText(this, "Trace record not available", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(this, com.afrinuts.farmos.ui.traceability.TraceabilityDetailActivity.class);
+                intent.putExtra(com.afrinuts.farmos.ui.traceability.TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, trace.getId());
+                startActivity(intent);
+            });
+        });
+    }
+
     private void generateTraceability() {
         if (batch == null) {
             Toast.makeText(this, "No batch to generate traceability for", Toast.LENGTH_SHORT).show();
