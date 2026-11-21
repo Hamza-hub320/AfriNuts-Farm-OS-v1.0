@@ -74,26 +74,68 @@ public class HomeChartView extends View {
     private void drawPie(Canvas canvas) {
         float side = Math.min(getWidth(), getHeight());
         if (side <= 0) return;
-        float inset = dp(2);
-        float right = side - inset;
+        float centerX = getWidth() / 2f;
+        float centerY = getHeight() / 2f;
+        float radius = side / 2f;
         float total = 0;
         for (float value : values) total += Math.max(0, value);
         paint.setStyle(Paint.Style.FILL);
         if (total <= 0) {
             paint.setColor(0xFFE9E1CF);
-            canvas.drawCircle(side / 2f, side / 2f, (side - 2 * inset) / 2f, paint);
+            canvas.drawCircle(centerX, centerY, radius, paint);
             return;
         }
 
         float startAngle = -90;
+        float gapAngle = 3f;
+        float cornerRadius = Math.min(dp(12), radius * 0.14f);
+        float roundedAngle = (float) Math.toDegrees(cornerRadius / radius);
         for (int i = 0; i < GRADE_COLORS.length; i++) {
             float value = i < values.length ? Math.max(0, values[i]) : 0;
             if (value <= 0) continue;
             float sweep = 360f * value / total;
             paint.setColor(GRADE_COLORS[i]);
-            canvas.drawArc(inset, inset, right, right, startAngle, sweep, true, paint);
+            float visibleSweep = Math.max(0, sweep - gapAngle * 2f);
+            drawRoundedPieSlice(canvas, centerX, centerY, radius,
+                    startAngle + gapAngle, visibleSweep, cornerRadius, roundedAngle);
             startAngle += sweep;
         }
+    }
+
+    /** Draws an inset, rounded sector so the card background forms a clean gap. */
+    private void drawRoundedPieSlice(Canvas canvas, float centerX, float centerY,
+                                     float radius, float startAngle, float sweep,
+                                     float cornerRadius, float roundedAngle) {
+        if (sweep <= 0) return;
+        float endAngle = startAngle + sweep;
+        float cornerAngle = Math.min(roundedAngle, sweep / 4f);
+        float innerRadius = cornerRadius;
+        float outerTangentRadius = radius - cornerRadius;
+        float startInnerX = centerX + innerRadius * (float) Math.cos(Math.toRadians(startAngle));
+        float startInnerY = centerY + innerRadius * (float) Math.sin(Math.toRadians(startAngle));
+        float endInnerX = centerX + innerRadius * (float) Math.cos(Math.toRadians(endAngle));
+        float endInnerY = centerY + innerRadius * (float) Math.sin(Math.toRadians(endAngle));
+
+        Path slice = new Path();
+        slice.moveTo(startInnerX, startInnerY);
+        slice.lineTo(centerX + outerTangentRadius * (float) Math.cos(Math.toRadians(startAngle)),
+                centerY + outerTangentRadius * (float) Math.sin(Math.toRadians(startAngle)));
+        slice.quadTo(centerX + radius * (float) Math.cos(Math.toRadians(startAngle)),
+                        centerY + radius * (float) Math.sin(Math.toRadians(startAngle)),
+                centerX + radius * (float) Math.cos(Math.toRadians(startAngle + cornerAngle)),
+                        centerY + radius * (float) Math.sin(Math.toRadians(startAngle + cornerAngle)));
+
+        android.graphics.RectF bounds = new android.graphics.RectF(
+                centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        slice.arcTo(bounds, startAngle + cornerAngle, sweep - cornerAngle * 2f, false);
+        slice.quadTo(centerX + radius * (float) Math.cos(Math.toRadians(endAngle)),
+                        centerY + radius * (float) Math.sin(Math.toRadians(endAngle)),
+                centerX + outerTangentRadius * (float) Math.cos(Math.toRadians(endAngle)),
+                        centerY + outerTangentRadius * (float) Math.sin(Math.toRadians(endAngle)));
+        slice.lineTo(endInnerX, endInnerY);
+        slice.quadTo(centerX, centerY, startInnerX, startInnerY);
+        slice.close();
+        canvas.drawPath(slice, paint);
     }
 
     private void drawBars(Canvas canvas) {
