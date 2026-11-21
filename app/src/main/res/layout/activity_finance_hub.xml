@@ -10,18 +10,66 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:paddingBottom="72dp">
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="76dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Finance"
+                android:textColor="#1C1B1A"
+                android:textSize="28sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/manrope_extrabold" />
+
+            <ImageButton
+                android:id="@+id/financeNotificationButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="9dp"
+                android:background="@drawable/bg_home_bell_button"
+                android:contentDescription="Notifications"
+                android:clickable="false"
+                android:focusable="false"
+                android:padding="12dp"
+                android:src="@drawable/ic_notification"
+                app:tint="#1C1B1A" />
+
+            <TextView
+                android:id="@+id/financeProfileButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_home_account_button"
+                android:clickable="true"
+                android:contentDescription="Account menu"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="HS"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
 
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:padding="4dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
             app:tabIndicatorHeight="0dp"
-            app:tabSelectedTextColor="@android:color/white"
+            app:tabSelectedTextColor="#0A5530"
             app:tabTextColor="?attr/colorOnSurface"
             app:tabPaddingTop="4dp"
             app:tabPaddingBottom="4dp"
@@ -32,8 +80,8 @@
             android:elevation="1dp"
             android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
-            app:tabBackground="@drawable/tab_selector_pill"
-            app:tabTextAppearance="@style/TextAppearance.TabCompact"
+            app:tabBackground="@drawable/bg_farm_tab_selector"
+            app:tabTextAppearance="@style/TextAppearance.FinanceTab"
             app:tabMinWidth="60dp"
             app:tabMaxWidth="120dp"
             app:tabPaddingStart="8dp"
@@ -53,7 +101,7 @@
         <!-- Spacer for bottom navigation -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="80dp" />
+            android:layout_height="0dp" />
 
     </LinearLayout>
 
@@ -64,8 +112,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="126dp"
-        android:src="@drawable/ic_add_business"
+        android:layout_marginBottom="92dp"
+        android:src="@drawable/ic_add"
         android:contentDescription="Add"
         app:backgroundTint="@color/primary"
         app:tint="@android:color/white"

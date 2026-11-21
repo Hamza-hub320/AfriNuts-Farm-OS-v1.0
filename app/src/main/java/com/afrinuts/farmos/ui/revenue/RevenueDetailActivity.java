@@ -2,14 +2,17 @@ package com.afrinuts.farmos.ui.revenue;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +32,7 @@ import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.farm.FarmDetailChrome;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -102,6 +106,8 @@ public class RevenueDetailActivity extends BaseActivity {
     private Button btnDelete;
     private MaterialButton btnEdit;
     private MaterialButton btnSave;
+    private MaterialButton footerViewBatch;
+    private ImageButton headerEdit;
 
     private boolean isEditMode = false;
     private Calendar selectedDate = Calendar.getInstance();
@@ -146,13 +152,13 @@ public class RevenueDetailActivity extends BaseActivity {
         initViews();
         setupToolbar();
         setupRoleBasedUI();
+        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Revenue details");
+        headerEdit = findViewById(R.id.farmDetailEdit);
         loadData();
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         // Display views — the layout may still use R.id.tvHarvestDate /
         // R.id.etHarvestDate; the field names in code are now sale-date
         // semantic, but the view IDs are unchanged to avoid a layout diff.
@@ -197,9 +203,7 @@ public class RevenueDetailActivity extends BaseActivity {
 
         btnDelete.setOnClickListener(v -> confirmDelete());
 
-        if (btnEdit != null) {
-            btnEdit.setOnClickListener(v -> enableEditMode(true));
-        }
+        if (btnEdit != null) btnEdit.setOnClickListener(v -> enableEditMode(!isEditMode));
 
         if (btnSave != null) {
             btnSave.setOnClickListener(v -> saveChanges());
@@ -241,13 +245,58 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Revenue Details");
-        }
+        installDetailFooter();
+        headerEdit = findViewById(R.id.farmDetailEdit);
     }
+
+    private void installDetailFooter() {
+        LinearLayout root = (LinearLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ViewGroup sourceRow = (ViewGroup) btnEdit.getParent();
+        sourceRow.removeView(btnEdit);
+        sourceRow.removeView(btnSave);
+        sourceRow.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.GONE);
+
+        footerViewBatch = new MaterialButton(this);
+        footerViewBatch.setText("View batch");
+        footerViewBatch.setTextSize(15);
+        footerViewBatch.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
+        footerViewBatch.setTextColor(Color.WHITE);
+        footerViewBatch.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF0E6B3C));
+        footerViewBatch.setCornerRadius(dp(999));
+        footerViewBatch.setMinHeight(dp(52));
+        footerViewBatch.setOnClickListener(v -> btnViewBatch.performClick());
+
+        styleFooterButton(btnEdit, false);
+        styleFooterButton(btnSave, true);
+        LinearLayout footer = new LinearLayout(this);
+        footer.setOrientation(LinearLayout.HORIZONTAL);
+        footer.setPadding(dp(20), dp(8), dp(20), dp(12));
+        footer.setBackgroundColor(0xFFF6F1E7);
+        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        left.setMargins(0, 0, dp(12), 0);
+        LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        footer.addView(btnEdit, left);
+        footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(52), 1f));
+        footer.addView(footerViewBatch, right);
+        root.addView(footer);
+    }
+
+    private void styleFooterButton(MaterialButton button, boolean primary) {
+        button.setTextSize(15);
+        button.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
+        button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
+        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(primary ? 0xFF0E6B3C : 0xFFF3EAD8));
+        button.setCornerRadius(dp(999));
+        button.setMinHeight(dp(52));
+        button.setInsetTop(0);
+        button.setInsetBottom(0);
+    }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -491,15 +540,11 @@ public class RevenueDetailActivity extends BaseActivity {
         tvQualityGrade.setText(revenue.getQuality().getDisplayName() + " Grade");
         selectedQuality = revenue.getQuality();
 
-        // Source — no block attribution in the revenue model. The label
-        // shows the batch when there is one, else the generic processing
-        // center tag. If the layout still has tvSource, keep it in sync.
+        // The hero subtitle combines the existing buyer, supplier and date fields.
         if (tvSource != null) {
-            if (revenue.getBatchNumber() != null && !revenue.getBatchNumber().isEmpty()) {
-                tvSource.setText("Batch " + revenue.getBatchNumber());
-            } else {
-                tvSource.setText("Processing Center");
-            }
+            String buyer = revenue.getBuyer() == null || revenue.getBuyer().trim().isEmpty() ? "Buyer not recorded" : revenue.getBuyer().trim();
+            String supplierName = revenue.getSupplierName() == null || revenue.getSupplierName().trim().isEmpty() ? "Supplier not recorded" : revenue.getSupplierName().trim();
+            tvSource.setText(buyer + " · " + supplierName + " · " + dateFormat.format(revenue.getCreatedAt()));
         }
 
         // Financial details
@@ -562,6 +607,21 @@ public class RevenueDetailActivity extends BaseActivity {
         } else {
             layoutProcurementInfo.setVisibility(View.GONE);
         }
+
+        if (revenue.getBatchNumber() != null && !revenue.getBatchNumber().trim().isEmpty()) {
+            tvBatchNumber.setText(revenue.getBatchNumber());
+        } else {
+            tvBatchNumber.setText("Processing center sale");
+        }
+        FarmDetailChrome.addHero(this, R.id.tvBatchNumber, R.id.tvSource, R.id.tvQualityGrade);
+        FarmDetailChrome.addStats(this,
+                new String[]{"Quantity", "Price/kg", "Total"},
+                new int[]{R.id.tvQuantity, R.id.tvPricePerKg, R.id.tvTotalAmount});
+        footerViewBatch.setVisibility(revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
+        if (btnViewBatch != null) btnViewBatch.setVisibility(View.GONE);
+        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Revenue details");
+        headerEdit = findViewById(R.id.farmDetailEdit);
     }
 
     private void setFieldsEditable(boolean editable) {
@@ -620,6 +680,8 @@ public class RevenueDetailActivity extends BaseActivity {
                 if (notesLayout != null) notesLayout.setVisibility(View.GONE);
             }
         }
+        if (footerViewBatch != null) footerViewBatch.setVisibility(visible || revenue == null || revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
+        if (headerEdit != null) headerEdit.setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
     private void enableEditMode(boolean enable) {
@@ -632,7 +694,8 @@ public class RevenueDetailActivity extends BaseActivity {
         isEditMode = enable;
 
         if (btnEdit != null) {
-            btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+            btnEdit.setText(enable ? "Cancel" : "Edit");
+            btnEdit.setVisibility(View.VISIBLE);
         }
         if (btnSave != null) {
             btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);

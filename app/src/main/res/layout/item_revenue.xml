@@ -3,9 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
@@ -16,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="16dp"
         android:background="@color/surface">
 
         <!-- Top Row: Icon + Batch Info + Amount -->
@@ -57,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:text="BATCH-2026-001"
                     style="@style/Text.H6"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold" />
 
@@ -67,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:text="Supplier Name"
                     style="@style/Text.Caption"
-                    android:textSize="11sp"
+                    android:textSize="13sp"
                     android:textColor="?attr/colorOnSurface"
                     android:alpha="0.7" />
 
@@ -79,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:text="525k XAF"
                 style="@style/Text.Stat"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:textColor="@color/accent_ink" />
 
         </LinearLayout>
@@ -131,7 +134,7 @@
                         android:layout_height="wrap_content"
                         android:text="350 kg"
                         style="@style/Text.Caption"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textColor="?attr/colorPrimary"
                         android:textStyle="bold" />
 
@@ -167,7 +170,7 @@
                         android:layout_height="wrap_content"
                         android:text="1.5k XAF/kg"
                         style="@style/Text.Caption"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textColor="?attr/colorPrimary"
                         android:textStyle="bold" />
 
@@ -198,7 +201,7 @@
                         android:layout_height="wrap_content"
                         android:text="Premium"
                         style="@style/Text.Caption.Small"
-                        android:textSize="10sp"
+                        android:textSize="12sp"
                         android:textColor="@color/accent_ink"
                         android:textStyle="bold" />
 

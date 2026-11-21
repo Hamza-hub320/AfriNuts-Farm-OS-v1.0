@@ -2,13 +2,16 @@ package com.afrinuts.farmos.ui.expenses;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,6 +34,7 @@ import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.farm.FarmDetailChrome;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -100,6 +104,8 @@ public class ExpenseDetailActivity extends BaseActivity {
     private MaterialButton btnSave;
     private Button btnDelete;
     private FloatingActionButton fabEdit;
+    private MaterialButton footerPhotos;
+    private ImageButton headerEdit;
 
     private boolean isEditMode = false;
     private Calendar selectedDate = Calendar.getInstance();
@@ -161,12 +167,6 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
         // Category display
         tvCategoryIcon = findViewById(R.id.tvCategoryIcon);
         tvCategoryName = findViewById(R.id.tvCategoryName);
@@ -206,7 +206,7 @@ public class ExpenseDetailActivity extends BaseActivity {
         setupDatePicker();
 
         // Set click listeners
-        btnEdit.setOnClickListener(v -> enableEditMode(true));
+        btnEdit.setOnClickListener(v -> enableEditMode(!isEditMode));
         fabEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -234,15 +234,54 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Expense Details");
-        }
+        installDetailFooter();
+        if (fabEdit != null) fabEdit.setVisibility(View.GONE);
+        headerEdit = findViewById(R.id.farmDetailEdit);
+        FarmDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
+                findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailMore), "Expense details");
     }
+
+    private void installDetailFooter() {
+        LinearLayout root = (LinearLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ViewGroup sourceRow = (ViewGroup) btnEdit.getParent();
+        sourceRow.removeView(btnEdit);
+        sourceRow.removeView(btnSave);
+        sourceRow.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.GONE);
+
+        footerPhotos = new MaterialButton(this);
+        footerPhotos.setText("Photos");
+        styleFooterButton(footerPhotos, false);
+        footerPhotos.setOnClickListener(v -> btnPhotoGallery.performClick());
+        styleFooterButton(btnEdit, true);
+        styleFooterButton(btnSave, true);
+
+        LinearLayout footer = new LinearLayout(this);
+        footer.setOrientation(LinearLayout.HORIZONTAL);
+        footer.setPadding(dp(20), dp(8), dp(20), dp(12));
+        footer.setBackgroundColor(0xFFF6F1E7);
+        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        left.setMargins(0, 0, dp(12), 0);
+        footer.addView(footerPhotos, left);
+        footer.addView(btnEdit, new LinearLayout.LayoutParams(0, dp(52), 1f));
+        footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(52), 1f));
+        root.addView(footer);
+    }
+
+    private void styleFooterButton(MaterialButton button, boolean primary) {
+        button.setTextSize(15);
+        button.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
+        button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
+        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(primary ? 0xFF0E6B3C : 0xFFF3EAD8));
+        button.setCornerRadius(dp(999));
+        button.setMinHeight(dp(52));
+        button.setInsetTop(0);
+        button.setInsetBottom(0);
+    }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -492,6 +531,11 @@ public class ExpenseDetailActivity extends BaseActivity {
         if (expense.getDescription() != null) {
             etDescription.setText(expense.getDescription());
         }
+
+        FarmDetailChrome.addHero(this, R.id.tvCategoryName, R.id.tvBlockInfo, View.NO_ID);
+        FarmDetailChrome.addStats(this,
+                new String[]{"Amount", "Date", "Source"},
+                new int[]{R.id.etAmount, R.id.etDate, R.id.tvBlockInfo});
     }
 
     private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {
@@ -551,9 +595,12 @@ public class ExpenseDetailActivity extends BaseActivity {
 
         isEditMode = enable;
 
-        btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+        btnEdit.setText(enable ? "Cancel" : "Edit");
+        btnEdit.setVisibility(View.VISIBLE);
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
         fabEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+        footerPhotos.setVisibility(enable ? View.GONE : View.VISIBLE);
+        if (headerEdit != null) headerEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
 
         setFieldsEditable(enable);
 

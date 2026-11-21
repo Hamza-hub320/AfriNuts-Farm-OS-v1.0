@@ -6,73 +6,23 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Total Expenses Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="2dp"
-        style="@style/Widget.AfriNuts.CardView"
-        android:background="@color/surface">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="20dp"
-            android:background="@color/surface">
-
-            <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_icon_sand"
-                android:layout_marginEnd="12dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_attach_money"
-                    app:tint="@color/accent_ink" />
-
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Expenses"
-                    style="@style/Text.H5"
-                    android:textColor="?attr/colorOnSurface" />
-
-                <TextView
-                    android:id="@+id/totalExpensesText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 XAF"
-                    style="@style/Text.Stat"
-                    android:textColor="@color/accent_ink"
-                    android:layout_marginTop="4dp"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:autoSizeTextType="uniform"
-                    android:autoSizeMinTextSize="14sp"
-                    android:autoSizeMaxTextSize="28sp"
-                    android:autoSizeStepGranularity="2sp" />
-
+    <!-- Expenses summary pair -->
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
+        android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="12dp" android:paddingBottom="14dp">
+        <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_height="104dp" android:layout_weight="1.25" android:layout_marginEnd="8dp" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#0E6B3C">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Total expenses" android:textColor="#C7FFFFFF" android:textSize="13sp" android:fontFamily="@font/manrope_medium" />
+                <TextView android:id="@+id/totalExpensesText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0 XAF" android:textColor="#FFFFFF" android:textSize="23sp" android:maxLines="1" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="14sp" android:autoSizeMaxTextSize="23sp" android:autoSizeStepGranularity="1sp" android:fontFamily="@font/manrope_extrabold" />
             </LinearLayout>
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
+        </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_height="104dp" android:layout_weight="1" android:layout_marginStart="8dp" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Expenses recorded" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_medium" />
+                <TextView android:id="@+id/expensesRecordedText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="23sp" android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
     <!-- Filter Chips -->
     <HorizontalScrollView
@@ -101,14 +51,14 @@
                 android:id="@+id/chipFarmWide"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Farm-Wide"
+                android:text="Farm wide"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipByBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Per Block"
+                android:text="By block"
                 style="@style/Widget.AfriNuts.Chip" />
 
             <!-- ✅ New Procurement Chip -->

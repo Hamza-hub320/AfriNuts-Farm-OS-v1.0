@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -28,6 +27,7 @@ import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddExpenseDialog extends DialogFragment {
+public class AddExpenseDialog extends FarmDialogFragment {
 
     private static final String TAG = "AddExpenseDialog";
     private static final String ARG_FARM_ID = "farm_id";
@@ -66,6 +66,8 @@ public class AddExpenseDialog extends DialogFragment {
     private TextInputEditText etAmount;
     private MaterialAutoCompleteTextView etCategory;
     private TextInputEditText etDate;
+    private Button btnCancel;
+    private Button btnSave;
 
     // Expense Scope
     private View layoutExpenseScope;
@@ -193,8 +195,8 @@ public class AddExpenseDialog extends DialogFragment {
         layoutBatchSelector = view.findViewById(R.id.layoutBatchSelector);
         etBatch = view.findViewById(R.id.etBatch);
 
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-        Button btnSave = view.findViewById(R.id.btnSave);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        btnSave = view.findViewById(R.id.btnSave);
 
         btnCancel.setOnClickListener(v -> dismiss());
         btnSave.setOnClickListener(v -> saveExpense());
@@ -208,6 +210,14 @@ public class AddExpenseDialog extends DialogFragment {
 
         // Hide procurement section initially
         layoutProcurementSection.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // The shared sheet formatter may use the heading as the primary label;
+        // this dialog's agreed action label is Save.
+        if (btnSave != null) btnSave.setText("Save");
     }
 
     private void setupDatePicker() {

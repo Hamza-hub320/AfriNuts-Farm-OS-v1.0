@@ -44,6 +44,7 @@ public class ExpensesFragment extends Fragment {
     private ProgressBar progressBar;
     private LinearLayout emptyLayout;
     private TextView totalExpensesText;
+    private TextView expensesRecordedText;
     private ChipGroup filterChipGroup;
     private Chip chipAll;
     private Chip chipFarmWide;
@@ -81,6 +82,7 @@ public class ExpensesFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         emptyLayout = view.findViewById(R.id.emptyView);
         totalExpensesText = view.findViewById(R.id.totalExpensesText);
+        expensesRecordedText = view.findViewById(R.id.expensesRecordedText);
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
         chipAll = view.findViewById(R.id.chipAll);
         chipFarmWide = view.findViewById(R.id.chipFarmWide);
@@ -180,7 +182,8 @@ public class ExpensesFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     showLoading(false);
                     showEmpty(true);
-                    totalExpensesText.setText("Total: 0 XAF");
+                    totalExpensesText.setText("0 XAF");
+                    expensesRecordedText.setText("0");
                 });
             }
         });
@@ -219,7 +222,8 @@ public class ExpensesFragment extends Fragment {
 
         if (allExpenses.isEmpty()) {
             showEmpty(true);
-            totalExpensesText.setText("Total: 0 XAF");
+            totalExpensesText.setText("0 XAF");
+            expensesRecordedText.setText("0");
         } else {
             showEmpty(false);
             applyFilter();
@@ -270,8 +274,8 @@ public class ExpensesFragment extends Fragment {
         for (ExpenseWithBlockName item : filteredExpenses) {
             total += item.getExpense().getAmount();
         }
-        totalExpensesText.setText(String.format(Locale.getDefault(),
-                "Total: %,d XAF", (int) total));
+        totalExpensesText.setText(String.format(Locale.getDefault(), "%,d XAF", (int) total));
+        expensesRecordedText.setText(String.valueOf(filteredExpenses.size()));
     }
 
     public void showAddExpenseDialog() {
