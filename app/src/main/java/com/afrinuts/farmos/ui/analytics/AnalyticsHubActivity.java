@@ -92,7 +92,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
             String key = pagerAdapter.getTabKey(position);
             switch (key) {
                 case "QUALITY": tab.setText("Quality"); break;
-                case "TRACEABILITY": tab.setText("Traceability"); break;
+                case "TRACEABILITY": tab.setText("Trace"); break;
                 case "BULK": tab.setText("Bulk"); break;
                 case "REPORTS": tab.setText("Reports"); break;
             }
