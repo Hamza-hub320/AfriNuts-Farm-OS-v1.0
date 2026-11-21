@@ -23,6 +23,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,6 +206,8 @@ public final class FinanceDetailChrome {
         View viewBatch = activity.findViewById(R.id.btnViewBatch);
         if (batchTitle != null && batchTitle.getParent() instanceof LinearLayout) {
             LinearLayout header = (LinearLayout) batchTitle.getParent();
+            LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, -2, 1f);
+            batchTitle.setLayoutParams(titleParams);
             TextView seeAll = makeSeeAll(activity);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-2, -2);
             params.leftMargin = dp(activity, 12);
@@ -240,6 +243,26 @@ public final class FinanceDetailChrome {
         addKeyValueRow(activity, body, "Grade", grade);
         addKeyValueRow(activity, body, "KOR", kor);
         addKeyValueRow(activity, body, "Received", received);
+    }
+
+
+    /** Rebuilds the linked Supplier section with the fields shown in the revenue wireframe. */
+    public static void bindRevenueSupplier(Activity activity, SupplierEntity supplier, int batchCount) {
+        LinearLayout content = content(activity);
+        TextView title = content == null ? null : findText(content, "Supplier");
+        if (title == null || !(title.getParent() instanceof ViewGroup)) return;
+        ViewGroup header = (ViewGroup) title.getParent();
+        if (!(header.getParent() instanceof LinearLayout)) return;
+        LinearLayout body = (LinearLayout) header.getParent();
+        for (int i = body.getChildCount() - 1; i >= 0; i--) {
+            if (body.getChildAt(i) == header) break;
+            body.removeViewAt(i);
+        }
+        String name = supplier == null || TextUtils.isEmpty(supplier.getName()) ? "Not recorded" : supplier.getName();
+        String village = supplier == null || TextUtils.isEmpty(supplier.getLocation()) ? "Not recorded" : supplier.getLocation();
+        addKeyValueRow(activity, body, "Name", name);
+        addKeyValueRow(activity, body, "Village", village);
+        addKeyValueRow(activity, body, "Batches supplied", String.valueOf(batchCount));
     }
 
     private static void addKeyValueRow(Activity activity, LinearLayout body, String label, String value) {

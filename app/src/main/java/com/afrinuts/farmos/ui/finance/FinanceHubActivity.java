@@ -83,6 +83,7 @@ public class FinanceHubActivity extends BaseHubActivity {
                 tab.setText("Expenses");
             }
         }).attach();
+        tabLayout.post(this::centerFinanceTabLabels);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -91,6 +92,30 @@ public class FinanceHubActivity extends BaseHubActivity {
                 updateFabForTab(position);
             }
         });
+    }
+
+    private void centerFinanceTabLabels() {
+        if (tabLayout == null || tabLayout.getChildCount() == 0
+                || !(tabLayout.getChildAt(0) instanceof ViewGroup)) return;
+        ViewGroup strip = (ViewGroup) tabLayout.getChildAt(0);
+        for (int i = 0; i < strip.getChildCount(); i++) {
+            centerTabText(strip.getChildAt(i));
+        }
+    }
+
+    private void centerTabText(View view) {
+        if (view instanceof TextView) {
+            TextView label = (TextView) view;
+            label.setGravity(Gravity.CENTER);
+            label.setTranslationY(-dp(4));
+            return;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                centerTabText(group.getChildAt(i));
+            }
+        }
     }
 
     private void updateFabForTab(int position) {

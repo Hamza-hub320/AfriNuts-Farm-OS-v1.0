@@ -13,7 +13,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="20dp"
-        android:paddingBottom="152dp">
+        android:paddingBottom="76dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,8 +76,8 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
             android:padding="4dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
@@ -139,9 +139,9 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="bottom"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
         app:cardBackgroundColor="@color/nav_pill_bg"
         app:cardCornerRadius="999dp"
         app:cardElevation="2dp"
@@ -179,8 +179,8 @@
 
                     <ImageView
                         android:id="@+id/navHomeIcon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_nav_home"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor"  />
@@ -230,8 +230,8 @@
 
                     <ImageView
                         android:id="@+id/navFarmIcon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_nav_sprout"
                         android:textStyle="bold"
                         app:tint="?attr/navbarIconColor" />
@@ -280,8 +280,8 @@
 
                     <ImageView
                         android:id="@+id/navFinanceIcon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:textStyle="bold"
                         android:src="@drawable/ic_nav_wallet"
                         app:tint="?attr/navbarIconColor" />
@@ -330,8 +330,8 @@
 
                     <ImageView
                         android:id="@+id/navAnalyticsIcon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:textStyle="bold"
                         android:src="@drawable/ic_nav_analytics"
                         app:tint="?attr/navbarIconColor" />
@@ -375,8 +375,8 @@
 
                 <ImageView
                     android:id="@+id/navComplianceIcon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_nav_shield_check"
                     app:tint="?attr/navbarIconColor" />
 

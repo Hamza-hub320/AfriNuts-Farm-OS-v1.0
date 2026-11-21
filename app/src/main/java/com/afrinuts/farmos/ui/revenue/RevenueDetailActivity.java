@@ -620,6 +620,15 @@ public class RevenueDetailActivity extends BaseActivity {
                 new int[]{R.id.tvQuantity, R.id.tvPricePerKg, R.id.tvTotalAmount});
         FinanceDetailChrome.splitRevenueSections(this);
         FinanceDetailChrome.bindRevenueBatch(this, batch);
+        int supplierBatchCount = 0;
+        if (supplier != null && allBatches != null) {
+            for (QualityBatchEntity linkedBatch : allBatches) {
+                if (linkedBatch.getSupplierId() != null && linkedBatch.getSupplierId() == supplier.getId()) {
+                    supplierBatchCount++;
+                }
+            }
+        }
+        FinanceDetailChrome.bindRevenueSupplier(this, supplier, supplierBatchCount);
         footerViewBatch.setVisibility(revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
         if (btnViewBatch != null) btnViewBatch.setVisibility(View.GONE);
         FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
