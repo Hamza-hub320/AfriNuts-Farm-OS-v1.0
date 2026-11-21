@@ -199,7 +199,25 @@ public class FarmHubActivity extends BaseHubActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             TabItem tabItem = visibleTabs.get(position);
             tab.setText(tabItem.title);
+            TextView label = new TextView(this);
+            label.setTextAppearance(R.style.TextAppearance_FinanceTab);
+            label.setText(tabItem.title);
+            label.setGravity(Gravity.CENTER);
+            label.setIncludeFontPadding(false);
+            label.setTextColor(position == viewPager.getCurrentItem() ? Color.WHITE : 0xFF59544C);
+            label.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            tab.setCustomView(label);
         }).attach();
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(TabLayout.Tab tab) { setFarmTabLabelColor(tab, true); }
+            @Override public void onTabUnselected(TabLayout.Tab tab) { setFarmTabLabelColor(tab, false); }
+            @Override public void onTabReselected(TabLayout.Tab tab) { setFarmTabLabelColor(tab, true); }
+        });
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) setFarmTabLabelColor(tab, tab.isSelected());
+        }
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -209,6 +227,13 @@ public class FarmHubActivity extends BaseHubActivity {
                 updateFabForTab(position);
             }
         });
+    }
+
+    private void setFarmTabLabelColor(TabLayout.Tab tab, boolean selected) {
+        View customView = tab == null ? null : tab.getCustomView();
+        if (customView instanceof TextView) {
+            ((TextView) customView).setTextColor(selected ? Color.WHITE : 0xFF59544C);
+        }
     }
 
     private void updateFabForTab(int position) {

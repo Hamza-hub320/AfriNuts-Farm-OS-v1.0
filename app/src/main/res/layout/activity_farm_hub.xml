@@ -106,9 +106,8 @@
             android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
-            app:tabTextAppearance="@style/TextAppearance.TabCompact"
+            app:tabTextAppearance="@style/TextAppearance.FinanceTab"
             app:tabMinWidth="60dp"
-            app:tabMaxWidth="120dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
