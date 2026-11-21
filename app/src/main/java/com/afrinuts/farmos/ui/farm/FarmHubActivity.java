@@ -71,7 +71,6 @@ public class FarmHubActivity extends BaseHubActivity {
         setupViewPager();
         setupFab();
         setupFarmHeader();
-        applyFarmBottomNavStyle();
     }
 
     private void setupFarmHeader() {
@@ -163,37 +162,6 @@ public class FarmHubActivity extends BaseHubActivity {
         row.addView(text, textParams);
         menu.addView(row, new LinearLayout.LayoutParams(-1, dp(48)));
         row.setOnClickListener(v -> { popup.dismiss(); action.run(); });
-    }
-
-    private void applyFarmBottomNavStyle() {
-        int[] itemIds = {R.id.navHome, R.id.navFarm, R.id.navFinance, R.id.navAnalytics, R.id.navCompliance};
-        int[] iconIds = {R.id.navHomeIcon, R.id.navFarmIcon, R.id.navFinanceIcon, R.id.navAnalyticsIcon, R.id.navComplianceIcon};
-        int[] labelIds = {R.id.navHomeText, R.id.navFarmText, R.id.navFinanceText, R.id.navAnalyticsText, R.id.navComplianceText};
-        for (int i = 0; i < itemIds.length; i++) {
-            LinearLayout item = findViewById(itemIds[i]);
-            ImageView icon = findViewById(iconIds[i]);
-            TextView label = findViewById(labelIds[i]);
-            boolean active = i == 1;
-            item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-            item.setGravity(Gravity.CENTER);
-            item.setPadding(active ? dp(16) : 0, 0, active ? dp(16) : 0, 0);
-            item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) item.getLayoutParams();
-            params.height = dp(48);
-            params.weight = active ? 1.8f : 0.8f;
-            item.setLayoutParams(params);
-            ViewGroup.LayoutParams iconParams = icon.getLayoutParams();
-            iconParams.width = dp(20); iconParams.height = dp(20); icon.setLayoutParams(iconParams);
-            label.setVisibility(active ? View.VISIBLE : View.GONE);
-            label.setTextSize(14);
-            label.setTypeface(Typeface.create(ResourcesCompat.getFont(this, R.font.manrope_extrabold), Typeface.NORMAL));
-            label.setTextColor(active ? Color.WHITE : 0xFFC9C2B4);
-            icon.setColorFilter(active ? Color.WHITE : 0xFFC9C2B4);
-            LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
-            labelParams.setMarginStart(active ? dp(7) : 0);
-            labelParams.topMargin = 0;
-            label.setLayoutParams(labelParams);
-        }
     }
 
     private int dp(float value) { return (int) (value * getResources().getDisplayMetrics().density + 0.5f); }

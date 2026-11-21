@@ -13,10 +13,10 @@
         android:orientation="horizontal"
         android:paddingStart="0dp"
         android:paddingEnd="0dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp">
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="120dp" android:layout_weight="1.15" android:layout_marginEnd="6dp"
+            android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="104dp" android:layout_weight="1.15" android:layout_marginEnd="6dp"
             app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#0E6B3C">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp" android:background="@drawable/bg_finance_summary_green">
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Total revenue" android:textColor="#C7FFFFFF" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
@@ -25,7 +25,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="120dp" android:layout_weight="1" android:layout_marginStart="6dp"
+            android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="104dp" android:layout_weight="1" android:layout_marginStart="6dp"
             app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp">
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Total quantity" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
@@ -36,16 +36,22 @@
     </LinearLayout>
 
     <!-- Filter Chips - Updated for Processing Revenue -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
+        android:fillViewport="false"
+        android:scrollbars="none">
+
     <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="7dp"
             android:paddingVertical="0dp"
+            app:singleLine="true"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:chipSpacingHorizontal="7dp"
-            app:chipSpacingVertical="7dp">
+            app:chipSpacingHorizontal="7dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
@@ -77,6 +83,7 @@
                 style="@style/Widget.AfriNuts.FinanceChip" />
 
         </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <!-- Progress Bar -->
     <ProgressBar

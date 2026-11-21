@@ -3,8 +3,8 @@ package com.afrinuts.farmos.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -217,43 +217,48 @@ public abstract class BaseHubActivity extends BaseActivity {
     }
 
     protected void updateNavSelection(int selectedPosition) {
-        int inactiveColor = getThemeColor(R.attr.navbarIconColor);
-        int activeColor = ContextCompat.getColor(this, android.R.color.white);
-        setNavItemState(navHome, navHomeIcon, navHomeText, selectedPosition == 0, inactiveColor, activeColor);
-        setNavItemState(navFarm, navFarmIcon, navFarmText, selectedPosition == 1, inactiveColor, activeColor);
-        setNavItemState(navFinance, navFinanceIcon, navFinanceText, selectedPosition == 2, inactiveColor, activeColor);
-        setNavItemState(navAnalytics, navAnalyticsIcon, navAnalyticsText, selectedPosition == 3, inactiveColor, activeColor);
-        setNavItemState(navCompliance, navComplianceIcon, navComplianceText, selectedPosition == 4, inactiveColor, activeColor);
+        setNavItemState(navHome, navHomeIcon, navHomeText, selectedPosition == 0);
+        setNavItemState(navFarm, navFarmIcon, navFarmText, selectedPosition == 1);
+        setNavItemState(navFinance, navFinanceIcon, navFinanceText, selectedPosition == 2);
+        setNavItemState(navAnalytics, navAnalyticsIcon, navAnalyticsText, selectedPosition == 3);
+        setNavItemState(navCompliance, navComplianceIcon, navComplianceText, selectedPosition == 4);
     }
 
-    private void setNavItemState(LinearLayout item, ImageView icon, TextView label, boolean active,
-                                 int inactiveColor, int activeColor) {
+    private void setNavItemState(LinearLayout item, ImageView icon, TextView label, boolean active) {
         // Some secondary screens, such as Weather, intentionally expose only a subset of hub tabs.
         if (item == null || icon == null || label == null) return;
-        item.setOrientation(LinearLayout.VERTICAL);
+        int inactive = 0xFFC9C2B4;
+        item.setOrientation(active ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         item.setGravity(android.view.Gravity.CENTER);
-        item.setPadding(active ? 10 : 6, 4, active ? 10 : 6, 4);
+        int horizontalPadding = active ? dp(16) : 0;
+        item.setPadding(horizontalPadding, 0, horizontalPadding, 0);
         item.setBackgroundResource(active ? R.drawable.bg_nav_active_pill : 0);
-        label.setVisibility(View.VISIBLE);
-        label.setTextColor(active ? activeColor : inactiveColor);
+        label.setVisibility(active ? View.VISIBLE : View.GONE);
+        label.setTextSize(14);
+        label.setTypeface(Typeface.create(ResourcesCompat.getFont(this, R.font.manrope_extrabold), Typeface.NORMAL));
+        label.setTextColor(active ? android.graphics.Color.WHITE : inactive);
         label.setAlpha(1f);
         LinearLayout.LayoutParams labelParams = (LinearLayout.LayoutParams) label.getLayoutParams();
-        labelParams.topMargin = 4;
-        labelParams.setMarginStart(0);
+        labelParams.topMargin = 0;
+        labelParams.setMarginStart(active ? dp(7) : 0);
         label.setLayoutParams(labelParams);
-        icon.setColorFilter(active ? activeColor : inactiveColor);
+        ViewGroup.LayoutParams iconParams = icon.getLayoutParams();
+        iconParams.width = dp(20);
+        iconParams.height = dp(20);
+        icon.setLayoutParams(iconParams);
+        icon.setColorFilter(active ? android.graphics.Color.WHITE : inactive);
         ViewGroup.LayoutParams raw = item.getLayoutParams();
         if (raw instanceof LinearLayout.LayoutParams) {
             LinearLayout.LayoutParams itemParams = (LinearLayout.LayoutParams) raw;
             itemParams.width = 0;
-            itemParams.weight = active ? 1.45f : 1f;
+            itemParams.height = dp(48);
+            itemParams.weight = active ? 1.8f : 0.8f;
             item.setLayoutParams(itemParams);
         }
     }
 
-    private int getThemeColor(int attr) {
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(attr, typedValue, true);
-        return typedValue.data;
+    private int dp(float value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
+
 }
