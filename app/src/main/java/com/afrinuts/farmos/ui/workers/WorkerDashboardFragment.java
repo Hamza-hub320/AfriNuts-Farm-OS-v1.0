@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -17,7 +15,6 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -104,7 +101,6 @@ public class WorkerDashboardFragment extends Fragment {
             @Override public void afterTextChanged(android.text.Editable s) { }
         });
         com.google.android.material.chip.ChipGroup filters = view.findViewById(R.id.workerFilterGroup);
-        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filters);
         int[] filterIds = {R.id.chipWorkersAll, R.id.chipWorkersActive, R.id.chipWorkersNoActive};
         String[] filterKeys = {"ALL", "ACTIVE", "NO_ACTIVE"};
         for (int i = 0; i < filterIds.length; i++) {

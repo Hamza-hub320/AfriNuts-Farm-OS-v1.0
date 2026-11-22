@@ -12,7 +12,6 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +26,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -76,7 +74,6 @@ public class BlocksFragment extends Fragment {
         averageSurvivalSummary = view.findViewById(R.id.averageSurvivalSummary);
         searchInput = view.findViewById(R.id.etBlockSearch);
         blockFilterGroup = view.findViewById(R.id.blockFilterGroup);
-        com.afrinuts.farmos.ui.farm.FarmTabChips.style(blockFilterGroup);
         searchInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {

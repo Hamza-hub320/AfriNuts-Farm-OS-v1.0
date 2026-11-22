@@ -120,7 +120,6 @@ public class SuppliersFragment extends Fragment {
     }
 
     private void setupFilters() {
-        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filterChipGroup);
         Chip chipAll = getView().findViewById(R.id.chipAll);
         Chip chipActive = getView().findViewById(R.id.chipActive);
         Chip chipAtRisk = getView().findViewById(R.id.chipCertified);

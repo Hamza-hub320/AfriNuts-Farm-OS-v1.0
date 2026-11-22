@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -101,7 +100,6 @@ public class TasksFragment extends Fragment {
     }
 
     private void setupFilters() {
-        com.afrinuts.farmos.ui.farm.FarmTabChips.style(filterChipGroup);
         // Get chips from the ChipGroup
         Chip chipAll = filterChipGroup.findViewById(R.id.chipAll);
 
