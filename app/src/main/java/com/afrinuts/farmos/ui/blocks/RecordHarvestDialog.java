@@ -14,13 +14,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
-import com.afrinuts.farmos.data.remote.EntityMapper;
-import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -29,7 +25,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Map;
 
 public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
@@ -39,7 +34,6 @@ public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogF
     private long blockId;
     private BlockEntity block;
     private BlockRepository blockRepository;
-    private AppDatabase database;
 
     private TextInputEditText etHarvestDate;
     private TextInputEditText etQuantity;
@@ -77,7 +71,6 @@ public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogF
             blockId = getArguments().getLong(ARG_BLOCK_ID);
         }
 
-        database = AppDatabase.getInstance(requireContext());
         blockRepository = new BlockRepository(requireContext(), 1);
 
         // Load block
@@ -231,48 +224,24 @@ public class RecordHarvestDialog extends com.afrinuts.farmos.ui.farm.FarmDialogF
 
         new Thread(() -> {
             try {
-                // ✅ 1. Save to Room
-                database.blockDao().update(block);
-                Log.d(TAG, "✅ Saved to Room");
-
-                // ✅ 2. Convert to map and save to Firestore DIRECTLY
-                Map<String, Object> blockMap = EntityMapper.blockToMap(block);
-
-                // ✅ 3. Get FirebaseManager and save
-                FirebaseManager firebaseManager = FirebaseManager.getInstance();
-                firebaseManager.saveBlockMap(blockMap, String.valueOf(block.getFarmId()), block.getId())
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "✅ Saved to Firestore successfully");
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    btnSave.setEnabled(true);
-                                    btnSave.setText("Record Harvest");
-                                    Toast.makeText(getContext(),
-                                            "Harvest recorded: " + String.format(Locale.getDefault(), "%.0f kg", quantity),
-                                            Toast.LENGTH_LONG).show();
-                                    if (listener != null) {
-                                        listener.onHarvestRecorded(block);
-                                    }
-                                    dismiss();
-                                });
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "❌ Failed to save to Firestore", e);
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    btnSave.setEnabled(true);
-                                    btnSave.setText("Record Harvest");
-                                    Toast.makeText(getContext(),
-                                            "Saved locally but failed to sync: " + e.getMessage(),
-                                            Toast.LENGTH_LONG).show();
-                                    if (listener != null) {
-                                        listener.onHarvestRecorded(block);
-                                    }
-                                    dismiss();
-                                });
-                            }
-                        });
+                blockRepository.updateBlock(block).whenComplete((ignored, error) -> {
+                    if (getActivity() == null) return;
+                    getActivity().runOnUiThread(() -> {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Record Harvest");
+                        if (error == null) {
+                            Toast.makeText(getContext(),
+                                    "Harvest recorded: " + String.format(Locale.getDefault(), "%.0f kg", quantity),
+                                    Toast.LENGTH_LONG).show();
+                            if (listener != null) listener.onHarvestRecorded(block);
+                            dismiss();
+                        } else {
+                            Log.e(TAG, "Failed to save harvest locally", error);
+                            Toast.makeText(getContext(), "Error saving harvest: " + error.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                });
 
             } catch (Exception e) {
                 Log.e(TAG, "Error saving harvest", e);

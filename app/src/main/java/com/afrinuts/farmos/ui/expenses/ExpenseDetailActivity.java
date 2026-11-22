@@ -783,7 +783,10 @@ public class ExpenseDetailActivity extends BaseActivity {
             public void onSuccess(Boolean result) {
                 runOnUiThread(() -> {
                     Toast.makeText(ExpenseDetailActivity.this,
-                            "Changes saved successfully!", Toast.LENGTH_SHORT).show();
+                            Boolean.TRUE.equals(result)
+                                    ? "Changes saved successfully!"
+                                    : "Saved on this device — will sync when you're back online",
+                            Toast.LENGTH_SHORT).show();
                     btnSave.setEnabled(true);
                     btnSave.setText("Save");
                     enableEditMode(false);
@@ -825,7 +828,11 @@ public class ExpenseDetailActivity extends BaseActivity {
             @Override
             public void onSuccess(Boolean result) {
                 runOnUiThread(() -> {
-                    Toast.makeText(ExpenseDetailActivity.this, "Expense deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ExpenseDetailActivity.this,
+                            Boolean.TRUE.equals(result)
+                                    ? "Expense deleted"
+                                    : "Expense deleted on this device — will sync when you're back online",
+                            Toast.LENGTH_SHORT).show();
                     finish();
                 });
             }

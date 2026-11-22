@@ -7,6 +7,8 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
+import com.google.android.gms.tasks.Task;
+
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.data.remote.EntityMapper;
@@ -111,17 +113,19 @@ public class ExpenseRepository extends BaseRepository {
                     Log.d(TAG, "Skipping queue - this is a remote update");
                 }
 
-                // Try to update Firestore (firestoreHelper will handle success/failure)
-                firestoreHelper.updateExpense(expense)
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Expense updated in Firestore");
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore update failed", e);
-                            // Queue already exists, just return success
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        });
+                // The local write and sync queue are authoritative for UI completion.
+                // Firestore can remain pending indefinitely while the device is offline.
+                boolean remoteConfirmed = false;
+                try {
+                    Task<Void> remoteWrite = firestoreHelper.updateExpense(expense);
+                    remoteWrite.addOnSuccessListener(aVoid -> Log.d(TAG, "Expense updated in Firestore"))
+                            .addOnFailureListener(e -> Log.e(TAG, "Firestore update failed; queued for sync", e));
+                    remoteConfirmed = remoteWrite.isComplete() && remoteWrite.isSuccessful();
+                } catch (Exception remoteError) {
+                    Log.e(TAG, "Could not start Firestore update; queued for sync", remoteError);
+                }
+                boolean serverConfirmed = remoteConfirmed;
+                mainHandler.post(() -> callback.onSuccess(serverConfirmed));
 
             } catch (Exception e) {
                 Log.e(TAG, "Error updating expense", e);
@@ -148,17 +152,18 @@ public class ExpenseRepository extends BaseRepository {
                     Log.d(TAG, "Skipping queue - this is a remote update");
                 }
 
-                // Try to delete from Firestore
-                firestoreHelper.deleteExpense(expense.getId())
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Expense deleted from Firestore");
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Firestore delete failed", e);
-                            // Queue already exists, just return success
-                            mainHandler.post(() -> callback.onSuccess(true));
-                        });
+                // Do not wait for a server acknowledgement before completing the local delete.
+                boolean remoteConfirmed = false;
+                try {
+                    Task<Void> remoteDelete = firestoreHelper.deleteExpense(expense.getId());
+                    remoteDelete.addOnSuccessListener(aVoid -> Log.d(TAG, "Expense deleted from Firestore"))
+                            .addOnFailureListener(e -> Log.e(TAG, "Firestore delete failed; queued for sync", e));
+                    remoteConfirmed = remoteDelete.isComplete() && remoteDelete.isSuccessful();
+                } catch (Exception remoteError) {
+                    Log.e(TAG, "Could not start Firestore delete; queued for sync", remoteError);
+                }
+                boolean serverConfirmed = remoteConfirmed;
+                mainHandler.post(() -> callback.onSuccess(serverConfirmed));
 
             } catch (Exception e) {
                 Log.e(TAG, "Error deleting expense", e);

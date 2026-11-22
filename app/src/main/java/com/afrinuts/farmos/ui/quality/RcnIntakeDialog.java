@@ -188,6 +188,11 @@ public class RcnIntakeDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragm
             public void afterTextChanged(android.text.Editable s) {}
         };
         for (TextInputEditText f : new TextInputEditText[]{
+                etKorSampleGrams, etKorKernelGrams, etMoisture, etNutCount,
+                etMouldy, etImmature, etInsectDamaged, etShrivelled, etForeignMatter}) {
+            f.addTextChangedListener(w);
+        }
+        for (TextInputEditText f : new TextInputEditText[]{
                 etBatchNumberDisplay, etWeightKgDisplay,
                 etKorComputed, etDefectiveTotal, etComputedGrade, etComputedScore}) {
             f.setEnabled(false);

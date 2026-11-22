@@ -355,11 +355,15 @@
                     android:orientation="horizontal"
                     android:weightSum="2">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="6dp">
+<com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
                         style="@style/Widget.AfriNuts.EditText">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etMouldy"
@@ -368,12 +372,17 @@
                             android:hint="Mouldy %"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="6dp">
+<com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
                         style="@style/Widget.AfriNuts.EditText">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etImmature"
@@ -382,6 +391,7 @@
                             android:hint="Immature %"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -391,11 +401,15 @@
                     android:layout_marginTop="10dp"
                     android:weightSum="2">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="6dp">
+<com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
                         style="@style/Widget.AfriNuts.EditText">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etInsectDamaged"
@@ -404,12 +418,17 @@
                             android:hint="Insect damaged %"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="6dp">
+<com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
                         style="@style/Widget.AfriNuts.EditText">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etShrivelled"
@@ -418,6 +437,7 @@
                             android:hint="Shrivelled %"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout

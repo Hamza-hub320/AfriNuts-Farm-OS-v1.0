@@ -167,16 +167,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
                 .setView(view)
                 .setCancelable(false);
 
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-        });
-
-        return dialog;
+        return builder.create();
     }
 
     private void initViews(View view) {
