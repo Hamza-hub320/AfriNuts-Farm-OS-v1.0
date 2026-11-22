@@ -147,6 +147,8 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
         } else if ("TRACEABILITY".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
+            fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primary)));
             fabAction.setImageResource(R.drawable.ic_qr_code);
             fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> {

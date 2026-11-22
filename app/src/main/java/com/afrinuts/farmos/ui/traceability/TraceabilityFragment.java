@@ -261,7 +261,7 @@ public class TraceabilityFragment extends Fragment {
 
         tvTotalBatches.setText(String.valueOf(total));
         tvExportedBatches.setText(String.valueOf(exported));
-        tvTotalWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", totalWeight));
+        tvTotalWeight.setText(String.format(Locale.getDefault(), "%,.0f", totalWeight));
     }
 
     private void showLoading(boolean show) {

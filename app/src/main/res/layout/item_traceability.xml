@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
+    app:cardElevation="0dp"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -19,88 +19,127 @@
         android:padding="12dp"
         android:background="@color/surface">
 
-        <!-- Top Row: Batch Number + Status -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
-
-            <TextView
-                android:id="@+id/tvBatchNumber"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="#AFN-260625-001"
-                style="@style/Text.H6"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✅ Exported"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:background="@drawable/status_background"
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
-
-        <!-- Grade -->
-        <TextView
-            android:id="@+id/tvGrade"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Premium"
-            android:textSize="13sp"
-            android:textColor="@color/accent_ink"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <!-- Bottom Row: Date + Weight + Buyer -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
-
             <TextView
-                android:id="@+id/tvDate"
+                android:id="@+id/tvBatchNumber"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Jun 25, 2026"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="11sp" />
-
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="#AFN-260625-001"
+                android:textColor="#1C1B1A"
+                android:textSize="15.5sp"
+                android:fontFamily="@font/manrope_extrabold" />
             <TextView
-                android:id="@+id/tvWeight"
+                android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="40,000 kg"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="11sp"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:id="@+id/tvBuyer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Olam"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="11sp"
-                android:alpha="0.7" />
-
+                android:text="Exported"
+                android:textColor="#0A5530"
+                android:textSize="10.5sp"
+                android:letterSpacing="0.04"
+                android:fontFamily="@font/manrope_extrabold"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:background="@drawable/bg_quality_type_outline" />
         </LinearLayout>
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tvGrade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Premium"
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_semibold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" grade · "
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_semibold" />
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="Jun 25, 2026"
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_semibold" />
+        </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="#E9E1CF" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Weight"
+                    android:textColor="#59544C"
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/manrope_bold" />
+                <TextView
+                    android:id="@+id/tvWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="40,000 kg"
+                    android:textColor="#1C1B1A"
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buyer"
+                    android:textColor="#59544C"
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/manrope_bold" />
+                <TextView
+                    android:id="@+id/tvBuyer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:text="Olam"
+                    android:textColor="#1C1B1A"
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
