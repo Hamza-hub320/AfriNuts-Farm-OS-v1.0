@@ -336,6 +336,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         if (traceability.getExportDate() != null && traceability.getExportDate() > 0) {
             tvShippingExportDate.setText(traceability.getFormattedExportDate());
             tvExportStatus.setText("Exported");
+            tvExportStatus.setTextColor(0xFFFFFFFF);
             tvExportStatus.setVisibility(View.VISIBLE);
         } else {
             tvShippingExportDate.setText("Not set");
