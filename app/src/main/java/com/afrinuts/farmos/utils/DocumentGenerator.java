@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -22,8 +23,8 @@ import java.util.Locale;
 public class DocumentGenerator {
 
     private static final String TAG = "DocumentGenerator";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-    private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+    private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
 
     public interface DocumentUploadCallback {
         void onSuccess(String downloadUrl);
@@ -64,8 +65,9 @@ public class DocumentGenerator {
                                                           BatchTraceabilityEntity traceability,
                                                           String farmId,
                                                           DocumentUploadCallback callback) {
-        String content = generateCommercialInvoice(batch, revenue, supplier, traceability);
-        String fileName = "Commercial_Invoice_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
+        String invoiceNumber = nextInvoiceNumber(context, farmId);
+        String content = generateCommercialInvoice(batch, revenue, supplier, traceability, invoiceNumber);
+        String fileName = "Commercial_Invoice_" + invoiceNumber + "_" + batch.getBatchNumber() + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
 
@@ -76,7 +78,8 @@ public class DocumentGenerator {
                                                         BatchTraceabilityEntity traceability,
                                                         String farmId,
                                                         DocumentUploadCallback callback) {
-        String content = generateBatchDocumentPackage(supplier, batch, revenue, traceability);
+        String invoiceNumber = nextInvoiceNumber(context, farmId);
+        String content = generateBatchDocumentPackage(supplier, batch, revenue, traceability, invoiceNumber);
         String fileName = "Document_Package_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
         uploadDocument(context, content, fileName, farmId, "documents", callback);
     }
@@ -173,22 +176,22 @@ public class DocumentGenerator {
         doc.append("--- Product Information ---\n");
         if (batch != null) {
             doc.append("Batch Number: ").append(batch.getBatchNumber()).append("\n");
-            doc.append("Product: Cashew Nuts (Processed Kernels)\n");
+            appendProductDetails(doc, batch);
             doc.append("Grade: ").append(batch.getQualityGrade().getDisplayName()).append("\n");
 
             // ✅ Show both raw and kernel weights
             if (traceability != null) {
                 if (traceability.getRawWeightKg() > 0) {
-                    doc.append("Raw Input Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg())).append("\n");
+                    doc.append("Raw Input Weight: ").append(String.format(Locale.US, "%.0f kg", traceability.getRawWeightKg())).append("\n");
                 }
                 if (traceability.getKernelWeightKg() > 0) {
-                    doc.append("Kernel Output Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getKernelWeightKg())).append("\n");
+                    doc.append("Kernel Output Weight: ").append(String.format(Locale.US, "%.0f kg", traceability.getKernelWeightKg())).append("\n");
                 }
                 if (traceability.getYieldPercentage() > 0) {
-                    doc.append("Yield Percentage: ").append(String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage())).append("\n");
+                    doc.append("Yield Percentage: ").append(String.format(Locale.US, "%.1f%%", traceability.getYieldPercentage())).append("\n");
                 }
             } else {
-                doc.append("Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg())).append("\n");
+                doc.append("Weight: ").append(String.format(Locale.US, "%.0f kg", batch.getWeightKg())).append("\n");
             }
             doc.append("Harvest Date: ").append(DATE_FORMAT.format(new Date(batch.getProcessingDate()))).append("\n");
         }
@@ -225,11 +228,11 @@ public class DocumentGenerator {
 
         doc.append("--- Verification ---\n");
         doc.append("This document is digitally verified through Farm OS.\n");
-        doc.append("Traceability URL: https://www.afrinutsexport.com/trace?batchId=").append(batch != null ? batch.getBatchNumber() : "").append("\n\n");
+        doc.append("Traceability URL: ").append(traceabilityUrl(batch)).append("\n\n");
 
         doc.append("Authorized Signature: ____________________\n");
         doc.append("Issued by: Farm OS - AfriNuts Export\n");
-        doc.append("Verification Code: ").append(generateVerificationCode()).append("\n");
+        doc.append("Verification Code: ").append(verificationCode(batch, traceability)).append("\n");
         doc.append("================================\n");
 
         return doc.toString();
@@ -267,9 +270,9 @@ public class DocumentGenerator {
         int bags = (int) Math.ceil(weightKg / 50);
         int boxes = (int) Math.ceil(weightKg / 25);
 
-        doc.append("Total Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", weightKg)).append("\n");
+        doc.append("Total Weight: ").append(String.format(Locale.US, "%.0f kg", weightKg)).append("\n");
         if (traceability != null && traceability.getRawWeightKg() > 0) {
-            doc.append("Raw Input Weight: ").append(String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg())).append("\n");
+            doc.append("Raw Input Weight: ").append(String.format(Locale.US, "%.0f kg", traceability.getRawWeightKg())).append("\n");
         }
         doc.append("Number of Bags: ").append(bags).append(" (50kg each)\n");
         doc.append("Number of Boxes: ").append(boxes).append(" (25kg each)\n");
@@ -277,11 +280,18 @@ public class DocumentGenerator {
         doc.append("Storage Conditions: Dry, ventilated area\n\n");
 
         doc.append("--- Product Details ---\n");
-        doc.append("Product: Cashew Nuts (Processed Kernels)\n");
+        appendProductDetails(doc, batch);
         doc.append("Grade: ").append(batch != null ? batch.getQualityGrade().getDisplayName() : "N/A").append("\n");
-        doc.append("Moisture Content: ").append(batch != null ? String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent()) : "N/A").append("\n");
-        doc.append("Defective Rate: ").append(batch != null ? String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate()) : "N/A").append("\n");
-        doc.append("Kernel Ratio: ").append(batch != null ? String.format(Locale.getDefault(), "%.0f%%", batch.getKernelRatio()) : "N/A").append("\n\n");
+        doc.append("Moisture Content: ").append(batch != null ? String.format(Locale.US, "%.1f%%", batch.getMoistureContent()) : "N/A").append("\n");
+        doc.append("Defective Rate: ").append(batch != null ? String.format(Locale.US, "%.1f%%", batch.getDefectiveRate()) : "N/A").append("\n");
+        if (batch != null && batch.isRcn()) {
+            doc.append("KOR (Kernel Outturn Ratio): ")
+                    .append(String.format(Locale.US, "%.0f g/kg", batch.getKorGPerKg())).append("\n\n");
+        } else {
+            doc.append("Kernel Ratio: ")
+                    .append(batch != null ? String.format(Locale.US, "%.0f%%", batch.getKernelRatio()) : "N/A")
+                    .append("\n\n");
+        }
 
         doc.append("--- Packaging Details ---\n");
         doc.append("Each bag/box is labeled with:\n");
@@ -292,7 +302,7 @@ public class DocumentGenerator {
 
         doc.append("--- Inspection ---\n");
         doc.append("This packing list was generated from Farm OS inventory data.\n");
-        doc.append("Verification Code: ").append(generateVerificationCode()).append("\n");
+        doc.append("Verification Code: ").append(verificationCode(batch, traceability)).append("\n");
         doc.append("======================\n");
 
         return doc.toString();
@@ -305,19 +315,21 @@ public class DocumentGenerator {
     public static String generateCommercialInvoice(QualityBatchEntity batch,
                                                    RevenueEntity revenue,
                                                    SupplierEntity supplier,
-                                                   BatchTraceabilityEntity traceability) {
+                                                   BatchTraceabilityEntity traceability,
+                                                   String invoiceNumber) {
         StringBuilder doc = new StringBuilder();
 
         doc.append("=== COMMERCIAL INVOICE ===\n");
         doc.append("===========================\n\n");
 
         doc.append("AfriNuts Export\n");
-        doc.append("Odienné, Côte d'Ivoire\n");
+        doc.append("Registered address: Abidjan, Abobo PK18 ILOT 1176 114\n");
+        doc.append("Farm location: Odienné, Côte d'Ivoire\n");
+        doc.append("RCCM: CI-ABJ-03-2026-B12-04223\n");
+        doc.append("IDU: CI-2026-0066959 J\n");
         doc.append("Phone: +225 07 02 27 27 70\n");
         doc.append("Email: info@afrinutsexport.com\n\n");
 
-        String invoiceNumber = "INV-" + FILE_DATE_FORMAT.format(new Date())
-                + "-" + String.format("%03d", System.currentTimeMillis() % 1000);
         doc.append("Invoice Number: ").append(invoiceNumber).append("\n");
         doc.append("Invoice Date: ").append(DATE_FORMAT.format(new Date())).append("\n\n");
 
@@ -333,7 +345,7 @@ public class DocumentGenerator {
 
         // Product details with pricing
         doc.append("--- Product Details ---\n");
-        doc.append("Product: Cashew Nuts (Processed Kernels)\n");
+        appendProductDetails(doc, batch);
         doc.append("Batch Number: ").append(batch != null ? batch.getBatchNumber() : "N/A").append("\n");
         doc.append("Grade: ").append(batch != null ? batch.getQualityGrade().getDisplayName() : "N/A").append("\n");
 
@@ -341,13 +353,13 @@ public class DocumentGenerator {
         double weightKg = traceability != null && traceability.getKernelWeightKg() > 0 ?
                 traceability.getKernelWeightKg() :
                 (batch != null ? batch.getWeightKg() : 0);
-        doc.append("Quantity: ").append(String.format(Locale.getDefault(), "%.0f kg", weightKg)).append("\n");
+        doc.append("Quantity: ").append(String.format(Locale.US, "%.0f kg", weightKg)).append("\n");
 
         double pricePerKg = revenue != null ? revenue.getPricePerKg() : 0;
         double totalAmount = revenue != null ? revenue.getTotalAmount() : (pricePerKg * weightKg);
 
-        doc.append("Unit Price: ").append(String.format(Locale.getDefault(), "%,.0f XAF/kg", pricePerKg)).append("\n");
-        doc.append("Total Amount: ").append(String.format(Locale.getDefault(), "%,.0f XAF", totalAmount)).append("\n\n");
+        doc.append("Unit Price: ").append(String.format(Locale.US, "%,.0f XAF/kg", pricePerKg)).append("\n");
+        doc.append("Total Amount: ").append(String.format(Locale.US, "%,.0f XAF", totalAmount)).append("\n\n");
 
         // ✅ Add processing info if available
         if (traceability != null) {
@@ -359,7 +371,7 @@ public class DocumentGenerator {
                 doc.append("Facility: ").append(traceability.getProcessingFacility()).append("\n");
             }
             if (traceability.getYieldPercentage() > 0) {
-                doc.append("Yield: ").append(String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage())).append("\n");
+                doc.append("Yield: ").append(String.format(Locale.US, "%.1f%%", traceability.getYieldPercentage())).append("\n");
             }
             doc.append("\n");
         }
@@ -375,12 +387,11 @@ public class DocumentGenerator {
 
         doc.append("--- Verification ---\n");
         doc.append("This invoice is digitally generated from Farm OS.\n");
-        doc.append("Traceability: https://www.afrinutsexport.com/trace?batchId=")
-                .append(batch != null ? batch.getBatchNumber() : "").append("\n\n");
+        doc.append("Traceability: ").append(traceabilityUrl(batch)).append("\n\n");
 
         doc.append("Authorized Signature: ____________________\n");
         doc.append("Company Stamp: AfriNuts Export\n");
-        doc.append("Verification Code: ").append(generateVerificationCode()).append("\n");
+        doc.append("Verification Code: ").append(verificationCode(batch, traceability)).append("\n");
         doc.append("===========================\n");
 
         return doc.toString();
@@ -393,7 +404,8 @@ public class DocumentGenerator {
     public static String generateBatchDocumentPackage(SupplierEntity supplier,
                                                       QualityBatchEntity batch,
                                                       RevenueEntity revenue,
-                                                      BatchTraceabilityEntity traceability) {
+                                                      BatchTraceabilityEntity traceability,
+                                                      String invoiceNumber) {
         StringBuilder packageDoc = new StringBuilder();
 
         packageDoc.append("============================================\n");
@@ -421,14 +433,14 @@ public class DocumentGenerator {
 
         // Commercial Invoice
         packageDoc.append("=== 3. COMMERCIAL INVOICE ===\n");
-        packageDoc.append(generateCommercialInvoice(batch, revenue, supplier, traceability));
+        packageDoc.append(generateCommercialInvoice(batch, revenue, supplier, traceability, invoiceNumber));
         packageDoc.append("\n\n");
 
         // Processing Report
         packageDoc.append("=== 4. PROCESSING REPORT ===\n");
-        packageDoc.append("Raw Input Weight: ").append(traceability != null ? String.format(Locale.getDefault(), "%.0f kg", traceability.getRawWeightKg()) : "N/A").append("\n");
-        packageDoc.append("Kernel Output Weight: ").append(traceability != null ? String.format(Locale.getDefault(), "%.0f kg", traceability.getKernelWeightKg()) : "N/A").append("\n");
-        packageDoc.append("Yield Percentage: ").append(traceability != null ? String.format(Locale.getDefault(), "%.1f%%", traceability.getYieldPercentage()) : "N/A").append("\n");
+        packageDoc.append("Raw Input Weight: ").append(traceability != null ? String.format(Locale.US, "%.0f kg", traceability.getRawWeightKg()) : "N/A").append("\n");
+        packageDoc.append("Kernel Output Weight: ").append(traceability != null ? String.format(Locale.US, "%.0f kg", traceability.getKernelWeightKg()) : "N/A").append("\n");
+        packageDoc.append("Yield Percentage: ").append(traceability != null ? String.format(Locale.US, "%.1f%%", traceability.getYieldPercentage()) : "N/A").append("\n");
         if (traceability != null && traceability.getProcessingMethod() != null) {
             packageDoc.append("Processing Method: ").append(traceability.getProcessingMethod()).append("\n");
         }
@@ -439,9 +451,8 @@ public class DocumentGenerator {
 
         packageDoc.append("--- Verification ---\n");
         packageDoc.append("Farm OS Verified\n");
-        packageDoc.append("Traceability URL: https://www.afrinutsexport.com/trace/")
-                .append(batch != null ? batch.getBatchNumber() : "").append("\n");
-        packageDoc.append("Verification Code: ").append(generateVerificationCode()).append("\n");
+        packageDoc.append("Traceability URL: ").append(traceabilityUrl(batch)).append("\n");
+        packageDoc.append("Verification Code: ").append(verificationCode(batch, traceability)).append("\n");
         packageDoc.append("============================================\n");
 
         return packageDoc.toString();
@@ -451,9 +462,48 @@ public class DocumentGenerator {
     // HELPERS
     // ========================================
 
-    private static String generateVerificationCode() {
-        return "FOS-" + FILE_DATE_FORMAT.format(new Date()) +
-                "-" + String.format("%06d", System.currentTimeMillis() % 1000000);
+    private static String verificationCode(QualityBatchEntity batch, BatchTraceabilityEntity traceability) {
+        if (traceability != null && traceability.getVerificationCode() != null
+                && !traceability.getVerificationCode().trim().isEmpty()) {
+            return traceability.getVerificationCode().trim();
+        }
+        if (batch != null && batch.getVerificationCode() != null && !batch.getVerificationCode().trim().isEmpty()) {
+            return batch.getVerificationCode().trim();
+        }
+        String batchNumber = batch != null ? batch.getBatchNumber() : null;
+        return batchNumber != null && !batchNumber.trim().isEmpty() ? "FOS-" + batchNumber.trim() : "FOS-UNASSIGNED";
+    }
+
+    private static String traceabilityUrl(QualityBatchEntity batch) {
+        String batchNumber = batch != null && batch.getBatchNumber() != null ? batch.getBatchNumber() : "";
+        try {
+            return "https://www.afrinutsexport.com/trace?batchId="
+                    + java.net.URLEncoder.encode(batchNumber, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException impossible) {
+            return "https://www.afrinutsexport.com/trace?batchId=" + batchNumber;
+        }
+    }
+
+    private static synchronized String nextInvoiceNumber(Context context, String farmId) {
+        String year = new SimpleDateFormat("yyyy", Locale.US).format(new Date());
+        String key = "invoice_sequence_" + year + "_" + (farmId == null ? "default" : farmId);
+        SharedPreferences preferences = context.getApplicationContext()
+                .getSharedPreferences("trade_document_sequences", Context.MODE_PRIVATE);
+        int sequence = preferences.getInt(key, 0) + 1;
+        if (!preferences.edit().putInt(key, sequence).commit()) {
+            throw new IllegalStateException("Could not persist the invoice sequence");
+        }
+        return "INV-" + year + "-" + String.format(Locale.US, "%04d", sequence);
+    }
+
+    private static void appendProductDetails(StringBuilder doc, QualityBatchEntity batch) {
+        if (batch != null && batch.isRcn()) {
+            doc.append("Product: Raw Cashew Nuts (RCN), in shell\n");
+            doc.append("HS Code: 0801.31\n");
+        } else {
+            doc.append("Product: Cashew Kernels, processed\n");
+            doc.append("HS Code: 0801.32\n");
+        }
     }
 
     public static String saveDocumentToFile(Context context, String fileName, String content) {

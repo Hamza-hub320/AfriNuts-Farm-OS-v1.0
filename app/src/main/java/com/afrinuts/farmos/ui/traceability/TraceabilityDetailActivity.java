@@ -1116,8 +1116,12 @@ public class TraceabilityDetailActivity extends BaseActivity {
                         break;
 
                     case "Document Package":
-                        DocumentGenerator.generateAndUploadDocumentPackage(
-                                this, supplier, qualityBatch, finalRevenue, traceability, String.valueOf(currentFarmId), callback);
+                        if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
+                            DocumentGenerator.generateAndUploadDocumentPackage(
+                                    this, supplier, qualityBatch, finalRevenue, traceability, String.valueOf(currentFarmId), callback);
+                        } else {
+                            runOnUiThread(() -> showAddRevenueDialog());
+                        }
                         break;
 
                     default:
@@ -1140,7 +1144,12 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
             switch (documentType) {
                 case "Certificate of Origin":
-                    docs.setQualityCertificate(downloadUrl);
+                    if (docs.getAdditionalDocs() == null) {
+                        docs.setAdditionalDocs(new ArrayList<>());
+                    }
+                    if (!docs.getAdditionalDocs().contains(downloadUrl)) {
+                        docs.getAdditionalDocs().add(downloadUrl);
+                    }
                     break;
 
                 case "Packing List":
