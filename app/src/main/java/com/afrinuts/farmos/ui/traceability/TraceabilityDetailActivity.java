@@ -262,8 +262,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
             if (card.getChildAt(0) instanceof LinearLayout) {
                 LinearLayout body = (LinearLayout) card.getChildAt(0);
-                int horizontal = Math.round((hero ? 20f : 20f) * density);
-                int vertical = Math.round((hero ? 20f : 18f) * density);
+                boolean documents = card.getId() == R.id.layoutDocuments;
+                int horizontal = Math.round((documents ? 12f : 20f) * density);
+                int vertical = Math.round((hero ? 20f : documents ? 12f : 18f) * density);
                 body.setPadding(horizontal, vertical, horizontal, vertical);
                 body.setBackgroundColor(0xFFFFFFFF);
 
@@ -955,7 +956,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         LinearLayout docRow = new LinearLayout(this);
         docRow.setOrientation(LinearLayout.HORIZONTAL);
         docRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        docRow.setPadding(dpToPx(0), dpToPx(10), dpToPx(0), dpToPx(10));
+        docRow.setPadding(dpToPx(0), dpToPx(6), dpToPx(0), dpToPx(6));
         android.graphics.drawable.GradientDrawable rowBackground = new android.graphics.drawable.GradientDrawable();
         rowBackground.setColor(0xFFFFFFFF);
         rowBackground.setCornerRadius(dpToPx(12));
@@ -966,7 +967,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        params.setMargins(0, 0, 0, dpToPx(8));
+        params.setMargins(0, 0, 0, dpToPx(6));
         docRow.setLayoutParams(params);
         docRow.setClickable(true);
         docRow.setFocusable(true);
@@ -989,6 +990,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
         TextView text = new TextView(this);
         String fileName = cleanDocumentFileName(docUrl);
         text.setText(fileName);
+        text.setSingleLine(true);
+        text.setEllipsize(android.text.TextUtils.TruncateAt.END);
         text.setTextColor(0xFF1C1B1A);
         text.setTextSize(15);
         text.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));

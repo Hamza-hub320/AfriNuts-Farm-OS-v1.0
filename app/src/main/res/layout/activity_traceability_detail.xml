@@ -703,7 +703,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
+                    android:padding="12dp"
                     android:background="@color/surface">
 
                     <!-- Header -->
@@ -712,7 +712,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="8dp">
 
                         <FrameLayout
                             android:layout_width="36dp"
@@ -746,18 +746,18 @@
                         android:gravity="center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
                         android:background="@color/surface"
                         android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:background="@drawable/bg_document_icon"
-                            android:padding="12dp"
+                            android:padding="8dp"
                             android:src="@drawable/ic_certified"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -795,18 +795,18 @@
                         android:gravity="center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
                         android:background="@color/surface"
                         android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:background="@drawable/bg_document_icon"
-                            android:padding="12dp"
+                            android:padding="8dp"
                             android:src="@drawable/ic_phyto"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -844,18 +844,18 @@
                         android:gravity="center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
                         android:background="@color/surface"
                         android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:background="@drawable/bg_document_icon"
-                            android:padding="12dp"
+                            android:padding="8dp"
                             android:src="@drawable/ic_packing"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -894,8 +894,8 @@
                         android:gravity="center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
                         android:background="@color/surface"
                         android:layout_marginBottom="0dp"
                         android:clickable="true"
@@ -904,10 +904,10 @@
 
                         <ImageView
                             android:id="@+id/ivCommercialInvoiceIcon"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:background="@drawable/bg_document_icon"
-                            android:padding="12dp"
+                            android:padding="8dp"
                             android:src="@drawable/ic_invoice"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -942,18 +942,18 @@
                         android:gravity="center_vertical"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
                         android:background="@color/surface"
                         android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:background="@drawable/bg_document_icon"
-                            android:padding="12dp"
+                            android:padding="8dp"
                             android:src="@drawable/ic_insurance"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -991,7 +991,7 @@
                         android:id="@+id/btnGenerateDocuments"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:text="Generate documents"
                         android:textSize="15sp"
                         android:fontFamily="@font/manrope_extrabold"
