@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
-import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
@@ -43,7 +42,6 @@ import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity;
-import com.afrinuts.farmos.ui.suppliers.SupplierDetailActivity;
 import com.afrinuts.farmos.utils.DocumentGenerator;
 import com.afrinuts.farmos.utils.QRCodeGenerator;
 import com.google.android.material.button.MaterialButton;
@@ -67,8 +65,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
     private String batchNumber;
     private BatchTraceabilityEntity traceability;
     private QualityBatchEntity qualityBatch;
-    private SupplierEntity supplier;
-    private String originBlockName = "—";
 
     private AppDatabase database;
     private BatchTraceabilityRepository repository;
@@ -127,7 +123,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
     // Buttons
     private MaterialButton btnViewBatch;
-    private MaterialButton btnViewSupplier;
     private MaterialButton btnShareTraceability;
     private MaterialButton btnDelete;
 
@@ -215,7 +210,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         // Buttons
         btnViewBatch = findViewById(R.id.btnViewBatch);
-        btnViewSupplier = findViewById(R.id.btnViewSupplier);
         btnShareTraceability = findViewById(R.id.btnShareTraceability);
         btnDelete = findViewById(R.id.btnDelete);
         findViewById(R.id.btnHeaderBack).setOnClickListener(v -> finish());
@@ -225,7 +219,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
         btnGenerateDocuments.setOnClickListener(v -> showDocumentGenerationDialog());
 
         btnViewBatch.setOnClickListener(v -> viewBatch());
-        btnViewSupplier.setOnClickListener(v -> viewSupplier());
         btnShareTraceability.setOnClickListener(v -> shareTraceability());
         btnDelete.setOnClickListener(v -> confirmDelete());
 
@@ -424,22 +417,13 @@ public class TraceabilityDetailActivity extends BaseActivity {
             }
 
             qualityBatch = null;
-            supplier = null;
-            originBlockName = "—";
             if (traceability.getQualityBatchId() != null) {
                 qualityBatchRepository = new QualityBatchRepository(this, traceability.getFarmId());
                 qualityBatch = qualityBatchRepository.getBatchByIdSync(traceability.getQualityBatchId());
-                if (qualityBatch != null && qualityBatch.getBlockId() != null) {
-                    BlockEntity block = database.blockDao().getBlockById(qualityBatch.getBlockId());
-                    if (block != null && block.getBlockName() != null) {
-                        originBlockName = "Block " + block.getBlockName();
-                    }
-                }
             }
 
             if (traceability.getSupplierId() != null) {
                 supplierRepository = new SupplierRepository(this, traceability.getFarmId());
-                supplier = supplierRepository.getSupplierByIdSync(traceability.getSupplierId());
             }
 
             runOnUiThread(() -> displayTraceabilityData());
@@ -450,7 +434,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
         if (traceability == null) return;
 
         tvBatchNumber.setText(traceability.getBatchNumber());
-        ((TextView) findViewById(R.id.tvOriginBlock)).setText(originBlockName);
+        String sourceType = qualityBatch != null && qualityBatch.getSourceType() != null
+                ? qualityBatch.getSourceType().getDisplayName() : "—";
+        ((TextView) findViewById(R.id.tvOriginSourceType)).setText(sourceType);
         ((TextView) findViewById(R.id.tvOriginProcessingDate)).setText(traceability.getFormattedProcessingDate());
         tvStatus.setText(traceability.isExported() ? "• Exported" : "• Processing");
         tvStatus.setBackgroundResource(traceability.isExported()
@@ -536,12 +522,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
             btnViewBatch.setVisibility(View.VISIBLE);
         } else {
             btnViewBatch.setVisibility(View.GONE);
-        }
-
-        if (supplier != null) {
-            btnViewSupplier.setVisibility(View.VISIBLE);
-        } else {
-            btnViewSupplier.setVisibility(View.GONE);
         }
 
         // Role-based UI
@@ -1357,17 +1337,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         Intent intent = new Intent(this, QualityBatchDetailActivity.class);
         intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, qualityBatch.getId());
-        startActivity(intent);
-    }
-
-    private void viewSupplier() {
-        if (supplier == null) {
-            Toast.makeText(this, "Supplier not found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = new Intent(this, SupplierDetailActivity.class);
-        intent.putExtra(SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
         startActivity(intent);
     }
 

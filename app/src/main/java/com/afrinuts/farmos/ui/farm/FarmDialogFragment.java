@@ -52,7 +52,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
             if (content instanceof ViewGroup) ((ViewGroup) content).setBackgroundColor(Color.TRANSPARENT);
             removeLeadingHeaderIcon(content);
             styleDialogTitle(content, true);
-            styleButtons(content, density, firstDialogTitle(content));
+            styleButtons(content, density);
             for (int i = customSlot.getChildCount() - 1; i >= 0; i--) {
                 View child = customSlot.getChildAt(i);
                 if (child != content) customSlot.removeViewAt(i);
@@ -328,7 +328,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         return first;
     }
 
-    private void styleButtons(View view, float density, String dialogTitle) {
+    private void styleButtons(View view, float density) {
         if (view instanceof Button && !(view.getParent() instanceof com.google.android.material.button.MaterialButtonToggleGroup)) {
             Button button = (Button) view;
             String label = button.getText() == null ? "" : button.getText().toString().trim();
@@ -338,7 +338,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         }
         if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
-            for (int i = 0; i < group.getChildCount(); i++) styleButtons(group.getChildAt(i), density, dialogTitle);
+            for (int i = 0; i < group.getChildCount(); i++) styleButtons(group.getChildAt(i), density);
             if (group instanceof android.widget.LinearLayout) {
                 java.util.ArrayList<Button> actions = new java.util.ArrayList<>();
                 for (int i = 0; i < group.getChildCount(); i++) {
@@ -353,9 +353,9 @@ public abstract class FarmDialogFragment extends DialogFragment {
                     if (firstLabel.matches("(?i).*cancel.*") || secondLabel.matches("(?i).*cancel.*")) {
                         Button cancel = firstLabel.matches("(?i).*cancel.*") ? first : second;
                         Button primary = cancel == first ? second : first;
-                        String current = primary.getText() == null ? "" : primary.getText().toString().trim();
-                        if (current.matches("(?i)(ok|save|submit|done|yes)")) {
-                            if (dialogTitle != null && !dialogTitle.isEmpty()) primary.setText(dialogTitle);
+                        if (row.indexOfChild(cancel) > row.indexOfChild(primary)) {
+                            row.removeView(cancel);
+                            row.addView(cancel, 0);
                         }
                     }
                     row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
@@ -375,21 +375,6 @@ public abstract class FarmDialogFragment extends DialogFragment {
                 }
             }
         }
-    }
-
-    private String firstDialogTitle(View view) {
-        if (view instanceof TextView) {
-            CharSequence text = ((TextView) view).getText();
-            if (text != null && text.length() > 0) return text.toString().trim();
-        }
-        if (view instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) view;
-            for (int i = 0; i < group.getChildCount(); i++) {
-                String title = firstDialogTitle(group.getChildAt(i));
-                if (title != null && !title.isEmpty()) return title;
-            }
-        }
-        return null;
     }
 
     private void styleInputs(View view, float density) {

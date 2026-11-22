@@ -270,12 +270,11 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Supplier" style="@style/Text.Label" android:textColor="#59544C" />
                         <TextView android:id="@+id/tvSupplierName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AgroCoop Odienné" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnViewSupplier" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View" style="@style/Widget.MaterialComponents.Button.TextButton" android:textSize="12sp" android:visibility="gone" app:icon="@drawable/ic_forward" app:iconGravity="textEnd" app:iconTint="#0E6B3C" />
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Block" style="@style/Text.Label" android:textColor="#59544C" />
-                        <TextView android:id="@+id/tvOriginBlock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Source type" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvOriginSourceType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">

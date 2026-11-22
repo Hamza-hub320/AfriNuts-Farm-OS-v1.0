@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -24,7 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BulkQRDialog extends DialogFragment {
+public class BulkQRDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private AppDatabase database;
     private List<Long> selectedBatchIds = new ArrayList<>();
@@ -71,20 +70,12 @@ public class BulkQRDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Bulk QR Generation")
+
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnGenerate).setOnClickListener(v -> generateBulkQR());
-        });
+        view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.btnGenerate).setOnClickListener(v -> generateBulkQR());
 
         return dialog;
     }

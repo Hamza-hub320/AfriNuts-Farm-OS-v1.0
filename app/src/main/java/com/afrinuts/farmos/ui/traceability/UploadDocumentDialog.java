@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
@@ -30,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class UploadDocumentDialog extends DialogFragment {
+public class UploadDocumentDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private static final String ARG_TRACEABILITY_ID = "traceability_id";
     private static final int REQUEST_TAKE_PHOTO = 1001;
@@ -92,22 +91,12 @@ public class UploadDocumentDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Upload Document")
+
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            // Hide default buttons
-            Button btnSaveDialog = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancelDialog = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            if (btnSaveDialog != null) btnSaveDialog.setVisibility(View.GONE);
-            if (btnCancelDialog != null) btnCancelDialog.setVisibility(View.GONE);
-
-            // Use custom buttons
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> uploadDocument());
-        });
+        view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.btnSave).setOnClickListener(v -> uploadDocument());
 
         return dialog;
     }

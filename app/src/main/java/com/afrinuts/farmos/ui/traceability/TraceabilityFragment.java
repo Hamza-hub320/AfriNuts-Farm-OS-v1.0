@@ -94,29 +94,34 @@ public class TraceabilityFragment extends Fragment {
     }
 
     public void showTraceabilityOptions() {
-        String[] options = {
-                "Scan QR Code",
-                "Bulk QR Generation",
-                "View All Batches"
-        };
+        View view = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_traceability_options, null);
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setView(view)
+                .create();
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Traceability")
-                .setItems(options, (dialog, which) -> {
-                    switch (which) {
-                        case 0:
-                            scanQRCode();
-                            break;
-                        case 1:
-                            showBulkQRDialog();
-                            break;
-                        case 2:
-                            showAllBatches();
-                            break;
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        view.findViewById(R.id.btnCloseOptions).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btnCancelOptions).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btnOptionScan).setOnClickListener(v -> {
+            dialog.dismiss();
+            scanQRCode();
+        });
+        view.findViewById(R.id.btnOptionBulk).setOnClickListener(v -> {
+            dialog.dismiss();
+            showBulkQRDialog();
+        });
+        view.findViewById(R.id.btnOptionBatches).setOnClickListener(v -> {
+            dialog.dismiss();
+            showAllBatches();
+        });
+        dialog.setOnShowListener(ignored -> {
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.92f);
+                dialog.getWindow().setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+        });
+        dialog.show();
     }
 
     private void showAllBatches() {

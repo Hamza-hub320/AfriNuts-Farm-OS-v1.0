@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/bg_traceability_dialog">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="18dp">
+
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_icon_sand">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_qr_code"
+                app:tint="@color/primary" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Traceability"
+                style="@style/Text.H4"
+                android:textColor="@color/primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan or manage batch QR codes"
+                style="@style/Text.Caption.Small"
+                android:textColor="@color/text_secondary" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnCloseOptions"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_header_action_circle"
+            android:contentDescription="Close"
+            android:src="@drawable/ic_farm_dialog_close"
+            android:padding="13dp" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOptionScan"
+        style="@style/Widget.AfriNuts.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginBottom="10dp"
+        android:text="Scan QR Code"
+        app:backgroundTint="#F3EAD8"
+        app:strokeColor="#E9E1CF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOptionBulk"
+        style="@style/Widget.AfriNuts.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginBottom="10dp"
+        android:text="Bulk QR Generation"
+        app:backgroundTint="#F3EAD8"
+        app:strokeColor="#E9E1CF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOptionBatches"
+        style="@style/Widget.AfriNuts.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginBottom="14dp"
+        android:text="View All Batches"
+        app:backgroundTint="#F3EAD8"
+        app:strokeColor="#E9E1CF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelOptions"
+        style="@style/Widget.AfriNuts.Button"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Cancel"
+        app:backgroundTint="#F3EAD8"
+        app:strokeColor="#E9E1CF" />
+</LinearLayout>

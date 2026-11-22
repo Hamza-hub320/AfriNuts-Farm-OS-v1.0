@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class QRScannerActivity extends AppCompatActivity {
     private CaptureManager captureManager;
     private TextView tvStatus;
     private Button btnCancel;
+    private ImageButton btnScannerBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +41,10 @@ public class QRScannerActivity extends AppCompatActivity {
         barcodeView = findViewById(R.id.barcodeView);
         tvStatus = findViewById(R.id.tvStatus);
         btnCancel = findViewById(R.id.btnCancel);
+        btnScannerBack = findViewById(R.id.btnScannerBack);
 
         btnCancel.setOnClickListener(v -> finish());
+        btnScannerBack.setOnClickListener(v -> finish());
 
         // Check camera permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
