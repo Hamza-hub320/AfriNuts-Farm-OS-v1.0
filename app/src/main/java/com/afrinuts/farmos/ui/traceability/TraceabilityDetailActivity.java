@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,11 +28,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
@@ -65,6 +68,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
     private BatchTraceabilityEntity traceability;
     private QualityBatchEntity qualityBatch;
     private SupplierEntity supplier;
+    private String originBlockName = "—";
 
     private AppDatabase database;
     private BatchTraceabilityRepository repository;
@@ -77,6 +81,10 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
     // UI Elements
     private TextView tvBatchNumber;
+    private TextView tvHeroSubtitle;
+    private TextView tvHeroWeight;
+    private TextView tvHeroQualityGrade;
+    private TextView tvHeroExportDate;
     private TextView tvStatus;
     private TextView tvGrade;
     private TextView tvProcessingDate;
@@ -154,6 +162,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         database = AppDatabase.getInstance(this);
         repository = new BatchTraceabilityRepository(this, 1);
 
+        applyWireframeCardStyling();
         initViews();
         setupToolbar();
         loadData();
@@ -165,6 +174,10 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         // Header
         tvBatchNumber = findViewById(R.id.tvBatchNumber);
+        tvHeroSubtitle = findViewById(R.id.tvHeroSubtitle);
+        tvHeroWeight = findViewById(R.id.tvHeroWeight);
+        tvHeroQualityGrade = findViewById(R.id.tvHeroQualityGrade);
+        tvHeroExportDate = findViewById(R.id.tvHeroExportDate);
         tvStatus = findViewById(R.id.tvStatus);
         tvGrade = findViewById(R.id.tvGrade);
 
@@ -217,6 +230,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
         btnViewSupplier = findViewById(R.id.btnViewSupplier);
         btnShareTraceability = findViewById(R.id.btnShareTraceability);
         btnDelete = findViewById(R.id.btnDelete);
+        findViewById(R.id.btnHeaderBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnHeaderShare).setOnClickListener(v -> shareTraceability());
+        findViewById(R.id.btnHeaderEdit).setOnClickListener(v -> showEditShippingDialog());
         btnGenerateDocuments = findViewById(R.id.btnGenerateDocuments);
         btnGenerateDocuments.setOnClickListener(v -> showDocumentGenerationDialog());
 
@@ -236,12 +252,84 @@ public class TraceabilityDetailActivity extends BaseActivity {
         btnUploadDocuments = findViewById(R.id.btnUploadDocuments);
     }
 
+    private void applyWireframeCardStyling() {
+        LinearLayout content = findViewById(R.id.traceabilityDetailContent);
+        if (content == null) return;
+        float density = getResources().getDisplayMetrics().density;
+        for (int i = 0; i < content.getChildCount(); i++) {
+            View child = content.getChildAt(i);
+            if (!(child instanceof CardView)) continue;
+
+            CardView card = (CardView) child;
+            boolean hero = card.getId() == R.id.cardTraceabilityHero;
+            card.setRadius((hero ? 28f : 24f) * density);
+            card.setCardElevation(0f);
+            card.setCardBackgroundColor(0xFFFFFFFF);
+            ViewGroup.LayoutParams rawParams = card.getLayoutParams();
+            if (rawParams instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) rawParams;
+                params.bottomMargin = Math.round(12f * density);
+                card.setLayoutParams(params);
+            }
+
+            if (card.getChildAt(0) instanceof LinearLayout) {
+                LinearLayout body = (LinearLayout) card.getChildAt(0);
+                int horizontal = Math.round((hero ? 20f : 20f) * density);
+                int vertical = Math.round((hero ? 20f : 18f) * density);
+                body.setPadding(horizontal, vertical, horizontal, vertical);
+                body.setBackgroundColor(0xFFFFFFFF);
+
+                if (!hero && body.getChildCount() > 0 && body.getChildAt(0) instanceof LinearLayout) {
+                    LinearLayout heading = (LinearLayout) body.getChildAt(0);
+                    TextView title = null;
+                    for (int j = 0; j < heading.getChildCount(); j++) {
+                        View headingChild = heading.getChildAt(j);
+                        if (headingChild instanceof FrameLayout) headingChild.setVisibility(View.GONE);
+                        if (headingChild instanceof TextView) {
+                            TextView candidate = (TextView) headingChild;
+                            if (candidate.getId() != R.id.tvExportStatus) title = candidate;
+                        }
+                    }
+                    if (title != null) {
+                        title.setTextColor(0xFF1C1B1A);
+                        title.setTextSize(16f);
+                        title.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+                        CharSequence label = title.getText();
+                        if ("Origin".contentEquals(label) || "Shipment".contentEquals(label)
+                                || "Verification".contentEquals(label) || "Documents".contentEquals(label)) {
+                            title.setLayoutParams(new LinearLayout.LayoutParams(0,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                            TextView seeAll = new TextView(this);
+                            seeAll.setText("See all");
+                            seeAll.setTextColor(0xFF0E6B3C);
+                            seeAll.setTextSize(13.5f);
+                            seeAll.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+                            seeAll.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                            LinearLayout.LayoutParams linkParams = new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            linkParams.setMarginStart(Math.round(12f * density));
+                            heading.addView(seeAll, linkParams);
+                        }
+                    }
+                }
+            }
+        }
+        View origin = findViewById(R.id.cardTraceabilityOrigin);
+        View shipment = findViewById(R.id.layoutShipping);
+        if (origin != null && shipment != null && origin.getParent() == content
+                && shipment.getParent() == content) {
+            int shipmentIndex = content.indexOfChild(shipment);
+            content.removeView(origin);
+            content.addView(origin, shipmentIndex + 1);
+        }
+    }
+
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Traceability Details");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
 
@@ -360,9 +448,18 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 return;
             }
 
+            qualityBatch = null;
+            supplier = null;
+            originBlockName = "—";
             if (traceability.getQualityBatchId() != null) {
                 qualityBatchRepository = new QualityBatchRepository(this, traceability.getFarmId());
                 qualityBatch = qualityBatchRepository.getBatchByIdSync(traceability.getQualityBatchId());
+                if (qualityBatch != null && qualityBatch.getBlockId() != null) {
+                    BlockEntity block = database.blockDao().getBlockById(qualityBatch.getBlockId());
+                    if (block != null && block.getBlockName() != null) {
+                        originBlockName = "Block " + block.getBlockName();
+                    }
+                }
             }
 
             if (traceability.getSupplierId() != null) {
@@ -378,8 +475,27 @@ public class TraceabilityDetailActivity extends BaseActivity {
         if (traceability == null) return;
 
         tvBatchNumber.setText("#" + traceability.getBatchNumber());
-        tvStatus.setText(traceability.isExported() ? "Exported" : "Processing");
+        ((TextView) findViewById(R.id.tvOriginBlock)).setText(originBlockName);
+        ((TextView) findViewById(R.id.tvOriginProcessingDate)).setText(traceability.getFormattedProcessingDate());
+        tvStatus.setText(traceability.isExported() ? "• Exported" : "• Processing");
+        tvStatus.setBackgroundResource(traceability.isExported()
+                ? R.drawable.bg_traceability_status_exported
+                : R.drawable.bg_traceability_status_processing);
+        tvStatus.setTextColor(traceability.isExported() ? 0xFF0A5530 : 0xFF8A6414);
         tvGrade.setText(traceability.getGrade());
+
+        String buyer = traceability.getBuyer() != null && !traceability.getBuyer().isEmpty()
+                ? traceability.getBuyer() : "Buyer not set";
+        String destination = traceability.getDestination() != null && !traceability.getDestination().isEmpty()
+                ? traceability.getDestination() : "Destination not set";
+        String heroDate = traceability.isExported()
+                ? traceability.getFormattedExportDate() : traceability.getFormattedProcessingDate();
+        tvHeroSubtitle.setText(buyer + " · " + destination + " · " + heroDate);
+        tvHeroWeight.setText(traceability.getFormattedWeight());
+        String grade = traceability.getQualityGrade() != null
+                ? traceability.getQualityGrade() : traceability.getGrade();
+        tvHeroQualityGrade.setText(grade != null ? grade : "—");
+        tvHeroExportDate.setText(heroDate != null ? heroDate : "—");
 
         tvProcessingDate.setText(traceability.getFormattedProcessingDate());
         tvExportDate.setText(traceability.getFormattedExportDate());
@@ -437,6 +553,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
         displaySustainability();
         displayDocuments();
         displayDigitalSignature();
+        findViewById(R.id.layoutProcessingDetails).setVisibility(View.GONE);
+        findViewById(R.id.layoutSignature).setVisibility(View.GONE);
+        layoutDocuments.setVisibility(View.VISIBLE);
 
         String qrUrl = traceability.getQrCodeUrl();
         tvQrUrl.setText(qrUrl);
@@ -458,6 +577,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         // Role-based UI
         if (!sessionManager.canEditData()) {
             btnDelete.setVisibility(View.GONE);
+            findViewById(R.id.btnHeaderEdit).setVisibility(View.GONE);
         }
     }
 

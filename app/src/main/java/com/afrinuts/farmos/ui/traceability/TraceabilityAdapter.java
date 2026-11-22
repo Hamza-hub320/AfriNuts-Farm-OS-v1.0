@@ -104,11 +104,13 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
 
             // Status
             if (traceability.isExported()) {
-                tvStatus.setText("Exported");
-                tvStatus.setTextColor(itemView.getContext().getColor(android.R.color.holo_green_light));
+                tvStatus.setText("EXPORTED");
+                tvStatus.setTextColor(0xFF0A5530);
+                tvStatus.setBackgroundResource(R.drawable.bg_traceability_status_exported);
             } else {
-                tvStatus.setText("Processing");
-                tvStatus.setTextColor(itemView.getContext().getColor(android.R.color.holo_orange_light));
+                tvStatus.setText("PROCESSING");
+                tvStatus.setTextColor(0xFF8A6414);
+                tvStatus.setBackgroundResource(R.drawable.bg_traceability_status_processing);
             }
 
             cardView.setOnClickListener(v -> listener.onTraceabilityClick(traceability));

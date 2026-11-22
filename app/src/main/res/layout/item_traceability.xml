@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="16dp"
         android:background="@color/surface">
 
         <LinearLayout
@@ -46,7 +46,7 @@
                 android:fontFamily="@font/manrope_extrabold"
                 android:paddingHorizontal="9dp"
                 android:paddingVertical="3dp"
-                android:background="@drawable/bg_quality_type_outline" />
+                android:background="@drawable/bg_traceability_status_exported" />
         </LinearLayout>
 
         <LinearLayout
@@ -97,11 +97,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Weight"
+                    android:text="Weight "
                     android:textColor="#59544C"
                     android:textSize="12.5sp"
                     android:fontFamily="@font/manrope_bold" />
@@ -109,7 +110,6 @@
                     android:id="@+id/tvWeight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
                     android:text="40,000 kg"
                     android:textColor="#1C1B1A"
                     android:textSize="12.5sp"
@@ -119,12 +119,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="end"
-                android:orientation="vertical">
+                android:gravity="end|center_vertical"
+                android:orientation="horizontal">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Buyer"
+                    android:text="Buyer "
                     android:textColor="#59544C"
                     android:textSize="12.5sp"
                     android:fontFamily="@font/manrope_bold" />
@@ -132,7 +132,6 @@
                     android:id="@+id/tvBuyer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:text="Olam"
