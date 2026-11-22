@@ -804,12 +804,12 @@ public class TraceabilityDetailActivity extends BaseActivity {
             // Certificate of Origin
             if (docs.getQualityCertificate() != null && !docs.getQualityCertificate().isEmpty()) {
                 tvQualityCertificate.setText("Quality certificate");
-                tvQualityCertificate.setTextColor(getColor(R.color.on_surface));
+                tvQualityCertificate.setTextColor(0xFF1C1B1A);
                 tvQualityCertificate.setClickable(true);
                 tvQualityCertificate.setOnClickListener(v -> viewDocument(docs.getQualityCertificate()));
             } else {
                 tvQualityCertificate.setText("Quality certificate");
-                tvQualityCertificate.setTextColor(getColor(R.color.on_surface));
+                tvQualityCertificate.setTextColor(0xFF1C1B1A);
                 tvQualityCertificate.setClickable(false);
             }
 
@@ -817,7 +817,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
             if (docs.getBillOfLading() != null && !docs.getBillOfLading().isEmpty()
                     && !docs.getBillOfLading().startsWith("content://")) {
                 tvBillOfLading.setText("Bill of lading");
-                tvBillOfLading.setTextColor(getColor(R.color.on_surface));
+                tvBillOfLading.setTextColor(0xFF1C1B1A);
                 tvBillOfLading.setClickable(true);
                 tvBillOfLading.setOnClickListener(v -> viewDocument(docs.getBillOfLading()));
             } else {
@@ -829,13 +829,13 @@ public class TraceabilityDetailActivity extends BaseActivity {
             // Commercial Invoice
             if (docs.getCommercialInvoice() != null && !docs.getCommercialInvoice().isEmpty()) {
                 tvCommercialInvoice.setText("Commercial invoice");
-                tvCommercialInvoice.setTextColor(getColor(R.color.on_surface));
+                tvCommercialInvoice.setTextColor(0xFF1C1B1A);
                 layoutCommercialInvoice.setClickable(true);
                 layoutCommercialInvoice.setOnClickListener(v -> viewDocument(docs.getCommercialInvoice()));
                 layoutCommercialInvoice.setVisibility(View.VISIBLE);
             } else {
                 tvCommercialInvoice.setText("Commercial invoice");
-                tvCommercialInvoice.setTextColor(getColor(R.color.on_surface));
+                tvCommercialInvoice.setTextColor(0xFF1C1B1A);
                 layoutCommercialInvoice.setClickable(false);
                 layoutCommercialInvoice.setVisibility(View.VISIBLE);
             }
@@ -845,7 +845,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
             // Phyto-Sanitary (Government issued)
             if (docs.getPhytoSanitary() != null && !docs.getPhytoSanitary().isEmpty()) {
                 tvPhytoSanitary.setText("Phytosanitary certificate");
-                tvPhytoSanitary.setTextColor(getColor(R.color.on_surface));
+                tvPhytoSanitary.setTextColor(0xFF1C1B1A);
                 tvPhytoSanitary.setClickable(true);
                 tvPhytoSanitary.setOnClickListener(v -> viewDocument(docs.getPhytoSanitary()));
             } else {
@@ -857,12 +857,12 @@ public class TraceabilityDetailActivity extends BaseActivity {
             // Insurance certificate
             if (docs.getInsuranceCertificate() != null && !docs.getInsuranceCertificate().isEmpty()) {
                 tvInsuranceCertificate.setText("Insurance certificate");
-                tvInsuranceCertificate.setTextColor(getColor(R.color.on_surface));
+                tvInsuranceCertificate.setTextColor(0xFF1C1B1A);
                 tvInsuranceCertificate.setClickable(true);
                 tvInsuranceCertificate.setOnClickListener(v -> viewDocument(docs.getInsuranceCertificate()));
             } else {
                 tvInsuranceCertificate.setText("Insurance certificate");
-                tvInsuranceCertificate.setTextColor(getColor(R.color.on_surface));
+                tvInsuranceCertificate.setTextColor(0xFF1C1B1A);
                 tvInsuranceCertificate.setClickable(false);
             }
 
@@ -948,11 +948,6 @@ public class TraceabilityDetailActivity extends BaseActivity {
             count++;
         }
 
-        // Show/hide the additional docs section
-        TextView tvAdditionalDocsHeader = findViewById(R.id.tvAdditionalDocsHeader);
-        if (tvAdditionalDocsHeader != null) {
-            tvAdditionalDocsHeader.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
-        }
     }
 
     // ✅ Helper method to create a styled document row
@@ -960,7 +955,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         LinearLayout docRow = new LinearLayout(this);
         docRow.setOrientation(LinearLayout.HORIZONTAL);
         docRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        docRow.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
+        docRow.setPadding(dpToPx(0), dpToPx(10), dpToPx(0), dpToPx(10));
         android.graphics.drawable.GradientDrawable rowBackground = new android.graphics.drawable.GradientDrawable();
         rowBackground.setColor(0xFFFFFFFF);
         rowBackground.setCornerRadius(dpToPx(12));
@@ -981,8 +976,10 @@ public class TraceabilityDetailActivity extends BaseActivity {
         ImageView icon = new ImageView(this);
         icon.setImageResource(R.drawable.ic_document);
         icon.setColorFilter(0xFF7A5F22);
+        icon.setBackgroundResource(R.drawable.bg_document_icon);
+        icon.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
-                dpToPx(24), dpToPx(24)
+                dpToPx(44), dpToPx(44)
         );
         iconParams.setMargins(0, 0, dpToPx(12), 0);
         icon.setLayoutParams(iconParams);
@@ -992,9 +989,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
         TextView text = new TextView(this);
         String fileName = cleanDocumentFileName(docUrl);
         text.setText(fileName);
-        text.setTextColor(getColor(R.color.on_surface));
-        text.setTextSize(14);
-        text.setTypeface(null, android.graphics.Typeface.BOLD);
+        text.setTextColor(0xFF1C1B1A);
+        text.setTextSize(15);
+        text.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
 
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
@@ -1008,7 +1005,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         pdfBadge.setTextSize(11);
         pdfBadge.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
         pdfBadge.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
-        pdfBadge.setBackgroundResource(R.drawable.bg_icon_sand);
+        pdfBadge.setBackgroundResource(R.drawable.bg_document_badge);
         docRow.addView(pdfBadge);
 
         return docRow;

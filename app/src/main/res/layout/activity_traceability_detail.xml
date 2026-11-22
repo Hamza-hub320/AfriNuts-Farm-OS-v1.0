@@ -738,32 +738,26 @@
 
                     </LinearLayout>
 
-                    <!-- ===== Farm OS Generated Documents ===== -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Farm OS Generated Documents"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="8dp" />
-
                     <!-- Quality Certificate -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_document_icon"
+                            android:padding="12dp"
                             android:src="@drawable/ic_certified"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -774,8 +768,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Quality certificate"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -785,10 +780,12 @@
                             android:fontFamily="@font/manrope_bold"
                             android:textColor="#59544C"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:background="@drawable/bg_icon_sand" />
+                            android:paddingVertical="5dp"
+                            android:background="@drawable/bg_document_badge" />
 
                     </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Phyto-Sanitary -->
                     <LinearLayout
@@ -796,16 +793,20 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_document_icon"
+                            android:padding="12dp"
                             android:src="@drawable/ic_phyto"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -816,8 +817,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Phytosanitary certificate"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -827,10 +829,12 @@
                             android:fontFamily="@font/manrope_bold"
                             android:textColor="#59544C"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:background="@drawable/bg_icon_sand" />
+                            android:paddingVertical="5dp"
+                            android:background="@drawable/bg_document_badge" />
 
                     </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Packing List -->
                     <LinearLayout
@@ -838,16 +842,20 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_document_icon"
+                            android:padding="12dp"
                             android:src="@drawable/ic_packing"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -858,8 +866,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Bill of lading"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -869,10 +878,12 @@
                             android:fontFamily="@font/manrope_bold"
                             android:textColor="#59544C"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:background="@drawable/bg_icon_sand" />
+                            android:paddingVertical="5dp"
+                            android:background="@drawable/bg_document_badge" />
 
                     </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Commercial Invoice -->
                     <LinearLayout
@@ -881,18 +892,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:visibility="gone">
 
                         <ImageView
                             android:id="@+id/ivCommercialInvoiceIcon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_document_icon"
+                            android:padding="12dp"
                             android:src="@drawable/ic_invoice"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -903,8 +918,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Commercial Invoice"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
 
                         <ImageView
                             android:id="@+id/ivCommercialInvoiceForward"
@@ -916,15 +932,7 @@
 
                     </LinearLayout>
 
-                    <!-- ===== External Documents ===== -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="External Documents"
-                        style="@style/Text.Label"
-                        android:textColor="@color/accent_ink"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="8dp" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Insurance Certificate -->
                     <LinearLayout
@@ -932,16 +940,20 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="0dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_document_icon"
+                            android:padding="12dp"
                             android:src="@drawable/ic_insurance"
                             app:tint="@color/accent_ink"
                             android:layout_marginEnd="12dp" />
@@ -952,8 +964,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Insurance certificate"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -963,22 +976,10 @@
                             android:fontFamily="@font/manrope_bold"
                             android:textColor="#59544C"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:background="@drawable/bg_icon_sand" />
+                            android:paddingVertical="5dp"
+                            android:background="@drawable/bg_document_badge" />
 
                     </LinearLayout>
-
-                    <!-- Additional Documents (Dynamic) -->
-                    <TextView
-                        android:id="@+id/tvAdditionalDocsHeader"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Additional Documents"
-                        style="@style/Text.Label"
-                        android:textColor="@color/accent_ink"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="8dp"
-                        android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/layoutAdditionalDocs"
