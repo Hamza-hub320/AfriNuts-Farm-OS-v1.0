@@ -209,6 +209,8 @@ public class QualityBatchDetailActivity extends BaseActivity {
         btnExportQR = findViewById(R.id.btnExportQR);
         btnShare = findViewById(R.id.btnShare);
 
+        findViewById(R.id.tvSupplierSeeAll).setOnClickListener(v -> viewSupplier());
+
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
 
@@ -228,7 +230,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
     private void setupToolbar() {
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
                 findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
-                findViewById(R.id.farmDetailMore), "Batch details");
+                findViewById(R.id.farmDetailMore), "Batch details", R.id.cardKernelMetrics);
     }
 
     @Override
@@ -786,7 +788,11 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
     private void viewSupplier() {
         if (supplier != null) {
-            Toast.makeText(this, "Viewing supplier: " + supplier.getName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, com.afrinuts.farmos.ui.suppliers.SupplierDetailActivity.class);
+            intent.putExtra(com.afrinuts.farmos.ui.suppliers.SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Supplier not found", Toast.LENGTH_SHORT).show();
         }
     }
 

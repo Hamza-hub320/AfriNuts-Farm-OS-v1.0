@@ -186,7 +186,6 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingVertical="18dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Delivery" android:textColor="#1C1B1A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
-                        <TextView android:id="@+id/tvDeliverySeeAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See all" android:textColor="#0E6B3C" android:textSize="13.5sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="10dp" android:background="#E9E1CF" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
@@ -220,7 +219,6 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingVertical="18dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Lab results" android:textColor="#1C1B1A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
-                        <TextView android:id="@+id/tvLabSeeAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="See all" android:textColor="#0E6B3C" android:textSize="13.5sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="10dp" android:background="#E9E1CF" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:paddingVertical="11dp">
@@ -296,50 +294,49 @@
             <TextView android:id="@+id/tvForeignMatter" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
             <TextView android:id="@+id/tvDryingMethod" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
+            <!-- Standard two-button actions scroll with the detail sections. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:minWidth="0dp"
+                    android:insetLeft="0dp" android:insetRight="0dp"
+                    android:paddingStart="0dp" android:paddingEnd="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Edit"
+                    android:textColor="#1C1B1A"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    app:backgroundTint="#F3EAD8"
+                    app:cornerRadius="999dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGenerateTraceability"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:minWidth="0dp"
+                    android:insetLeft="0dp" android:insetRight="0dp"
+                    android:paddingStart="0dp" android:paddingEnd="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="View trace"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    app:backgroundTint="#0E6B3C"
+                    app:cornerRadius="999dp" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- Standard two-button footer: Edit and View trace. -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="12dp">
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEdit"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:minWidth="0dp"
-            android:insetLeft="0dp" android:insetRight="0dp"
-            android:paddingStart="0dp" android:paddingEnd="0dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:text="Edit"
-            android:textColor="#1C1B1A"
-            android:textSize="15sp"
-            android:fontFamily="@font/manrope_extrabold"
-            app:backgroundTint="#F3EAD8"
-            app:cornerRadius="999dp" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGenerateTraceability"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:minWidth="0dp"
-            android:insetLeft="0dp" android:insetRight="0dp"
-            android:paddingStart="0dp" android:paddingEnd="0dp"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:text="View trace"
-            android:textColor="@android:color/white"
-            android:textSize="15sp"
-            android:fontFamily="@font/manrope_extrabold"
-            app:backgroundTint="#0E6B3C"
-            app:cornerRadius="999dp" />
-    </LinearLayout>
 
     <!-- Existing overflow actions remain available from the header menu. -->
     <com.google.android.material.button.MaterialButton android:id="@+id/btnDelete" android:layout_width="0dp" android:layout_height="0dp" android:text="Delete batch" android:visibility="gone" />

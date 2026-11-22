@@ -22,6 +22,12 @@ public final class FarmDetailChrome {
     private FarmDetailChrome() { }
 
     public static void apply(Activity activity, TextView title, ImageButton back, ImageButton more, String label) {
+        apply(activity, title, back, more, label, View.NO_ID);
+    }
+
+    /** Applies the shared detail chrome while leaving an explicitly owned stat row unchanged. */
+    public static void apply(Activity activity, TextView title, ImageButton back, ImageButton more,
+                             String label, int excludedStatRowId) {
         title.setText(label);
         back.setBackgroundResource(com.afrinuts.farmos.R.drawable.bg_farm_action_circle);
         back.setOnClickListener(v -> activity.finish());
@@ -69,8 +75,8 @@ public final class FarmDetailChrome {
                 if (popup.getMenu().size() > 0) popup.show();
             });
         }
-        styleSurfaces(root);
-        styleExistingStats(root);
+        styleSurfaces(root, excludedStatRowId);
+        styleExistingStats(root, excludedStatRowId);
     }
 
     public static void addHero(Activity activity, int nameId, int subtitleId, int statusId) {
@@ -188,7 +194,8 @@ public final class FarmDetailChrome {
         return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase(java.util.Locale.ROOT);
     }
 
-    private static void styleExistingStats(View view) {
+    private static void styleExistingStats(View view, int excludedStatRowId) {
+        if (excludedStatRowId != View.NO_ID && view.getId() == excludedStatRowId) return;
         if (!(view instanceof ViewGroup)) return;
         ViewGroup group = (ViewGroup) view;
         ArrayList<CardView> cards = new ArrayList<>();
@@ -208,7 +215,7 @@ public final class FarmDetailChrome {
                 styleStatTexts(card, i == 0);
             }
         }
-        for (int i = 0; i < group.getChildCount(); i++) styleExistingStats(group.getChildAt(i));
+        for (int i = 0; i < group.getChildCount(); i++) styleExistingStats(group.getChildAt(i), excludedStatRowId);
     }
 
     private static void styleStatTexts(View view, boolean primary) {
@@ -386,7 +393,8 @@ public final class FarmDetailChrome {
         }
     }
 
-    private static void styleSurfaces(View view) {
+    private static void styleSurfaces(View view, int excludedStatRowId) {
+        if (excludedStatRowId != View.NO_ID && view.getId() == excludedStatRowId) return;
         if (view instanceof CardView) {
             CardView card = (CardView) view;
             card.setRadius(dp(view, 24));
@@ -408,7 +416,7 @@ public final class FarmDetailChrome {
         }
         if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
-            for (int i = 0; i < group.getChildCount(); i++) styleSurfaces(group.getChildAt(i));
+            for (int i = 0; i < group.getChildCount(); i++) styleSurfaces(group.getChildAt(i), excludedStatRowId);
         }
     }
 
