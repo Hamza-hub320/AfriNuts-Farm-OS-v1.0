@@ -41,7 +41,7 @@
             app:singleLine="true"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:chipSpacingHorizontal="7dp">
+            app:chipSpacingHorizontal="8dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
@@ -49,21 +49,21 @@
                 android:layout_height="wrap_content"
                 android:text="All"
                 android:checked="true"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFarmWide"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Farm wide"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipByBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="By block"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <!-- ✅ New Procurement Chip -->
             <com.google.android.material.chip.Chip
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Procurement"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>

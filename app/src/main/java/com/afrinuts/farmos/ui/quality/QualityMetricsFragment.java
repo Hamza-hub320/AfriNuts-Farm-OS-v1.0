@@ -259,6 +259,9 @@ public class QualityMetricsFragment extends Fragment {
 
             if (allBatches.isEmpty()) {
                 showEmpty(true);
+                filteredBatches.clear();
+                adapter.updateBatches(filteredBatches);
+                updateSummaryStats();
             } else {
                 showEmpty(false);
                 updateSummaryStats();
@@ -295,10 +298,11 @@ public class QualityMetricsFragment extends Fragment {
 
         adapter.updateBatches(filteredBatches);
         recyclerView.setVisibility(View.VISIBLE);
+        updateSummaryStats();
     }
 
     private void updateSummaryStats() {
-        if (allBatches.isEmpty()) {
+        if (filteredBatches.isEmpty()) {
             avgMoistureValue.setText("0.0");
             avgDefectiveValue.setText("0.0");
             avgQualityScoreValue.setText("0");
@@ -312,13 +316,16 @@ public class QualityMetricsFragment extends Fragment {
         double totalScore = 0;
         double totalKernel = 0;
         int totalNutCount = 0;
-        int count = allBatches.size();
+        int count = filteredBatches.size();
 
-        for (QualityBatchEntity batch : allBatches) {
+        for (QualityBatchEntity batch : filteredBatches) {
             totalMoisture += batch.getMoistureContent();
             totalDefective += batch.getDefectiveRate();
             totalScore += batch.getQualityScore();
-            totalKernel += batch.getKernelRatio();
+            double kernelPercent = batch.isRcn()
+                    ? batch.getKorAsPercent()
+                    : batch.getKernelRatio();
+            totalKernel += kernelPercent;
             totalNutCount += batch.getNutCountPerKg();
         }
 

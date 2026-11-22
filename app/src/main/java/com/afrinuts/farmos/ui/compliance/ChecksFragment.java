@@ -1,7 +1,6 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -111,20 +110,11 @@ public class ChecksFragment extends Fragment {
     }
 
     private void addFilterChip(String label, int filter) {
-        Chip chip = new Chip(requireContext());
+        Chip chip = new Chip(requireContext(), null, R.style.Widget_AfriNuts_Chip);
         chip.setText(label);
         chip.setCheckable(true);
         chip.setClickable(true);
         chip.setEnsureMinTouchTargetSize(false);
-        chip.setChipCornerRadius(dp(999));
-        chip.setChipStrokeWidth(dp(1));
-        chip.setChipStrokeColor(ColorStateList.valueOf(0xFFE1DDD5));
-        chip.setChipBackgroundColor(new ColorStateList(
-                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
-                new int[]{0xFF191817, 0xFFFFFFFF}));
-        chip.setTextColor(new ColorStateList(
-                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
-                new int[]{0xFFFFFFFF, 0xFF6B675F}));
         chip.setTag(filter);
         chip.setOnClickListener(v -> { selectedFilter = filter; refreshRows(); });
         filters.addView(chip);

@@ -97,7 +97,8 @@
             android:paddingEnd="2dp"
             app:singleLine="true"
             app:selectionRequired="true"
-            app:singleSelection="true">
+            app:singleSelection="true"
+            app:chipSpacingHorizontal="8dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
@@ -105,40 +106,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="All"
-                android:textSize="13sp"
-                android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
+                android:text="All" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Premium"
-                android:textSize="13sp"
-                android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
+                android:text="Premium" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStandard"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Standard"
-                android:textSize="13sp"
-                android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
+                android:text="Standard" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReject"
                 style="@style/Widget.AfriNuts.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reject"
-                android:textSize="13sp"
-                android:fontFamily="@font/manrope_bold"
-                app:chipCornerRadius="999dp" app:checkedIconVisible="false" app:chipBackgroundColor="@color/quality_filter_chip_background" android:textColor="@color/quality_filter_chip_text" />
+                android:text="Reject" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 

@@ -126,13 +126,16 @@
 
     <!-- Chip for dark mode -->
     <style name="Widget.AfriNuts.Chip" parent="Widget.MaterialComponents.Chip.Filter">
-        <item name="android:textAppearance">@style/Text.Caption.Small</item>
-        <item name="chipBackgroundColor">@color/warm_grey</item>
-        <item name="chipStrokeColor">@color/primary</item>
-        <item name="chipStrokeWidth">0dp</item>
-        <item name="rippleColor">@color/accent</item>
-        <item name="chipCornerRadius">11dp</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:textColor">@color/quality_filter_chip_text</item>
+        <item name="chipBackgroundColor">@color/quality_filter_chip_background</item>
+        <item name="chipCornerRadius">999dp</item>
+        <item name="chipMinHeight">38dp</item>
+        <item name="chipStartPadding">14dp</item>
+        <item name="chipEndPadding">14dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipIconVisible">false</item>
     </style>
 
     <!-- Progress Bar for dark mode -->

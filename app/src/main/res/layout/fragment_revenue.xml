@@ -51,7 +51,7 @@
             app:singleLine="true"
             app:singleSelection="true"
             app:selectionRequired="true"
-            app:chipSpacingHorizontal="7dp">
+            app:chipSpacingHorizontal="8dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAll"
@@ -59,28 +59,28 @@
                 android:layout_height="wrap_content"
                 android:text="All"
                 android:checked="true"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Premium"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStandard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Standard"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipProcessing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Processing"
-                style="@style/Widget.AfriNuts.FinanceChip" />
+                style="@style/Widget.AfriNuts.Chip" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>

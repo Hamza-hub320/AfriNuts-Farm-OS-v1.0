@@ -117,7 +117,6 @@
             android:layout_height="wrap_content"
             android:text="All"
             style="@style/Widget.AfriNuts.Chip"
-            app:chipBackgroundColor="?attr/colorPrimary"
             android:textColor="@android:color/white"
             android:checked="true" />
 

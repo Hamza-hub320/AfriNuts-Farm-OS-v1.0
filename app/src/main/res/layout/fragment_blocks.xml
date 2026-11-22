@@ -18,10 +18,10 @@
     </LinearLayout>
     <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:layout_marginBottom="8dp">
         <com.google.android.material.chip.ChipGroup android:id="@+id/blockFilterGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" app:singleSelection="true" app:selectionRequired="true">
-            <com.google.android.material.chip.Chip android:id="@+id/chipBlockAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:checked="true" android:text="All" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipBlockPlanted" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Planted" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipBlockNotPlanted" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Not planted" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipBlockAttention" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Attention" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipBlockAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipBlockPlanted" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Planted" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipBlockNotPlanted" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not planted" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipBlockAttention" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Attention" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
     <ProgressBar android:id="@+id/progressBar" style="@style/Widget.AfriNuts.ProgressBar" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:visibility="gone" />

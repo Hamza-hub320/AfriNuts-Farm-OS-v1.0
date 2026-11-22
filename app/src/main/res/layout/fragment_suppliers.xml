@@ -63,10 +63,10 @@
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:paddingEnd="8dp" app:singleSelection="true" app:selectionRequired="true">
-            <com.google.android.material.chip.Chip android:id="@+id/chipAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:checked="true" android:text="All" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipActive" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Active" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipCertified" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="At risk" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipCooperative" android:visibility="gone" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="38dp" android:text="Cooperative" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipAll" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipActive" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipCertified" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="At risk" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipCooperative" android:visibility="gone" style="@style/Widget.AfriNuts.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cooperative" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
