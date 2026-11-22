@@ -193,25 +193,25 @@
                 android:layout_marginBottom="12dp">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginEnd="5dp"
+                    android:layout_width="0dp" android:layout_height="116dp" android:layout_weight="1" android:layout_marginEnd="5dp"
                     app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="#0E6B3C">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp" android:background="@drawable/bg_traceability_kpi_gradient">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Weight" android:textColor="#C7E3D4" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                        <TextView android:id="@+id/tvHeroWeight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="2,150 kg" android:textColor="#FFFFFF" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/tvHeroWeight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="2,150 kg" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginHorizontal="5dp"
+                    android:layout_width="0dp" android:layout_height="116dp" android:layout_weight="1" android:layout_marginHorizontal="5dp"
                     app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quality grade" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                        <TextView android:id="@+id/tvHeroQualityGrade" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Premium" android:textColor="#1C1B1A" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/tvHeroQualityGrade" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Premium" android:textColor="#1C1B1A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="0dp" android:layout_height="112dp" android:layout_weight="1" android:layout_marginStart="5dp"
+                    android:layout_width="0dp" android:layout_height="116dp" android:layout_weight="1" android:layout_marginStart="5dp"
                     app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="14dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Export date" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />

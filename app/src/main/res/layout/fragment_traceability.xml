@@ -16,7 +16,7 @@
         android:layout_marginTop="14dp">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent" android:layout_height="132dp"
+            android:layout_width="match_parent" android:layout_height="142dp"
             app:cardBackgroundColor="#0E6B3C" app:cardCornerRadius="24dp" app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp" android:background="@drawable/bg_traceability_kpi_gradient">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total batches" android:textColor="#C7E3D4" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
@@ -27,9 +27,9 @@
 
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" android:orientation="horizontal">
+            android:layout_marginTop="0dp" android:orientation="horizontal">
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp" android:layout_height="108dp" android:layout_weight="1" android:layout_marginEnd="6dp"
+            android:layout_width="0dp" android:layout_height="118dp" android:layout_weight="1" android:layout_marginEnd="6dp"
             app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp" app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exported" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
@@ -39,7 +39,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp" android:layout_height="108dp" android:layout_weight="1" android:layout_marginStart="6dp"
+            android:layout_width="0dp" android:layout_height="118dp" android:layout_weight="1" android:layout_marginStart="6dp"
             app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp" app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total weight" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
