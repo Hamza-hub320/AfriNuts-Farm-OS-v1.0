@@ -111,12 +111,23 @@ public class TraceabilityFragment extends Fragment {
                             showBulkQRDialog();
                             break;
                         case 2:
-                            loadTraceabilities();
+                            showAllBatches();
                             break;
                     }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void showAllBatches() {
+        currentFilter = "ALL";
+        if (filterChipGroup != null) {
+            filterChipGroup.check(R.id.chipAll);
+        }
+        applyFilter();
+        if (recyclerView != null) {
+            recyclerView.scrollToPosition(0);
+        }
     }
 
     private void scanQRCode() {
