@@ -133,7 +133,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="#AFN-260625-001"
+                            android:text="AFN-260625-001"
                             android:textSize="21sp"
                             android:fontFamily="@font/manrope_extrabold"
                             android:textColor="#1C1B1A" />
@@ -220,184 +220,6 @@
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Legacy detail fields remain bound for the existing data and actions. -->
-            <androidx.cardview.widget.CardView
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/surface">
-
-                    <!-- Section Header -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <FrameLayout
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_info"
-                                app:tint="?attr/colorPrimary" />
-
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Batch Details"
-                            style="@style/Text.H4"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <!-- Processing Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Processing Date"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvProcessingDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jun 25, 2026"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Export Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Export Date"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvExportDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 15, 2026"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Weight -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Weight"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvWeight"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="40,000 kg"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Buyer -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Buyer"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvBuyer"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Olam International"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Destination -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Destination"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvDestination"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Europe"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
             <!-- Source Information Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardTraceabilityOrigin"
@@ -445,112 +267,26 @@
                             android:textColor="?attr/colorPrimary" />
 
                     </LinearLayout>
-
-                    <!-- Supplier -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Supplier"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvSupplierName"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="AgroCoop Odienné"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorPrimary" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnViewSupplier"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            app:icon="@drawable/ic_forward"
-                            app:iconGravity="textEnd"
-                            app:iconTint="?attr/colorPrimary" />
-
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Supplier" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvSupplierName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AgroCoop Odienné" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnViewSupplier" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View" style="@style/Widget.MaterialComponents.Button.TextButton" android:textSize="12sp" android:visibility="gone" app:icon="@drawable/ic_forward" app:iconGravity="textEnd" app:iconTint="#0E6B3C" />
                     </LinearLayout>
-
-                    <!-- Quality Grade -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Quality Grade"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvQualityGrade"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Premium"
-                            style="@style/Text.Body"
-                            android:textColor="@color/accent_ink" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Block" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvOriginBlock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp">
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Block"
-                            style="@style/Text.Label"
-                            android:textColor="#59544C" />
-                        <TextView
-                            android:id="@+id/tvOriginBlock"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="—"
-                            style="@style/Text.Body"
-                            android:textColor="#1C1B1A" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Quality grade" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvQualityGrade" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Processing date"
-                            style="@style/Text.Label"
-                            android:textColor="#59544C" />
-                        <TextView
-                            android:id="@+id/tvOriginProcessingDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="—"
-                            style="@style/Text.Body"
-                            android:textColor="#1C1B1A" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Processing date" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvOriginProcessingDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
@@ -602,201 +338,52 @@
                             style="@style/Text.H4"
                             android:textColor="?attr/colorPrimary" />
 
-                        <TextView
-                            android:id="@+id/tvExportStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="2dp"
-                            android:text="Pending"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/white"
-                            android:background="@drawable/status_background"
-                            android:visibility="gone" />
+
 
                     </LinearLayout>
-
-                    <!-- ✅ Buyer -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Buyer"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvBuyerShipping"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Not set"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Export date" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvShippingExportDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not set" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <!-- Export Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Export Date"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvShippingExportDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Not set"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/btnSetExportDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Set"
-                            style="@style/Widget.AfriNuts.Button.Small"
-                            android:visibility="gone" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Destination" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvShippingDestination" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not set" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <!-- ✅ Harvest Year -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Harvest Year"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvHarvestYearShipping"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Not set"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Buyer" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvBuyerShipping" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not set" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <!-- Destination -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Destination"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvShippingDestination"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Not set"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/btnEditDestination"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Edit"
-                            style="@style/Widget.AfriNuts.Button.Small"
-                            android:visibility="gone" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Export status" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvExportStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="Pending" android:textSize="12sp" android:fontFamily="@font/manrope_bold" android:textColor="#8A6414" android:background="@drawable/status_background" />
                     </LinearLayout>
-
-                    <!-- ✅ Certifications -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Certifications"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvCertificationsShipping"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="None"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Verification code" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvShipmentVerificationCode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
-                    <!-- Documents -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Documents"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <Button
-                            android:id="@+id/btnUploadDocuments"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Upload Documents"
-                            style="@style/Widget.AfriNuts.Button.Small"
-                            android:visibility="gone" />
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Certifications" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvCertificationsShipping" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="None" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
                     </LinearLayout>
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Harvest year" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvHarvestYearShipping" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not set" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
+                    </LinearLayout>
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="0dp" android:layout_marginBottom="12dp">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnSetExportDate" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Set export date" android:textSize="12sp" android:fontFamily="@font/manrope_bold" android:textColor="#1C1B1A" android:visibility="gone" app:backgroundTint="#F3EAD8" app:cornerRadius="999dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnEditDestination" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:layout_marginHorizontal="4dp" android:text="Edit destination" android:textSize="12sp" android:fontFamily="@font/manrope_bold" android:textColor="#1C1B1A" android:visibility="gone" app:backgroundTint="#F3EAD8" app:cornerRadius="999dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnUploadDocuments" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:layout_marginStart="4dp" android:text="Upload" android:textSize="12sp" android:fontFamily="@font/manrope_bold" android:textColor="#FFFFFF" android:visibility="gone" app:backgroundTint="#0E6B3C" app:cornerRadius="999dp" />
+            </LinearLayout>
 
             <!-- Processing Details Card -->
             <androidx.cardview.widget.CardView
@@ -1068,128 +655,34 @@
                             android:textColor="?attr/colorPrimary" />
 
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvVerifiedDate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Verified: Jun 28, 2026"
-                        style="@style/Text.Caption"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.6"
-                        android:layout_marginBottom="12dp" />
-
-                    <GridLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:rowCount="2">
-
-                        <!-- No Child Labor -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="No Child Labor"
-                                style="@style/Text.Caption" />
-
-                            <TextView
-                                android:id="@+id/tvNoChildLabor"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Yes"
-                                style="@style/Text.Caption"
-                                android:textColor="?attr/colorPrimary" />
-
-                        </LinearLayout>
-
-                        <!-- Farm OS Monitored -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Farm OS Monitored"
-                                style="@style/Text.Caption" />
-
-                            <TextView
-                                android:id="@+id/tvFarmOsMonitored"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Yes"
-                                style="@style/Text.Caption"
-                                android:textColor="?attr/colorPrimary" />
-
-                        </LinearLayout>
-
-                        <!-- Firebreak Protection -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Firebreak Protection"
-                                style="@style/Text.Caption" />
-
-                            <TextView
-                                android:id="@+id/tvFirebreakProtection"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Yes"
-                                style="@style/Text.Caption"
-                                android:textColor="?attr/colorPrimary" />
-
-                        </LinearLayout>
-
-                        <!-- Sustainable Harvesting -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Sustainable Harvesting"
-                                style="@style/Text.Caption" />
-
-                            <TextView
-                                android:id="@+id/tvSustainableHarvesting"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Yes"
-                                style="@style/Text.Caption"
-                                android:textColor="?attr/colorPrimary" />
-
-                        </LinearLayout>
-
-                    </GridLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_traceability_status_exported" android:layout_marginEnd="12dp"><ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center" android:src="@drawable/ic_verified" app:tint="#0A5530" /></FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="No child labor" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" android:textColor="#1C1B1A" />
+                        <TextView android:id="@+id/tvNoChildLabor" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="Yes" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_traceability_status_exported" android:layout_marginEnd="12dp"><ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center" android:src="@drawable/ic_verified" app:tint="#0A5530" /></FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Farm OS monitored" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" android:textColor="#1C1B1A" />
+                        <TextView android:id="@+id/tvFarmOsMonitored" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="Yes" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_traceability_status_exported" android:layout_marginEnd="12dp"><ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center" android:src="@drawable/ic_verified" app:tint="#0A5530" /></FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Firebreak protection" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" android:textColor="#1C1B1A" />
+                        <TextView android:id="@+id/tvFirebreakProtection" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="Yes" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_traceability_status_exported" android:layout_marginEnd="12dp"><ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center" android:src="@drawable/ic_verified" app:tint="#0A5530" /></FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sustainable harvesting" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" android:textColor="#1C1B1A" />
+                        <TextView android:id="@+id/tvSustainableHarvesting" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="Yes" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Verified date" style="@style/Text.Label" android:textColor="#59544C" />
+                        <TextView android:id="@+id/tvVerifiedDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" style="@style/Text.Body" android:textColor="#1C1B1A" android:gravity="end" />
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -1280,16 +773,62 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Certificate of Origin"
+                            android:text="Quality certificate"
                             style="@style/Text.Body"
                             android:textColor="?attr/colorOnSurface" />
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PDF"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_icon_sand" />
+
+                    </LinearLayout>
+
+                    <!-- Phyto-Sanitary -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="@color/surface"
+                        app:cornerRadius="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_forward"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6" />
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_phyto"
+                            app:tint="@color/accent_ink"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:id="@+id/tvPhytoSanitary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Phytosanitary certificate"
+                            style="@style/Text.Body"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PDF"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_icon_sand" />
 
                     </LinearLayout>
 
@@ -1318,16 +857,20 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Packing List"
+                            android:text="Bill of lading"
                             style="@style/Text.Body"
                             android:textColor="?attr/colorOnSurface" />
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_forward"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PDF"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_icon_sand" />
 
                     </LinearLayout>
 
@@ -1383,44 +926,6 @@
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp" />
 
-                    <!-- Phyto-Sanitary -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="12dp"
-                        android:background="@color/surface"
-                        app:cornerRadius="12dp"
-                        android:layout_marginBottom="8dp"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_phyto"
-                            app:tint="@color/accent_ink"
-                            android:layout_marginEnd="12dp" />
-
-                        <TextView
-                            android:id="@+id/tvPhytoSanitary"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Phyto-Sanitary Certificate"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_forward"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                    </LinearLayout>
-
                     <!-- Insurance Certificate -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1446,16 +951,20 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Insurance Certificate"
+                            android:text="Insurance certificate"
                             style="@style/Text.Body"
                             android:textColor="?attr/colorOnSurface" />
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_forward"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PDF"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_icon_sand" />
 
                     </LinearLayout>
 
@@ -1694,21 +1203,17 @@
                         android:fontFamily="@font/manrope_extrabold"
                         android:textColor="#0A5530"
                         android:gravity="center"
-                        android:linksClickable="true"
-                        android:autoLink="web" />
+                        android:singleLine="true"
+                        android:ellipsize="end" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
         android:paddingTop="8dp"
         android:paddingBottom="16dp">
 
@@ -1738,5 +1243,10 @@
             app:backgroundTint="#0E6B3C"
             app:cornerRadius="999dp" />
     </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
+
 
 </LinearLayout>

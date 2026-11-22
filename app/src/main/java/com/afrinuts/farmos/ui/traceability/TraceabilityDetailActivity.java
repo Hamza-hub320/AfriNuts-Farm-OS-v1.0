@@ -87,13 +87,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
     private TextView tvHeroExportDate;
     private TextView tvStatus;
     private TextView tvGrade;
-    private TextView tvProcessingDate;
-    private TextView tvExportDate;
-    private TextView tvWeight;
-    private TextView tvBuyer;
-    private TextView tvDestination;
     private TextView tvSupplierName;
-    private TextView tvBlockName;
     private TextView tvQualityGrade;
     private TextView tvQrUrl;
     private ImageView ivQrCode;
@@ -182,13 +176,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         tvGrade = findViewById(R.id.tvGrade);
 
         // Details
-        tvProcessingDate = findViewById(R.id.tvProcessingDate);
-        tvExportDate = findViewById(R.id.tvExportDate);
-        tvWeight = findViewById(R.id.tvWeight);
-        tvBuyer = findViewById(R.id.tvBuyer);
-        tvDestination = findViewById(R.id.tvDestination);
         tvSupplierName = findViewById(R.id.tvSupplierName);
-        tvBlockName = findViewById(R.id.tvBlockName);
         tvQualityGrade = findViewById(R.id.tvQualityGrade);
 
         // QR Code
@@ -294,22 +282,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
                         title.setTextColor(0xFF1C1B1A);
                         title.setTextSize(16f);
                         title.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
-                        CharSequence label = title.getText();
-                        if ("Origin".contentEquals(label) || "Shipment".contentEquals(label)
-                                || "Verification".contentEquals(label) || "Documents".contentEquals(label)) {
-                            title.setLayoutParams(new LinearLayout.LayoutParams(0,
-                                    ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-                            TextView seeAll = new TextView(this);
-                            seeAll.setText("See all");
-                            seeAll.setTextColor(0xFF0E6B3C);
-                            seeAll.setTextSize(13.5f);
-                            seeAll.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
-                            seeAll.setGravity(android.view.Gravity.CENTER_VERTICAL);
-                            LinearLayout.LayoutParams linkParams = new LinearLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            linkParams.setMarginStart(Math.round(12f * density));
-                            heading.addView(seeAll, linkParams);
-                        }
+
                     }
                 }
             }
@@ -474,7 +447,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
     private void displayTraceabilityData() {
         if (traceability == null) return;
 
-        tvBatchNumber.setText("#" + traceability.getBatchNumber());
+        tvBatchNumber.setText(traceability.getBatchNumber());
         ((TextView) findViewById(R.id.tvOriginBlock)).setText(originBlockName);
         ((TextView) findViewById(R.id.tvOriginProcessingDate)).setText(traceability.getFormattedProcessingDate());
         tvStatus.setText(traceability.isExported() ? "• Exported" : "• Processing");
@@ -497,13 +470,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
         tvHeroQualityGrade.setText(grade != null ? grade : "—");
         tvHeroExportDate.setText(heroDate != null ? heroDate : "—");
 
-        tvProcessingDate.setText(traceability.getFormattedProcessingDate());
-        tvExportDate.setText(traceability.getFormattedExportDate());
-        tvWeight.setText(traceability.getFormattedWeight());
         displayProcessingDetails();
 
-        tvBuyer.setText(traceability.getBuyer() != null ? traceability.getBuyer() : "—");
-        tvDestination.setText(traceability.getDestination() != null ? traceability.getDestination() : "—");
         tvSupplierName.setText(traceability.getSupplierName() != null ? traceability.getSupplierName() : "—");
         tvQualityGrade.setText(traceability.getQualityGrade() != null ? traceability.getQualityGrade() : "—");
 
@@ -600,6 +568,10 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
             // Verification Code
             String code = traceability.getVerificationCode();
+            TextView tvShipmentVerificationCode = findViewById(R.id.tvShipmentVerificationCode);
+            if (tvShipmentVerificationCode != null) {
+                tvShipmentVerificationCode.setText(code != null && !code.isEmpty() ? code : "—");
+            }
             if (code != null && !code.isEmpty()) {
                 tvVerificationCode.setText(code);
                 tvVerificationCode.setVisibility(View.VISIBLE);
@@ -802,7 +774,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
             tvFarmOsMonitored.setText(qualityBatch.isFarmOsMonitored() ? "Yes" : "No");
             tvFirebreakProtection.setText(qualityBatch.isFirebreakProtection() ? "Yes" : "No");
             tvSustainableHarvesting.setText(qualityBatch.isSustainableHarvesting() ? "Yes" : "No");
-            tvVerifiedDate.setText("Verified: " + qualityBatch.getFormattedVerifiedDate());
+            tvVerifiedDate.setText(qualityBatch.getFormattedVerifiedDate());
 
             int colorYes = getColor(android.R.color.holo_green_light);
             int colorNo = getColor(android.R.color.holo_red_light);
@@ -831,41 +803,39 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
             // Certificate of Origin
             if (docs.getQualityCertificate() != null && !docs.getQualityCertificate().isEmpty()) {
-                String fileName = getDocumentDisplayName(docs.getQualityCertificate());
-                tvQualityCertificate.setText(fileName);
-                tvQualityCertificate.setTextColor(getColor(android.R.color.holo_green_light));
+                tvQualityCertificate.setText("Quality certificate");
+                tvQualityCertificate.setTextColor(getColor(R.color.on_surface));
                 tvQualityCertificate.setClickable(true);
                 tvQualityCertificate.setOnClickListener(v -> viewDocument(docs.getQualityCertificate()));
             } else {
-                tvQualityCertificate.setText("Generate now");
-                tvQualityCertificate.setTextColor(getColor(R.color.warning));
+                tvQualityCertificate.setText("Quality certificate");
+                tvQualityCertificate.setTextColor(getColor(R.color.on_surface));
                 tvQualityCertificate.setClickable(false);
             }
 
-            // Packing List (✅ Now using dedicated field)
-            if (docs.getPackingList() != null && !docs.getPackingList().isEmpty()) {
-                String fileName = getDocumentDisplayName(docs.getPackingList());
-                tvBillOfLading.setText(fileName);  // Reusing the TextView
-                tvBillOfLading.setTextColor(getColor(android.R.color.holo_green_light));
+            // Bill of lading
+            if (docs.getBillOfLading() != null && !docs.getBillOfLading().isEmpty()
+                    && !docs.getBillOfLading().startsWith("content://")) {
+                tvBillOfLading.setText("Bill of lading");
+                tvBillOfLading.setTextColor(getColor(R.color.on_surface));
                 tvBillOfLading.setClickable(true);
-                tvBillOfLading.setOnClickListener(v -> viewDocument(docs.getPackingList()));
+                tvBillOfLading.setOnClickListener(v -> viewDocument(docs.getBillOfLading()));
             } else {
-                tvBillOfLading.setText("Generate now");
+                tvBillOfLading.setText("Upload from shipping company");
                 tvBillOfLading.setTextColor(getColor(R.color.warning));
                 tvBillOfLading.setClickable(false);
             }
 
             // Commercial Invoice
             if (docs.getCommercialInvoice() != null && !docs.getCommercialInvoice().isEmpty()) {
-                String fileName = getDocumentDisplayName(docs.getCommercialInvoice());
-                tvCommercialInvoice.setText(fileName);
-                tvCommercialInvoice.setTextColor(getColor(android.R.color.holo_green_light));
+                tvCommercialInvoice.setText("Commercial invoice");
+                tvCommercialInvoice.setTextColor(getColor(R.color.on_surface));
                 layoutCommercialInvoice.setClickable(true);
                 layoutCommercialInvoice.setOnClickListener(v -> viewDocument(docs.getCommercialInvoice()));
                 layoutCommercialInvoice.setVisibility(View.VISIBLE);
             } else {
-                tvCommercialInvoice.setText("Add revenue first");
-                tvCommercialInvoice.setTextColor(getColor(R.color.warning));
+                tvCommercialInvoice.setText("Commercial invoice");
+                tvCommercialInvoice.setTextColor(getColor(R.color.on_surface));
                 layoutCommercialInvoice.setClickable(false);
                 layoutCommercialInvoice.setVisibility(View.VISIBLE);
             }
@@ -874,8 +844,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
             // Phyto-Sanitary (Government issued)
             if (docs.getPhytoSanitary() != null && !docs.getPhytoSanitary().isEmpty()) {
-                tvPhytoSanitary.setText(getDocumentDisplayName(docs.getPhytoSanitary()));
-                tvPhytoSanitary.setTextColor(getColor(android.R.color.holo_green_light));
+                tvPhytoSanitary.setText("Phytosanitary certificate");
+                tvPhytoSanitary.setTextColor(getColor(R.color.on_surface));
                 tvPhytoSanitary.setClickable(true);
                 tvPhytoSanitary.setOnClickListener(v -> viewDocument(docs.getPhytoSanitary()));
             } else {
@@ -884,19 +854,15 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 tvPhytoSanitary.setClickable(false);
             }
 
-            // Bill of Lading (Shipping company issued)
-            // Note: This is separate from Packing List
-            if (docs.getBillOfLading() != null && !docs.getBillOfLading().isEmpty() &&
-                    !docs.getBillOfLading().startsWith("content://")) {  // Skip local images
-                // Check if it's a real bill of lading (not an image)
-                tvInsuranceCertificate.setText("Bill of Lading");
-                tvInsuranceCertificate.setTextColor(getColor(android.R.color.holo_green_light));
+            // Insurance certificate
+            if (docs.getInsuranceCertificate() != null && !docs.getInsuranceCertificate().isEmpty()) {
+                tvInsuranceCertificate.setText("Insurance certificate");
+                tvInsuranceCertificate.setTextColor(getColor(R.color.on_surface));
                 tvInsuranceCertificate.setClickable(true);
-                final String billUrl = docs.getBillOfLading();
-                tvInsuranceCertificate.setOnClickListener(v -> viewDocument(billUrl));
+                tvInsuranceCertificate.setOnClickListener(v -> viewDocument(docs.getInsuranceCertificate()));
             } else {
-                tvInsuranceCertificate.setText("Upload from shipping company");
-                tvInsuranceCertificate.setTextColor(getColor(R.color.warning));
+                tvInsuranceCertificate.setText("Insurance certificate");
+                tvInsuranceCertificate.setTextColor(getColor(R.color.on_surface));
                 tvInsuranceCertificate.setClickable(false);
             }
 
@@ -910,29 +876,26 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
     // ✅ Helper method to get display name from document URL
     private String getDocumentDisplayName(String url) {
-        if (url == null || url.isEmpty()) return "Document";
+        return cleanDocumentFileName(url);
+    }
 
-        // Extract filename from URL
-        String fileName = url.substring(url.lastIndexOf("/") + 1);
+    private String cleanDocumentFileName(String value) {
+        if (value == null || value.isEmpty()) return "Document";
+        String clean = value;
+        int query = clean.indexOf('?');
+        int token = clean.indexOf("&token");
+        int cut = query >= 0 ? query : clean.length();
+        if (token >= 0 && token < cut) cut = token;
+        clean = clean.substring(0, cut);
         try {
-            fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-            // Clean up filename
-            fileName = fileName.replace(".txt", "");
-            fileName = fileName.replace("_", " ");
-            // Remove query parameters if present
-            int queryIndex = fileName.indexOf("?");
-            if (queryIndex > 0) {
-                fileName = fileName.substring(0, queryIndex);
-            }
-            // Remove token if present
-            int tokenIndex = fileName.indexOf("?token");
-            if (tokenIndex > 0) {
-                fileName = fileName.substring(0, tokenIndex);
-            }
-            return fileName;
-        } catch (Exception e) {
-            return fileName;
+            clean = java.net.URLDecoder.decode(clean, "UTF-8");
+        } catch (Exception ignored) {
+            // Keep the sanitized original when malformed percent encoding is supplied.
         }
+        int slash = Math.max(clean.lastIndexOf('/'), clean.lastIndexOf('\\'));
+        if (slash >= 0) clean = clean.substring(slash + 1);
+        clean = clean.replace(".txt", "").replace('_', ' ').trim();
+        return clean.isEmpty() ? "Document" : clean;
     }
 
     // ✅ Add this method to display Commercial Invoice
@@ -964,33 +927,16 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         layoutAdditionalDocs.removeAllViews();
 
-        // Collect all document URLs from dedicated fields that exist
+        // Additional rows contain only user-added documents. The five standard
+        // document slots above already represent their dedicated fields.
         List<String> allDocs = new ArrayList<>();
-
-        // Farm OS generated
-        if (docs.getQualityCertificate() != null) allDocs.add(docs.getQualityCertificate());
-        if (docs.getPackingList() != null) allDocs.add(docs.getPackingList());
-        if (docs.getCommercialInvoice() != null) allDocs.add(docs.getCommercialInvoice());
-
-        // External documents
-        if (docs.getPhytoSanitary() != null) allDocs.add(docs.getPhytoSanitary());
-        if (docs.getBillOfLading() != null && !docs.getBillOfLading().startsWith("content://")) {
-            allDocs.add(docs.getBillOfLading());
+        if (docs.getPackingList() != null && !docs.getPackingList().isEmpty()) {
+            allDocs.add(docs.getPackingList());
         }
-        if (docs.getInsuranceCertificate() != null) allDocs.add(docs.getInsuranceCertificate());
-
-        // Additional docs
         if (docs.getAdditionalDocs() != null) {
-            for (String doc : docs.getAdditionalDocs()) {
-                // Skip if it's a content URI or already in the list
-                if (!doc.startsWith("content://") && !allDocs.contains(doc)) {
-                    allDocs.add(doc);
-                }
-            }
+            allDocs.addAll(docs.getAdditionalDocs());
         }
-
-        // Remove duplicates
-        java.util.Set<String> uniqueDocs = new java.util.HashSet<>(allDocs);
+        java.util.Set<String> uniqueDocs = new java.util.LinkedHashSet<>(allDocs);
 
         int count = 0;
         for (String docUrl : uniqueDocs) {
@@ -1015,7 +961,11 @@ public class TraceabilityDetailActivity extends BaseActivity {
         docRow.setOrientation(LinearLayout.HORIZONTAL);
         docRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
         docRow.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
-        docRow.setBackgroundResource(R.drawable.bg_rounded_description);
+        android.graphics.drawable.GradientDrawable rowBackground = new android.graphics.drawable.GradientDrawable();
+        rowBackground.setColor(0xFFFFFFFF);
+        rowBackground.setCornerRadius(dpToPx(12));
+        rowBackground.setStroke(dpToPx(1), 0xFFE9E1CF);
+        docRow.setBackground(rowBackground);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1030,7 +980,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         // Icon
         ImageView icon = new ImageView(this);
         icon.setImageResource(R.drawable.ic_document);
-        icon.setColorFilter(getColor(R.color.secondary));
+        icon.setColorFilter(0xFF7A5F22);
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
                 dpToPx(24), dpToPx(24)
         );
@@ -1040,8 +990,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         // Document Name
         TextView text = new TextView(this);
-        String fileName = getDisplayNameFromUrl(docUrl);
-        text.setText("📄 " + fileName);
+        String fileName = cleanDocumentFileName(docUrl);
+        text.setText(fileName);
         text.setTextColor(getColor(R.color.on_surface));
         text.setTextSize(14);
         text.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -1052,45 +1002,22 @@ public class TraceabilityDetailActivity extends BaseActivity {
         text.setLayoutParams(textParams);
         docRow.addView(text);
 
-        // Forward arrow
-        ImageView forward = new ImageView(this);
-        forward.setImageResource(R.drawable.ic_forward);
-        forward.setColorFilter(getColor(R.color.on_surface));
-        forward.setAlpha(0.6f);
-        LinearLayout.LayoutParams forwardParams = new LinearLayout.LayoutParams(
-                dpToPx(20), dpToPx(20)
-        );
-        forward.setLayoutParams(forwardParams);
-        docRow.addView(forward);
+        TextView pdfBadge = new TextView(this);
+        pdfBadge.setText("PDF");
+        pdfBadge.setTextColor(0xFF59544C);
+        pdfBadge.setTextSize(11);
+        pdfBadge.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
+        pdfBadge.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
+        pdfBadge.setBackgroundResource(R.drawable.bg_icon_sand);
+        docRow.addView(pdfBadge);
 
         return docRow;
     }
 
     // ✅ Helper to get display name from URL
     private String getDisplayNameFromUrl(String url) {
-        if (url == null) return "Document";
-
-        // Handle content URIs
-        if (url.startsWith("content://")) {
-            return "Uploaded Image";
-        }
-
-        String fileName = url.substring(url.lastIndexOf("/") + 1);
-        try {
-            fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-            // Clean up filename
-            fileName = fileName.replace(".txt", "");
-            fileName = fileName.replace("_", " ");
-            fileName = fileName.replace("?alt=media", "");
-            // Remove token if present
-            int tokenIndex = fileName.indexOf("?token");
-            if (tokenIndex > 0) {
-                fileName = fileName.substring(0, tokenIndex);
-            }
-            return fileName;
-        } catch (Exception e) {
-            return fileName;
-        }
+        if (url != null && url.startsWith("content://")) return "Uploaded Image";
+        return cleanDocumentFileName(url);
     }
 
     // ✅ Helper method to convert dp to px
