@@ -13,15 +13,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.VerificationEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.VerificationRepository;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -33,7 +31,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddVerificationDialog extends DialogFragment {
+public class AddVerificationDialog extends FarmDialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
     private static final String ARG_CERTIFICATION_ID = "certification_id";
@@ -120,29 +118,18 @@ public class AddVerificationDialog extends DialogFragment {
         setupDatePicker();
         setupEvidence();
 
-        String title = correctionOfId != null ? "Correcting " + correctionOfId : "Add Verification";
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setView(view)
-                .setTitle(title)
-                .setCancelable(false);
-
-        if (correctionOfId != null) {
-            prefillFromOriginal(correctionOfId);
+        android.widget.TextView dialogTitle = view.findViewById(R.id.tvDialogTitle);
+        if (correctionOfId != null && dialogTitle != null) {
+            dialogTitle.setText("Correcting " + correctionOfId);
         }
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setText("Save");
+        btnSave.setOnClickListener(v -> saveVerification());
 
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveVerification());
-        });
-
-        return dialog;
+        return new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setView(view)
+                .setCancelable(false)
+                .create();
     }
 
     private void prefillFromOriginal(String originalId) {
@@ -409,7 +396,7 @@ public class AddVerificationDialog extends DialogFragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         btnSave.setEnabled(true);
-                        btnSave.setText("Add Verification");
+                        btnSave.setText("Save");
                         Toast.makeText(getContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
                     });
                 }

@@ -57,6 +57,7 @@ public class VerificationDetailActivity extends BaseActivity {
     private CardView cardStatus;
     private TextView tvSuperseded;
     private MaterialButton btnCorrect;
+    private TextView tvStatDate, tvStatCount;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -86,9 +87,8 @@ public class VerificationDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        tvStatDate = findViewById(R.id.tvStatDate);
+        tvStatCount = findViewById(R.id.tvStatCount);
         tvVerificationId = findViewById(R.id.tvVerificationId);
         tvVerificationType = findViewById(R.id.tvVerificationType);
         tvStatus = findViewById(R.id.tvStatus);
@@ -110,14 +110,8 @@ public class VerificationDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Verification Details");
-        }
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnEdit).setOnClickListener(v -> openCorrectionDialog());
     }
 
     @Override
@@ -203,6 +197,9 @@ public class VerificationDetailActivity extends BaseActivity {
         }
 
         tvVerificationDate.setText(verification.getFormattedVerificationDate());
+        tvStatDate.setText(verification.getFormattedVerificationDate());
+        List<String> statEvidence = verification.getEvidence();
+        tvStatCount.setText(String.valueOf(statEvidence == null ? 0 : statEvidence.size()));
         tvVerifiedBy.setText(verification.getVerifiedBy() != null ? verification.getVerifiedBy() : "Not specified");
 
         // Evidence

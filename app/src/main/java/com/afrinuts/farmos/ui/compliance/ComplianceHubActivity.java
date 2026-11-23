@@ -194,16 +194,16 @@ public class ComplianceHubActivity extends BaseHubActivity {
     }
 
     private void showCheckChooser() {
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Add check")
-                .setItems(new String[]{"Add audit", "Add compliance inspection", "Add verification"}, (dialog, which) -> {
-                    Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
-                    if (!(fragment instanceof ChecksFragment)) return;
-                    ChecksFragment checks = (ChecksFragment) fragment;
-                    if (which == 0) checks.showAddAuditDialog();
-                    else if (which == 1) checks.showAddInspectionDialog();
-                    else checks.showAddVerificationDialog();
-                }).show();
+        new CheckChooserDialog().show(getSupportFragmentManager(), "AddCheckChooserDialog");
+    }
+
+    void showCheckChoice(int which) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+        if (!(fragment instanceof ChecksFragment)) return;
+        ChecksFragment checks = (ChecksFragment) fragment;
+        if (which == 0) checks.showAddAuditDialog();
+        else if (which == 1) checks.showAddInspectionDialog();
+        else if (which == 2) checks.showAddVerificationDialog();
     }
 
     private void setupFab() {

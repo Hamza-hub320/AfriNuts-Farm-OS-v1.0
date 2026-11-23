@@ -62,6 +62,7 @@ public class InspectionDetailActivity extends BaseActivity {
     private CardView cardCorrectiveActions;
     private MaterialButton btnCorrect;
     private TextView tvSuperseded;
+    private TextView tvStatDate, tvStatCount;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -91,9 +92,8 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        tvStatDate = findViewById(R.id.tvStatDate);
+        tvStatCount = findViewById(R.id.tvStatCount);
         tvInspectionId = findViewById(R.id.tvInspectionId);
         tvRequirementCategory = findViewById(R.id.tvRequirementCategory);
         tvStatus = findViewById(R.id.tvStatus);
@@ -120,14 +120,8 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Inspection Details");
-        }
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnEdit).setOnClickListener(v -> openCorrectionDialog());
     }
 
     @Override
@@ -222,6 +216,9 @@ public class InspectionDetailActivity extends BaseActivity {
 
         // Dates
         tvInspectionDate.setText(inspection.getFormattedInspectionDate());
+        tvStatDate.setText(inspection.getFormattedInspectionDate());
+        List<InspectionEntity.CorrectiveAction> statActions = inspection.getCorrectiveActions();
+        tvStatCount.setText(String.valueOf(statActions == null ? 0 : statActions.size()));
 
         // Inspector
         tvInspectorName.setText(inspection.getInspectorName() != null ? inspection.getInspectorName() : "Not specified");

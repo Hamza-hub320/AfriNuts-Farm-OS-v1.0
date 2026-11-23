@@ -62,6 +62,7 @@ public class AuditDetailActivity extends BaseActivity {
     private CardView cardFindings;
     private MaterialButton btnCorrect;
     private TextView tvSuperseded;
+    private TextView tvStatDate, tvStatCount;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -91,9 +92,8 @@ public class AuditDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        tvStatDate = findViewById(R.id.tvStatDate);
+        tvStatCount = findViewById(R.id.tvStatCount);
         tvAuditId = findViewById(R.id.tvAuditId);
         tvAuditType = findViewById(R.id.tvAuditType);
         tvStatus = findViewById(R.id.tvStatus);
@@ -119,14 +119,8 @@ public class AuditDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Audit Details");
-        }
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnEdit).setOnClickListener(v -> openCorrectionDialog());
     }
 
     @Override
@@ -220,6 +214,8 @@ public class AuditDetailActivity extends BaseActivity {
 
         // Dates
         tvAuditDate.setText(audit.getFormattedAuditDate());
+        tvStatDate.setText(audit.getFormattedAuditDate());
+        tvStatCount.setText(String.valueOf(audit.getFindingsCount()));
 
         // Auditor
         tvAuditorName.setText(audit.getAuditorName() != null ? audit.getAuditorName() : "Not specified");

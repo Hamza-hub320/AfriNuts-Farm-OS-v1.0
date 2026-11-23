@@ -320,7 +320,7 @@
                 android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="46dp"
-                android:text="Add Inspection"
+                android:text="Save"
                 style="@style/Widget.AfriNuts.Button"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"

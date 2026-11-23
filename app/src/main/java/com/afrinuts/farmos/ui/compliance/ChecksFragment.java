@@ -1,12 +1,14 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,12 +62,17 @@ public class ChecksFragment extends Fragment {
         LinearLayout root = new LinearLayout(requireContext());
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(12), dp(10), dp(12), dp(8));
+        HorizontalScrollView chipScroll = new HorizontalScrollView(requireContext());
+        chipScroll.setHorizontalScrollBarEnabled(false);
+        chipScroll.setFillViewport(false);
         filters = new ChipGroup(requireContext());
         filters.setSingleSelection(true);
         filters.setSelectionRequired(true);
+        filters.setSingleLine(true);
         filters.setChipSpacingHorizontal(dp(8));
         filters.setChipSpacingVertical(dp(6));
-        root.addView(filters, new LinearLayout.LayoutParams(-1, -2));
+        chipScroll.addView(filters, new HorizontalScrollView.LayoutParams(-2, -2));
+        root.addView(chipScroll, new LinearLayout.LayoutParams(-1, -2));
         RecyclerView list = new RecyclerView(requireContext());
         list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CheckAdapter(visibleEntries);
@@ -115,6 +122,17 @@ public class ChecksFragment extends Fragment {
         chip.setCheckable(true);
         chip.setClickable(true);
         chip.setEnsureMinTouchTargetSize(false);
+        chip.setCheckedIconVisible(false);
+        ColorStateList chipBackground = new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{ContextCompat.getColor(requireContext(), R.color.primary),
+                        android.graphics.Color.TRANSPARENT});
+        chip.setChipBackgroundColor(chipBackground);
+        chip.setChipStrokeWidth(0);
+        chip.setTextColor(new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{ContextCompat.getColor(requireContext(), android.R.color.white),
+                        ContextCompat.getColor(requireContext(), R.color.text_secondary)}));
         chip.setTag(filter);
         chip.setOnClickListener(v -> { selectedFilter = filter; refreshRows(); });
         filters.addView(chip);
@@ -215,7 +233,7 @@ public class ChecksFragment extends Fragment {
             LinearLayout card = new LinearLayout(parent.getContext()); card.setOrientation(LinearLayout.VERTICAL);
             card.setPadding(dp(16), dp(14), dp(16), dp(14));
             android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
-            bg.setColor(ContextCompat.getColor(parent.getContext(), R.color.surface)); bg.setCornerRadius(dp(16));
+            bg.setColor(ContextCompat.getColor(parent.getContext(), R.color.surface)); bg.setCornerRadius(dp(24));
             card.setBackground(bg); RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, -2);
             params.bottomMargin = dp(8); card.setLayoutParams(params);
             TextView title = new TextView(parent.getContext()); title.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_primary));

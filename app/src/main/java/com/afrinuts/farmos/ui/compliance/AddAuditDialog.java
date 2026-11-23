@@ -136,6 +136,7 @@ public class AddAuditDialog extends FarmDialogFragment {
         }
 
         btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setText("Save");
         btnSave.setOnClickListener(v -> saveAudit());
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
@@ -471,7 +472,7 @@ public class AddAuditDialog extends FarmDialogFragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         btnSave.setEnabled(true);
-                        btnSave.setText("Add Audit");
+                        btnSave.setText("Save");
                         Toast.makeText(getContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
                     });
                 }
