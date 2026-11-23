@@ -220,7 +220,7 @@ public class MasterTraceabilityFragment extends Fragment {
         }
 
         tvTotalMasters.setText(String.valueOf(total));
-        tvTotalMasterWeight.setText(String.format(Locale.getDefault(), "%,.0f kg", totalWeight));
+        tvTotalMasterWeight.setText(String.format(Locale.getDefault(), "%,.0f", totalWeight));
     }
 
     private void showLoading(boolean show) {

@@ -4,85 +4,136 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
-    <!-- Summary Stats -->
+    <!-- Bulk summary KPIs -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/surface"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="20dp"
-        android:elevation="2dp">
+        android:layout_marginTop="12dp">
 
-        <!-- Total Masters -->
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="105dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:layout_marginEnd="2dp"
+            app:cardBackgroundColor="#0E6B3C"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tvTotalMasters"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                style="@style/Text.H3"
-                android:textColor="?attr/colorPrimary" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="14dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Masters"
-                style="@style/Text.Caption"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.7" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total masters"
+                    android:textColor="#C7E3D4"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/manrope_bold" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvTotalMasters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="21sp"
+                    android:fontFamily="@font/manrope_extrabold" />
 
-        <!-- Total Weight -->
-        <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Master lots this season"
+                    android:textColor="#C7E3D4"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/manrope_bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="105dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:layout_marginStart="2dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tvTotalMasterWeight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 kg"
-                style="@style/Text.H3"
-                android:textColor="@color/accent_ink" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="14dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Weight"
-                style="@style/Text.Caption"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.7" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total weight"
+                    android:textColor="#59544C"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/manrope_bold" />
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
+                    <TextView
+                        android:id="@+id/tvTotalMasterWeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#1C1B1A"
+                        android:textSize="21sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+
+                    <TextView
+                        android:id="@+id/tvTotalMasterWeightUnit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="3dp"
+                        android:text="kg"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Across all masters"
+                    android:textColor="#59544C"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/manrope_bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <!-- RecyclerView -->
+    <!-- Master list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp"
         android:clipToPadding="false" />
 
-    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -124,6 +175,5 @@
             android:textColor="?attr/colorOnSurface"
             android:alpha="0.5"
             android:layout_marginTop="4dp" />
-
     </LinearLayout>
 </LinearLayout>
