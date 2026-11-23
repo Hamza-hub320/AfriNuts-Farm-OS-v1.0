@@ -112,27 +112,20 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="15sp"
                         android:fontFamily="@font/manrope_semibold" />
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/cardStatus"
+                    <TextView
+                        android:id="@+id/tvStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
-                        app:cardCornerRadius="999dp"
-                        app:cardElevation="0dp">
-                        <TextView
-                            android:id="@+id/tvStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_status_audit_ready"
-                            android:paddingStart="14dp"
-                            android:paddingTop="7dp"
-                            android:paddingEnd="14dp"
-                            android:paddingBottom="7dp"
-                            android:text="Audit Ready"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp"
-                            android:fontFamily="@font/manrope_bold" />
-                    </androidx.cardview.widget.CardView>
+                        android:background="@drawable/bg_status_audit_ready"
+                        android:paddingStart="14dp"
+                        android:paddingTop="7dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="7dp"
+                        android:text="Audit Ready"
+                        android:textColor="@android:color/white"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -143,7 +136,7 @@
                 android:orientation="horizontal">
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="104dp"
+                    android:layout_height="120dp"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/primary"
@@ -151,12 +144,12 @@
                     app:cardElevation="0dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Target date" android:textColor="#D9EEE3" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                        <TextView android:id="@+id/tvTargetDateStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Aug 31, 2029" android:textColor="@android:color/white" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/tvTargetDateStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:maxLines="2" android:text="Aug 31, 2029" android:textColor="@android:color/white" android:textSize="12sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="104dp"
+                    android:layout_height="120dp"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface"
@@ -164,12 +157,12 @@
                     app:cardElevation="0dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scope" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                        <TextView android:id="@+id/tvScopeStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="2" android:text="Farm operations" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/tvScopeStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="2" android:text="Farm operations" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="104dp"
+                    android:layout_height="120dp"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface"
@@ -177,7 +170,7 @@
                     app:cardElevation="0dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Standards" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
-                        <TextView android:id="@+id/tvStandardsCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="3 standards" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/tvStandardsCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:maxLines="2" android:text="3 standards" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="@font/manrope_extrabold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>

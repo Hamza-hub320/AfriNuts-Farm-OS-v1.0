@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.utils.DateFormatter;
@@ -61,7 +60,6 @@ public class CertificationDetailActivity extends BaseActivity {
     private TextView tvTargetDateStat;
     private TextView tvScopeStat;
     private TextView tvStandardsCount;
-    private CardView cardStatus;
 
     // UI Elements - Related Records
     private TextView tvAuditCount;
@@ -118,7 +116,6 @@ public class CertificationDetailActivity extends BaseActivity {
         tvScopeStat = findViewById(R.id.tvScopeStat);
         tvStandardsCount = findViewById(R.id.tvStandardsCount);
         tvStatusHistory = findViewById(R.id.tvStatusHistory);
-        cardStatus = findViewById(R.id.cardStatus);
 
         // Related Records
         tvAuditCount = findViewById(R.id.tvAuditCount);
@@ -272,9 +269,9 @@ public class CertificationDetailActivity extends BaseActivity {
             for (int i = history.size() - 1; i >= 0; i--) {
                 CertificationEntity.StatusEvent e = history.get(i);
                 if (sb.length() > 0) sb.append("\n");
-                sb.append(e.fromStatus != null ? e.fromStatus : "—")
-                        .append(" → ").append(e.toStatus)
-                        .append(" · ").append(DateFormatter.formatDateOrDash(e.date))
+                sb.append(statusLabel(e.fromStatus))
+                        .append(" → ").append(statusLabel(e.toStatus))
+                        .append("\n").append(DateFormatter.formatDateOrDash(e.date))
                         .append(" · ").append(e.actor != null ? e.actor : "—");
             }
             tvStatusHistory.setText(sb.toString());
@@ -289,7 +286,6 @@ public class CertificationDetailActivity extends BaseActivity {
     }
 
     private void updateStatusColor() {
-        cardStatus.setCardBackgroundColor(android.graphics.Color.TRANSPARENT);
         int pillDrawable;
         switch (certification.getEffectiveStatus()) {
             case CERTIFIED: pillDrawable = R.drawable.bg_status_certified; break;
@@ -300,6 +296,15 @@ public class CertificationDetailActivity extends BaseActivity {
             default: pillDrawable = R.drawable.bg_status_not_started; break;
         }
         tvStatus.setBackgroundResource(pillDrawable);
+    }
+
+    private String statusLabel(String rawStatus) {
+        if (rawStatus == null || rawStatus.trim().isEmpty()) return "—";
+        try {
+            return CertificationEntity.CertificationStatus.valueOf(rawStatus).getDisplayName();
+        } catch (IllegalArgumentException ignored) {
+            return rawStatus.replace('_', ' ');
+        }
     }
 
     private void showEditDialog() {

@@ -25,7 +25,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ComplianceHubActivity extends BaseHubActivity {
 
@@ -91,6 +94,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+        TextView complianceDate = findViewById(R.id.complianceDateText);
+        if (complianceDate != null) {
+            complianceDate.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
+        }
 
         // Bottom navigation items
         navHome = findViewById(R.id.navHome);

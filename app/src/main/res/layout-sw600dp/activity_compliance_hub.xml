@@ -13,6 +13,59 @@
         android:padding="20dp"
         android:paddingBottom="72dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/complianceDateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#59544C"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/manrope_semibold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Certs"
+                    android:textColor="#1C1B1A"
+                    android:textSize="28sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+
+            <ImageButton
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="9dp"
+                android:background="@drawable/bg_home_bell_button"
+                android:contentDescription="Notifications"
+                android:clickable="false"
+                android:focusable="false"
+                android:padding="12dp"
+                android:src="@drawable/ic_notification"
+                app:tint="#1C1B1A" />
+
+            <TextView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_home_account_button"
+                android:contentDescription="Account"
+                android:gravity="center"
+                android:text="HS"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
