@@ -54,10 +54,9 @@ public class VerificationDetailActivity extends BaseActivity {
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
     private TextView tvValidated;
-    private CardView cardStatus;
     private TextView tvSuperseded;
     private MaterialButton btnCorrect;
-    private TextView tvStatDate, tvStatCount;
+    private TextView tvStatDate, tvStatCount, tvHeroSubtitle;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -89,6 +88,7 @@ public class VerificationDetailActivity extends BaseActivity {
     private void initViews() {
         tvStatDate = findViewById(R.id.tvStatDate);
         tvStatCount = findViewById(R.id.tvStatCount);
+        tvHeroSubtitle = findViewById(R.id.tvHeroSubtitle);
         tvVerificationId = findViewById(R.id.tvVerificationId);
         tvVerificationType = findViewById(R.id.tvVerificationType);
         tvStatus = findViewById(R.id.tvStatus);
@@ -100,7 +100,6 @@ public class VerificationDetailActivity extends BaseActivity {
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
         tvValidated = findViewById(R.id.tvValidated);
-        cardStatus = findViewById(R.id.cardStatus);
 
         loadSupersededState();
 
@@ -191,8 +190,10 @@ public class VerificationDetailActivity extends BaseActivity {
         updateStatusColor();
 
         if (certification != null) {
+            tvHeroSubtitle.setText(certification.getCertificationName() + " · " + certification.getCertificationBody());
             tvCertification.setText(certification.getCertificationName() + " (" + certification.getCertificationId() + ")");
         } else {
+            tvHeroSubtitle.setText(verification.getCertificationId() != null ? verification.getCertificationId() : verification.getVerificationTypeDisplay());
             tvCertification.setText(verification.getCertificationId());
         }
 
@@ -226,22 +227,31 @@ public class VerificationDetailActivity extends BaseActivity {
     }
 
     private void updateStatusColor() {
-        int colorRes;
+        int backgroundColor;
+        int textColor;
         switch (verification.getStatus()) {
             case VERIFIED:
-                colorRes = R.color.status_certified;
+                backgroundColor = android.graphics.Color.parseColor("#E3F0E7");
+                textColor = android.graphics.Color.parseColor("#0A5530");
                 break;
             case PENDING:
-                colorRes = R.color.status_audit_ready;
+                backgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                textColor = android.graphics.Color.parseColor("#59544C");
                 break;
             case REJECTED:
-                colorRes = R.color.status_expired;
+                backgroundColor = android.graphics.Color.parseColor("#FCE8E6");
+                textColor = android.graphics.Color.parseColor("#A12820");
                 break;
             default:
-                colorRes = R.color.status_not_started;
+                backgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                textColor = android.graphics.Color.parseColor("#59544C");
                 break;
         }
-        cardStatus.setCardBackgroundColor(getColor(colorRes));
+        android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+        pill.setColor(backgroundColor);
+        pill.setCornerRadius(getResources().getDisplayMetrics().density * 999f);
+        tvStatus.setBackground(pill);
+        tvStatus.setTextColor(textColor);
     }
 
     private void openCorrectionDialog() {

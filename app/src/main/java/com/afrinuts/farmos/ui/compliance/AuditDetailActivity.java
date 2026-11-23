@@ -21,7 +21,6 @@ import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -58,11 +57,10 @@ public class AuditDetailActivity extends BaseActivity {
     private TextView tvValidated;
     private TextView tvFindingsCount;
     private LinearLayout findingsContainer;
-    private CardView cardStatus;
     private CardView cardFindings;
     private MaterialButton btnCorrect;
     private TextView tvSuperseded;
-    private TextView tvStatDate, tvStatCount;
+    private TextView tvStatDate, tvStatCount, tvHeroSubtitle, tvFindingsDetail;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -94,11 +92,12 @@ public class AuditDetailActivity extends BaseActivity {
     private void initViews() {
         tvStatDate = findViewById(R.id.tvStatDate);
         tvStatCount = findViewById(R.id.tvStatCount);
+        tvHeroSubtitle = findViewById(R.id.tvHeroSubtitle);
+        tvFindingsDetail = findViewById(R.id.tvFindingsDetail);
         tvAuditId = findViewById(R.id.tvAuditId);
         tvAuditType = findViewById(R.id.tvAuditType);
         tvStatus = findViewById(R.id.tvStatus);
         tvCertification = findViewById(R.id.tvCertification);
-        tvAuditDate = findViewById(R.id.tvAuditDate);
         tvAuditorName = findViewById(R.id.tvAuditorName);
         tvAuditorBody = findViewById(R.id.tvAuditorBody);
         tvScope = findViewById(R.id.tvScope);
@@ -108,7 +107,6 @@ public class AuditDetailActivity extends BaseActivity {
         tvValidated = findViewById(R.id.tvValidated);
         tvFindingsCount = findViewById(R.id.tvFindingsCount);
         findingsContainer = findViewById(R.id.findingsContainer);
-        cardStatus = findViewById(R.id.cardStatus);
         cardFindings = findViewById(R.id.cardFindings);
         tvSuperseded = findViewById(R.id.tvSuperseded);
 
@@ -174,9 +172,16 @@ public class AuditDetailActivity extends BaseActivity {
         executor.execute(() -> {
             String supersedingId = database.auditDao()
                     .getSupersedingRecordId(audit.getAuditId());
+            AuditEntity replacedAudit = audit.getSupersedesId() == null
+                    ? null : auditRepository.getAuditByIdSync(audit.getSupersedesId());
             runOnUiThread(() -> {
-                if (supersedingId != null) {
-                    tvSuperseded.setText("Superseded by " + supersedingId);
+                if (audit.getSupersedesId() != null && !audit.getSupersedesId().isEmpty()) {
+                    String replacedDate = replacedAudit == null ? "" : " from " + replacedAudit.getFormattedAuditDate();
+                    tvSuperseded.setText("Supersedes an earlier audit. This audit replaces "
+                            + audit.getSupersedesId() + replacedDate + ". The earlier audit stays on the record — it is marked superseded, never deleted.");
+                    tvSuperseded.setVisibility(View.VISIBLE);
+                } else if (supersedingId != null) {
+                    tvSuperseded.setText("This audit was superseded by " + supersedingId + ". It stays on the record and is never deleted.");
                     tvSuperseded.setVisibility(View.VISIBLE);
                 } else {
                     tvSuperseded.setVisibility(View.GONE);
@@ -199,23 +204,30 @@ public class AuditDetailActivity extends BaseActivity {
     private void displayAuditData(String validatedByDisplayName) {
         // Basic Info
         tvAuditId.setText(audit.getAuditId());
-        tvAuditType.setText(audit.getAuditTypeDisplay());
+        tvAuditType.setText("Certification audit");
 
         // Status with color
-        tvStatus.setText(audit.getStatusDisplay());
+        String statusLabel = audit.getValidatedAt() != null
+                && audit.getStatus() == AuditEntity.AuditStatus.PASS
+                ? "Validated" : audit.getStatusDisplay();
+        tvStatus.setText(statusLabel);
         updateStatusColor();
 
         // Certification
         if (certification != null) {
-            tvCertification.setText(certification.getCertificationName() + " (" + certification.getCertificationId() + ")");
+            String certificationName = certification.getCertificationName();
+            String certificationBody = certification.getCertificationBody();
+            tvHeroSubtitle.setText(certificationName + (certificationBody == null || certificationBody.isEmpty() ? "" : " · " + certificationBody));
+            tvCertification.setText(certificationName + " (" + certification.getCertificationId() + ")");
         } else {
-            tvCertification.setText(audit.getCertificationId());
+            tvHeroSubtitle.setText(audit.getCertificationId() != null ? audit.getCertificationId() : "Certification audit");
+            tvCertification.setText(audit.getCertificationId() != null ? audit.getCertificationId() : "Not specified");
         }
 
         // Dates
-        tvAuditDate.setText(audit.getFormattedAuditDate());
         tvStatDate.setText(audit.getFormattedAuditDate());
         tvStatCount.setText(String.valueOf(audit.getFindingsCount()));
+        tvFindingsDetail.setText(audit.getFindingsCount() + " findings");
 
         // Auditor
         tvAuditorName.setText(audit.getAuditorName() != null ? audit.getAuditorName() : "Not specified");
@@ -229,7 +241,8 @@ public class AuditDetailActivity extends BaseActivity {
             tvReportUrl.setText(audit.getReportUrl());
             tvReportUrl.setVisibility(View.VISIBLE);
         } else {
-            tvReportUrl.setVisibility(View.GONE);
+            tvReportUrl.setText("—");
+            tvReportUrl.setVisibility(View.VISIBLE);
         }
 
         // Timestamps
@@ -249,22 +262,28 @@ public class AuditDetailActivity extends BaseActivity {
     }
 
     private void updateStatusColor() {
-        int colorRes;
+        int backgroundColor;
+        int textColor;
         switch (audit.getStatus()) {
             case PASS:
-                colorRes = R.color.status_certified;
-                break;
-            case PASS_WITH_CONDITIONS:
-                colorRes = R.color.status_audit_ready;
+                backgroundColor = android.graphics.Color.parseColor("#E3F0E7");
+                textColor = android.graphics.Color.parseColor("#0A5530");
                 break;
             case FAIL:
-                colorRes = R.color.status_expired;
+                backgroundColor = android.graphics.Color.parseColor("#FCE8E6");
+                textColor = android.graphics.Color.parseColor("#A12820");
                 break;
+            case PASS_WITH_CONDITIONS:
             default:
-                colorRes = R.color.status_not_started;
+                backgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                textColor = android.graphics.Color.parseColor("#59544C");
                 break;
         }
-        cardStatus.setCardBackgroundColor(getColor(colorRes));
+        android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+        pill.setColor(backgroundColor);
+        pill.setCornerRadius(getResources().getDisplayMetrics().density * 999f);
+        tvStatus.setBackground(pill);
+        tvStatus.setTextColor(textColor);
     }
 
     private void displayFindings() {
@@ -292,71 +311,61 @@ public class AuditDetailActivity extends BaseActivity {
 
             tvFinding.setText(finding.finding != null ? finding.finding : "No description");
 
-            if (finding.correctiveAction != null && !finding.correctiveAction.isEmpty()) {
-                tvCorrectiveAction.setText("Action: " + finding.correctiveAction);
-                tvCorrectiveAction.setVisibility(View.VISIBLE);
-            } else {
-                tvCorrectiveAction.setVisibility(View.GONE);
-            }
+            tvCorrectiveAction.setText("Corrective action: "
+                    + (finding.correctiveAction != null && !finding.correctiveAction.isEmpty()
+                    ? finding.correctiveAction : "—"));
+            tvCorrectiveAction.setVisibility(View.VISIBLE);
 
             // Get status with proper display
             String status = finding.status != null ? finding.status.toUpperCase() : "OPEN";
             String statusDisplay;
-            int bgRes;
+            int backgroundColor;
+            int textColor;
 
             switch (status) {
                 case "CLOSED":
                     statusDisplay = "CLOSED";
-                    bgRes = R.drawable.bg_status_finding_closed;
+                    backgroundColor = android.graphics.Color.parseColor("#0A5530");
+                    textColor = android.graphics.Color.WHITE;
                     break;
                 case "IN_PROGRESS":
                     statusDisplay = "IN PROGRESS";
-                    bgRes = R.drawable.bg_status_finding_in_progress;
+                    backgroundColor = android.graphics.Color.parseColor("#F6ECD2");
+                    textColor = android.graphics.Color.parseColor("#8A6414");
                     break;
                 default:
                     statusDisplay = "OPEN";
-                    bgRes = R.drawable.bg_status_finding_open;
+                    backgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                    textColor = android.graphics.Color.parseColor("#59544C");
                     break;
             }
 
             tvFindingStatus.setText(statusDisplay);
-            tvFindingStatus.setBackgroundResource(bgRes);
+            android.graphics.drawable.GradientDrawable statusPill = new android.graphics.drawable.GradientDrawable();
+            statusPill.setColor(backgroundColor);
+            statusPill.setCornerRadius(getResources().getDisplayMetrics().density * 999f);
+            tvFindingStatus.setBackground(statusPill);
+            tvFindingStatus.setTextColor(textColor);
 
             // ✅ Make the status clickable to update it
             tvFindingStatus.setOnClickListener(v -> showStatusUpdateDialog(finding, position));
 
             findingsContainer.addView(findingView);
+            if (i < findings.size() - 1) {
+                View divider = new View(this);
+                divider.setBackgroundColor(android.graphics.Color.parseColor("#E9E1CF"));
+                findingsContainer.addView(divider, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, Math.max(1, (int) (getResources().getDisplayMetrics().density + 0.5f))));
+            }
         }
     }
 
     private void showStatusUpdateDialog(AuditEntity.Finding finding, int position) {
-        String[] statusOptions = {
-                "OPEN - Not addressed yet",
-                "IN PROGRESS - Being addressed",
-                "CLOSED - Resolved"
-        };
-
-        String[] statusValues = {"OPEN", "IN_PROGRESS", "CLOSED"};
-
-        // Find current selection
-        int currentSelection = 0;
         String currentStatus = finding.status != null ? finding.status.toUpperCase() : "OPEN";
-        for (int i = 0; i < statusValues.length; i++) {
-            if (statusValues[i].equals(currentStatus)) {
-                currentSelection = i;
-                break;
-            }
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Update Finding Status")
-                .setSingleChoiceItems(statusOptions, currentSelection, (dialog, which) -> {
-                    String newStatus = statusValues[which];
-                    updateFindingStatus(finding, position, newStatus);
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        UpdateActionStatusDialog dialog = UpdateActionStatusDialog.newInstance(
+                currentStatus, "Update finding status");
+        dialog.setListener(newStatus -> updateFindingStatus(finding, position, newStatus));
+        dialog.show(getSupportFragmentManager(), "UpdateFindingStatusDialog");
     }
 
     private void updateFindingStatus(AuditEntity.Finding finding, int position, String newStatus) {

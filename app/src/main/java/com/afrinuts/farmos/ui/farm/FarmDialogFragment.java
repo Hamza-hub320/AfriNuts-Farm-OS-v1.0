@@ -110,7 +110,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         }
         if (actionRow != null) {
             android.widget.LinearLayout.LayoutParams actions = new android.widget.LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, Math.round(52 * density));
+                    ViewGroup.LayoutParams.MATCH_PARENT, Math.round(60 * density));
             actions.topMargin = Math.round(24 * density);
             body.addView(actionRow, actions);
         }
@@ -368,7 +368,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
                                 : new android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
                         lp.width = 0;
                         lp.weight = 1f;
-                        lp.height = Math.round(52 * density);
+                        lp.height = Math.round(60 * density);
                         lp.setMargins(i == 0 ? 0 : Math.round(12 * density), 0, 0, 0);
                         action.setLayoutParams(lp);
                     }
@@ -434,7 +434,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
         button.setTextSize(15);
         button.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
         button.setTextSize(15);
-        button.setMinHeight(Math.round(52 * density));
+            button.setMinHeight(Math.round(60 * density));
         button.setAllCaps(false);
         button.setSingleLine(false);
         button.setMaxLines(2);

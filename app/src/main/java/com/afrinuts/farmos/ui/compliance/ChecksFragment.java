@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,17 +61,13 @@ public class ChecksFragment extends Fragment {
         LinearLayout root = new LinearLayout(requireContext());
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(12), dp(10), dp(12), dp(8));
-        HorizontalScrollView chipScroll = new HorizontalScrollView(requireContext());
-        chipScroll.setHorizontalScrollBarEnabled(false);
-        chipScroll.setFillViewport(false);
         filters = new ChipGroup(requireContext());
         filters.setSingleSelection(true);
         filters.setSelectionRequired(true);
-        filters.setSingleLine(true);
+        filters.setSingleLine(false);
         filters.setChipSpacingHorizontal(dp(8));
         filters.setChipSpacingVertical(dp(6));
-        chipScroll.addView(filters, new HorizontalScrollView.LayoutParams(-2, -2));
-        root.addView(chipScroll, new LinearLayout.LayoutParams(-1, -2));
+        root.addView(filters, new LinearLayout.LayoutParams(-1, -2));
         RecyclerView list = new RecyclerView(requireContext());
         list.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CheckAdapter(visibleEntries);
@@ -236,17 +231,26 @@ public class ChecksFragment extends Fragment {
             bg.setColor(ContextCompat.getColor(parent.getContext(), R.color.surface)); bg.setCornerRadius(dp(24));
             card.setBackground(bg); RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, -2);
             params.bottomMargin = dp(8); card.setLayoutParams(params);
+            LinearLayout heading = new LinearLayout(parent.getContext());
+            heading.setOrientation(LinearLayout.HORIZONTAL);
+            heading.setGravity(Gravity.TOP);
+            card.addView(heading, new LinearLayout.LayoutParams(-1, -2));
             TextView title = new TextView(parent.getContext()); title.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_primary));
-            title.setTextSize(15); title.setTypeface(null, android.graphics.Typeface.BOLD); card.addView(title);
+            title.setTextSize(15); title.setTypeface(null, android.graphics.Typeface.BOLD);
+            LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, -2, 1f);
+            heading.addView(title, titleParams);
+            TextView date = new TextView(parent.getContext()); date.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_secondary));
+            date.setTextSize(11); date.setGravity(Gravity.END | Gravity.TOP);
+            LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(-2, -2);
+            dateParams.leftMargin = dp(8);
+            heading.addView(date, dateParams);
             TextView subtitle = new TextView(parent.getContext()); subtitle.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_secondary));
-            subtitle.setTextSize(12); LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(-1, -2); subParams.topMargin = dp(4); card.addView(subtitle, subParams);
-            TextView date = new TextView(parent.getContext()); date.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_tertiary));
-            date.setTextSize(11); date.setGravity(Gravity.END); LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(-1, -2); dateParams.topMargin = dp(8); card.addView(date, dateParams);
+            subtitle.setTextSize(13); LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(-1, -2); subParams.topMargin = dp(6); card.addView(subtitle, subParams);
             return new Holder(card, title, subtitle, date);
         }
         @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
             Entry e = entries.get(position); holder.title.setText(e.title); holder.subtitle.setText(e.subtitle);
-            holder.date.setText(e.date > 0 ? new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(e.date)) : "Date not set");
+            holder.date.setText(e.date > 0 ? new SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(new Date(e.date)) : "Date not set");
             holder.itemView.setOnClickListener(v -> {
                 Intent intent;
                 if (e.type == AUDITS) { intent = new Intent(requireContext(), AuditDetailActivity.class); intent.putExtra(AuditDetailActivity.EXTRA_AUDIT_ID, ((AuditEntity)e.model).getAuditId()); }

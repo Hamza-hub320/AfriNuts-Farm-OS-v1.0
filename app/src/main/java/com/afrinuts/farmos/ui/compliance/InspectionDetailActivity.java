@@ -21,7 +21,6 @@ import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.utils.DateFormatter;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -48,21 +47,18 @@ public class InspectionDetailActivity extends BaseActivity {
     private TextView tvStatus;
     private TextView tvCertification;
     private TextView tvInspectionType;
-    private TextView tvInspectionDate;
     private TextView tvInspectorName;
     private TextView tvInspectorBody;
     private TextView tvRemarks;
-    private TextView tvReportUrl;
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
     private TextView tvValidated;
     private TextView tvActionsCount;
     private LinearLayout actionsContainer;
-    private CardView cardStatus;
     private CardView cardCorrectiveActions;
     private MaterialButton btnCorrect;
     private TextView tvSuperseded;
-    private TextView tvStatDate, tvStatCount;
+    private TextView tvStatDate, tvStatCount, tvHeroSubtitle;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -94,22 +90,20 @@ public class InspectionDetailActivity extends BaseActivity {
     private void initViews() {
         tvStatDate = findViewById(R.id.tvStatDate);
         tvStatCount = findViewById(R.id.tvStatCount);
+        tvHeroSubtitle = findViewById(R.id.tvHeroSubtitle);
         tvInspectionId = findViewById(R.id.tvInspectionId);
         tvRequirementCategory = findViewById(R.id.tvRequirementCategory);
         tvStatus = findViewById(R.id.tvStatus);
         tvCertification = findViewById(R.id.tvCertification);
         tvInspectionType = findViewById(R.id.tvInspectionType);
-        tvInspectionDate = findViewById(R.id.tvInspectionDate);
         tvInspectorName = findViewById(R.id.tvInspectorName);
         tvInspectorBody = findViewById(R.id.tvInspectorBody);
         tvRemarks = findViewById(R.id.tvRemarks);
-        tvReportUrl = findViewById(R.id.tvReportUrl);
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
         tvValidated = findViewById(R.id.tvValidated);
         tvActionsCount = findViewById(R.id.tvActionsCount);
         actionsContainer = findViewById(R.id.actionsContainer);
-        cardStatus = findViewById(R.id.cardStatus);
         cardCorrectiveActions = findViewById(R.id.cardCorrectiveActions);
         tvSuperseded = findViewById(R.id.tvSuperseded);
 
@@ -174,8 +168,12 @@ public class InspectionDetailActivity extends BaseActivity {
             String supersedingId = database.inspectionDao()
                     .getSupersedingRecordId(inspection.getInspectionId());
             runOnUiThread(() -> {
-                if (supersedingId != null) {
-                    tvSuperseded.setText("Superseded by " + supersedingId);
+                if (inspection.getSupersedesId() != null && !inspection.getSupersedesId().isEmpty()) {
+                    tvSuperseded.setText("Supersedes an earlier inspection. This inspection replaces "
+                            + inspection.getSupersedesId() + ". The earlier record stays on file and is never deleted.");
+                    tvSuperseded.setVisibility(View.VISIBLE);
+                } else if (supersedingId != null) {
+                    tvSuperseded.setText("This inspection was superseded by " + supersedingId + ". It stays on file and is never deleted.");
                     tvSuperseded.setVisibility(View.VISIBLE);
                 } else {
                     tvSuperseded.setVisibility(View.GONE);
@@ -198,27 +196,33 @@ public class InspectionDetailActivity extends BaseActivity {
     private void displayInspectionData(String validatedByDisplayName) {
         // Basic Info
         tvInspectionId.setText(inspection.getInspectionId());
-        tvRequirementCategory.setText(inspection.getRequirementCategoryDisplay());
+        tvRequirementCategory.setText(inspection.getRequirementCategoryDisplay() + " inspection");
 
         // Status with color
-        tvStatus.setText(inspection.getStatusDisplay());
+        String statusLabel = inspection.getValidatedAt() != null
+                && inspection.getStatus() == InspectionEntity.InspectionStatus.PASS
+                ? "Validated" : inspection.getStatusDisplay();
+        tvStatus.setText(statusLabel);
         updateStatusColor();
 
         // Certification
         if (certification != null) {
-            tvCertification.setText(certification.getCertificationName() + " (" + certification.getCertificationId() + ")");
+            String certificationName = certification.getCertificationName();
+            String certificationBody = certification.getCertificationBody();
+            tvHeroSubtitle.setText(inspection.getRequirementCategoryDisplay() + " · " + inspection.getInspectionType().getDisplayName());
+            tvCertification.setText(inspection.getRequirementCategoryDisplay());
         } else {
-            tvCertification.setText(inspection.getCertificationId());
+            tvHeroSubtitle.setText(inspection.getCertificationId() != null ? inspection.getCertificationId() : "Inspection");
+            tvCertification.setText(inspection.getRequirementCategoryDisplay());
         }
 
         // Inspection Type
         tvInspectionType.setText(inspection.getInspectionType().getDisplayName());
 
         // Dates
-        tvInspectionDate.setText(inspection.getFormattedInspectionDate());
         tvStatDate.setText(inspection.getFormattedInspectionDate());
-        List<InspectionEntity.CorrectiveAction> statActions = inspection.getCorrectiveActions();
-        tvStatCount.setText(String.valueOf(statActions == null ? 0 : statActions.size()));
+        List<InspectionEntity.CorrectiveAction> actions = inspection.getCorrectiveActions();
+        tvStatCount.setText(String.valueOf(actions == null ? 0 : actions.size()));
 
         // Inspector
         tvInspectorName.setText(inspection.getInspectorName() != null ? inspection.getInspectorName() : "Not specified");
@@ -226,14 +230,6 @@ public class InspectionDetailActivity extends BaseActivity {
 
         // Remarks
         tvRemarks.setText(inspection.getRemarks() != null ? inspection.getRemarks() : "No remarks");
-
-        // Report URL
-        if (inspection.getReportUrl() != null && !inspection.getReportUrl().isEmpty()) {
-            tvReportUrl.setText(inspection.getReportUrl());
-            tvReportUrl.setVisibility(View.VISIBLE);
-        } else {
-            tvReportUrl.setVisibility(View.GONE);
-        }
 
         // Timestamps
         tvCreatedAt.setText(dateFormat.format(inspection.getCreatedAt()));
@@ -252,22 +248,28 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void updateStatusColor() {
-        int colorRes;
+        int backgroundColor;
+        int textColor;
         switch (inspection.getStatus()) {
             case PASS:
-                colorRes = R.color.status_certified;
-                break;
-            case CONDITIONAL_PASS:
-                colorRes = R.color.status_audit_ready;
+                backgroundColor = android.graphics.Color.parseColor("#E3F0E7");
+                textColor = android.graphics.Color.parseColor("#0A5530");
                 break;
             case FAIL:
-                colorRes = R.color.status_expired;
+                backgroundColor = android.graphics.Color.parseColor("#FCE8E6");
+                textColor = android.graphics.Color.parseColor("#A12820");
                 break;
+            case CONDITIONAL_PASS:
             default:
-                colorRes = R.color.status_not_started;
+                backgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                textColor = android.graphics.Color.parseColor("#59544C");
                 break;
         }
-        cardStatus.setCardBackgroundColor(getColor(colorRes));
+        android.graphics.drawable.GradientDrawable pill = new android.graphics.drawable.GradientDrawable();
+        pill.setColor(backgroundColor);
+        pill.setCornerRadius(getResources().getDisplayMetrics().density * 999f);
+        tvStatus.setBackground(pill);
+        tvStatus.setTextColor(textColor);
     }
 
     private void displayCorrectiveActions() {
@@ -303,26 +305,34 @@ public class InspectionDetailActivity extends BaseActivity {
             // Get status with proper display
             String status = action.status != null ? action.status.toUpperCase() : "OPEN";
             String statusDisplay;
-            int bgRes;
+            int statusBackgroundColor;
+            int statusTextColor;
             int colorRes;
 
             switch (status) {
                 case "CLOSED":
                     statusDisplay = "CLOSED";
-                    bgRes = R.drawable.bg_status_finding_closed;
+                    statusBackgroundColor = android.graphics.Color.parseColor("#0A5530");
+                    statusTextColor = android.graphics.Color.WHITE;
                     break;
                 case "IN_PROGRESS":
                     statusDisplay = "IN PROGRESS";
-                    bgRes = R.drawable.bg_status_finding_in_progress;
+                    statusBackgroundColor = android.graphics.Color.parseColor("#F6ECD2");
+                    statusTextColor = android.graphics.Color.parseColor("#8A6414");
                     break;
                 default:
                     statusDisplay = "OPEN";
-                    bgRes = R.drawable.bg_status_finding_open;
+                    statusBackgroundColor = android.graphics.Color.parseColor("#F3EAD8");
+                    statusTextColor = android.graphics.Color.parseColor("#59544C");
                     break;
             }
 
             tvActionStatus.setText(statusDisplay);
-            tvActionStatus.setBackgroundResource(bgRes);
+            android.graphics.drawable.GradientDrawable statusPill = new android.graphics.drawable.GradientDrawable();
+            statusPill.setColor(statusBackgroundColor);
+            statusPill.setCornerRadius(getResources().getDisplayMetrics().density * 999f);
+            tvActionStatus.setBackground(statusPill);
+            tvActionStatus.setTextColor(statusTextColor);
 
             // Make the status clickable to update it
             final int position = i;
@@ -333,33 +343,10 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void showStatusUpdateDialog(InspectionEntity.CorrectiveAction action, int position) {
-        String[] statusOptions = {
-                "OPEN - Not addressed yet",
-                "IN PROGRESS - Being addressed",
-                "CLOSED - Resolved"
-        };
-
-        String[] statusValues = {"OPEN", "IN_PROGRESS", "CLOSED"};
-
-        // Find current selection
-        int currentSelection = 0;
         String currentStatus = action.status != null ? action.status.toUpperCase() : "OPEN";
-        for (int i = 0; i < statusValues.length; i++) {
-            if (statusValues[i].equals(currentStatus)) {
-                currentSelection = i;
-                break;
-            }
-        }
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Update Action Status")
-                .setSingleChoiceItems(statusOptions, currentSelection, (dialog, which) -> {
-                    String newStatus = statusValues[which];
-                    updateActionStatus(position, newStatus);
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        UpdateActionStatusDialog dialog = UpdateActionStatusDialog.newInstance(currentStatus);
+        dialog.setListener(newStatus -> updateActionStatus(position, newStatus));
+        dialog.show(getSupportFragmentManager(), "UpdateActionStatusDialog");
     }
 
     private void updateActionStatus(int position, String newStatus) {

@@ -2,12 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@color/surface"
-    android:layout_marginBottom="8dp"
-    app:cornerRadius="8dp">
+    android:paddingVertical="8dp"
+    android:background="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,35 +18,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Minor non-conformance"
-            style="@style/Text.Body"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="14sp" />
+            android:textColor="#1C1B1A"
+            android:textSize="14.5sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvFindingStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
             android:text="OPEN"
-            android:textSize="11sp"
+            android:textSize="10.5sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:background="@drawable/bg_status_finding_open"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground" />
-
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvCorrectiveAction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Action: Implement corrective measures"
-        style="@style/Text.Caption"
-        android:textColor="?attr/colorOnSurface"
-        android:alpha="0.7"
+        android:text="Corrective action: Implement corrective measures"
+        android:textColor="#59544C"
+        android:textSize="13sp"
         android:layout_marginTop="4dp" />
-
 </LinearLayout>
