@@ -10,21 +10,22 @@
         android:layout_width="380dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="20dp"
         android:paddingBottom="72dp">
 
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
             app:tabIndicatorHeight="0dp"
             app:tabSelectedTextColor="@android:color/white"
             app:tabTextColor="?attr/colorOnSurface"
-            app:tabPaddingTop="4dp"
-            app:tabPaddingBottom="4dp"
+            app:tabPaddingTop="0dp"
+            app:tabPaddingBottom="0dp"
             app:tabMode="fixed"
             app:tabGravity="fill"
             app:cardCornerRadius="20dp"
@@ -33,11 +34,10 @@
             android:layout_marginBottom="4dp"
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
-            app:tabTextAppearance="@style/TextAppearance.TabCompact"
-            app:tabMinWidth="80dp"
-            app:tabMaxWidth="160dp"
-            app:tabPaddingStart="12dp"
-            app:tabPaddingEnd="12dp" />
+            app:tabTextAppearance="@style/TextAppearance.FinanceTab"
+            app:tabMinWidth="60dp"
+            app:tabPaddingStart="8dp"
+            app:tabPaddingEnd="8dp" />
 
         <!-- ViewPager2 -->
         <androidx.viewpager2.widget.ViewPager2
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="4dp"
+            android:padding="0dp"
             android:clipToPadding="false"
             android:paddingBottom="100dp"
             android:visibility="visible" />
@@ -340,7 +340,7 @@
                     android:id="@+id/navComplianceText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Compliance"
+                    android:text="Certs"
                     android:textSize="10sp"
                     android:textColor="?attr/navbarIconColor"
                     android:layout_marginTop="2dp" />

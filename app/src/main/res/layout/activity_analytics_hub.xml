@@ -385,7 +385,7 @@
                     android:id="@+id/navComplianceText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Compliance"
+                    android:text="Certs"
                     android:textSize="10sp"
                     android:textColor="?attr/navbarIconColor"
                     android:layout_marginTop="2dp" />

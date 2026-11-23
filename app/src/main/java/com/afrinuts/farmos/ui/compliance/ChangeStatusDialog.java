@@ -8,9 +8,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import com.afrinuts.farmos.utils.SessionManager;
 
@@ -119,23 +124,57 @@ public class ChangeStatusDialog extends DialogFragment {
         return builder.create();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Window window = getDialog() == null ? null : getDialog().getWindow();
+        if (window == null) return;
+        float density = getResources().getDisplayMetrics().density;
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        int width = getResources().getDisplayMetrics().widthPixels - (int) (32 * density);
+        window.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
+    }
+
     private void populateTargets() {
         if (targetsContainer == null) return;
         targetsContainer.removeAllViews();
+        CertificationEntity.CertificationStatus current = certification.getEffectiveStatus();
+        List<CertificationEntity.CertificationStatus> allowed = availableTargets();
         tvCurrentStatus.setText("Current status: " + certification.getEffectiveStatusDisplay());
-        for (CertificationEntity.CertificationStatus target : availableTargets()) {
+        for (CertificationEntity.CertificationStatus target : CertificationEntity.CertificationStatus.values()) {
             View row = LayoutInflater.from(requireContext())
                     .inflate(R.layout.item_status_target, targetsContainer, false);
             TextView tv = row.findViewById(R.id.tvTarget);
             tv.setText(target.getDisplayName());
-            row.setOnClickListener(v -> performTransition(target));
+            boolean isCurrent = target == current;
+            boolean isAllowed = allowed.contains(target);
+            int border = isCurrent ? ContextCompat.getColor(requireContext(), R.color.primary)
+                    : Color.parseColor("#E9E1CF");
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(isCurrent ? Color.parseColor("#E3F0E7") : Color.WHITE);
+            background.setCornerRadius(dp(18));
+            background.setStroke(dp(isCurrent ? 2 : 1), border);
+            row.setBackground(background);
+            row.setPadding(dp(16), dp(10), dp(16), dp(10));
+            tv.setTextColor(ContextCompat.getColor(requireContext(),
+                    isCurrent || isAllowed ? R.color.text_primary : R.color.text_secondary));
+            tv.setTextSize(15);
+            tv.setCompoundDrawablePadding(dp(8));
+            if (isCurrent) {
+                tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_check_circle, 0);
+            }
+            row.setEnabled(isAllowed);
+            row.setAlpha(isCurrent || isAllowed ? 1f : 0.58f);
+            if (isAllowed) row.setOnClickListener(v -> performTransition(target));
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) row.getLayoutParams();
+            params.bottomMargin = dp(8);
+            row.setLayoutParams(params);
             targetsContainer.addView(row);
         }
-        if (targetsContainer.getChildCount() == 0) {
-            TextView tv = new TextView(requireContext());
-            tv.setText("No status changes available from " + certification.getEffectiveStatusDisplay() + ".");
-            targetsContainer.addView(tv);
-        }
+    }
+
+    private int dp(float value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     private List<CertificationEntity.CertificationStatus> availableTargets() {

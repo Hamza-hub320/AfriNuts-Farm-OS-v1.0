@@ -4,559 +4,305 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/cardBackgroundPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:elevation="0dp"
-        android:translationZ="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_height="64dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Back"
+            android:padding="14dp"
+            android:src="@drawable/ic_backward"
+            app:tint="@color/text_primary" />
+
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Program detail"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:fontFamily="@font/manrope_extrabold" />
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_afrinuts_foreground"
-                android:alpha="0.95"
-                android:layout_marginEnd="12dp" />
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Edit programme"
+            android:padding="13dp"
+            android:src="@drawable/ic_edit"
+            app:tint="@color/text_primary" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Certification Details"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.01" />
-
-        </LinearLayout>
-
-    </androidx.appcompat.widget.Toolbar>
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Delete programme"
+            android:padding="13dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/text_primary" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:fillViewport="true">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Certification ID -->
-            <TextView
-                android:id="@+id/tvCertificationId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CERT-ORG-2026-001"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.5"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Name -->
-            <TextView
-                android:id="@+id/tvCertificationName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Organic (ECOCERT)"
-                style="@style/Text.H3"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Status Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp" >
-
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="Certified"
-                    android:textColor="?attr/colorSurface"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Details Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView">
-
+                app:cardElevation="0dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
-
+                    android:padding="20dp">
                     <TextView
+                        android:id="@+id/tvCertificationId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="CERT-ORG-2026-001"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_bold" />
+                    <TextView
+                        android:id="@+id/tvCertificationName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Organic (ECOCERT)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="22sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+                    <TextView
+                        android:id="@+id/tvCertificationBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="ECOCERT"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/manrope_semibold" />
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Certification Details"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Certification Body -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
+                        android:layout_marginTop="14dp"
+                        app:cardCornerRadius="999dp"
+                        app:cardElevation="0dp">
                         <TextView
-                            android:layout_width="120dp"
+                            android:id="@+id/tvStatus"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Issuing Body"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvCertificationBody"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="ECOCERT"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Scope -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Scope"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvScope"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Farm operations, processing facility"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Target Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Target Date"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvTargetDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jun 30, 2027"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Approval Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Approval Date"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvApprovalDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 15, 2027"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Expiry Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Expiry Date"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvExpiryDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 14, 2028"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Standards -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Standards"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvStandards"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="EU Organic Regulation 2018/848, ECOCERT"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/colorOnSurface"
-                        android:alpha="0.1"
-                        android:layout_marginVertical="12dp" />
-
-                    <!-- Audit Timestamps -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="4dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Created"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                        <TextView
-                            android:id="@+id/tvCreatedAt"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 17, 2026"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Last Updated"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                        <TextView
-                            android:id="@+id/tvUpdatedAt"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 17, 2026"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                    </LinearLayout>
-
+                            android:background="@drawable/bg_status_audit_ready"
+                            android:paddingStart="14dp"
+                            android:paddingTop="7dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="7dp"
+                            android:text="Audit Ready"
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold" />
+                    </androidx.cardview.widget.CardView>
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Status History Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Status History"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:id="@+id/tvStatusHistory"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="No status changes yet"
-                        style="@style/Text.Caption"
-                        android:textColor="?attr/colorOnSurface"
-                        android:lineSpacingExtra="4dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Related Records Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Related Records"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:id="@+id/tvAuditCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Audits"
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.6" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:id="@+id/tvInspectionCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H3"
-                                android:textColor="@color/accent_ink" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Inspections"
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.6" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:id="@+id/tvDocumentCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.H3"
-                                android:textColor="?attr/colorPrimary" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Documents"
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.6" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddAudit"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Add Audit"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_add"
-                    app:iconGravity="textStart"
-                    android:layout_marginBottom="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChangeStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Change Status"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_progress_clock"
-                    app:iconGravity="textStart"
-                    android:layout_marginBottom="8dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEdit"
-                        android:layout_width="0dp"
-                        android:layout_height="46dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        android:text="Edit"
-                        style="@style/Widget.AfriNuts.Button"
-                        app:icon="@drawable/ic_edit"
-                        app:iconGravity="textStart" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDelete"
-                        android:layout_width="0dp"
-                        android:layout_height="46dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:text="Delete"
-                        style="@style/Widget.AfriNuts.Button.Danger"
-                        app:icon="@drawable/ic_delete"
-                        app:iconGravity="textStart" />
-
-                </LinearLayout>
-
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="104dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/primary"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Target date" android:textColor="#D9EEE3" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvTargetDateStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Aug 31, 2029" android:textColor="@android:color/white" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="104dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scope" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvScopeStat" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="2" android:text="Farm operations" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="104dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="vertical" android:padding="14dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Standards" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvStandardsCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="3 standards" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
 
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Details" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="8dp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Scope" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvScope" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="Farm operations" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Target date" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvTargetDate" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="Aug 31, 2029" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Approval date" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvApprovalDate" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Expiry date" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvExpiryDate" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Certificate number" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="12dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Created" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvCreatedAt" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingTop="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Last updated" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" />
+                        <TextView android:id="@+id/tvUpdatedAt" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Standards" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="8dp" />
+                    <TextView android:id="@+id/tvStandards" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Applicable standards" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="5dp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Status history" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="12dp" />
+                    <TextView android:id="@+id/tvStatusHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No status changes yet" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="8dp" android:fontFamily="@font/manrope_semibold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Activity" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="8dp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="3">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical" android:padding="8dp">
+                            <TextView android:id="@+id/tvAuditCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textSize="24sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Audits" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_semibold" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical" android:padding="8dp">
+                            <TextView android:id="@+id/tvInspectionCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textSize="24sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Inspections" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_semibold" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical" android:padding="8dp">
+                            <TextView android:id="@+id/tvDocumentCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textSize="24sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Documents" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="@font/manrope_semibold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddAudit"
+                    style="@style/Widget.AfriNuts.Button.Secondary"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:text="Add audit"
+                    app:cornerRadius="999dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChangeStatus"
+                    style="@style/Widget.AfriNuts.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="Change status"
+                    app:cornerRadius="999dp" />
+            </LinearLayout>
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>

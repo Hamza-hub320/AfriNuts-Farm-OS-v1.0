@@ -78,10 +78,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
         tabs.clear();
         for (String key : com.afrinuts.farmos.utils.AccessMap.hubTabs(4, sessionManager.getUserRole())) {
             switch (key) {
-                case "PROGRAMMES": tabs.add(new TabItem("Programmes", R.drawable.ic_certified, TabType.PROGRAMMES)); break;
+                case "PROGRAMMES": tabs.add(new TabItem("Programs", R.drawable.ic_certified, TabType.PROGRAMMES)); break;
                 case "CHECKS": tabs.add(new TabItem("Checks", R.drawable.ic_audit, TabType.CHECKS)); break;
-                case "DOCUMENTS": tabs.add(new TabItem("Documents", R.drawable.ic_document, TabType.DOCUMENTS)); break;
-                case "DUE_EXPIRING": tabs.add(new TabItem("Due & expiring", R.drawable.ic_progress_clock, TabType.DUE_EXPIRING)); break;
+                case "DOCUMENTS": tabs.add(new TabItem("Docs", R.drawable.ic_document, TabType.DOCUMENTS)); break;
+                case "DUE_EXPIRING": tabs.add(new TabItem("Due", R.drawable.ic_progress_clock, TabType.DUE_EXPIRING)); break;
                 default: throw new IllegalStateException("Unknown Compliance tab: " + key);
             }
         }
@@ -122,7 +122,6 @@ public class ComplianceHubActivity extends BaseHubActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             TabItem tabItem = tabs.get(position);
             tab.setText(tabItem.title);
-            tab.setIcon(tabItem.iconRes);
         }).attach();
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {

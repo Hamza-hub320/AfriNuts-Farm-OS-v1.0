@@ -4,13 +4,10 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
@@ -61,6 +58,9 @@ public class CertificationDetailActivity extends BaseActivity {
     private TextView tvStandards;
     private TextView tvCreatedAt;
     private TextView tvUpdatedAt;
+    private TextView tvTargetDateStat;
+    private TextView tvScopeStat;
+    private TextView tvStandardsCount;
     private CardView cardStatus;
 
     // UI Elements - Related Records
@@ -69,8 +69,8 @@ public class CertificationDetailActivity extends BaseActivity {
     private TextView tvDocumentCount;
 
     // UI Elements - Buttons
-    private MaterialButton btnEdit;
-    private MaterialButton btnDelete;
+    private View btnEdit;
+    private View btnDelete;
     private MaterialButton btnChangeStatus;
     private MaterialButton btnAddAudit;
     private TextView tvStatusHistory;
@@ -98,14 +98,10 @@ public class CertificationDetailActivity extends BaseActivity {
 
         database = AppDatabase.getInstance(this);
         initViews();
-        setupToolbar();
         loadCertificationData();
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         // Main Info
         tvCertificationId = findViewById(R.id.tvCertificationId);
         tvCertificationName = findViewById(R.id.tvCertificationName);
@@ -118,6 +114,9 @@ public class CertificationDetailActivity extends BaseActivity {
         tvStandards = findViewById(R.id.tvStandards);
         tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
+        tvTargetDateStat = findViewById(R.id.tvTargetDateStat);
+        tvScopeStat = findViewById(R.id.tvScopeStat);
+        tvStandardsCount = findViewById(R.id.tvStandardsCount);
         tvStatusHistory = findViewById(R.id.tvStatusHistory);
         cardStatus = findViewById(R.id.cardStatus);
 
@@ -136,26 +135,7 @@ public class CertificationDetailActivity extends BaseActivity {
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnAddAudit.setOnClickListener(v -> showAddAuditDialog());
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Certification Details");
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 
     private void loadCertificationData() {
@@ -259,11 +239,25 @@ public class CertificationDetailActivity extends BaseActivity {
 
         // Dates
         tvTargetDate.setText(certification.getFormattedTargetDate());
+        tvTargetDateStat.setText(certification.getFormattedTargetDate());
         tvApprovalDate.setText(certification.getFormattedApprovalDate());
         tvExpiryDate.setText(certification.getFormattedExpiryDate());
+        tvScopeStat.setText(certification.getScope() != null && !certification.getScope().trim().isEmpty()
+                ? certification.getScope() : "—");
 
         // Standards
-        tvStandards.setText(certification.getStandardsDisplay());
+        List<String> standards = certification.getApplicableStandards();
+        tvStandardsCount.setText(standards.size() + (standards.size() == 1 ? " standard" : " standards"));
+        if (standards.isEmpty()) {
+            tvStandards.setText("—");
+        } else {
+            StringBuilder standardsText = new StringBuilder();
+            for (String standard : standards) {
+                if (standardsText.length() > 0) standardsText.append("\n");
+                standardsText.append("•  ").append(standard);
+            }
+            tvStandards.setText(standardsText.toString());
+        }
 
         // Audit timestamps
         tvCreatedAt.setText(dateFormat.format(certification.getCreatedAt()));
@@ -295,28 +289,17 @@ public class CertificationDetailActivity extends BaseActivity {
     }
 
     private void updateStatusColor() {
-        int colorRes;
+        cardStatus.setCardBackgroundColor(android.graphics.Color.TRANSPARENT);
+        int pillDrawable;
         switch (certification.getEffectiveStatus()) {
-            case CERTIFIED:
-                colorRes = R.color.status_certified;
-                break;
-            case IN_PROGRESS:
-                colorRes = R.color.status_in_progress;
-                break;
-            case AUDIT_READY:
-                colorRes = R.color.status_audit_ready;
-                break;
-            case EXPIRED:
-                colorRes = R.color.status_expired;
-                break;
-            case SUSPENDED:
-                colorRes = R.color.status_suspended;
-                break;
-            default:
-                colorRes = R.color.status_not_started;
-                break;
+            case CERTIFIED: pillDrawable = R.drawable.bg_status_certified; break;
+            case IN_PROGRESS: pillDrawable = R.drawable.bg_status_in_progress; break;
+            case AUDIT_READY: pillDrawable = R.drawable.bg_status_audit_ready; break;
+            case EXPIRED: pillDrawable = R.drawable.bg_status_expired; break;
+            case SUSPENDED: pillDrawable = R.drawable.bg_status_suspended; break;
+            default: pillDrawable = R.drawable.bg_status_not_started; break;
         }
-        cardStatus.setCardBackgroundColor(getColor(colorRes));
+        tvStatus.setBackgroundResource(pillDrawable);
     }
 
     private void showEditDialog() {

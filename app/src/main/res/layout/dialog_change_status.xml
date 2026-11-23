@@ -3,87 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:background="?android:attr/colorBackground">
-
+    android:fillViewport="true"
+    android:background="@android:color/transparent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- Header -->
-        <LinearLayout
+        android:background="@drawable/bg_traceability_dialog"
+        android:orientation="vertical"
+        android:padding="24dp">
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
-
-            <FrameLayout
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_icon_sand"
-                android:layout_marginEnd="16dp">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_progress_clock"
-                    app:tint="?attr/colorPrimary" />
-
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change Status"
-                style="@style/Text.H2"
-                android:textColor="?attr/colorPrimary" />
-
-        </LinearLayout>
-
-        <!-- Current status line -->
+            android:text="Change status"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:fontFamily="@font/manrope_extrabold" />
         <TextView
             android:id="@+id/tvCurrentStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text=""
-            style="@style/Text.Caption"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.6"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Targets -->
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:fontFamily="@font/manrope_semibold" />
         <LinearLayout
             android:id="@+id/targetsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Buttons -->
-        <LinearLayout
+            android:orientation="vertical" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.AfriNuts.Button.Secondary"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
-
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="46dp"
-                android:text="Cancel"
-                style="@style/Widget.AfriNuts.Button.Secondary"
-                android:minWidth="100dp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp" />
-
-        </LinearLayout>
-
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:text="Cancel"
+            app:cornerRadius="999dp" />
     </LinearLayout>
-
 </ScrollView>

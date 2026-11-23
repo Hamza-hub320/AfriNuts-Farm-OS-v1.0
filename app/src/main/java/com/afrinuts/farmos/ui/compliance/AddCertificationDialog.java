@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
@@ -120,6 +122,18 @@ public class AddCertificationDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Window window = requireDialog().getWindow();
+        if (window != null) {
+            int horizontalInset = (int) (32 * getResources().getDisplayMetrics().density + 0.5f);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setLayout(getResources().getDisplayMetrics().widthPixels - horizontalInset,
+                    WindowManager.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     private void initViews(View view) {
