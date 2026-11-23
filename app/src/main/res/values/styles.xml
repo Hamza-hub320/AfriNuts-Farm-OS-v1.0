@@ -338,6 +338,10 @@
         <item name="chipIconVisible">false</item>
     </style>
 
+    <style name="Widget.AfriNuts.Chip.Checks" parent="Widget.AfriNuts.Chip">
+        <item name="chipSurfaceColor">@android:color/transparent</item>
+    </style>
+
     <!-- EditText Style -->
     <style name="Widget.AfriNuts.EditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/primary</item>

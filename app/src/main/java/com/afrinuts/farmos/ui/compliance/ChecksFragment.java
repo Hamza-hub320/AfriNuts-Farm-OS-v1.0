@@ -27,6 +27,7 @@ import com.afrinuts.farmos.data.repository.AuditRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.data.repository.VerificationRepository;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
@@ -112,7 +113,9 @@ public class ChecksFragment extends Fragment {
     }
 
     private void addFilterChip(String label, int filter) {
-        Chip chip = new Chip(requireContext(), null, R.style.Widget_AfriNuts_Chip);
+        Chip chip = new Chip(requireContext());
+        chip.setChipDrawable(ChipDrawable.createFromAttributes(
+                requireContext(), null, 0, R.style.Widget_AfriNuts_Chip_Checks));
         chip.setText(label);
         chip.setCheckable(true);
         chip.setClickable(true);
