@@ -112,7 +112,7 @@ public class TraceabilityFragment extends Fragment {
         });
         view.findViewById(R.id.btnOptionBatches).setOnClickListener(v -> {
             dialog.dismiss();
-            showAllBatches();
+            showBulkQRDialog(true);
         });
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {
@@ -124,29 +124,22 @@ public class TraceabilityFragment extends Fragment {
         dialog.show();
     }
 
-    private void showAllBatches() {
-        currentFilter = "ALL";
-        if (filterChipGroup != null) {
-            filterChipGroup.check(R.id.chipAll);
-        }
-        applyFilter();
-        if (recyclerView != null) {
-            recyclerView.scrollToPosition(0);
-        }
-    }
-
     private void scanQRCode() {
         Intent intent = new Intent(getActivity(), QRScannerActivity.class);
         startActivity(intent);
     }
 
     private void showBulkQRDialog() {
+        showBulkQRDialog(false);
+    }
+
+    private void showBulkQRDialog(boolean scrollToBatchList) {
         if (allTraceabilities.isEmpty()) {
             Toast.makeText(getContext(), "No traceability records found", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        BulkQRDialog dialog = BulkQRDialog.newInstance();
+        BulkQRDialog dialog = BulkQRDialog.newInstance(scrollToBatchList);
         dialog.setOnBulkQRGeneratedListener(pdfFile -> {
             BulkQRGenerator generator = new BulkQRGenerator(requireContext());
             generator.sharePDF(pdfFile);

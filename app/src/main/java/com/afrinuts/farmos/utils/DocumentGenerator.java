@@ -409,7 +409,7 @@ public class DocumentGenerator {
         StringBuilder packageDoc = new StringBuilder();
 
         packageDoc.append("============================================\n");
-        packageDoc.append("   AFRI-NUTS EXPORT - BATCH DOCUMENT PACKAGE\n");
+        packageDoc.append("   AFRINUTS EXPORT - BATCH DOCUMENT PACKAGE\n");
         packageDoc.append("============================================\n\n");
 
         packageDoc.append("Generated: ").append(DATE_FORMAT.format(new Date())).append("\n");
