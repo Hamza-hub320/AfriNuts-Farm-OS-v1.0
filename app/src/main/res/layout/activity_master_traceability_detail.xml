@@ -257,7 +257,7 @@
                             android:layout_marginTop="4dp"
                             android:text="Premium · Standard"
                             android:textColor="#1C1B1A"
-                            android:textSize="18sp"
+                            android:textSize="13sp"
                             android:fontFamily="@font/manrope_extrabold"
                             android:maxLines="2" />
                     </LinearLayout>

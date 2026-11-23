@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
+import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.repository.MasterTraceabilityRepository;
@@ -23,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -31,11 +34,13 @@ import java.util.concurrent.Executors;
 public class MasterTraceabilityDetailActivity extends BaseActivity {
 
     public static final String EXTRA_MASTER_ID = "master_id";
+    private static final String TAG = "MasterTraceabilityDetail";
 
     private long masterId;
     private MasterBatchTraceabilityEntity master;
     private List<BatchTraceabilityEntity> linkedBatches = new ArrayList<>();
 
+    private AppDatabase database;
     private MasterTraceabilityRepository repository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -76,6 +81,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
             return;
         }
 
+        database = AppDatabase.getInstance(this);
         repository = new MasterTraceabilityRepository(this, 1);
 
         initViews();
@@ -130,15 +136,55 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
                 return;
             }
 
-            // The child-side masterBatchId link is the live source of truth.
+            String masterBatchNumber = master.getMasterBatchNumber();
             List<BatchTraceabilityEntity> children =
-                    repository.getChildrenOfMaster(master.getMasterBatchNumber());
-            linkedBatches.clear();
-            if (children != null) {
-                for (BatchTraceabilityEntity batch : children) {
-                    if (batch != null) {
-                        linkedBatches.add(batch);
+                    repository.getChildrenOfMaster(masterBatchNumber);
+            if (children == null) children = new ArrayList<>();
+
+            List<Long> storedIds = master.getBatchTraceabilityIds();
+            List<String> storedBatchNumbers = master.getBatchNumbers();
+            int jsonIdCount = storedIds != null ? storedIds.size() : 0;
+            int jsonNumberCount = storedBatchNumbers != null ? storedBatchNumbers.size() : 0;
+            int linkedCount = children.size();
+            Log.i(TAG, "Master children before repair: linked=" + linkedCount
+                    + ", JSON ids=" + jsonIdCount
+                    + ", JSON numbers=" + jsonNumberCount
+                    + ", totalBatches=" + master.getTotalBatches());
+
+            if (linkedCount < master.getTotalBatches()) {
+                LinkedHashSet<Long> recoveryIds = new LinkedHashSet<>();
+
+                if (storedIds != null) {
+                    for (Long id : storedIds) {
+                        if (id != null && database.batchTraceabilityDao().getById(id) != null) {
+                            recoveryIds.add(id);
+                        }
                     }
+                }
+                if (storedBatchNumbers != null) {
+                    for (String batchNumber : storedBatchNumbers) {
+                        if (batchNumber == null || batchNumber.trim().isEmpty()) continue;
+                        BatchTraceabilityEntity child =
+                                database.batchTraceabilityDao().getByBatchNumber(batchNumber);
+                        if (child != null) recoveryIds.add(child.getId());
+                    }
+                }
+
+                repository.addChildrenToMasterSync(masterBatchNumber,
+                        new ArrayList<>(recoveryIds));
+                children = repository.getChildrenOfMaster(masterBatchNumber);
+                if (children == null) children = new ArrayList<>();
+                Log.i(TAG, "Master children after repair: linked=" + children.size()
+                        + ", JSON ids=" + jsonIdCount
+                        + ", JSON numbers=" + jsonNumberCount
+                        + ", totalBatches=" + master.getTotalBatches()
+                        + ", recovery candidates=" + recoveryIds.size());
+            }
+
+            linkedBatches.clear();
+            for (BatchTraceabilityEntity batch : children) {
+                if (batch != null) {
+                    linkedBatches.add(batch);
                 }
             }
 
