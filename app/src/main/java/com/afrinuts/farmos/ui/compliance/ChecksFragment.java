@@ -123,7 +123,10 @@ public class ChecksFragment extends Fragment {
                 new int[]{ContextCompat.getColor(requireContext(), R.color.primary),
                         android.graphics.Color.TRANSPARENT});
         chip.setChipBackgroundColor(chipBackground);
-        chip.setChipStrokeWidth(0);
+        chip.setChipStrokeColor(new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{ContextCompat.getColor(requireContext(), R.color.primary), 0xFFE9E1CF}));
+        chip.setChipStrokeWidth(dp(1));
         chip.setTextColor(new ColorStateList(
                 new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
                 new int[]{ContextCompat.getColor(requireContext(), android.R.color.white),
