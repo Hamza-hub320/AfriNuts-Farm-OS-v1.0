@@ -2,28 +2,48 @@ package com.afrinuts.farmos.ui.compliance;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
+import com.afrinuts.farmos.data.repository.PhotoRepository;
+import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,6 +63,7 @@ public class AddInspectionDialog extends FarmDialogFragment {
     private String correctionOfId;
     private InspectionRepository inspectionRepository;
     private CertificationRepository certificationRepository;
+    private PhotoRepository photoRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private List<CertificationEntity> certifications = new ArrayList<>();
 
@@ -58,6 +79,12 @@ public class AddInspectionDialog extends FarmDialogFragment {
     private LinearLayout correctiveActionsContainer;
     private Button btnAddCorrectiveAction;
     private TextInputEditText etReportUrl;
+    private LinearLayout inspectionPhotoPreviewContainer;
+    private final List<File> pendingPhotoFiles = new ArrayList<>();
+    private String currentPhotoPath;
+    private static final int REQUEST_IMAGE_CAPTURE = 7501;
+    private static final int REQUEST_IMAGE_PICK = 7502;
+    private static final int REQUEST_CAMERA_PERMISSION = 7503;
 
     private Button btnCancel;
     private Button btnSave;
@@ -110,6 +137,7 @@ public class AddInspectionDialog extends FarmDialogFragment {
 
         inspectionRepository = new InspectionRepository(requireContext(), farmId);
         certificationRepository = new CertificationRepository(requireContext(), farmId);
+        photoRepository = new PhotoRepository(requireContext(), farmId);
         loadCertifications();
     }
 
@@ -122,6 +150,7 @@ public class AddInspectionDialog extends FarmDialogFragment {
         setupDropdowns();
         setupDatePicker();
         setupCorrectiveActions();
+        setupPhotoAttachments(view);
 
         if (correctionOfId != null) {
             prefillFromOriginal(correctionOfId);
@@ -199,6 +228,7 @@ public class AddInspectionDialog extends FarmDialogFragment {
         correctiveActionsContainer = view.findViewById(R.id.correctiveActionsContainer);
         btnAddCorrectiveAction = view.findViewById(R.id.btnAddCorrectiveAction);
         etReportUrl = view.findViewById(R.id.etReportUrl);
+        inspectionPhotoPreviewContainer = view.findViewById(R.id.inspectionPhotoPreviewContainer);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
     }
@@ -304,6 +334,146 @@ public class AddInspectionDialog extends FarmDialogFragment {
 
     private void setupCorrectiveActions() {
         btnAddCorrectiveAction.setOnClickListener(v -> addCorrectiveActionItem(null, null));
+    }
+
+    private void setupPhotoAttachments(View view) {
+        view.findViewById(R.id.btnAddInspectionPhoto).setOnClickListener(v -> showPhotoSourceDialog());
+    }
+
+    private void showPhotoSourceDialog() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add Photo")
+                .setItems(new String[]{"Take Photo", "Choose from Gallery"}, (dialog, which) -> {
+                    if (which == 0) dispatchTakePictureIntent(); else dispatchPickPictureIntent();
+                }).show();
+    }
+
+    private void dispatchTakePictureIntent() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+        Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (capture.resolveActivity(requireContext().getPackageManager()) == null) {
+            Toast.makeText(getContext(), "No camera app found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            File image = createImageFile();
+            Uri uri = FileProvider.getUriForFile(requireContext(), "com.afrinuts.farmos.fileprovider", image);
+            capture.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            capture.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(capture, REQUEST_IMAGE_CAPTURE);
+        } catch (IOException e) {
+            Log.e("AddInspectionDialog", "Unable to create photo file", e);
+            Toast.makeText(getContext(), "Could not create photo file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void dispatchPickPictureIntent() {
+        Intent pick = new Intent(Intent.ACTION_PICK);
+        pick.setType("image/*");
+        startActivityForResult(pick, REQUEST_IMAGE_PICK);
+    }
+
+    private File createImageFile() throws IOException {
+        File directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (directory == null) throw new IOException("Photo storage is unavailable");
+        if (!directory.exists() && !directory.mkdirs()) throw new IOException("Could not create photo folder");
+        File file = File.createTempFile("INSPECTION_PENDING_" + System.currentTimeMillis() + "_", ".jpg", directory);
+        currentPhotoPath = file.getAbsolutePath();
+        return file;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent();
+            } else {
+                Toast.makeText(getContext(), "Camera permission is required to take photos", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != android.app.Activity.RESULT_OK) return;
+        try {
+            File image;
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                image = currentPhotoPath == null ? null : new File(currentPhotoPath);
+                if ((image == null || !image.exists() || image.length() == 0) && data != null && data.getExtras() != null) {
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    if (bitmap != null) image = saveBitmap(bitmap);
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
+                image = copyPickedPhoto(data.getData());
+            } else return;
+            if (image == null || !image.exists() || image.length() == 0) {
+                Toast.makeText(getContext(), "Could not read the selected photo", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            pendingPhotoFiles.add(image);
+            addPhotoPreview(image);
+        } catch (Exception e) {
+            Log.e("AddInspectionDialog", "Could not prepare inspection photo", e);
+            Toast.makeText(getContext(), "Could not prepare photo", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File saveBitmap(Bitmap bitmap) throws IOException {
+        File file = createImageFile();
+        try (FileOutputStream output = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output);
+        }
+        return file;
+    }
+
+    private File copyPickedPhoto(Uri uri) throws IOException {
+        File file = createImageFile();
+        try (InputStream input = requireContext().getContentResolver().openInputStream(uri);
+             OutputStream output = new FileOutputStream(file)) {
+            if (input == null) throw new IOException("Cannot open selected photo");
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        }
+        return file;
+    }
+
+    private void addPhotoPreview(File image) {
+        int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72,
+                getResources().getDisplayMetrics());
+        ImageView thumbnail = new ImageView(requireContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+        params.setMarginEnd((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8,
+                getResources().getDisplayMetrics()));
+        thumbnail.setLayoutParams(params);
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        thumbnail.setContentDescription("Selected inspection photo");
+        Glide.with(this).load(image).centerCrop().into(thumbnail);
+        inspectionPhotoPreviewContainer.addView(thumbnail);
+    }
+
+    private void uploadPendingPhotos(String inspectionId) {
+        for (File file : new ArrayList<>(pendingPhotoFiles)) {
+            PhotoEntity photo = new PhotoEntity(farmId, null, null, null,
+                    file.getAbsolutePath(), null, System.currentTimeMillis());
+            photo.setInspectionId(inspectionId);
+            photoRepository.insertPhoto(photo, file, new PhotoRepository.PhotoUploadCallback() {
+                @Override public void onSuccess(long id, String downloadUrl) { }
+                @Override public void onError(String error) {
+                    Log.e("AddInspectionDialog", "Inspection photo upload failed: " + error);
+                }
+                @Override public void onProgress(double progress) { }
+            });
+        }
+        pendingPhotoFiles.clear();
     }
 
     private void addCorrectiveActionItem(String description, String assignedTo) {
@@ -491,6 +661,7 @@ public class AddInspectionDialog extends FarmDialogFragment {
         inspectionRepository.insertInspection(inspection, new InspectionRepository.InsertCallback() {
             @Override
             public void onSuccess(String inspectionId) {
+                uploadPendingPhotos(inspectionId);
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         String label = correctionOfId != null ? "Correction added! ID: " : "Inspection added! ID: ";
@@ -522,6 +693,9 @@ public class AddInspectionDialog extends FarmDialogFragment {
         }
         if (certificationRepository != null) {
             certificationRepository.shutdown();
+        }
+        if (photoRepository != null) {
+            photoRepository.shutdown();
         }
         executor.shutdown();
     }

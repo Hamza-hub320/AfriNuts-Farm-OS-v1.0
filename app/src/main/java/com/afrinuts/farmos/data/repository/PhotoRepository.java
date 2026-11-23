@@ -92,6 +92,7 @@ public class PhotoRepository extends BaseRepository {
                 photo.getBlockId(),
                 photo.getTaskId(),
                 photo.getExpenseId(),
+                photo.getInspectionId(),
                 new FirebaseManager.PhotoUploadCallback() {
                     @Override
                     public void onSuccess(String downloadUrl) {
@@ -142,6 +143,10 @@ public class PhotoRepository extends BaseRepository {
 
     public LiveData<List<PhotoEntity>> getPhotosForExpense(long expenseId) {
         return database.photoDao().getPhotosByExpenseIdLiveData(expenseId);
+    }
+
+    public LiveData<List<PhotoEntity>> getPhotosForInspection(String inspectionId) {
+        return database.photoDao().getPhotosForInspection(inspectionId);
     }
 
     public LiveData<List<PhotoEntity>> getPhotosForFarm() {

@@ -640,6 +640,7 @@ public class SyncService extends Service {
             Long blockId = doc.getLong("blockId");
             Long taskId = doc.getLong("taskId");
             Long expenseId = doc.getLong("expenseId");
+            String inspectionId = doc.getString("inspectionId");
             String filePath = doc.getString("filePath");
             String caption = doc.getString("caption");
             Long takenAt = doc.getLong("takenAt");
@@ -659,6 +660,7 @@ public class SyncService extends Service {
                     takenAt
             );
             photo.setId(id);
+            photo.setInspectionId(inspectionId);
             photo.setCreatedAt(createdAt != null ? createdAt : 0);
 
             return photo;

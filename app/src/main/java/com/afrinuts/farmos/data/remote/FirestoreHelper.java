@@ -295,6 +295,7 @@ public class FirestoreHelper {
         data.put("blockId", photo.getBlockId());
         data.put("taskId", photo.getTaskId());
         data.put("expenseId", photo.getExpenseId());
+        data.put("inspectionId", photo.getInspectionId());
         data.put("filePath", downloadUrl);
         data.put("caption", photo.getCaption());
         data.put("takenAt", photo.getTakenAt());

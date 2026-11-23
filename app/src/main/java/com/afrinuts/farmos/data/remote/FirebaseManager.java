@@ -384,6 +384,12 @@ public class FirebaseManager {
     public void uploadPhoto(File photoFile, String photoId, String farmId,
                             Long blockId, Long taskId, Long expenseId,
                             PhotoUploadCallback callback) {
+        uploadPhoto(photoFile, photoId, farmId, blockId, taskId, expenseId, null, callback);
+    }
+
+    public void uploadPhoto(File photoFile, String photoId, String farmId,
+                            Long blockId, Long taskId, Long expenseId, String inspectionId,
+                            PhotoUploadCallback callback) {
 
         // Build the path without reassigning the reference
         String path;
@@ -395,6 +401,8 @@ public class FirebaseManager {
             path = "farms/" + farmId + "/tasks/" + taskId + "/photos/" + photoId + ".jpg";
         } else if (expenseId != null && expenseId > 0) {
             path = "farms/" + farmId + "/expenses/" + expenseId + "/photos/" + photoId + ".jpg";
+        } else if (inspectionId != null && !inspectionId.isEmpty()) {
+            path = "farms/" + farmId + "/photos/" + photoId + ".jpg";
         } else {
             path = "farms/" + farmId + "/photos/" + photoId + ".jpg";
         }
@@ -431,6 +439,7 @@ public class FirebaseManager {
         photoMap.put("blockId", photo.getBlockId());
         photoMap.put("taskId", photo.getTaskId());
         photoMap.put("expenseId", photo.getExpenseId());
+        photoMap.put("inspectionId", photo.getInspectionId());
         photoMap.put("filePath", downloadUrl);
         photoMap.put("caption", photo.getCaption());
         photoMap.put("takenAt", photo.getTakenAt());
@@ -458,6 +467,7 @@ public class FirebaseManager {
         photoMap.put("blockId", photo.getBlockId());
         photoMap.put("taskId", photo.getTaskId());
         photoMap.put("expenseId", photo.getExpenseId());
+        photoMap.put("inspectionId", photo.getInspectionId());
         photoMap.put("filePath", downloadUrl);
         photoMap.put("caption", photo.getCaption());
         photoMap.put("takenAt", photo.getTakenAt());

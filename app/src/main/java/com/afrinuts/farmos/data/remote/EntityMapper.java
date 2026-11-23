@@ -751,6 +751,7 @@ public class EntityMapper {
         map.put("blockId", photo.getBlockId());
         map.put("taskId", photo.getTaskId());
         map.put("expenseId", photo.getExpenseId());
+        map.put("inspectionId", photo.getInspectionId());
         map.put("filePath", photo.getFilePath());
         map.put("caption", photo.getCaption());
         map.put("takenAt", photo.getTakenAt());
@@ -769,6 +770,7 @@ public class EntityMapper {
             Long blockId = getNullableLong(doc, "blockId");
             Long taskId = getNullableLong(doc, "taskId");
             Long expenseId = getNullableLong(doc, "expenseId");
+            String inspectionId = doc.getString("inspectionId");
             String filePath = getStringSafe(doc, "filePath");
             String caption = getStringSafe(doc, "caption");
             long takenAt = getLongSafe(doc, "takenAt");
@@ -782,6 +784,7 @@ public class EntityMapper {
                     filePath, caption, takenAt
             );
             photo.setId(id);
+            photo.setInspectionId(inspectionId);
             photo.setLatitude(latitude);
             photo.setLongitude(longitude);
             photo.setPhotoType(photoType);

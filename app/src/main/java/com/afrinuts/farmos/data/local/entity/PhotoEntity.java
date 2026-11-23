@@ -29,6 +29,12 @@ import androidx.room.PrimaryKey;
                         parentColumns = "id",
                         childColumns = "expenseId",
                         onDelete = ForeignKey.SET_NULL
+                ),
+                @ForeignKey(
+                        entity = InspectionEntity.class,
+                        parentColumns = "inspectionId",
+                        childColumns = "inspectionId",
+                        onDelete = ForeignKey.SET_NULL
                 )
         })
 public class PhotoEntity {
@@ -40,6 +46,7 @@ public class PhotoEntity {
     private Long blockId;      // null if not attached to a block
     private Long taskId;       // null if not attached to a task
     private Long expenseId;    // null if not attached to an expense
+    private String inspectionId; // null if not attached to an inspection
 
     private String filePath;   // Path to the image file
     private String thumbnailPath; // Path to thumbnail for faster loading
@@ -56,6 +63,7 @@ public class PhotoEntity {
     public static final String TYPE_BLOCK = "BLOCK";
     public static final String TYPE_TASK = "TASK";
     public static final String TYPE_EXPENSE = "EXPENSE";
+    public static final String TYPE_INSPECTION = "INSPECTION";
     public static final String TYPE_GENERAL = "GENERAL";
 
     public PhotoEntity(long farmId, Long blockId, Long taskId, Long expenseId,
@@ -108,6 +116,12 @@ public class PhotoEntity {
     public Long getExpenseId() { return expenseId; }
     public void setExpenseId(Long expenseId) {
         this.expenseId = expenseId;
+        updatePhotoType();
+    }
+
+    public String getInspectionId() { return inspectionId; }
+    public void setInspectionId(String inspectionId) {
+        this.inspectionId = inspectionId;
         updatePhotoType();
     }
 
@@ -166,6 +180,8 @@ public class PhotoEntity {
             this.photoType = TYPE_TASK;
         } else if (expenseId != null) {
             this.photoType = TYPE_EXPENSE;
+        } else if (inspectionId != null) {
+            this.photoType = TYPE_INSPECTION;
         } else {
             this.photoType = TYPE_GENERAL;
         }
@@ -181,6 +197,8 @@ public class PhotoEntity {
                 return "Task Photo";
             case TYPE_EXPENSE:
                 return "Expense Photo";
+            case TYPE_INSPECTION:
+                return "Inspection Photo";
             case TYPE_GENERAL:
             default:
                 return "Photo";
@@ -196,6 +214,8 @@ public class PhotoEntity {
                 return com.afrinuts.farmos.R.drawable.ic_photo_task;
             case TYPE_EXPENSE:
                 return com.afrinuts.farmos.R.drawable.ic_photo_expense;
+            case TYPE_INSPECTION:
+                return com.afrinuts.farmos.R.drawable.ic_photo;
             case TYPE_GENERAL:
             default:
                 return com.afrinuts.farmos.R.drawable.ic_photo;
