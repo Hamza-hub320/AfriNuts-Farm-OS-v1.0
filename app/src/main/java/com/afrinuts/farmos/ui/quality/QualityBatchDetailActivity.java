@@ -215,7 +215,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
 
         if (btnGenerateTraceability != null) {
-            btnGenerateTraceability.setOnClickListener(v -> openTraceability());
+            btnGenerateTraceability.setVisibility(View.GONE);
         }
 
         if (btnExportQR != null) {
@@ -249,8 +249,10 @@ public class QualityBatchDetailActivity extends BaseActivity {
             repository = new QualityBatchRepository(this, farmId);
             supplierRepository = new SupplierRepository(this, farmId);
 
-            // Load batch
+            // Load batch and resolve trace existence off the main thread.
             batch = repository.getBatchByIdSync(batchId);
+            boolean hasTraceability = batch != null
+                    && database.batchTraceabilityDao().getByQualityBatchId(batch.getId()) != null;
 
             if (batch != null && batch.getSupplierId() != null) {
                 supplier = supplierRepository.getSupplierByIdSync(batch.getSupplierId());
@@ -259,7 +261,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
 
             runOnUiThread(() -> {
                 if (batch != null) {
-                    displayBatchData();
+                    displayBatchData(hasTraceability);
                 } else {
                     Toast.makeText(this, "Batch not found", Toast.LENGTH_SHORT).show();
                     finish();
@@ -268,7 +270,7 @@ public class QualityBatchDetailActivity extends BaseActivity {
         });
     }
 
-    private void displayBatchData() {
+    private void displayBatchData(boolean hasTraceability) {
         // Header
         tvBatchNumber.setText(batch.getBatchNumber() == null ? "—" : batch.getBatchNumber());
         long displayDate = batch.getRelevantDate();
@@ -354,11 +356,20 @@ public class QualityBatchDetailActivity extends BaseActivity {
         TextView deliveryWeight = findViewById(R.id.tvWeightValue);
         if (deliveryWeight != null) deliveryWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
-        // ✅ SOP §4.5 + §4.6: disable ship/sale actions for non-saleable batches
+        // View existing traceability for all roles; generation is editor-only.
         if (btnGenerateTraceability != null) {
-            btnGenerateTraceability.setEnabled(true);
-            btnGenerateTraceability.setAlpha(1f);
-            btnGenerateTraceability.setText("View trace");
+            if (hasTraceability) {
+                btnGenerateTraceability.setVisibility(View.VISIBLE);
+                btnGenerateTraceability.setText("View trace");
+                btnGenerateTraceability.setOnClickListener(v -> openTraceability());
+            } else if (sessionManager.canEditData()) {
+                btnGenerateTraceability.setVisibility(View.VISIBLE);
+                btnGenerateTraceability.setText("Generate traceability");
+                btnGenerateTraceability.setOnClickListener(v -> generateTraceability());
+            } else {
+                btnGenerateTraceability.setVisibility(View.GONE);
+                btnGenerateTraceability.setOnClickListener(null);
+            }
         }
 
         if (btnExportQR != null) {
@@ -416,7 +427,6 @@ public class QualityBatchDetailActivity extends BaseActivity {
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
-            if (btnGenerateTraceability != null) btnGenerateTraceability.setVisibility(View.VISIBLE);
             View headerEdit = findViewById(R.id.farmDetailEdit);
             if (headerEdit != null) headerEdit.setVisibility(View.GONE);
             if (btnExportQR != null) btnExportQR.setVisibility(View.GONE);
