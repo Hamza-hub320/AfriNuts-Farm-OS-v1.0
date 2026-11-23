@@ -39,7 +39,6 @@ import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.photos.PhotoDetailActivity;
 import com.afrinuts.farmos.utils.DateFormatter;
 import com.bumptech.glide.Glide;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
@@ -242,11 +241,12 @@ public class InspectionDetailActivity extends BaseActivity {
     }
 
     private void showPhotoSourceDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Add Photo")
-                .setItems(new String[]{"Take Photo", "Choose from Gallery"}, (dialog, which) -> {
-                    if (which == 0) dispatchTakePictureIntent(); else dispatchPickPictureIntent();
-                }).show();
+        PhotoSourceDialog dialog = new PhotoSourceDialog();
+        dialog.setListener(source -> {
+            if (source == PhotoSourceDialog.SOURCE_CAMERA) dispatchTakePictureIntent();
+            else dispatchPickPictureIntent();
+        });
+        dialog.show(getSupportFragmentManager(), "InspectionPhotoSourceDialog");
     }
 
     private void dispatchTakePictureIntent() {
