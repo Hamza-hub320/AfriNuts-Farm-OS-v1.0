@@ -102,6 +102,14 @@ public class MasterTraceabilityRepository extends BaseRepository {
                         Log.w(TAG, "Child traceability not found: " + childId);
                         continue;
                     }
+                    String existingMaster = child.getMasterBatchId();
+                    if (existingMaster != null) {
+                        if (!existingMaster.equals(masterBatchNumber)) {
+                            Log.w(TAG, "Refusing to move child " + childId + " from master "
+                                    + existingMaster + " to " + masterBatchNumber);
+                        }
+                        continue;
+                    }
                     child.setMasterBatchId(masterBatchNumber);
                     database.batchTraceabilityDao().update(child);
 
@@ -174,12 +182,22 @@ public class MasterTraceabilityRepository extends BaseRepository {
      * responsible for triggering sync after this returns, or relies on the
      * subsequent updateMasterTraceability path.
      */
-    public void addChildrenToMasterSync(String masterBatchNumber, List<Long> childTraceabilityIds) {
+    public List<Long> addChildrenToMasterSync(String masterBatchNumber, List<Long> childTraceabilityIds) {
+        List<Long> refusedIds = new ArrayList<>();
         try {
             for (Long childId : childTraceabilityIds) {
                 BatchTraceabilityEntity child = database.batchTraceabilityDao().getById(childId);
                 if (child == null) {
                     Log.w(TAG, "Child traceability not found: " + childId);
+                    continue;
+                }
+                String existingMaster = child.getMasterBatchId();
+                if (existingMaster != null) {
+                    if (!existingMaster.equals(masterBatchNumber)) {
+                        Log.w(TAG, "Refusing to move child " + childId + " from master "
+                                + existingMaster + " to " + masterBatchNumber);
+                        refusedIds.add(childId);
+                    }
                     continue;
                 }
                 child.setMasterBatchId(masterBatchNumber);
@@ -197,6 +215,7 @@ public class MasterTraceabilityRepository extends BaseRepository {
         } catch (Exception e) {
             Log.e(TAG, "Error in addChildrenToMasterSync", e);
         }
+        return refusedIds;
     }
 
     /**

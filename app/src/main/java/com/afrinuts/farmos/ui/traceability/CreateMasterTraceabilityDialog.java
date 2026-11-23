@@ -37,7 +37,8 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
     private BatchTraceabilityRepository batchRepository;
     private MasterTraceabilityRepository masterRepository;
 
-    private List<BatchTraceabilityEntity> availableBatches = new ArrayList<>();
+    private volatile List<BatchTraceabilityEntity> availableBatches = new ArrayList<>();
+    private volatile boolean batchesLoaded;
     private List<Long> selectedBatchIds = new ArrayList<>();
 
     private TextInputEditText etShipmentName;
@@ -71,9 +72,24 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
         batchRepository = new BatchTraceabilityRepository(requireContext(), 1);
         masterRepository = new MasterTraceabilityRepository(requireContext(), 1);
 
-        // Load available batches
+        // Load only unassigned, unsold batches on a worker thread.
         new Thread(() -> {
-            availableBatches = batchRepository.getAllTraceabilitiesSync();
+            List<BatchTraceabilityEntity> eligible = new ArrayList<>();
+            List<BatchTraceabilityEntity> all = batchRepository.getAllTraceabilitiesSync();
+            if (all != null) {
+                for (BatchTraceabilityEntity batch : all) {
+                    if (batch != null && batch.getMasterBatchId() == null && !isSold(batch)) {
+                        eligible.add(batch);
+                    }
+                }
+            }
+            availableBatches = eligible;
+            batchesLoaded = true;
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (btnSelectBatches != null && isAdded()) btnSelectBatches.setEnabled(true);
+                });
+            }
         }).start();
     }
 
@@ -112,6 +128,7 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
         etDestination = view.findViewById(R.id.etDestination);
         etExportDate = view.findViewById(R.id.etExportDate);
         btnSelectBatches = view.findViewById(R.id.btnSelectBatches);
+        btnSelectBatches.setEnabled(batchesLoaded);
         btnCreateMaster = view.findViewById(R.id.btnCreateMaster);
         btnCancel = view.findViewById(R.id.btnCancel);
 
@@ -150,6 +167,7 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
     }
 
     private void showBatchSelectionDialog() {
+        if (!batchesLoaded) return;
         if (availableBatches.isEmpty()) {
             Toast.makeText(getContext(), "No batches available for master traceability", Toast.LENGTH_SHORT).show();
             return;
@@ -199,6 +217,28 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
         btnSelectBatches.setText("Select Batches (" + count + " selected)");
     }
 
+    private boolean isSold(BatchTraceabilityEntity batch) {
+        if (batch.getRevenueId() != null
+                && database.revenueDao().getRevenueById(batch.getRevenueId()) != null) {
+            return true;
+        }
+        Long qualityBatchId = batch.getQualityBatchId();
+        if (qualityBatchId == null) return false;
+        List<com.afrinuts.farmos.data.local.entity.RevenueEntity> revenues =
+                database.revenueDao().getRevenuesByBatchId(qualityBatchId);
+        return revenues != null && !revenues.isEmpty();
+    }
+
+    private void rejectCreation(String message) {
+        if (getActivity() == null) return;
+        getActivity().runOnUiThread(() -> {
+            if (!isAdded()) return;
+            btnCreateMaster.setEnabled(true);
+            btnCreateMaster.setText("Create Master");
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        });
+    }
+
     private void createMasterTraceability() {
         // Validate inputs
         String shipmentName = etShipmentName.getText().toString().trim();
@@ -224,24 +264,43 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
             return;
         }
 
-        // Show loading
+        // Show loading and freeze the selection being validated.
         btnCreateMaster.setEnabled(false);
         btnCreateMaster.setText("Creating...");
+        List<Long> selectedIds = new ArrayList<>(selectedBatchIds);
 
         new Thread(() -> {
             try {
-                // Get selected batches
+                // Re-read and validate every selected batch before creating anything.
                 List<BatchTraceabilityEntity> selectedBatches = new ArrayList<>();
+                for (Long id : selectedIds) {
+                    BatchTraceabilityEntity batch = batchRepository.getTraceabilityByIdSync(id);
+                    if (batch == null) {
+                        rejectCreation("A selected batch is no longer available");
+                        return;
+                    }
+                    if (batch.getMasterBatchId() != null) {
+                        rejectCreation("Batch " + batch.getBatchNumber()
+                                + " is already in bulk " + batch.getMasterBatchId());
+                        return;
+                    }
+                    if (isSold(batch)) {
+                        rejectCreation("Batch " + batch.getBatchNumber()
+                                + " is sold and cannot be added to a bulk");
+                        return;
+                    }
+                    selectedBatches.add(batch);
+                }
+
+                // Prepare master data only after the complete selection passes.
                 double totalWeight = 0;
                 List<String> batchNumbers = new ArrayList<>();
                 List<Long> batchIds = new ArrayList<>();
                 List<String> grades = new ArrayList<>();
                 List<String> certifications = new ArrayList<>();
 
-                for (Long id : selectedBatchIds) {
-                    BatchTraceabilityEntity batch = batchRepository.getTraceabilityByIdSync(id);
+                for (BatchTraceabilityEntity batch : selectedBatches) {
                     if (batch != null) {
-                        selectedBatches.add(batch);
                         totalWeight += batch.getWeightKg();
                         batchNumbers.add(batch.getBatchNumber());
                         batchIds.add(batch.getId());
@@ -276,7 +335,17 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
                 long masterId = masterRepository.insertMasterTraceabilitySync(master);
                 master.setId(masterId);
 
-                masterRepository.addChildrenToMasterSync(masterBatchNumber, selectedBatchIds);
+                List<Long> refusedIds = masterRepository.addChildrenToMasterSync(masterBatchNumber, batchIds);
+                if (!refusedIds.isEmpty()) {
+                    BatchTraceabilityEntity refused =
+                            batchRepository.getTraceabilityByIdSync(refusedIds.get(0));
+                    String refusedBatch = refused != null
+                            ? refused.getBatchNumber() : String.valueOf(refusedIds.get(0));
+                    String existingMaster = refused != null ? refused.getMasterBatchId() : null;
+                    throw new IllegalStateException(existingMaster != null
+                            ? "Batch " + refusedBatch + " is already in bulk " + existingMaster
+                            : "Batch " + refusedBatch + " could not be added to the new bulk");
+                }
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
