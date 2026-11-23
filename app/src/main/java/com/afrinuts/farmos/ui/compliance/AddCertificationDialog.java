@@ -96,6 +96,9 @@ public class AddCertificationDialog extends FarmDialogFragment {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_certification, null);
 
         initViews(view);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveCertification());
         setupStatusDropdown();
         setupDatePickers();
 
@@ -108,17 +111,6 @@ public class AddCertificationDialog extends FarmDialogFragment {
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveCertification());
-        });
-
         return dialog;
     }
 

@@ -135,6 +135,9 @@ public class AddAuditDialog extends FarmDialogFragment {
             addFindingItem(null, null);
         }
 
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveAudit());
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .setCancelable(false);
@@ -144,17 +147,6 @@ public class AddAuditDialog extends FarmDialogFragment {
         }
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveAudit());
-        });
-
         return dialog;
     }
 
