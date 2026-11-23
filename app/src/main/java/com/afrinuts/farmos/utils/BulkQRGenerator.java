@@ -148,8 +148,21 @@ public class BulkQRGenerator {
     }
 
     private File createBulkQRPDF(List<BatchTraceabilityEntity> batches, String shipmentName, BulkQRCallback callback) throws Exception {
-        // Create PDF file
-        String fileName = "Bulk_QR_" + shipmentName.replace(" ", "_") + ".pdf";
+        // Create a batch-specific filename for a single code; retain shipment naming for a set.
+        Date generatedAt = new Date();
+        String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(generatedAt);
+        String effectiveShipmentName = shipmentName == null ? "" : shipmentName.trim();
+        if (batches.size() > 1 && effectiveShipmentName.isEmpty()) {
+            effectiveShipmentName = "Bulk shipment — " + dateStr;
+        }
+        String fileName;
+        if (batches.size() == 1) {
+            String batchNumber = batches.get(0).getBatchNumber();
+            fileName = "QR_" + (batchNumber == null ? "Batch" : batchNumber.replace("/", "_").replace("\\", "_")) + ".pdf";
+        } else {
+            fileName = "Bulk_QR_" + effectiveShipmentName.replace(" ", "_")
+                    .replace("/", "_").replace("\\", "_") + ".pdf";
+        }
         File pdfFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName);
 
         // Ensure directory exists
@@ -164,7 +177,7 @@ public class BulkQRGenerator {
         document.setMargins(20, 20, 20, 20);
 
         // Add header
-        addHeader(document, shipmentName, batches.size());
+        addHeader(document, batches, effectiveShipmentName, dateStr);
 
         // Create table with 3 columns (for QR codes)
         Table table = new Table(UnitValue.createPercentArray(new float[]{1, 1, 1}));
@@ -192,10 +205,6 @@ public class BulkQRGenerator {
                 // Create cell with QR code and batch info
                 Cell cell = new Cell();
                 cell.add(qrImage);
-                cell.add(new Paragraph(batch.getBatchNumber())
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setFontSize(10));
-
                 if (batch.getGrade() != null) {
                     cell.add(new Paragraph("Grade: " + batch.getGrade())
                             .setTextAlignment(TextAlignment.CENTER)
@@ -235,23 +244,31 @@ public class BulkQRGenerator {
         return pdfFile;
     }
 
-    private void addHeader(Document document, String shipmentName, int totalBatches) {
-        // Title
-        Paragraph title = new Paragraph("AfriNuts Export - Bulk Traceability QR Codes")
+    private void addHeader(Document document, List<BatchTraceabilityEntity> batches,
+                           String shipmentName, String dateStr) {
+        boolean singleBatch = batches.size() == 1;
+        String titleText = singleBatch
+                ? "AfriNuts Export - Traceability QR Code"
+                : "AfriNuts Export - Bulk Traceability QR Codes";
+        Paragraph title = new Paragraph(titleText)
                 .setFontSize(18)
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontColor(new DeviceRgb(90, 116, 17)); // Primary color
 
-        // Subtitle
-        String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date());
-        Paragraph subtitle = new Paragraph("Shipment: " + shipmentName + " | Date: " + dateStr + " | Total Batches: " + totalBatches)
+        String subtitleText = singleBatch
+                ? "Batch: " + batches.get(0).getBatchNumber() + " | Date: " + dateStr
+                : "Shipment: " + shipmentName + " | Date: " + dateStr
+                        + " | Total Batches: " + batches.size();
+        Paragraph subtitle = new Paragraph(subtitleText)
                 .setFontSize(12)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontColor(new DeviceRgb(100, 100, 100));
 
-        // Instructions
-        Paragraph instructions = new Paragraph("Scan each QR code to view detailed traceability information for each batch.")
+        String instructionsText = singleBatch
+                ? "Scan the QR code to view detailed traceability information for this batch."
+                : "Scan each QR code to view detailed traceability information for each batch.";
+        Paragraph instructions = new Paragraph(instructionsText)
                 .setFontSize(10)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontColor(new DeviceRgb(150, 150, 150))

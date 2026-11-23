@@ -21,6 +21,7 @@ import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
+import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.utils.BulkQRGenerator;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -112,7 +113,9 @@ public class TraceabilityFragment extends Fragment {
         });
         view.findViewById(R.id.btnOptionBatches).setOnClickListener(v -> {
             dialog.dismiss();
-            showBulkQRDialog(true);
+            if (requireActivity() instanceof AnalyticsHubActivity) {
+                ((AnalyticsHubActivity) requireActivity()).showCreateMasterDialog();
+            }
         });
         dialog.setOnShowListener(ignored -> {
             if (dialog.getWindow() != null) {

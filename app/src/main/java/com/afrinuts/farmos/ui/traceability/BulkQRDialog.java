@@ -218,9 +218,6 @@ public class BulkQRDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment
 
     private void generateBulkQR() {
         String shipmentName = etShipmentName.getText().toString().trim();
-        if (shipmentName.isEmpty()) {
-            shipmentName = "Shipment_" + System.currentTimeMillis();
-        }
 
         if (selectedBatchIds.isEmpty()) {
             Toast.makeText(getContext(), "Please select at least one batch", Toast.LENGTH_SHORT).show();

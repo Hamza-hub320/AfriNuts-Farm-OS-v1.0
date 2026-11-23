@@ -238,7 +238,7 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    private void showCreateMasterDialog() {
+    public void showCreateMasterDialog() {
         CreateMasterTraceabilityDialog dialog = CreateMasterTraceabilityDialog.newInstance();
         dialog.setOnMasterTraceabilityCreatedListener(master -> {
             Toast.makeText(this, "Master created: " + master.getMasterBatchNumber(), Toast.LENGTH_LONG).show();
