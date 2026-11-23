@@ -45,7 +45,9 @@ public class DocumentEntity {
 
     public enum DocumentType {
         CERTIFICATE("Certificate", R.drawable.ic_certificate, "Certification document"),
-        AUDIT_REPORT("Audit Report", R.drawable.ic_description, "Audit report document"),
+        AUDIT_REPORT("Audit Report", R.drawable.ic_audit, "Audit report document"),
+        LAB_REPORT("Lab Report", R.drawable.ic_labs, "Soil analysis or laboratory report"),
+        LICENSE("Licence", R.drawable.ic_edit_document, "Licence document"),
         INPUT_CERTIFICATE("Input Certificate", R.drawable.ic_input, "Input certificate document"),
         INSPECTION_REPORT("Inspection Report", R.drawable.ic_visibility, "Inspection report document"),
         VERIFICATION("Verification", R.drawable.ic_verified, "Verification document"),

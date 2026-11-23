@@ -2313,7 +2313,15 @@ public class EntityMapper {
                     DocumentEntity.DocumentType.CERTIFICATE;
             if (documentTypeStr != null) {
                 try {
-                    documentType = DocumentEntity.DocumentType.valueOf(documentTypeStr);
+                    String normalizedType = documentTypeStr.trim().toUpperCase(java.util.Locale.ROOT)
+                            .replace(' ', '_').replace('-', '_');
+                    if (normalizedType.equals("SOIL_ANALYSIS")
+                            || normalizedType.equals("SOIL_ANALYSIS_REPORT")) {
+                        normalizedType = "LAB_REPORT";
+                    } else if (normalizedType.equals("LICENCE")) {
+                        normalizedType = "LICENSE";
+                    }
+                    documentType = DocumentEntity.DocumentType.valueOf(normalizedType);
                 } catch (IllegalArgumentException e) {
                     Log.w(TAG, "Unknown document type: " + documentTypeStr);
                 }

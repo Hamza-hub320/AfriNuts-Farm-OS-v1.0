@@ -149,6 +149,15 @@ public class ComplianceHubActivity extends BaseHubActivity {
 
         TabItem tabItem = tabs.get(position);
 
+        // Keep the Docs FAB 16dp above the bottom navigation pill.
+        android.view.ViewGroup.LayoutParams rawParams = fabAdd.getLayoutParams();
+        if (rawParams instanceof android.widget.FrameLayout.LayoutParams) {
+            android.widget.FrameLayout.LayoutParams fabParams =
+                    (android.widget.FrameLayout.LayoutParams) rawParams;
+            fabParams.bottomMargin = dp(tabItem.type == TabType.DOCUMENTS ? 92 : 126);
+            fabAdd.setLayoutParams(fabParams);
+        }
+
         // Clear any existing listeners to prevent duplicates
         fabAdd.setOnClickListener(null);
         fabAdd.setImageResource(R.drawable.ic_add);
@@ -191,6 +200,10 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 fabAdd.hide();
                 break;
         }
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showCheckChooser() {

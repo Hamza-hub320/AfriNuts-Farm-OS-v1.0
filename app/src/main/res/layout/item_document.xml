@@ -4,9 +4,10 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
     style="@style/Widget.AfriNuts.CardView"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -16,129 +17,159 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/surface">
+        android:padding="16dp">
 
-        <!-- Top Row: Document ID + Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tvDocumentId"
+                android:id="@+id/tvDocumentName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="DOC-ORG-2026-001"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.5" />
+                android:layout_marginEnd="8dp"
+                android:text="Organic Certificate"
+                android:textColor="#1C1B1A"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif" />
 
-            <!-- Status with Icon -->
-            <LinearLayout
-                android:id="@+id/statusContainer"
+            <TextView
+                android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_status_certified"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:minHeight="24dp"
-                app:cornerRadius="12dp">
+                android:paddingStart="9dp"
+                android:paddingEnd="9dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:background="@drawable/bg_status_document_valid"
+                android:text="VALID"
+                android:textColor="#0A5530"
+                android:textSize="10.5sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.04"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="11dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <FrameLayout
+                android:id="@+id/documentTypeTile"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/bg_document_type_tile">
 
                 <ImageView
-                    android:id="@+id/ivStatusIcon"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:layout_marginEnd="6dp"
-                    android:src="@drawable/ic_check_circle"
-                    android:contentDescription="Status icon" />
+                    android:id="@+id/ivDocumentTypeIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_certificate"
+                    android:contentDescription="Document type icon"
+                    app:tint="#0A5530" />
+            </FrameLayout>
 
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Approved"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Document Type with Icon -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
-
-            <ImageView
-                android:id="@+id/ivDocumentTypeIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_certificate"
-                android:contentDescription="Document type icon"
-                app:tint="?attr/colorPrimary" />
-
-            <TextView
-                android:id="@+id/tvDocumentType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Certificate"
-                style="@style/Text.H6"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="15sp" />
-
-        </LinearLayout>
-
-        <!-- Document Name -->
-        <TextView
-            android:id="@+id/tvDocumentName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ECOCERT Organic Certificate 2027"
-            style="@style/Text.Caption"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.7"
-            android:layout_marginBottom="4dp"
-            android:layout_marginStart="28dp" />
-
-        <!-- Dates -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginStart="28dp">
-
-            <TextView
-                android:id="@+id/tvIssueDate"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Issued: Jul 15, 2027"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.6" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvExpiryDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Expires: Jul 14, 2028"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorPrimary" />
+                <TextView
+                    android:id="@+id/tvDocumentType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Certificate"
+                    android:textColor="#1C1B1A"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvDocumentId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="DOC-ORG-2026-001"
+                    android:textColor="#59544C"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
-    </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="#E9E1CF" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvIssueLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ISSUED"
+                    android:textColor="#59544C"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:id="@+id/tvIssueDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Jan 12, 2026"
+                    android:textColor="#1C1B1A"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvExpiryLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EXPIRES"
+                    android:textColor="#59544C"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:id="@+id/tvExpiryDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Jan 11, 2027"
+                    android:textColor="#1C1B1A"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
