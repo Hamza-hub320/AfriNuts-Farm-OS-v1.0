@@ -1,368 +1,387 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    app:cardCornerRadius="20dp">
+    android:background="@color/background">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="12dp"
-        android:paddingTop="0dp"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingTop="12dp"
+        android:paddingBottom="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/surface">
+            android:background="@color/background">
 
-            <!-- Date Range Card - Compact -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp">
+                android:text="DATE RANGE"
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:letterSpacing="0.08"
+                android:fontFamily="@font/manrope_extrabold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:background="@color/surface">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Date Range"
-                        style="@style/Text.H6"
-                        android:textSize="14sp"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="10dp" />
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/toggleDateRange"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:singleSelection="true">
-
-                        <Button
-                            android:id="@+id/btnAllTime"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="All Time"
-                            android:checked="true"
-                            style="@style/Widget.AfriNuts.Button.Outlined"
-                            android:textSize="12sp"
-                            app:cornerRadius="20dp" />
-
-                        <Button
-                            android:id="@+id/btnThisYear"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="This Year"
-                            style="@style/Widget.AfriNuts.Button.Outlined"
-                            android:textSize="12sp"
-                            app:cornerRadius="20dp" />
-
-                        <Button
-                            android:id="@+id/btnThisMonth"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="This Month"
-                            style="@style/Widget.AfriNuts.Button.Outlined"
-                            android:textSize="12sp"
-                            app:cornerRadius="20dp" />
-
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            style="@style/Widget.AfriNuts.EditText"
-                            app:boxBackgroundColor="?attr/colorSurface"
-                            app:boxCornerRadiusBottomEnd="10dp"
-                            app:boxCornerRadiusBottomStart="10dp"
-                            app:boxCornerRadiusTopEnd="10dp"
-                            app:boxCornerRadiusTopStart="10dp"
-                            app:boxStrokeColor="?attr/colorPrimary">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etStartDate"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Start"
-                                android:textSize="12sp"
-                                android:focusable="false"
-                                android:clickable="true"
-                                android:drawableEnd="@drawable/ic_today" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            style="@style/Widget.AfriNuts.EditText"
-                            app:boxBackgroundColor="?attr/colorSurface"
-                            app:boxCornerRadiusBottomEnd="10dp"
-                            app:boxCornerRadiusBottomStart="10dp"
-                            app:boxCornerRadiusTopEnd="10dp"
-                            app:boxCornerRadiusTopStart="10dp"
-                            app:boxStrokeColor="?attr/colorPrimary">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEndDate"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="End"
-                                android:textSize="12sp"
-                                android:focusable="false"
-                                android:clickable="true"
-                                android:drawableEnd="@drawable/ic_today" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Report Types Card - Compact -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                android:background="@color/surface">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:background="@color/surface">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Report Types"
-                        style="@style/Text.H6"
-                        android:textSize="14sp"
-                        android:textColor="@color/accent_ink"
-                        android:layout_marginBottom="10dp" />
-
-                    <!-- Farm Summary Report -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/cardFarmSummary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        style="@style/Widget.AfriNuts.CardView"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:cardCornerRadius="20dp"
-                        android:background="@color/surface">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="10dp"
-                            android:background="@color/surface">
-
-                            <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_icon_sand"
-                                android:layout_marginEnd="10dp">
-
-                                <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_farm"
-                                    app:tint="?attr/colorPrimary" />
-
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Farm Summary"
-                                    style="@style/Text.H6"
-                                    android:textSize="13sp"
-                                    android:textColor="?attr/colorPrimary" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Overview &amp; stats"
-                                    style="@style/Text.Caption"
-                                    android:textSize="10sp"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:alpha="0.7" />
-
-                            </LinearLayout>
-
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:src="@drawable/ic_arrow_forward"
-                                app:tint="@color/accent_ink" />
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
-
-                    <!-- Financial Statement -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/cardFinancialStatement"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.AfriNuts.CardView"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:cardCornerRadius="20dp"
-                        android:background="@color/surface">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:padding="10dp"
-                            android:background="@color/surface">
-
-                            <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_icon_sand"
-                                android:layout_marginEnd="10dp">
-
-                                <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_attach_money"
-                                    app:tint="?attr/colorPrimary" />
-
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Financial"
-                                    style="@style/Text.H6"
-                                    android:textSize="13sp"
-                                    android:textColor="?attr/colorPrimary" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Revenue &amp; expenses"
-                                    style="@style/Text.Caption"
-                                    android:textSize="10sp"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:alpha="0.7" />
-
-                            </LinearLayout>
-
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:src="@drawable/ic_arrow_forward"
-                                app:tint="@color/accent_ink" />
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Dim Overlay (for loading state) -->
-            <View
-                android:id="@+id/dimOverlay"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#80000000"
-                android:visibility="gone" />
-
-            <!-- Progress indicator - Compact -->
             <LinearLayout
-                android:id="@+id/layoutProgress"
+                android:id="@+id/toggleDateRange"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone"
-                android:padding="20dp"
-                android:elevation="6dp"
-                android:background="@color/surface"
-                app:cardCornerRadius="16dp">
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    style="@style/Widget.AfriNuts.ProgressBar"
-                    android:indeterminate="true" />
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_report_range_track"
+                android:padding="4dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvProgressMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Generating..."
-                    style="@style/Text.Caption"
-                    android:textSize="12sp"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_marginTop="12dp" />
+                    android:id="@+id/btnAllTime"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="All Time"
+                    android:gravity="center"
+                    android:textColor="#59544C"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:clickable="true"
+                    android:focusable="true" />
 
+                <TextView
+                    android:id="@+id/btnThisYear"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="This Year"
+                    android:gravity="center"
+                    android:textColor="#59544C"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/btnThisMonth"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="This Month"
+                    android:gravity="center"
+                    android:textColor="#59544C"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/manrope_bold"
+                    android:clickable="true"
+                    android:focusable="true" />
             </LinearLayout>
 
-            <!-- Spacer for bottom navigation -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="Start date"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/surface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/report_date_field_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp"
+                        app:hintEnabled="false">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etStartDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:cursorVisible="false"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="12dp"
+                            android:hint=""
+                            android:textSize="14sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold"
+                            android:drawableEnd="@drawable/ic_today"
+                            android:drawableTint="#80601E" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="End date"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/surface"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/report_date_field_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp"
+                        app:hintEnabled="false">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEndDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:cursorVisible="false"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="12dp"
+                            android:hint=""
+                            android:textSize="14sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold"
+                            android:drawableEnd="@drawable/ic_today"
+                            android:drawableTint="#80601E" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="8dp"
+                android:text="REPORTS"
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:letterSpacing="0.08"
+                android:fontFamily="@font/manrope_extrabold" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardFarmSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="144dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+                    <FrameLayout
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="14dp"
+                        android:background="@drawable/bg_report_farm_icon">
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_bar_chart"
+                            app:tint="#0A5530" />
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Farm Summary"
+                            android:textColor="#1C1B1A"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/manrope_extrabold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Overview &amp; stats"
+                            android:textColor="#0A5530"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Blocks, suppliers, deliveries and quality grades for the chosen dates."
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_medium" />
+                    </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_block_chevron">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="#59544C" />
+                    </FrameLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardFinancialStatement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="144dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+                    <FrameLayout
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="14dp"
+                        android:background="@drawable/bg_report_finance_icon">
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_nav_wallet"
+                            app:tint="#80601E" />
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Financial"
+                            android:textColor="#1C1B1A"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/manrope_extrabold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Revenue &amp; expenses"
+                            android:textColor="#0A5530"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Season revenue, expenses and margin, broken down by category."
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_medium" />
+                    </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_block_chevron">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="#59544C" />
+                    </FrameLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="40dp" />
-
         </LinearLayout>
-
     </ScrollView>
 
-</LinearLayout>
+    <View
+        android:id="@+id/dimOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/layoutProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="24dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="20dp"
+        android:elevation="6dp"
+        android:background="@drawable/bg_report_progress_card">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            style="@style/Widget.AfriNuts.ProgressBar"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/tvProgressMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Generating PDF..."
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:fontFamily="@font/manrope_bold" />
+    </LinearLayout>
+</FrameLayout>

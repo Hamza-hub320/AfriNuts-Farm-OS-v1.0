@@ -1,11 +1,15 @@
 package com.afrinuts.farmos.ui.reports;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,7 +28,6 @@ import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.utils.PdfReportGenerator;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -52,7 +55,7 @@ public class ReportsFragment extends Fragment {
     // UI Elements - Changed from MaterialCardView to CardView
     private CardView cardFarmSummary;
     private CardView cardFinancialStatement;
-    private MaterialButtonToggleGroup toggleDateRange;
+    private LinearLayout toggleDateRange;
     private TextInputEditText etStartDate;
     private TextInputEditText etEndDate;
     private LinearLayout layoutProgress;
@@ -109,12 +112,28 @@ public class ReportsFragment extends Fragment {
         etEndDate.setOnClickListener(v -> showDatePicker(false));
 
         // Highlight selected chip
-        toggleDateRange.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                updateDateRangeFromChip(checkedId);
+        int[] rangeButtonIds = {R.id.btnAllTime, R.id.btnThisYear, R.id.btnThisMonth};
+        for (int buttonId : rangeButtonIds) {
+            View button = toggleDateRange.findViewById(buttonId);
+            button.setOnClickListener(v -> {
+                updateDateRangeChipStyles(v.getId());
+                updateDateRangeFromChip(v.getId());
                 validateDateRange();
-            }
-        });
+            });
+        }
+        updateDateRangeChipStyles(R.id.btnAllTime);
+    }
+
+    private void updateDateRangeChipStyles(int checkedId) {
+        for (int index = 0; index < toggleDateRange.getChildCount(); index++) {
+            View child = toggleDateRange.getChildAt(index);
+            boolean selected = child.getId() == checkedId;
+            child.setBackgroundResource(selected
+                    ? R.drawable.bg_report_range_selected
+                    : android.R.color.transparent);
+            ((TextView) child).setTextColor(selected
+                    ? Color.WHITE : Color.parseColor("#59544C"));
+        }
     }
 
     private void updateDateRangeFromChip(int checkedId) {
@@ -275,6 +294,9 @@ public class ReportsFragment extends Fragment {
         cardFarmSummary.setEnabled(enabled);
         cardFinancialStatement.setEnabled(enabled);
         toggleDateRange.setEnabled(enabled);
+        for (int index = 0; index < toggleDateRange.getChildCount(); index++) {
+            toggleDateRange.getChildAt(index).setEnabled(enabled);
+        }
         etStartDate.setEnabled(enabled);
         etEndDate.setEnabled(enabled);
     }
@@ -306,13 +328,29 @@ public class ReportsFragment extends Fragment {
     }
 
     private void showSuccessDialog(File pdfFile) {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("✓ Report Generated")
-                .setMessage("Your PDF report has been created successfully.")
-                .setPositiveButton("Share", (dialog, which) -> sharePdf(pdfFile))
-                .setNegativeButton("Open", (dialog, which) -> openPdf(pdfFile))
-                .setNeutralButton("Close", null)
-                .show();
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_report_generated, null, false);
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        dialogView.findViewById(R.id.btnShareReport).setOnClickListener(v -> {
+            dialog.dismiss();
+            sharePdf(pdfFile);
+        });
+        dialogView.findViewById(R.id.btnOpenReport).setOnClickListener(v -> {
+            dialog.dismiss();
+            openPdf(pdfFile);
+        });
+        dialogView.findViewById(R.id.btnCloseReport).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            int width = Math.round(getResources().getDisplayMetrics().widthPixels * 0.90f);
+            window.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     private void sharePdf(File pdfFile) {
