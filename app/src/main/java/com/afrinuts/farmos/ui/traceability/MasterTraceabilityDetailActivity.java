@@ -5,14 +5,10 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -56,8 +52,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
     private TextView tvGrades;
     private TextView tvCertifications;
     private TextView tvTraceabilityUrl;
-    private RecyclerView recyclerViewBatches;
-    private MasterBatchAdapter batchAdapter;
+    private LinearLayout layoutMasterBatches;
     private MaterialButton btnShare;
     private MaterialButton btnDelete;
     private MaterialButton btnGenerateQR;
@@ -100,7 +95,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         tvGrades = findViewById(R.id.tvGrades);
         tvCertifications = findViewById(R.id.tvCertifications);
         tvTraceabilityUrl = findViewById(R.id.tvTraceabilityUrl);
-        recyclerViewBatches = findViewById(R.id.recyclerViewBatches);
+        layoutMasterBatches = findViewById(R.id.layoutMasterBatches);
         btnShare = findViewById(R.id.btnShare);
         btnDelete = findViewById(R.id.btnDelete);
         btnGenerateQR = findViewById(R.id.btnGenerateQR);
@@ -108,15 +103,6 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
 
         findViewById(R.id.btnHeaderBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnHeaderShare).setOnClickListener(v -> shareMasterTraceability());
-
-        recyclerViewBatches.setLayoutManager(new LinearLayoutManager(this));
-
-        batchAdapter = new MasterBatchAdapter(linkedBatches, batch -> {
-            Intent intent = new Intent(this, TraceabilityDetailActivity.class);
-            intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, batch.getId());
-            startActivity(intent);
-        });
-        recyclerViewBatches.setAdapter(batchAdapter);
 
         btnShare.setOnClickListener(v -> shareMasterTraceability());
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -211,8 +197,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
                 ? certifications : "—");
         tvTraceabilityUrl.setText(master.getTraceabilityUrl());
 
-        // ✅ Update adapter
-        batchAdapter.updateBatches(linkedBatches);
+        populateMasterBatchRows();
 
         // Role-based UI
         if (!sessionManager.canEditData()) {
@@ -237,6 +222,42 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
             // TODO: Show QR code image in dialog with custom view
         } else {
             Toast.makeText(this, "Failed to generate QR code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void populateMasterBatchRows() {
+        layoutMasterBatches.removeAllViews();
+        for (int position = 0; position < linkedBatches.size(); position++) {
+            BatchTraceabilityEntity batch = linkedBatches.get(position);
+            View row = LayoutInflater.from(this)
+                    .inflate(R.layout.item_master_batch, layoutMasterBatches, false);
+
+            TextView batchNumber = row.findViewById(R.id.tvMasterChildBatchNumber);
+            TextView grade = row.findViewById(R.id.tvMasterChildGrade);
+            TextView weightAndDate = row.findViewById(R.id.tvMasterChildWeightDate);
+            View divider = row.findViewById(R.id.masterChildDivider);
+
+            batchNumber.setText("#" + batch.getBatchNumber());
+            String qualityGrade = batch.getQualityGrade();
+            String gradeLabel = qualityGrade != null && !qualityGrade.trim().isEmpty()
+                    ? qualityGrade.trim() : "—";
+            grade.setText(gradeLabel.toUpperCase(Locale.ROOT));
+            boolean premium = gradeLabel.toLowerCase(Locale.ROOT).contains("premium");
+            grade.setBackgroundResource(premium
+                    ? R.drawable.bg_revenue_premium_badge
+                    : R.drawable.bg_revenue_standard_badge);
+            grade.setTextColor(premium ? 0xFF0A5530 : 0xFF80601E);
+            weightAndDate.setText(batch.getFormattedWeight() + " · "
+                    + batch.getFormattedProcessingDate());
+            divider.setVisibility(position == linkedBatches.size() - 1
+                    ? View.GONE : View.VISIBLE);
+
+            row.setOnClickListener(v -> {
+                Intent intent = new Intent(this, TraceabilityDetailActivity.class);
+                intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, batch.getId());
+                startActivity(intent);
+            });
+            layoutMasterBatches.addView(row);
         }
     }
 
@@ -306,75 +327,4 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         executor.shutdown();
     }
 
-    private interface OnMasterBatchClickListener {
-        void onBatchClick(BatchTraceabilityEntity batch);
-    }
-
-    private static class MasterBatchAdapter extends RecyclerView.Adapter<MasterBatchAdapter.BatchViewHolder> {
-        private final List<BatchTraceabilityEntity> batches = new ArrayList<>();
-        private final OnMasterBatchClickListener listener;
-
-        MasterBatchAdapter(List<BatchTraceabilityEntity> initialBatches,
-                           OnMasterBatchClickListener listener) {
-            this.listener = listener;
-            updateBatches(initialBatches);
-        }
-
-        void updateBatches(List<BatchTraceabilityEntity> newBatches) {
-            batches.clear();
-            if (newBatches != null) batches.addAll(newBatches);
-            notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public BatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View row = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_master_batch, parent, false);
-            return new BatchViewHolder(row);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull BatchViewHolder holder, int position) {
-            BatchTraceabilityEntity batch = batches.get(position);
-            holder.bind(batch, listener);
-            holder.divider.setVisibility(position == batches.size() - 1 ? View.GONE : View.VISIBLE);
-        }
-
-        @Override
-        public int getItemCount() {
-            return batches.size();
-        }
-
-        private static class BatchViewHolder extends RecyclerView.ViewHolder {
-            private final TextView batchNumber;
-            private final TextView grade;
-            private final TextView weightAndDate;
-            private final View divider;
-
-            BatchViewHolder(@NonNull View itemView) {
-                super(itemView);
-                batchNumber = itemView.findViewById(R.id.tvMasterChildBatchNumber);
-                grade = itemView.findViewById(R.id.tvMasterChildGrade);
-                weightAndDate = itemView.findViewById(R.id.tvMasterChildWeightDate);
-                divider = itemView.findViewById(R.id.masterChildDivider);
-            }
-
-            void bind(BatchTraceabilityEntity batch, OnMasterBatchClickListener listener) {
-                batchNumber.setText("#" + batch.getBatchNumber());
-                String qualityGrade = batch.getQualityGrade();
-                String gradeLabel = qualityGrade != null && !qualityGrade.trim().isEmpty()
-                        ? qualityGrade.trim() : "—";
-                grade.setText(gradeLabel.toUpperCase(Locale.ROOT));
-                boolean premium = gradeLabel.toLowerCase(Locale.ROOT).contains("premium");
-                grade.setBackgroundResource(premium
-                        ? R.drawable.bg_revenue_premium_badge
-                        : R.drawable.bg_revenue_standard_badge);
-                grade.setTextColor(premium ? 0xFF0A5530 : 0xFF80601E);
-                weightAndDate.setText(batch.getFormattedWeight() + " · "
-                        + batch.getFormattedProcessingDate());
-                itemView.setOnClickListener(v -> listener.onBatchClick(batch));
-            }
-        }
-    }
 }
