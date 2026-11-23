@@ -1,14 +1,22 @@
 package com.afrinuts.farmos.ui.compliance;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -44,18 +52,14 @@ public class DocumentDetailActivity extends BaseActivity {
     private TextView tvDocumentType;
     private TextView tvDocumentName;
     private TextView tvStatus;
-    private TextView tvCertification;
-    private TextView tvIssueDate;
-    private TextView tvExpiryDate;
-    private TextView tvFileUrl;
-    private TextView tvCreatedAt;
-    private TextView tvUpdatedAt;
-    private CardView cardStatus;
+    private TextView tvIssueStat;
+    private TextView tvExpiryStat;
+    private LinearLayout detailsRows;
+    private ImageButton btnEdit;
+    private ImageButton btnDelete;
+    private MaterialButton btnOpenFile;
 
-    private MaterialButton btnEdit;
-    private MaterialButton btnDelete;
-
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.US);
 
     @Override
     protected boolean checkRoleAccess() {
@@ -78,51 +82,27 @@ public class DocumentDetailActivity extends BaseActivity {
 
         database = AppDatabase.getInstance(this);
         initViews();
-        setupToolbar();
         loadDocumentData();
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        ImageButton btnBack = findViewById(R.id.btnBack);
         tvDocumentId = findViewById(R.id.tvDocumentId);
         tvDocumentType = findViewById(R.id.tvDocumentType);
         tvDocumentName = findViewById(R.id.tvDocumentName);
         tvStatus = findViewById(R.id.tvStatus);
-        tvCertification = findViewById(R.id.tvCertification);
-        tvIssueDate = findViewById(R.id.tvIssueDate);
-        tvExpiryDate = findViewById(R.id.tvExpiryDate);
-        tvFileUrl = findViewById(R.id.tvFileUrl);
-        tvCreatedAt = findViewById(R.id.tvCreatedAt);
-        tvUpdatedAt = findViewById(R.id.tvUpdatedAt);
-        cardStatus = findViewById(R.id.cardStatus);
+        tvIssueStat = findViewById(R.id.tvIssueStat);
+        tvExpiryStat = findViewById(R.id.tvExpiryStat);
+        detailsRows = findViewById(R.id.detailsRows);
 
         btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
+        btnOpenFile = findViewById(R.id.btnOpenFile);
 
+        btnBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         btnEdit.setOnClickListener(v -> showEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Document Details");
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        btnOpenFile.setOnClickListener(v -> openDocumentFile());
     }
 
     private void loadDocumentData() {
@@ -161,27 +141,17 @@ public class DocumentDetailActivity extends BaseActivity {
         tvDocumentType.setText(document.getDocumentTypeDisplay());
         tvDocumentName.setText(document.getDocumentName());
 
-        tvStatus.setText(document.getStatusDisplay());
-        updateStatusColor();
+        String statusLabel = getStatusLabel();
+        tvStatus.setText(statusLabel);
+        setPillStyle(tvStatus, getStatusBackgroundColor(), getStatusForegroundColor());
 
-        if (certification != null) {
-            tvCertification.setText(certification.getCertificationName() + " (" + certification.getCertificationId() + ")");
-        } else {
-            tvCertification.setText(document.getCertificationId());
-        }
+        tvIssueStat.setText(formatStatDate(document.getIssueDate()));
+        tvExpiryStat.setText(formatStatDate(document.getExpiryDate()));
+        populateDetailsRows(statusLabel);
 
-        tvIssueDate.setText(document.getFormattedIssueDate());
-        tvExpiryDate.setText(document.getFormattedExpiryDate());
-
-        if (document.getFileUrl() != null && !document.getFileUrl().isEmpty()) {
-            tvFileUrl.setText(document.getFileUrl());
-            tvFileUrl.setVisibility(View.VISIBLE);
-        } else {
-            tvFileUrl.setVisibility(View.GONE);
-        }
-
-        tvCreatedAt.setText(dateFormat.format(document.getCreatedAt()));
-        tvUpdatedAt.setText(dateFormat.format(document.getUpdatedAt()));
+        boolean hasFile = document.getFileUrl() != null && !document.getFileUrl().trim().isEmpty();
+        btnOpenFile.setEnabled(hasFile);
+        btnOpenFile.setAlpha(hasFile ? 1f : 0.45f);
 
         if (!sessionManager.canEditData()) {
             btnEdit.setVisibility(View.GONE);
@@ -189,23 +159,143 @@ public class DocumentDetailActivity extends BaseActivity {
         }
     }
 
-    private void updateStatusColor() {
-        int colorRes;
-        switch (document.getStatus()) {
-            case APPROVED:
-                colorRes = R.color.status_certified;
-                break;
-            case PENDING:
-                colorRes = R.color.status_audit_ready;
-                break;
-            case DRAFT:
-                colorRes = R.color.status_not_started;
-                break;
-            default:
-                colorRes = R.color.status_not_started;
-                break;
+    private void populateDetailsRows(String statusLabel) {
+        detailsRows.removeAllViews();
+        String certificationName = certification != null
+                ? certification.getCertificationName() + " (" + certification.getCertificationId() + ")"
+                : (document.getCertificationId() == null || document.getCertificationId().trim().isEmpty()
+                ? "—" : document.getCertificationId());
+        String fileUrl = document.getFileUrl() == null || document.getFileUrl().trim().isEmpty()
+                ? "—" : document.getFileUrl().trim();
+
+        String[] labels = {"Certification\nprogramme", "Document type", "Document name",
+                "Issue date", "Expiry date", "File URL", "Status", "Created", "Updated"};
+        String[] values = {certificationName, document.getDocumentTypeDisplay(), document.getDocumentName(),
+                document.getFormattedIssueDate(), document.getFormattedExpiryDate(), fileUrl, statusLabel,
+                formatMetadataDate(document.getCreatedAt()), formatMetadataDate(document.getUpdatedAt())};
+
+        for (int i = 0; i < labels.length; i++) {
+            boolean metadata = i >= 7;
+            boolean isFileUrl = i == 5 && !"—".equals(fileUrl);
+            View row = createDetailRow(labels[i], values[i], metadata, isFileUrl);
+            detailsRows.addView(row);
+            if (i < labels.length - 1) {
+                View divider = new View(this);
+                divider.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, dp(1)));
+                divider.setBackgroundColor(Color.parseColor("#E9E1CF"));
+                detailsRows.addView(divider);
+            }
         }
-        cardStatus.setCardBackgroundColor(getColor(colorRes));
+    }
+
+    private View createDetailRow(String label, String valueText, boolean metadata, boolean fileLink) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(11), 0, dp(11));
+        row.setClickable(fileLink);
+        row.setFocusable(fileLink);
+        if (fileLink) {
+            row.setOnClickListener(v -> openDocumentFile());
+        }
+
+        TextView labelView = new TextView(this);
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        labelView.setLayoutParams(labelParams);
+        labelView.setText(label);
+        labelView.setTextSize(13);
+        labelView.setTextColor(Color.parseColor(metadata ? "#8A857B" : "#59544C"));
+        labelView.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
+        row.addView(labelView);
+
+        TextView valueView = new TextView(this);
+        LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        valueView.setLayoutParams(valueParams);
+        valueView.setText(valueText);
+        valueView.setGravity(Gravity.END);
+        valueView.setTextSize(metadata ? 13.5f : 14.5f);
+        valueView.setTextColor(Color.parseColor(fileLink ? "#0A5530" : metadata ? "#59544C" : "#1C1B1A"));
+        int valueFont = metadata ? R.font.manrope_semibold
+                : fileLink ? R.font.manrope_extrabold : R.font.manrope_bold;
+        valueView.setTypeface(ResourcesCompat.getFont(this, valueFont));
+        row.addView(valueView);
+        return row;
+    }
+
+    private String getStatusLabel() {
+        if (document.getStatus() == DocumentEntity.DocumentStatus.APPROVED) {
+            if (document.isExpired()) return "Expired";
+            if (document.isExpiringSoon()) return "Expiring soon";
+            return "Valid";
+        }
+        return document.getStatusDisplay();
+    }
+
+    private int getStatusBackgroundColor() {
+        if (document.getStatus() == DocumentEntity.DocumentStatus.APPROVED) {
+            if (document.isExpired()) return Color.parseColor("#F8E4DD");
+            if (document.isExpiringSoon()) return Color.parseColor("#F6ECD2");
+            return Color.parseColor("#E3F0E7");
+        }
+        return Color.parseColor("#EFEAE0");
+    }
+
+    private int getStatusForegroundColor() {
+        if (document.getStatus() == DocumentEntity.DocumentStatus.APPROVED) {
+            if (document.isExpired()) return Color.parseColor("#B3402A");
+            if (document.isExpiringSoon()) return Color.parseColor("#8A6414");
+            return Color.parseColor("#0A5530");
+        }
+        return Color.parseColor("#6B675F");
+    }
+
+    private void setPillStyle(TextView view, int backgroundColor, int textColor) {
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(backgroundColor);
+        background.setCornerRadius(dp(999));
+        view.setBackground(background);
+        view.setTextColor(textColor);
+    }
+
+    private CharSequence formatStatDate(long timestamp) {
+        if (timestamp <= 0) return "—";
+        String value = new SimpleDateFormat("MMM d yyyy", Locale.US).format(timestamp);
+        SpannableString styled = new SpannableString(value);
+        int yearStart = value.lastIndexOf(' ') + 1;
+        if (yearStart > 0) {
+            styled.setSpan(new RelativeSizeSpan(0.65f), yearStart, value.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return styled;
+    }
+
+    private String formatMetadataDate(long timestamp) {
+        return timestamp <= 0 ? "—" : dateFormat.format(timestamp);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void openDocumentFile() {
+        if (document == null || document.getFileUrl() == null || document.getFileUrl().trim().isEmpty()) {
+            Toast.makeText(this, "No file is attached", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String url = document.getFileUrl().trim();
+        if (!url.matches("^[a-zA-Z][a-zA-Z0-9+.-]*:.*")) {
+            url = "https://" + url;
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No app can open this file", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to open file", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showEditDialog() {

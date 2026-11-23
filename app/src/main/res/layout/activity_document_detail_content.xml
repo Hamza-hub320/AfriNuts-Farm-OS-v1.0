@@ -4,353 +4,269 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/cardBackgroundPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:elevation="0dp"
-        android:translationZ="0dp"
+        android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_finance_back_chevron" />
+
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Document details"
+            android:textColor="#1C1B1A"
+            android:textSize="17sp"
+            android:fontFamily="@font/manrope_extrabold" />
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_afrinuts_foreground"
-                android:alpha="0.95"
-                android:layout_marginEnd="12dp" />
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="9dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Edit document"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_edit"
+            app:tint="#1C1B1A" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Document Details"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.01" />
-
-        </LinearLayout>
-
-    </androidx.appcompat.widget.Toolbar>
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="9dp"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Delete document"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_delete"
+            app:tint="#1C1B1A" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:fillViewport="true">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="16dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Document ID -->
-            <TextView
-                android:id="@+id/tvDocumentId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DOC-ORG-2026-001"
-                style="@style/Text.Caption.Small"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.5"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Document Name -->
-            <TextView
-                android:id="@+id/tvDocumentName"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ECOCERT Organic Certificate 2027"
-                style="@style/Text.H3"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Status Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="28dp"
                 app:cardElevation="0dp">
-
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:text="Approved"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Details Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="?attr/cardBackgroundPrimary">
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvDocumentId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:letterSpacing="0.06"
+                        android:text="DOC-ORG-2026-001"
+                        android:textColor="#0A5530"
+                        android:textSize="12.5sp" />
+
+                    <TextView
+                        android:id="@+id/tvDocumentName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:lineSpacingExtra="0dp"
+                        android:text="Organic Certificate"
+                        android:textColor="#1C1B1A"
+                        android:textSize="21sp" />
+
+                    <TextView
+                        android:id="@+id/tvDocumentType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/manrope_semibold"
+                        android:text="Certificate"
+                        android:textColor="#59544C"
+                        android:textSize="13.5sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_status_document_valid"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:paddingStart="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="6dp"
+                        android:text="Valid"
+                        android:textColor="#0A5530"
+                        android:textSize="12.5sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="104dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/primary"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_traceability_kpi_gradient"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Issue date"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvIssueStat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:maxLines="1"
+                            android:text="Jan 12 2026"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="104dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Expiry date"
+                            android:textColor="#59544C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvExpiryStat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:maxLines="1"
+                            android:text="Jan 11 2027"
+                            android:textColor="#1C1B1A"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="18dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Document Details"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Document Type -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Document Type"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvDocumentType"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Certificate"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <!-- Certification -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Certification"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvCertification"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Organic (ECOCERT)"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <!-- Issue Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Issue Date"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvIssueDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 15, 2027"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- Expiry Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Expiry Date"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvExpiryDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 14, 2028"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
-                    <!-- File URL -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="File URL"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6" />
-
-                        <TextView
-                            android:id="@+id/tvFileUrl"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="https://.../organic-cert-2027.pdf"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorPrimary"
-                            android:autoLink="web" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/colorOnSurface"
-                        android:alpha="0.1"
-                        android:layout_marginVertical="12dp" />
-
-                    <!-- Timestamps -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="4dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Created"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                        <TextView
-                            android:id="@+id/tvCreatedAt"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 19, 2026"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                    </LinearLayout>
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:text="Details"
+                        android:textColor="#0E6B3C"
+                        android:textSize="16sp" />
 
                     <LinearLayout
+                        android:id="@+id/detailsRows"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Last Updated"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                        <TextView
-                            android:id="@+id/tvUpdatedAt"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Jul 19, 2026"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.5" />
-
-                    </LinearLayout>
-
+                        android:orientation="vertical" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenFile"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEdit"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Edit Document"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart"
-                    android:layout_marginBottom="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDelete"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Delete Document"
-                    style="@style/Widget.AfriNuts.Button.Danger"
-                    app:icon="@drawable/ic_delete"
-                    app:iconGravity="textStart" />
-
-            </LinearLayout>
-
+                android:layout_height="52dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/manrope_extrabold"
+                android:text="Open file"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                app:backgroundTint="#0E6B3C"
+                app:cornerRadius="999dp"
+                app:elevation="0dp" />
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>
