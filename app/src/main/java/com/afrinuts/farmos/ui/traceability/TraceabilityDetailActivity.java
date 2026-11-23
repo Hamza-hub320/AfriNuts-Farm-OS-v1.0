@@ -113,13 +113,31 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
     // Documents
     private CardView layoutDocuments;
+    private TextView tvCertificateOfOrigin;
+    private TextView tvPackingList;
+    private TextView tvCommercialInvoice;
+    private TextView tvDocumentPackage;
     private TextView tvQualityCertificate;
     private TextView tvPhytoSanitary;
     private TextView tvBillOfLading;
-    private MaterialButton btnGenerateDocuments;
-    private LinearLayout layoutCommercialInvoice;
-    private TextView tvCommercialInvoice;
     private TextView tvInsuranceCertificate;
+    private TextView tvCertificateOfOriginBadge;
+    private TextView tvPackingListBadge;
+    private TextView tvCommercialInvoiceBadge;
+    private TextView tvDocumentPackageBadge;
+    private TextView tvQualityCertificateBadge;
+    private TextView tvPhytoSanitaryBadge;
+    private TextView tvBillOfLadingBadge;
+    private TextView tvInsuranceCertificateBadge;
+    private LinearLayout layoutCertificateOfOriginRow;
+    private LinearLayout layoutPackingListRow;
+    private LinearLayout layoutCommercialInvoice;
+    private LinearLayout layoutDocumentPackageRow;
+    private LinearLayout layoutQualityCertificateRow;
+    private LinearLayout layoutPhytoSanitaryRow;
+    private LinearLayout layoutBillOfLadingRow;
+    private LinearLayout layoutInsuranceCertificateRow;
+    private MaterialButton btnGenerateDocuments;
 
     // Buttons
     private MaterialButton btnViewBatch;
@@ -199,14 +217,31 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         // Documents
         layoutDocuments = findViewById(R.id.layoutDocuments);
+        tvCertificateOfOrigin = findViewById(R.id.tvCertificateOfOrigin);
+        tvPackingList = findViewById(R.id.tvPackingList);
+        tvCommercialInvoice = findViewById(R.id.tvCommercialInvoice);
+        tvDocumentPackage = findViewById(R.id.tvDocumentPackage);
         tvQualityCertificate = findViewById(R.id.tvQualityCertificate);
         tvPhytoSanitary = findViewById(R.id.tvPhytoSanitary);
         tvBillOfLading = findViewById(R.id.tvBillOfLading);
-        layoutAdditionalDocs = findViewById(R.id.layoutAdditionalDocs);
-        layoutAdditionalDocs = findViewById(R.id.layoutAdditionalDocs);
-        layoutCommercialInvoice = findViewById(R.id.layoutCommercialInvoice);
-        tvCommercialInvoice = findViewById(R.id.tvCommercialInvoice);
         tvInsuranceCertificate = findViewById(R.id.tvInsuranceCertificate);
+        tvCertificateOfOriginBadge = findViewById(R.id.tvCertificateOfOriginBadge);
+        tvPackingListBadge = findViewById(R.id.tvPackingListBadge);
+        tvCommercialInvoiceBadge = findViewById(R.id.tvCommercialInvoiceBadge);
+        tvDocumentPackageBadge = findViewById(R.id.tvDocumentPackageBadge);
+        tvQualityCertificateBadge = findViewById(R.id.tvQualityCertificateBadge);
+        tvPhytoSanitaryBadge = findViewById(R.id.tvPhytoSanitaryBadge);
+        tvBillOfLadingBadge = findViewById(R.id.tvBillOfLadingBadge);
+        tvInsuranceCertificateBadge = findViewById(R.id.tvInsuranceCertificateBadge);
+        layoutCertificateOfOriginRow = findViewById(R.id.layoutCertificateOfOriginRow);
+        layoutPackingListRow = findViewById(R.id.layoutPackingListRow);
+        layoutCommercialInvoice = findViewById(R.id.layoutCommercialInvoice);
+        layoutDocumentPackageRow = findViewById(R.id.layoutDocumentPackageRow);
+        layoutQualityCertificateRow = findViewById(R.id.layoutQualityCertificateRow);
+        layoutPhytoSanitaryRow = findViewById(R.id.layoutPhytoSanitaryRow);
+        layoutBillOfLadingRow = findViewById(R.id.layoutBillOfLadingRow);
+        layoutInsuranceCertificateRow = findViewById(R.id.layoutInsuranceCertificateRow);
+        layoutAdditionalDocs = findViewById(R.id.layoutAdditionalDocs);
 
         // Buttons
         btnViewBatch = findViewById(R.id.btnViewBatch);
@@ -771,89 +806,102 @@ public class TraceabilityDetailActivity extends BaseActivity {
         }
     }
 
-    // Update displayDocuments()
     private void displayDocuments() {
         if (traceability == null) return;
 
         BatchTraceabilityEntity.Documents docs = traceability.getDocumentsObject();
-        boolean hasDocuments = docs.hasDocuments();
+        if (docs == null) docs = new BatchTraceabilityEntity.Documents();
+        layoutDocuments.setVisibility(View.VISIBLE);
 
-        if (hasDocuments) {
-            layoutDocuments.setVisibility(View.VISIBLE);
+        String origin = findAdditionalDocument(docs, "Certificate of Origin");
+        String packageUrl = findAdditionalDocument(docs, "Document Package");
+        String packingList = docs.getPackingList();
+        String invoice = docs.getCommercialInvoice();
+        String quality = docs.getQualityCertificate();
+        String phyto = docs.getPhytoSanitary();
+        String bill = docs.getBillOfLading();
+        String insurance = docs.getInsuranceCertificate();
 
-            // ===== Farm OS Generated Documents =====
+        bindDocumentRow(layoutCertificateOfOriginRow, tvCertificateOfOrigin,
+                tvCertificateOfOriginBadge, "Certificate of Origin", origin,
+                "Generate", true);
+        bindDocumentRow(layoutPackingListRow, tvPackingList, tvPackingListBadge,
+                "Packing List", packingList, "Generate", true);
+        bindDocumentRow(layoutCommercialInvoice, tvCommercialInvoice,
+                tvCommercialInvoiceBadge, "Commercial Invoice", invoice,
+                "Generate", true);
+        bindDocumentRow(layoutDocumentPackageRow, tvDocumentPackage,
+                tvDocumentPackageBadge, "Document package", packageUrl,
+                "Generate", true);
 
-            // Certificate of Origin
-            if (docs.getQualityCertificate() != null && !docs.getQualityCertificate().isEmpty()) {
-                tvQualityCertificate.setText("Quality certificate");
-                tvQualityCertificate.setTextColor(0xFF1C1B1A);
-                tvQualityCertificate.setClickable(true);
-                tvQualityCertificate.setOnClickListener(v -> viewDocument(docs.getQualityCertificate()));
-            } else {
-                tvQualityCertificate.setText("Quality certificate");
-                tvQualityCertificate.setTextColor(0xFF1C1B1A);
-                tvQualityCertificate.setClickable(false);
-            }
+        bindDocumentRow(layoutQualityCertificateRow, tvQualityCertificate,
+                tvQualityCertificateBadge, "Quality certificate", quality,
+                "Upload from lab", false);
+        bindDocumentRow(layoutPhytoSanitaryRow, tvPhytoSanitary,
+                tvPhytoSanitaryBadge, "Phytosanitary certificate", phyto,
+                "Upload from government", false);
+        bindDocumentRow(layoutBillOfLadingRow, tvBillOfLading,
+                tvBillOfLadingBadge, "Bill of lading", bill,
+                "Upload from shipping company", false);
+        bindDocumentRow(layoutInsuranceCertificateRow, tvInsuranceCertificate,
+                tvInsuranceCertificateBadge, "Insurance certificate", insurance,
+                "Upload from insurer", false);
 
-            // Bill of lading
-            if (docs.getBillOfLading() != null && !docs.getBillOfLading().isEmpty()
-                    && !docs.getBillOfLading().startsWith("content://")) {
-                tvBillOfLading.setText("Bill of lading");
-                tvBillOfLading.setTextColor(0xFF1C1B1A);
-                tvBillOfLading.setClickable(true);
-                tvBillOfLading.setOnClickListener(v -> viewDocument(docs.getBillOfLading()));
-            } else {
-                tvBillOfLading.setText("Upload from shipping company");
-                tvBillOfLading.setTextColor(getColor(R.color.warning));
-                tvBillOfLading.setClickable(false);
-            }
+        displayAdditionalDocuments(docs);
+    }
 
-            // Commercial Invoice
-            if (docs.getCommercialInvoice() != null && !docs.getCommercialInvoice().isEmpty()) {
-                tvCommercialInvoice.setText("Commercial invoice");
-                tvCommercialInvoice.setTextColor(0xFF1C1B1A);
-                layoutCommercialInvoice.setClickable(true);
-                layoutCommercialInvoice.setOnClickListener(v -> viewDocument(docs.getCommercialInvoice()));
-                layoutCommercialInvoice.setVisibility(View.VISIBLE);
-            } else {
-                tvCommercialInvoice.setText("Commercial invoice");
-                tvCommercialInvoice.setTextColor(0xFF1C1B1A);
-                layoutCommercialInvoice.setClickable(false);
-                layoutCommercialInvoice.setVisibility(View.VISIBLE);
-            }
-
-            // ===== External Documents =====
-
-            // Phyto-Sanitary (Government issued)
-            if (docs.getPhytoSanitary() != null && !docs.getPhytoSanitary().isEmpty()) {
-                tvPhytoSanitary.setText("Phytosanitary certificate");
-                tvPhytoSanitary.setTextColor(0xFF1C1B1A);
-                tvPhytoSanitary.setClickable(true);
-                tvPhytoSanitary.setOnClickListener(v -> viewDocument(docs.getPhytoSanitary()));
-            } else {
-                tvPhytoSanitary.setText("Upload from government");
-                tvPhytoSanitary.setTextColor(getColor(R.color.warning));
-                tvPhytoSanitary.setClickable(false);
-            }
-
-            // Insurance certificate
-            if (docs.getInsuranceCertificate() != null && !docs.getInsuranceCertificate().isEmpty()) {
-                tvInsuranceCertificate.setText("Insurance certificate");
-                tvInsuranceCertificate.setTextColor(0xFF1C1B1A);
-                tvInsuranceCertificate.setClickable(true);
-                tvInsuranceCertificate.setOnClickListener(v -> viewDocument(docs.getInsuranceCertificate()));
-            } else {
-                tvInsuranceCertificate.setText("Insurance certificate");
-                tvInsuranceCertificate.setTextColor(0xFF1C1B1A);
-                tvInsuranceCertificate.setClickable(false);
-            }
-
-            // ✅ Display Additional Documents (for other uploaded files)
-            displayAdditionalDocuments(docs);
-
+    private void bindDocumentRow(LinearLayout row, TextView label, TextView badge,
+                                 String fixedLabel, String url, String missingAction,
+                                 boolean generated) {
+        label.setText(fixedLabel);
+        label.setTextColor(0xFF1C1B1A);
+        row.setClickable(true);
+        row.setFocusable(true);
+        if (url != null && !url.trim().isEmpty() && !url.startsWith("content://")) {
+            badge.setText(fileTypeBadge(url));
+            badge.setVisibility(View.VISIBLE);
+            badge.setTextColor(0xFF59544C);
+            badge.setBackgroundResource(R.drawable.bg_document_badge);
+            row.setOnClickListener(v -> viewDocument(url));
         } else {
-            layoutDocuments.setVisibility(View.GONE);
+            badge.setText(missingAction);
+            badge.setVisibility(View.VISIBLE);
+            badge.setTextSize(13);
+            badge.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
+            badge.setTextColor(generated ? 0xFF0E6B3C : getColor(R.color.warning));
+            badge.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            row.setOnClickListener(v -> {
+                if (generated) showDocumentGenerationDialog();
+                else showUploadDocumentsDialog();
+            });
         }
+    }
+
+    private String findAdditionalDocument(BatchTraceabilityEntity.Documents docs, String prefix) {
+        if (docs.getAdditionalDocs() == null) return null;
+        for (String url : docs.getAdditionalDocs()) {
+            if (url == null) continue;
+            if (cleanDocumentFileName(url).toLowerCase(Locale.US)
+                    .startsWith(prefix.toLowerCase(Locale.US))) return url;
+        }
+        return null;
+    }
+
+    private String fileTypeBadge(String url) {
+        if (url == null || url.isEmpty()) return "";
+        String clean = url;
+        int query = clean.indexOf('?');
+        int token = clean.indexOf("&token");
+        int cut = query >= 0 ? query : clean.length();
+        if (token >= 0 && token < cut) cut = token;
+        clean = clean.substring(0, cut);
+        try { clean = java.net.URLDecoder.decode(clean, "UTF-8"); }
+        catch (Exception ignored) { }
+        int slash = Math.max(clean.lastIndexOf('/'), clean.lastIndexOf('\\'));
+        if (slash >= 0) clean = clean.substring(slash + 1);
+        int dot = clean.lastIndexOf('.');
+        return dot >= 0 && dot < clean.length() - 1
+                ? clean.substring(dot + 1).toUpperCase(Locale.US) : "FILE";
     }
 
     // ✅ Helper method to get display name from document URL
@@ -880,28 +928,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
         return clean.isEmpty() ? "Document" : clean;
     }
 
-    // ✅ Add this method to display Commercial Invoice
-    private void displayCommercialInvoice(BatchTraceabilityEntity.Documents docs) {
-        // Find the commercial invoice view or create one
-        LinearLayout layoutCommercialInvoice = findViewById(R.id.layoutCommercialInvoice);
-        TextView tvCommercialInvoice = findViewById(R.id.tvCommercialInvoice);
-        ImageView ivCommercialInvoiceIcon = findViewById(R.id.ivCommercialInvoiceIcon);
-        ImageView ivCommercialInvoiceForward = findViewById(R.id.ivCommercialInvoiceForward);
-
-        if (layoutCommercialInvoice == null) {
-            // If the view doesn't exist in XML, we'll create it programmatically
-            return;
-        }
-
-        if (docs.getCommercialInvoice() != null && !docs.getCommercialInvoice().isEmpty()) {
-            layoutCommercialInvoice.setVisibility(View.VISIBLE);
-            tvCommercialInvoice.setText("Commercial Invoice");
-            tvCommercialInvoice.setTextColor(getColor(android.R.color.holo_green_light));
-            layoutCommercialInvoice.setClickable(true);
-            layoutCommercialInvoice.setOnClickListener(v -> viewDocument(docs.getCommercialInvoice()));
-        } else {
-            layoutCommercialInvoice.setVisibility(View.GONE);
-        }
+    private void addDocumentUrl(List<String> urls, String value) {
+        if (value != null && !value.trim().isEmpty()) urls.add(value);
     }
 
     private void displayAdditionalDocuments(BatchTraceabilityEntity.Documents docs) {
@@ -909,25 +937,22 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         layoutAdditionalDocs.removeAllViews();
 
-        // Additional rows contain only user-added documents. The five standard
-        // document slots above already represent their dedicated fields.
-        List<String> allDocs = new ArrayList<>();
-        if (docs.getPackingList() != null && !docs.getPackingList().isEmpty()) {
-            allDocs.add(docs.getPackingList());
-        }
-        if (docs.getAdditionalDocs() != null) {
-            allDocs.addAll(docs.getAdditionalDocs());
-        }
-        java.util.Set<String> uniqueDocs = new java.util.LinkedHashSet<>(allDocs);
+        List<String> standardUrls = new ArrayList<>();
+        addDocumentUrl(standardUrls, docs.getPackingList());
+        addDocumentUrl(standardUrls, docs.getCommercialInvoice());
+        addDocumentUrl(standardUrls, docs.getQualityCertificate());
+        addDocumentUrl(standardUrls, docs.getPhytoSanitary());
+        addDocumentUrl(standardUrls, docs.getBillOfLading());
+        addDocumentUrl(standardUrls, docs.getInsuranceCertificate());
+        addDocumentUrl(standardUrls, findAdditionalDocument(docs, "Certificate of Origin"));
+        addDocumentUrl(standardUrls, findAdditionalDocument(docs, "Document Package"));
 
-        int count = 0;
+        java.util.Set<String> uniqueDocs = new java.util.LinkedHashSet<>();
+        if (docs.getAdditionalDocs() != null) uniqueDocs.addAll(docs.getAdditionalDocs());
         for (String docUrl : uniqueDocs) {
-            // Skip content URIs
-            if (docUrl.startsWith("content://")) continue;
-
+            if (docUrl == null || docUrl.startsWith("content://") || standardUrls.contains(docUrl)) continue;
             LinearLayout docRow = createDocumentRow(docUrl);
             layoutAdditionalDocs.addView(docRow);
-            count++;
         }
 
     }
@@ -984,7 +1009,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
         docRow.addView(text);
 
         TextView pdfBadge = new TextView(this);
-        pdfBadge.setText("PDF");
+        pdfBadge.setText(fileTypeBadge(docUrl));
         pdfBadge.setTextColor(0xFF59544C);
         pdfBadge.setTextSize(11);
         pdfBadge.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));

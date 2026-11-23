@@ -178,7 +178,7 @@ public class BatchTraceabilityEntity {
 
     public static class Documents {
         @SerializedName("qualityCertificate")
-        private String qualityCertificate;      // Certificate of Origin
+        private String qualityCertificate;      // Lab-issued quality certificate (upload only)
 
         @SerializedName("packingList")          // ✅ New dedicated field
         private String packingList;             // Packing List (Farm OS generated)
