@@ -3,14 +3,10 @@ package com.afrinuts.farmos.ui.traceability;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,6 +43,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
     // UI Elements
     private TextView tvMasterBatchNumber;
     private TextView tvShipmentName;
+    private TextView tvHeroSubtitle;
     private TextView tvBuyer;
     private TextView tvDestination;
     private TextView tvExportDate;
@@ -55,12 +52,12 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
     private TextView tvGrades;
     private TextView tvCertifications;
     private TextView tvTraceabilityUrl;
-    private CardView layoutSustainability;
     private RecyclerView recyclerViewBatches;
     private TraceabilityAdapter batchAdapter;  // ✅ Use TraceabilityAdapter instead
     private MaterialButton btnShare;
     private MaterialButton btnDelete;
     private MaterialButton btnGenerateQR;
+    private MaterialButton btnGenerateQRSection;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -85,16 +82,13 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         batchRepository = new BatchTraceabilityRepository(this, 1);
 
         initViews();
-        setupToolbar();
         loadData();
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         tvMasterBatchNumber = findViewById(R.id.tvMasterBatchNumber);
         tvShipmentName = findViewById(R.id.tvShipmentName);
+        tvHeroSubtitle = findViewById(R.id.tvHeroSubtitle);
         tvBuyer = findViewById(R.id.tvBuyer);
         tvDestination = findViewById(R.id.tvDestination);
         tvExportDate = findViewById(R.id.tvExportDate);
@@ -103,11 +97,14 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         tvGrades = findViewById(R.id.tvGrades);
         tvCertifications = findViewById(R.id.tvCertifications);
         tvTraceabilityUrl = findViewById(R.id.tvTraceabilityUrl);
-        layoutSustainability = findViewById(R.id.layoutSustainability);
         recyclerViewBatches = findViewById(R.id.recyclerViewBatches);
         btnShare = findViewById(R.id.btnShare);
         btnDelete = findViewById(R.id.btnDelete);
         btnGenerateQR = findViewById(R.id.btnGenerateQR);
+        btnGenerateQRSection = findViewById(R.id.btnGenerateQRSection);
+
+        findViewById(R.id.btnHeaderBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnHeaderShare).setOnClickListener(v -> shareMasterTraceability());
 
         recyclerViewBatches.setLayoutManager(new LinearLayoutManager(this));
 
@@ -122,24 +119,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         btnShare.setOnClickListener(v -> shareMasterTraceability());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnGenerateQR.setOnClickListener(v -> generateQRCode());
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Master Traceability");
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        btnGenerateQRSection.setOnClickListener(v -> generateQRCode());
     }
 
     private void loadData() {
@@ -173,7 +153,9 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
 
         tvMasterBatchNumber.setText("#" + master.getMasterBatchNumber());
         tvShipmentName.setText(master.getShipmentName());
-        tvBuyer.setText(master.getBuyer() != null ? master.getBuyer() : "—");
+        String buyer = master.getBuyer() != null ? master.getBuyer() : "—";
+        tvHeroSubtitle.setText(buyer + " · " + master.getFormattedExportDate());
+        tvBuyer.setText(buyer);
         tvDestination.setText(master.getDestination() != null ? master.getDestination() : "—");
         tvExportDate.setText(master.getFormattedExportDate());
         tvTotalWeight.setText(master.getFormattedWeight());

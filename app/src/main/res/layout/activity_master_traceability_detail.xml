@@ -4,413 +4,537 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
-    <!-- Modern Glass Morphism Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/surface"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:elevation="0dp"
-        android:translationZ="0dp"
+        android:layout_height="60dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/btnHeaderBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@drawable/bg_detail_header_button"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:src="@drawable/ic_backward"
+            app:tint="#1C1B1A" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Bulk detail"
+            android:textColor="#1C1B1A"
+            android:textSize="17sp"
+            android:fontFamily="@font/manrope_extrabold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center_vertical"
             android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_afrinuts_foreground"
-                android:alpha="0.95"
-                android:layout_marginEnd="12dp" />
+                android:id="@+id/btnHeaderShare"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_detail_header_button"
+                android:contentDescription="Share"
+                android:padding="12dp"
+                android:src="@drawable/ic_share"
+                app:tint="#1C1B1A" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bulk Traceability"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.01" />
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Delete"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text=""
+                app:backgroundTint="#FFFFFF"
+                app:cornerRadius="22dp"
+                app:icon="@drawable/ic_delete"
+                app:iconSize="20dp"
+                app:iconTint="#1C1B1A"
+                app:strokeColor="#E9E1CF"
+                app:strokeWidth="1dp" />
         </LinearLayout>
-
-    </androidx.appcompat.widget.Toolbar>
+    </FrameLayout>
 
     <ScrollView
+        android:id="@+id/masterDetailScroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:fillViewport="true">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                android:background="@color/surface"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/surface">
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tvMasterBatchNumber"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="#MB-20260709-614"
-                        style="@style/Text.H4"
-                        android:textColor="?attr/colorPrimary" />
+                        android:textColor="#1C1B1A"
+                        android:textSize="22sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
 
                     <TextView
                         android:id="@+id/tvShipmentName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Omani Nuts Bulk"
-                        android:textSize="18sp"
-                        android:textColor="@color/accent_ink"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
 
+                    <TextView
+                        android:id="@+id/tvHeroSubtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Omani Nuts · Jul 09, 2026"
+                        android:textColor="#59544C"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_medium" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Details Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    app:cardBackgroundColor="#0E6B3C"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Total Weight"
+                            android:textColor="#C7E3D4"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/manrope_bold" />
+
+                        <TextView
+                            android:id="@+id/tvTotalWeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="65,000 kg"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Total Batches"
+                            android:textColor="#59544C"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/manrope_bold" />
+
+                        <TextView
+                            android:id="@+id/tvTotalBatches"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="3 batches"
+                            android:textColor="#1C1B1A"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Grades"
+                            android:textColor="#59544C"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/manrope_bold" />
+
+                        <TextView
+                            android:id="@+id/tvGrades"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Premium · Standard"
+                            android:textColor="#1C1B1A"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:maxLines="2"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/surface">
+                    android:padding="16dp">
 
-                    <!-- Buyer -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Shipment"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:layout_marginBottom="6dp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="42dp"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
+                        android:paddingVertical="8dp">
                         <TextView
-                            android:layout_width="120dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Buyer"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_semibold" />
                         <TextView
                             android:id="@+id/tvBuyer"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="1.3"
+                            android:gravity="end"
                             android:text="Omani Nuts"
-                            style="@style/Text.Body" />
-
+                            android:textColor="#1C1B1A"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Destination -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="42dp"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
+                        android:paddingVertical="8dp">
                         <TextView
-                            android:layout_width="120dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Destination"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_semibold" />
                         <TextView
                             android:id="@+id/tvDestination"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Oman"
-                            style="@style/Text.Body" />
-
+                            android:layout_weight="1.3"
+                            android:gravity="end"
+                            android:text="Muscat, Oman"
+                            android:textColor="#1C1B1A"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Export Date -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="42dp"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
+                        android:paddingVertical="8dp">
                         <TextView
-                            android:layout_width="120dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Export Date"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
+                            android:layout_weight="1"
+                            android:text="Export date"
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_semibold" />
                         <TextView
                             android:id="@+id/tvExportDate"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="1.3"
+                            android:gravity="end"
                             android:text="Jul 09, 2026"
-                            style="@style/Text.Body" />
-
+                            android:textColor="#1C1B1A"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Total Weight -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="42dp"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
+                        android:paddingVertical="8dp">
                         <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Total Weight"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvTotalWeight"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="65,000 kg"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorPrimary"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <!-- Total Batches -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Total Batches"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvTotalBatches"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="3 batches"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Grades -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:text="Grades"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
-                        <TextView
-                            android:id="@+id/tvGrades"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Premium"
-                            style="@style/Text.Body" />
-
-                    </LinearLayout>
-
-                    <!-- Certifications -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
                             android:text="Certifications"
-                            style="@style/Text.Label"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_semibold" />
                         <TextView
                             android:id="@+id/tvCertifications"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="1.3"
+                            android:gravity="end"
                             android:text="—"
-                            style="@style/Text.Body" />
-
+                            android:textColor="#1C1B1A"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Linked Batches Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/surface">
+                    android:padding="16dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Linked Batches"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="6dp"
+                        android:text="Batches"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerViewBatches"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false" />
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Traceability URL -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/surface">
+                    android:padding="16dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Traceability URL"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:layout_marginBottom="8dp" />
+                        android:text="Traceability"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Master traceability"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_semibold" />
 
                     <TextView
                         android:id="@+id/tvTraceabilityUrl"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="https://www.afrinutsexport.com/trace/MB-20260709-614"
-                        android:textSize="12sp"
-                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginTop="2dp"
+                        android:text="afrinutsexport.com/trace/MB-20260709-614"
+                        android:textColor="#0E6B3C"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_bold"
                         android:autoLink="web"
                         android:linksClickable="true" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGenerateQRSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="12dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minHeight="0dp"
+                        android:text="Generate QR"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_bold"
+                        app:backgroundTint="@color/primary"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_qr_code"
+                        app:iconGravity="textStart"
+                        app:iconTint="#FFFFFF" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGenerateQR"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Generate QR Code"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:layout_marginBottom="8dp"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minHeight="0dp"
+                    android:text="Generate QR"
+                    android:textColor="#1C1B1A"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    app:backgroundTint="@color/primary_light"
+                    app:cornerRadius="26dp"
                     app:icon="@drawable/ic_qr_code"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    app:iconTint="#1C1B1A" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minHeight="0dp"
                     android:text="Share"
-                    style="@style/Widget.AfriNuts.Button"
-                    android:layout_marginBottom="8dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="26dp"
                     app:icon="@drawable/ic_share"
                     app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDelete"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button.Danger"
-                    app:icon="@drawable/ic_delete"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
-
+                    app:iconTint="#FFFFFF" />
             </LinearLayout>
-
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>
