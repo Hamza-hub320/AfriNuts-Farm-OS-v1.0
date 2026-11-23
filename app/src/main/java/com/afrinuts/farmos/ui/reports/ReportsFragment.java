@@ -244,13 +244,14 @@ public class ReportsFragment extends Fragment {
             try {
                 List<ExpenseEntity> filteredExpenses = filterExpensesByDate();
                 List<RevenueEntity> filteredRevenues = filterRevenuesByDate();
+                List<TaskEntity> filteredTasks = filterTasksByDate();
 
                 ReportData reportData = new ReportData(
                         currentFarm,
                         allBlocks,
                         filteredExpenses,
                         filteredRevenues,
-                        allTasks,
+                        filteredTasks,
                         startCalendar.getTime(),
                         endCalendar.getTime()
                 );
@@ -322,6 +323,24 @@ public class ReportsFragment extends Fragment {
         for (RevenueEntity revenue : allRevenues) {
             if (revenue.getCreatedAt() >= startTime && revenue.getCreatedAt() <= endTime) {
                 filtered.add(revenue);
+            }
+        }
+        return filtered;
+    }
+
+    private List<TaskEntity> filterTasksByDate() {
+        List<TaskEntity> filtered = new java.util.ArrayList<>();
+        long startTime = startCalendar.getTimeInMillis();
+        long endTime = endCalendar.getTimeInMillis();
+
+        if (allTasks == null) return filtered;
+        for (TaskEntity task : allTasks) {
+            boolean dueInRange = task.getDueDate() >= startTime && task.getDueDate() <= endTime;
+            Long completedDate = task.getCompletedDate();
+            boolean completedInRange = completedDate != null
+                    && completedDate >= startTime && completedDate <= endTime;
+            if (dueInRange || completedInRange) {
+                filtered.add(task);
             }
         }
         return filtered;

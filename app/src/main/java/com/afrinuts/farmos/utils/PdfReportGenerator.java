@@ -1,7 +1,6 @@
 package com.afrinuts.farmos.utils;
 
 import android.content.Context;
-import android.graphics.Color;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -9,6 +8,7 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.ui.reports.ReportData;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -17,7 +17,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
-import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -25,25 +24,32 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class PdfReportGenerator {
 
-    private Context context;
-    private ReportData reportData;
+    private final Context context;
+    private final ReportData reportData;
 
-    // Brand colors (matching your styles.xml)
-    private static final DeviceRgb PRIMARY_COLOR = new DeviceRgb(90, 116, 17);    // #5A7411
-    private static final DeviceRgb ACCENT_COLOR = new DeviceRgb(224, 78, 0);      // #E04E00
-    private static final DeviceRgb NAVY_COLOR = new DeviceRgb(37, 55, 70);        // #253746
-    private static final DeviceRgb GREY_COLOR = new DeviceRgb(222, 218, 212);     // #DEDAD4
+    private static final DeviceRgb GREEN = new DeviceRgb(14, 107, 60);       // #0E6B3C
+    private static final DeviceRgb DARK = new DeviceRgb(28, 27, 26);         // #1C1B1A
+    private static final DeviceRgb MUTED = new DeviceRgb(89, 84, 76);        // #59544C
+    private static final DeviceRgb CREAM = new DeviceRgb(246, 241, 231);     // #F6F1E7
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+    private PdfFont regularFont;
+    private PdfFont boldFont;
 
     public PdfReportGenerator(Context context, ReportData reportData) {
         this.context = context;
@@ -51,6 +57,7 @@ public class PdfReportGenerator {
     }
 
     public File generateFarmSummaryReport() throws Exception {
+        loadFonts();
         String fileName = "Farm_Summary_" + fileDateFormat.format(new Date()) + ".pdf";
         File pdfFile = new File(context.getExternalFilesDir(null), fileName);
 
@@ -58,34 +65,35 @@ public class PdfReportGenerator {
         PdfDocument pdfDoc = new PdfDocument(writer);
         Document document = new Document(pdfDoc, PageSize.A4);
         document.setMargins(36, 36, 36, 36);
+        document.setFont(regularFont);
 
-        // Add header
         addHeader(document, "Farm Summary Report");
 
-        // Farm Information
         addSectionHeader(document, "Farm Information");
         addFarmInfoTable(document);
 
-        // Summary Statistics
         addSectionHeader(document, "Summary Statistics");
         addSummaryStatsTable(document);
 
-        // Profit Overview
+        addSectionHeader(document, "Blocks");
+        addBlocksTable(document);
+
         addSectionHeader(document, "Profit Overview");
         addProfitTable(document);
 
-        // Recent Activity
         addSectionHeader(document, "Recent Activity");
         addRecentActivityTable(document);
 
-        // Footer with generation date
-        addFooter(document);
+        addSectionHeader(document, "Tasks");
+        addTasksTable(document);
 
+        addFooter(document);
         document.close();
         return pdfFile;
     }
 
     public File generateFinancialStatement() throws Exception {
+        loadFonts();
         String fileName = "Financial_Statement_" + fileDateFormat.format(new Date()) + ".pdf";
         File pdfFile = new File(context.getExternalFilesDir(null), fileName);
 
@@ -93,55 +101,67 @@ public class PdfReportGenerator {
         PdfDocument pdfDoc = new PdfDocument(writer);
         Document document = new Document(pdfDoc, PageSize.A4);
         document.setMargins(36, 36, 36, 36);
+        document.setFont(regularFont);
 
-        // Add header
         addHeader(document, "Financial Statement");
-
-        // Date Range
         addDateRange(document);
 
-        // Revenue Summary
         addSectionHeader(document, "Revenue Summary");
         addRevenueTable(document);
 
-        // Expense Summary
         addSectionHeader(document, "Expense Summary");
         addExpenseTable(document);
 
-        // Profit & Loss
+        addSectionHeader(document, "Expenses by Category");
+        addExpensesByCategoryTable(document);
+
         addSectionHeader(document, "Profit & Loss");
         addProfitTable(document);
 
-        // Footer
         addFooter(document);
-
         document.close();
         return pdfFile;
     }
 
+    private void loadFonts() throws Exception {
+        regularFont = loadFont(R.font.manrope_regular);
+        boldFont = loadFont(R.font.manrope_bold);
+    }
+
+    private PdfFont loadFont(int resourceId) throws Exception {
+        try (InputStream input = context.getResources().openRawResource(resourceId);
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                output.write(buffer, 0, count);
+            }
+            return PdfFontFactory.createFont(output.toByteArray(), PdfEncodings.IDENTITY_H,
+                    PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+        }
+    }
+
     private void addHeader(Document document, String title) {
         Paragraph header = new Paragraph()
-                .add(new Text("AfriNuts Farm OS\n").setFontSize(24).setBold().setFontColor(PRIMARY_COLOR))
-                .add(new Text(title + "\n").setFontSize(18).setFontColor(NAVY_COLOR))
-                .add(new Text(reportData.getFarm().getName() + " - " + reportData.getFarm().getLocation() + "\n")
-                        .setFontSize(12).setFontColor(NAVY_COLOR))
+                .add(new Text("AfriNuts Farm OS\n").setFont(boldFont).setFontSize(24).setFontColor(GREEN))
+                .add(new Text(title + "\n").setFont(boldFont).setFontSize(18).setFontColor(DARK))
+                .add(new Text(safe(reportData.getFarm().getName()) + " - "
+                        + safe(reportData.getFarm().getLocation()) + "\n")
+                        .setFont(regularFont).setFontSize(12).setFontColor(DARK))
                 .add(new Text("Report Period: " + reportData.getFormattedDateRange() + "\n\n")
-                        .setFontSize(10).setFontColor(NAVY_COLOR))
+                        .setFont(regularFont).setFontSize(10).setFontColor(DARK))
                 .setTextAlignment(TextAlignment.CENTER);
-
         document.add(header);
 
-        // Add horizontal line
         Table line = new Table(1);
-        line.addCell(new Cell().setHeight(2).setBackgroundColor(PRIMARY_COLOR).setBorder(Border.NO_BORDER));
+        line.setWidth(UnitValue.createPercentValue(100));
+        line.addCell(new Cell().setHeight(2).setBackgroundColor(GREEN).setBorder(Border.NO_BORDER));
         document.add(line);
-        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("\n").setFont(regularFont));
     }
 
     private void addSectionHeader(Document document, String title) {
-        Paragraph header = new Paragraph()
-                .add(new Text(title + "\n").setFontSize(14).setBold().setFontColor(PRIMARY_COLOR));
-        document.add(header);
+        document.add(new Paragraph(title + "\n").setFont(boldFont).setFontSize(14).setFontColor(GREEN));
     }
 
     private void addFarmInfoTable(Document document) {
@@ -149,13 +169,12 @@ public class PdfReportGenerator {
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
 
-        addKeyValueRow(table, "Farm Name:", reportData.getFarm().getName());
-        addKeyValueRow(table, "Location:", reportData.getFarm().getLocation());
-        addKeyValueRow(table, "Total Hectares:", String.format("%.0f ha", reportData.getFarm().getTotalHectares()));
-        addKeyValueRow(table, "Cashew Hectares:", String.format("%.0f ha", reportData.getFarm().getCashewHectares()));
+        addKeyValueRow(table, "Farm Name:", safe(reportData.getFarm().getName()));
+        addKeyValueRow(table, "Location:", safe(reportData.getFarm().getLocation()));
+        addKeyValueRow(table, "Total Hectares:", String.format(Locale.getDefault(), "%.0f ha", reportData.getFarm().getTotalHectares()));
+        addKeyValueRow(table, "Cashew Hectares:", String.format(Locale.getDefault(), "%.0f ha", reportData.getFarm().getCashewHectares()));
         addKeyValueRow(table, "Planting Year:", String.valueOf(reportData.getFarm().getPlantingYear()));
-        addKeyValueRow(table, "Total Trees:", String.format("%,d", reportData.getTotalTrees()));
-
+        addKeyValueRow(table, "Total Trees:", String.format(Locale.getDefault(), "%,d", reportData.getTotalTrees()));
         document.add(table);
     }
 
@@ -163,20 +182,36 @@ public class PdfReportGenerator {
         Table table = new Table(UnitValue.createPercentArray(new float[]{50, 50}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
+        table.addHeaderCell(headerCell("Metric"));
+        table.addHeaderCell(headerCell("Value"));
 
-        // Header row
-        Cell header1 = new Cell().add(new Paragraph("Metric").setBold()).setBackgroundColor(GREY_COLOR);
-        Cell header2 = new Cell().add(new Paragraph("Value").setBold()).setBackgroundColor(GREY_COLOR);
-        table.addHeaderCell(header1);
-        table.addHeaderCell(header2);
-
-        // Data rows
         addStatRow(table, "Total Blocks:", String.valueOf(reportData.getTotalBlocks()));
         addStatRow(table, "Planted Blocks:", reportData.getPlantedBlocks() + "/" + reportData.getTotalBlocks());
         addStatRow(table, "Trees Alive:", reportData.getAliveTrees() + "/" + reportData.getTotalTrees());
-        addStatRow(table, "Survival Rate:", String.format("%.1f%%",
-                (reportData.getAliveTrees() * 100.0 / reportData.getTotalTrees())));
+        addStatRow(table, "Survival Rate:", String.format(Locale.getDefault(), "%.1f%%",
+                reportData.getTotalTrees() > 0 ? reportData.getAliveTrees() * 100.0 / reportData.getTotalTrees() : 0));
+        document.add(table);
+    }
 
+    private void addBlocksTable(Document document) {
+        Table table = new Table(UnitValue.createPercentArray(new float[]{22, 14, 24, 18, 22}));
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setMarginBottom(20);
+        table.setKeepTogether(false);
+        table.addHeaderCell(headerCell("Block"));
+        table.addHeaderCell(headerCell("Hectares"));
+        table.addHeaderCell(headerCell("Trees alive / total"));
+        table.addHeaderCell(headerCell("Survival"));
+        table.addHeaderCell(headerCell("Status"));
+
+        for (BlockEntity block : reportData.getBlocks()) {
+            int aliveTrees = block.getAliveTrees();
+            table.addCell(bodyCell(safe(block.getBlockName())));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f ha", block.getHectareSize())));
+            table.addCell(bodyCell(aliveTrees + " / 100"));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f%%", block.getSurvivalRate())));
+            table.addCell(bodyCell(block.getStatus() == null ? "—" : block.getStatus().getDisplayName()));
+        }
         document.add(table);
     }
 
@@ -184,52 +219,45 @@ public class PdfReportGenerator {
         Table table = new Table(UnitValue.createPercentArray(new float[]{50, 50}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
+        table.addHeaderCell(headerCell("Metric"));
+        table.addHeaderCell(headerCell("Amount"));
 
-        // Header row
-        Cell header1 = new Cell().add(new Paragraph("Metric").setBold()).setBackgroundColor(GREY_COLOR);
-        Cell header2 = new Cell().add(new Paragraph("Amount").setBold()).setBackgroundColor(GREY_COLOR);
-        table.addHeaderCell(header1);
-        table.addHeaderCell(header2);
+        addProfitRow(table, "Total Revenue:", reportData.getFormattedTotalRevenue(), GREEN);
+        addProfitRow(table, "Total Expenses:", reportData.getFormattedTotalExpenses(), MUTED);
 
-        // Data rows
-        addProfitRow(table, "Total Revenue:", reportData.getFormattedTotalRevenue(), PRIMARY_COLOR);
-        addProfitRow(table, "Total Expenses:", reportData.getFormattedTotalExpenses(), ACCENT_COLOR);
-
-        // Divider
-        Cell dividerCell = new Cell(1, 2).setHeight(2).setBackgroundColor(NAVY_COLOR).setBorder(Border.NO_BORDER);
+        Cell dividerCell = new Cell(1, 2).setHeight(2).setBackgroundColor(DARK).setBorder(Border.NO_BORDER);
         table.addCell(dividerCell);
 
-        addProfitRow(table, "Net Profit:", reportData.getFormattedNetProfit(), PRIMARY_COLOR);
-        addProfitRow(table, "Profit Margin:", reportData.getFormattedProfitMargin(), PRIMARY_COLOR);
-
+        addProfitRow(table, "Net Profit:", reportData.getFormattedNetProfit(), GREEN);
+        addProfitRow(table, "Profit Margin:", reportData.getFormattedProfitMargin(), GREEN);
         document.add(table);
     }
 
     private void addRevenueTable(Document document) {
-        Table table = new Table(UnitValue.createPercentArray(new float[]{40, 20, 20, 20}));
+        Table table = new Table(UnitValue.createPercentArray(new float[]{16, 20, 14, 14, 18, 18}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
-
-        // Header row
-        table.addHeaderCell(new Cell().add(new Paragraph("Date").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Quality").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Quantity").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Amount").setBold()).setBackgroundColor(GREY_COLOR));
+        table.addHeaderCell(headerCell("Date"));
+        table.addHeaderCell(headerCell("Buyer"));
+        table.addHeaderCell(headerCell("Quality"));
+        table.addHeaderCell(headerCell("Quantity"));
+        table.addHeaderCell(headerCell("Price per kg"));
+        table.addHeaderCell(headerCell("Amount"));
 
         for (RevenueEntity revenue : reportData.getRevenues()) {
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getCreatedAt())))));
-            table.addCell(new Cell().add(new Paragraph(revenue.getQuality().getDisplayName())));
-            table.addCell(new Cell().add(new Paragraph(String.format("%.1f kg", revenue.getQuantityKg()))));
-            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", revenue.getTotalAmount()))));
+            table.addCell(bodyCell(dateFormat.format(new Date(revenue.getCreatedAt()))));
+            table.addCell(bodyCell(valueOrDash(revenue.getBuyer())));
+            table.addCell(bodyCell(revenue.getQuality() == null ? "—" : revenue.getQuality().getDisplayName()));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f kg", revenue.getQuantityKg())));
+            String pricePerKg = revenue.getQuantityKg() == 0
+                    ? "—"
+                    : String.format(Locale.getDefault(), "%,.0f XAF/kg", revenue.getTotalAmount() / revenue.getQuantityKg());
+            table.addCell(bodyCell(pricePerKg));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount())));
         }
 
-        // Total row
-        Cell totalLabelCell = new Cell(1, 3).add(new Paragraph("Total Revenue:").setBold()).setBackgroundColor(GREY_COLOR);
-        Cell totalValueCell = new Cell().add(new Paragraph(reportData.getFormattedTotalRevenue()).setBold())
-                .setBackgroundColor(GREY_COLOR);
-        table.addCell(totalLabelCell);
-        table.addCell(totalValueCell);
-
+        table.addCell(headerCell("Total Revenue:", 1, 5));
+        table.addCell(headerCell(reportData.getFormattedTotalRevenue()));
         document.add(table);
     }
 
@@ -237,25 +265,44 @@ public class PdfReportGenerator {
         Table table = new Table(UnitValue.createPercentArray(new float[]{40, 30, 30}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
-
-        // Header row
-        table.addHeaderCell(new Cell().add(new Paragraph("Date").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Category").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Amount").setBold()).setBackgroundColor(GREY_COLOR));
+        table.addHeaderCell(headerCell("Date"));
+        table.addHeaderCell(headerCell("Category"));
+        table.addHeaderCell(headerCell("Amount"));
 
         for (ExpenseEntity expense : reportData.getExpenses()) {
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(expense.getDate())))));
-            table.addCell(new Cell().add(new Paragraph(expense.getCategory().getDisplayName())));
-            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", expense.getAmount()))));
+            table.addCell(bodyCell(dateFormat.format(new Date(expense.getDate()))));
+            table.addCell(bodyCell(categoryName(expense)));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount())));
         }
 
-        // Total row
-        Cell totalLabelCell = new Cell(1, 2).add(new Paragraph("Total Expenses:").setBold()).setBackgroundColor(GREY_COLOR);
-        Cell totalValueCell = new Cell().add(new Paragraph(reportData.getFormattedTotalExpenses()).setBold())
-                .setBackgroundColor(GREY_COLOR);
-        table.addCell(totalLabelCell);
-        table.addCell(totalValueCell);
+        table.addCell(headerCell("Total Expenses:", 1, 2));
+        table.addCell(headerCell(reportData.getFormattedTotalExpenses()));
+        document.add(table);
+    }
 
+    private void addExpensesByCategoryTable(Document document) {
+        Map<String, Double> totalsByCategory = new HashMap<>();
+        for (ExpenseEntity expense : reportData.getExpenses()) {
+            String category = categoryName(expense);
+            totalsByCategory.put(category, totalsByCategory.getOrDefault(category, 0.0) + expense.getAmount());
+        }
+
+        List<Map.Entry<String, Double>> entries = new ArrayList<>(totalsByCategory.entrySet());
+        entries.sort((first, second) -> Double.compare(second.getValue(), first.getValue()));
+
+        Table table = new Table(UnitValue.createPercentArray(new float[]{62, 38}));
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setMarginBottom(20);
+        table.addHeaderCell(headerCell("Category"));
+        table.addHeaderCell(headerCell("Amount"));
+
+        for (Map.Entry<String, Double> entry : entries) {
+            table.addCell(bodyCell(entry.getKey()));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%,.0f XAF", entry.getValue())));
+        }
+
+        table.addCell(headerCell("Total Expenses:", 1, 1));
+        table.addCell(headerCell(reportData.getFormattedTotalExpenses()));
         document.add(table);
     }
 
@@ -263,63 +310,136 @@ public class PdfReportGenerator {
         Table table = new Table(UnitValue.createPercentArray(new float[]{25, 25, 25, 25}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setMarginBottom(20);
+        table.addHeaderCell(headerCell("Date"));
+        table.addHeaderCell(headerCell("Type"));
+        table.addHeaderCell(headerCell("Description"));
+        table.addHeaderCell(headerCell("Amount"));
 
-        // Header row
-        table.addHeaderCell(new Cell().add(new Paragraph("Date").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Type").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Description").setBold()).setBackgroundColor(GREY_COLOR));
-        table.addHeaderCell(new Cell().add(new Paragraph("Amount").setBold()).setBackgroundColor(GREY_COLOR));
-
-        // Show last 10 transactions (mix of revenue and expense)
         int count = 0;
         for (RevenueEntity revenue : reportData.getRevenues()) {
             if (count++ >= 10) break;
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(revenue.getCreatedAt())))));
-            table.addCell(new Cell().add(new Paragraph("Revenue")));
-            table.addCell(new Cell().add(new Paragraph(revenue.getQuality().getDisplayName())));
-            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", revenue.getTotalAmount()))));
+            String quality = revenue.getQuality() == null ? "—" : revenue.getQuality().getDisplayName();
+            String description = quality + " · " + valueOrDash(revenue.getBuyer());
+            table.addCell(bodyCell(dateFormat.format(new Date(revenue.getCreatedAt()))));
+            table.addCell(bodyCell("Revenue"));
+            table.addCell(bodyCell(description));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%,.0f XAF", revenue.getTotalAmount())));
         }
 
         for (ExpenseEntity expense : reportData.getExpenses()) {
             if (count++ >= 10) break;
-            table.addCell(new Cell().add(new Paragraph(dateFormat.format(new Date(expense.getDate())))));
-            table.addCell(new Cell().add(new Paragraph("Expense")));
-            table.addCell(new Cell().add(new Paragraph(expense.getCategory().getDisplayName())));
-            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f XAF", expense.getAmount()))));
+            table.addCell(bodyCell(dateFormat.format(new Date(expense.getDate()))));
+            table.addCell(bodyCell("Expense"));
+            table.addCell(bodyCell(categoryName(expense)));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount())));
+        }
+        document.add(table);
+    }
+
+    private void addTasksTable(Document document) {
+        List<TaskEntity> tasks = reportData.getTasks();
+        if (tasks == null || tasks.isEmpty()) {
+            document.add(new Paragraph("No tasks in this period.").setFont(regularFont).setFontSize(10).setFontColor(DARK));
+            return;
         }
 
+        int completedInPeriod = 0;
+        for (TaskEntity task : tasks) {
+            Long completedDate = task.getCompletedDate();
+            if (task.getStatus() == TaskEntity.TaskStatus.COMPLETED && completedDate != null
+                    && isInReportPeriod(completedDate)) {
+                completedInPeriod++;
+            }
+        }
+        double completionPercent = completedInPeriod * 100.0 / tasks.size();
+        document.add(new Paragraph(String.format(Locale.getDefault(), "Completed %d of %d tasks in the period (%.1f%%)",
+                completedInPeriod, tasks.size(), completionPercent))
+                .setFont(regularFont).setFontSize(10).setFontColor(DARK).setMarginBottom(6));
+
+        Table table = new Table(UnitValue.createPercentArray(new float[]{36, 20, 20, 24}));
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setMarginBottom(20);
+        table.addHeaderCell(headerCell("Task"));
+        table.addHeaderCell(headerCell("Type"));
+        table.addHeaderCell(headerCell("Status"));
+        table.addHeaderCell(headerCell("Due / Completed date"));
+
+        for (TaskEntity task : tasks) {
+            table.addCell(bodyCell(valueOrDash(task.getTitle())));
+            table.addCell(bodyCell(task.getType() == null ? "—" : task.getType().getDisplayName()));
+            table.addCell(bodyCell(task.getStatus() == null ? "—" : task.getStatus().getDisplayName()));
+
+            Long completedDate = task.getCompletedDate();
+            boolean taskCompletedInPeriod = task.getStatus() == TaskEntity.TaskStatus.COMPLETED
+                    && completedDate != null && isInReportPeriod(completedDate);
+            String date = taskCompletedInPeriod
+                    ? "Completed " + dateFormat.format(new Date(completedDate))
+                    : "Due " + dateFormat.format(new Date(task.getDueDate()));
+            table.addCell(bodyCell(date));
+        }
         document.add(table);
     }
 
     private void addDateRange(Document document) {
-        Paragraph dateRange = new Paragraph()
-                .add(new Text("Period: " + reportData.getFormattedDateRange() + "\n\n"))
-                .setFontSize(12)
-                .setFontColor(NAVY_COLOR);
-        document.add(dateRange);
+        document.add(new Paragraph("Period: " + reportData.getFormattedDateRange() + "\n\n")
+                .setFont(regularFont).setFontSize(12).setFontColor(DARK));
     }
 
     private void addFooter(Document document) {
-        Paragraph footer = new Paragraph()
-                .add(new Text("\nGenerated on " + dateFormat.format(new Date()) + " by AfriNuts Farm OS"))
-                .setFontSize(8)
-                .setFontColor(NAVY_COLOR)
-                .setTextAlignment(TextAlignment.CENTER);
-        document.add(footer);
+        document.add(new Paragraph("\nGenerated on " + dateFormat.format(new Date())
+                + " by AfriNuts Farm OS")
+                .setFont(regularFont).setFontSize(8).setFontColor(MUTED)
+                .setTextAlignment(TextAlignment.CENTER));
     }
 
     private void addKeyValueRow(Table table, String key, String value) {
-        table.addCell(new Cell().add(new Paragraph(key).setBold()).setBorder(Border.NO_BORDER));
-        table.addCell(new Cell().add(new Paragraph(value)).setBorder(Border.NO_BORDER));
+        table.addCell(boldCell(key).setBorder(Border.NO_BORDER));
+        table.addCell(bodyCell(value).setBorder(Border.NO_BORDER));
     }
 
     private void addStatRow(Table table, String label, String value) {
-        table.addCell(new Cell().add(new Paragraph(label)));
-        table.addCell(new Cell().add(new Paragraph(value)));
+        table.addCell(bodyCell(label));
+        table.addCell(bodyCell(value));
     }
 
-    private void addProfitRow(Table table, String label, String value, DeviceRgb color) {
-        table.addCell(new Cell().add(new Paragraph(label)));
-        table.addCell(new Cell().add(new Paragraph(value).setFontColor(color).setBold()));
+    private void addProfitRow(Table table, String label, String value, DeviceRgb valueColor) {
+        table.addCell(bodyCell(label));
+        table.addCell(new Cell().add(new Paragraph(safe(value))
+                .setFont(boldFont).setFontColor(valueColor)));
+    }
+
+    private Cell bodyCell(String value) {
+        return new Cell().add(new Paragraph(safe(value)).setFont(regularFont).setFontColor(DARK));
+    }
+
+    private Cell boldCell(String value) {
+        return new Cell().add(new Paragraph(safe(value)).setFont(boldFont).setFontColor(DARK));
+    }
+
+    private Cell headerCell(String value) {
+        return headerCell(value, 1, 1);
+    }
+
+    private Cell headerCell(String value, int rowSpan, int colSpan) {
+        return new Cell(rowSpan, colSpan)
+                .add(new Paragraph(safe(value)).setFont(boldFont).setFontColor(DARK))
+                .setBackgroundColor(CREAM);
+    }
+
+    private String categoryName(ExpenseEntity expense) {
+        return expense.getCategory() == null ? "—" : expense.getCategory().getDisplayName();
+    }
+
+    private String valueOrDash(String value) {
+        return value == null || value.trim().isEmpty() ? "—" : value.trim();
+    }
+
+    private String safe(String value) {
+        return value == null ? "—" : value;
+    }
+
+    private boolean isInReportPeriod(long timestamp) {
+        return timestamp >= reportData.getStartDate().getTime()
+                && timestamp <= reportData.getEndDate().getTime();
     }
 }
