@@ -12,8 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
@@ -28,7 +27,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EditDocumentDialog extends DialogFragment {
+public class EditDocumentDialog extends FarmDialogFragment {
 
     private static final String ARG_DOCUMENT_ID = "document_id";
 
@@ -104,23 +103,13 @@ public class EditDocumentDialog extends DialogFragment {
         setupDropdowns();
         setupDatePickers();
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveDocument());
+
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setCancelable(false);
-
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSave.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnSave).setOnClickListener(v -> saveDocument());
-        });
-
-        return dialog;
+                .setCancelable(true)
+                .create();
     }
 
     private void initViews(View view) {
