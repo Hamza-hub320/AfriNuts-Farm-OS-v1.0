@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -31,7 +30,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class CreateMasterTraceabilityDialog extends DialogFragment {
+public class CreateMasterTraceabilityDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
 
     private AppDatabase database;
     private BatchTraceabilityRepository batchRepository;
@@ -103,21 +102,9 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Create Master Traceability")
                 .setCancelable(false);
 
         AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            // Hide default buttons, use custom ones
-            Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancelDialog = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            if (btnSave != null) btnSave.setVisibility(View.GONE);
-            if (btnCancelDialog != null) btnCancelDialog.setVisibility(View.GONE);
-
-            view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
-            view.findViewById(R.id.btnCreateMaster).setOnClickListener(v -> createMasterTraceability());
-        });
 
         return dialog;
     }
@@ -132,6 +119,8 @@ public class CreateMasterTraceabilityDialog extends DialogFragment {
         btnCreateMaster = view.findViewById(R.id.btnCreateMaster);
         btnCancel = view.findViewById(R.id.btnCancel);
 
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnCreateMaster.setOnClickListener(v -> createMasterTraceability());
         btnSelectBatches.setOnClickListener(v -> showBatchSelectionDialog());
 
         // Set default date
