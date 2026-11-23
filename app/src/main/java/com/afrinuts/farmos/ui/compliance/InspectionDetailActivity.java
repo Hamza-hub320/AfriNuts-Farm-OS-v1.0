@@ -214,16 +214,16 @@ public class InspectionDetailActivity extends BaseActivity {
             return;
         }
         cardPhotos.setVisibility(View.VISIBLE);
-        tvPhotosTitle.setText("Photos (" + photos.size() + ")");
+        tvPhotosTitle.setText("Photos");
         int size = dp(96);
         for (PhotoEntity photo : photos) {
             ImageView thumbnail = new ImageView(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            params.setMarginEnd(dp(8));
+            params.setMarginEnd(dp(10));
             thumbnail.setLayoutParams(params);
             thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
             thumbnail.setContentDescription("Inspection photo");
-            thumbnail.setBackgroundResource(R.drawable.bg_icon_sand);
+            thumbnail.setBackgroundResource(R.drawable.bg_inspection_photo_thumbnail);
             thumbnail.setClipToOutline(true);
             Glide.with(this).load(photo.getFilePath()).placeholder(R.drawable.ic_photo_placeholder)
                     .error(R.drawable.ic_photo_error).centerCrop().into(thumbnail);

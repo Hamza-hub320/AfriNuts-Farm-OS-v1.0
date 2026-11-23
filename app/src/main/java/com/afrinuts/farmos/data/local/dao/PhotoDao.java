@@ -60,7 +60,7 @@ public interface PhotoDao {
     @Query("SELECT * FROM photos WHERE expenseId = :expenseId ORDER BY takenAt DESC")
     LiveData<List<PhotoEntity>> getPhotosByExpenseIdLiveData(long expenseId);
 
-    @Query("SELECT * FROM photos WHERE inspectionId = :inspectionId ORDER BY takenAt DESC")
+    @Query("SELECT * FROM photos WHERE inspectionId = :inspectionId ORDER BY takenAt ASC")
     LiveData<List<PhotoEntity>> getPhotosForInspection(String inspectionId);
 
     @Query("SELECT COUNT(*) FROM photos WHERE blockId = :blockId")
