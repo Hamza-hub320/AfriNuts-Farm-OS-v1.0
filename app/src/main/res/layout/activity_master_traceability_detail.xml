@@ -90,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="0dp"
@@ -138,14 +138,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="2dp"
                     app:cardBackgroundColor="#0E6B3C"
                     app:cardCornerRadius="24dp"
                     app:cardElevation="0dp">
@@ -170,21 +170,30 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="65,000 kg"
+                            android:text="65,000"
                             android:textColor="#FFFFFF"
                             android:textSize="18sp"
                             android:fontFamily="@font/manrope_extrabold"
-                            android:maxLines="1"
-                            android:ellipsize="end" />
+                            android:maxLines="1" />
+
+                        <TextView
+                            android:id="@+id/tvTotalWeightUnit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="kg"
+                            android:textColor="#C7E3D4"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
                     app:cardBackgroundColor="@color/surface"
                     app:cardCornerRadius="24dp"
                     app:cardElevation="0dp">
@@ -209,20 +218,19 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="3 batches"
+                            android:text="3"
                             android:textColor="#1C1B1A"
                             android:textSize="18sp"
                             android:fontFamily="@font/manrope_extrabold"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
+                            android:maxLines="1" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="100dp"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="2dp"
                     app:cardBackgroundColor="@color/surface"
                     app:cardCornerRadius="24dp"
                     app:cardElevation="0dp">
@@ -249,10 +257,9 @@
                             android:layout_marginTop="4dp"
                             android:text="Premium · Standard"
                             android:textColor="#1C1B1A"
-                            android:textSize="16sp"
+                            android:textSize="18sp"
                             android:fontFamily="@font/manrope_extrabold"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
+                            android:maxLines="2" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
@@ -260,7 +267,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
@@ -397,7 +404,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
@@ -429,7 +436,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
@@ -468,10 +475,11 @@
                         android:textSize="14sp"
                         android:fontFamily="@font/manrope_bold"
                         android:autoLink="web"
+                        android:textColorLink="#0E6B3C"
                         android:linksClickable="true" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnGenerateQRSection"
+                        android:id="@+id/btnGenerateQR"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="12dp"
@@ -498,7 +506,7 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGenerateQR"
+                    android:id="@+id/btnGenerateQRBottom"
                     android:layout_width="0dp"
                     android:layout_height="52dp"
                     android:layout_weight="1"
@@ -511,10 +519,7 @@
                     android:textSize="14sp"
                     android:fontFamily="@font/manrope_extrabold"
                     app:backgroundTint="@color/primary_light"
-                    app:cornerRadius="26dp"
-                    app:icon="@drawable/ic_qr_code"
-                    app:iconGravity="textStart"
-                    app:iconTint="#1C1B1A" />
+                    app:cornerRadius="26dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
@@ -530,10 +535,7 @@
                     android:textSize="14sp"
                     android:fontFamily="@font/manrope_extrabold"
                     app:backgroundTint="@color/primary"
-                    app:cornerRadius="26dp"
-                    app:icon="@drawable/ic_share"
-                    app:iconGravity="textStart"
-                    app:iconTint="#FFFFFF" />
+                    app:cornerRadius="26dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

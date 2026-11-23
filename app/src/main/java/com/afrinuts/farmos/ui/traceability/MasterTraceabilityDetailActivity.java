@@ -3,27 +3,28 @@ package com.afrinuts.farmos.ui.traceability;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
-import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
-import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
 import com.afrinuts.farmos.data.repository.MasterTraceabilityRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.utils.QRCodeGenerator;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.afrinuts.farmos.ui.traceability.TraceabilityAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,9 +36,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
     private MasterBatchTraceabilityEntity master;
     private List<BatchTraceabilityEntity> linkedBatches = new ArrayList<>();
 
-    private AppDatabase database;
     private MasterTraceabilityRepository repository;
-    private BatchTraceabilityRepository batchRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // UI Elements
@@ -53,11 +52,11 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
     private TextView tvCertifications;
     private TextView tvTraceabilityUrl;
     private RecyclerView recyclerViewBatches;
-    private TraceabilityAdapter batchAdapter;  // ✅ Use TraceabilityAdapter instead
+    private MasterBatchAdapter batchAdapter;
     private MaterialButton btnShare;
     private MaterialButton btnDelete;
     private MaterialButton btnGenerateQR;
-    private MaterialButton btnGenerateQRSection;
+    private MaterialButton btnGenerateQRBottom;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -77,9 +76,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
             return;
         }
 
-        database = AppDatabase.getInstance(this);
         repository = new MasterTraceabilityRepository(this, 1);
-        batchRepository = new BatchTraceabilityRepository(this, 1);
 
         initViews();
         loadData();
@@ -101,17 +98,16 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         btnShare = findViewById(R.id.btnShare);
         btnDelete = findViewById(R.id.btnDelete);
         btnGenerateQR = findViewById(R.id.btnGenerateQR);
-        btnGenerateQRSection = findViewById(R.id.btnGenerateQRSection);
+        btnGenerateQRBottom = findViewById(R.id.btnGenerateQRBottom);
 
         findViewById(R.id.btnHeaderBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnHeaderShare).setOnClickListener(v -> shareMasterTraceability());
 
         recyclerViewBatches.setLayoutManager(new LinearLayoutManager(this));
 
-        // ✅ Use TraceabilityAdapter with click listener
-        batchAdapter = new TraceabilityAdapter(linkedBatches, traceability -> {
+        batchAdapter = new MasterBatchAdapter(linkedBatches, batch -> {
             Intent intent = new Intent(this, TraceabilityDetailActivity.class);
-            intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, traceability.getId());
+            intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, batch.getId());
             startActivity(intent);
         });
         recyclerViewBatches.setAdapter(batchAdapter);
@@ -119,7 +115,7 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         btnShare.setOnClickListener(v -> shareMasterTraceability());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnGenerateQR.setOnClickListener(v -> generateQRCode());
-        btnGenerateQRSection.setOnClickListener(v -> generateQRCode());
+        btnGenerateQRBottom.setOnClickListener(v -> generateQRCode());
     }
 
     private void loadData() {
@@ -134,13 +130,15 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
                 return;
             }
 
-            // Load linked batches
-            List<Long> batchIds = master.getBatchTraceabilityIds();
+            // The child-side masterBatchId link is the live source of truth.
+            List<BatchTraceabilityEntity> children =
+                    repository.getChildrenOfMaster(master.getMasterBatchNumber());
             linkedBatches.clear();
-            for (Long id : batchIds) {
-                BatchTraceabilityEntity batch = batchRepository.getTraceabilityByIdSync(id);
-                if (batch != null) {
-                    linkedBatches.add(batch);
+            if (children != null) {
+                for (BatchTraceabilityEntity batch : children) {
+                    if (batch != null) {
+                        linkedBatches.add(batch);
+                    }
                 }
             }
 
@@ -158,10 +156,13 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
         tvBuyer.setText(buyer);
         tvDestination.setText(master.getDestination() != null ? master.getDestination() : "—");
         tvExportDate.setText(master.getFormattedExportDate());
-        tvTotalWeight.setText(master.getFormattedWeight());
-        tvTotalBatches.setText(master.getTotalBatches() + " batches");
-        tvGrades.setText(master.getGrades() != null ? master.getGrades() : "—");
-        tvCertifications.setText(master.getCertifications() != null ? master.getCertifications() : "—");
+        tvTotalWeight.setText(String.format(Locale.getDefault(), "%,.0f", master.getTotalWeightKg()));
+        tvTotalBatches.setText(String.valueOf(master.getTotalBatches()));
+        String grades = master.getGrades();
+        tvGrades.setText(grades != null && !grades.trim().isEmpty() ? grades : "—");
+        String certifications = master.getCertifications();
+        tvCertifications.setText(certifications != null && !certifications.trim().isEmpty()
+                ? certifications : "—");
         tvTraceabilityUrl.setText(master.getTraceabilityUrl());
 
         // ✅ Update adapter
@@ -257,5 +258,77 @@ public class MasterTraceabilityDetailActivity extends BaseActivity {
             repository.shutdown();
         }
         executor.shutdown();
+    }
+
+    private interface OnMasterBatchClickListener {
+        void onBatchClick(BatchTraceabilityEntity batch);
+    }
+
+    private static class MasterBatchAdapter extends RecyclerView.Adapter<MasterBatchAdapter.BatchViewHolder> {
+        private final List<BatchTraceabilityEntity> batches = new ArrayList<>();
+        private final OnMasterBatchClickListener listener;
+
+        MasterBatchAdapter(List<BatchTraceabilityEntity> initialBatches,
+                           OnMasterBatchClickListener listener) {
+            this.listener = listener;
+            updateBatches(initialBatches);
+        }
+
+        void updateBatches(List<BatchTraceabilityEntity> newBatches) {
+            batches.clear();
+            if (newBatches != null) batches.addAll(newBatches);
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public BatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View row = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_master_batch, parent, false);
+            return new BatchViewHolder(row);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull BatchViewHolder holder, int position) {
+            BatchTraceabilityEntity batch = batches.get(position);
+            holder.bind(batch, listener);
+            holder.divider.setVisibility(position == batches.size() - 1 ? View.GONE : View.VISIBLE);
+        }
+
+        @Override
+        public int getItemCount() {
+            return batches.size();
+        }
+
+        private static class BatchViewHolder extends RecyclerView.ViewHolder {
+            private final TextView batchNumber;
+            private final TextView grade;
+            private final TextView weightAndDate;
+            private final View divider;
+
+            BatchViewHolder(@NonNull View itemView) {
+                super(itemView);
+                batchNumber = itemView.findViewById(R.id.tvMasterChildBatchNumber);
+                grade = itemView.findViewById(R.id.tvMasterChildGrade);
+                weightAndDate = itemView.findViewById(R.id.tvMasterChildWeightDate);
+                divider = itemView.findViewById(R.id.masterChildDivider);
+            }
+
+            void bind(BatchTraceabilityEntity batch, OnMasterBatchClickListener listener) {
+                batchNumber.setText("#" + batch.getBatchNumber());
+                String qualityGrade = batch.getQualityGrade();
+                String gradeLabel = qualityGrade != null && !qualityGrade.trim().isEmpty()
+                        ? qualityGrade.trim() : "—";
+                grade.setText(gradeLabel.toUpperCase(Locale.ROOT));
+                boolean premium = gradeLabel.toLowerCase(Locale.ROOT).contains("premium");
+                grade.setBackgroundResource(premium
+                        ? R.drawable.bg_revenue_premium_badge
+                        : R.drawable.bg_revenue_standard_badge);
+                grade.setTextColor(premium ? 0xFF0A5530 : 0xFF80601E);
+                weightAndDate.setText(batch.getFormattedWeight() + " · "
+                        + batch.getFormattedProcessingDate());
+                itemView.setOnClickListener(v -> listener.onBatchClick(batch));
+            }
+        }
     }
 }
