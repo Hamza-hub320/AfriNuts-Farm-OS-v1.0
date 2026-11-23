@@ -265,16 +265,11 @@ public class CertificationDetailActivity extends BaseActivity {
         if (history.isEmpty()) {
             tvStatusHistory.setText("No status changes yet");
         } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = history.size() - 1; i >= 0; i--) {
-                CertificationEntity.StatusEvent e = history.get(i);
-                if (sb.length() > 0) sb.append("\n");
-                sb.append(statusLabel(e.fromStatus))
-                        .append(" → ").append(statusLabel(e.toStatus))
-                        .append("\n").append(DateFormatter.formatDateOrDash(e.date))
-                        .append(" · ").append(e.actor != null ? e.actor : "—");
-            }
-            tvStatusHistory.setText(sb.toString());
+            CertificationEntity.StatusEvent latest = history.get(history.size() - 1);
+            tvStatusHistory.setText(statusLabel(latest.fromStatus)
+                    + " → " + statusLabel(latest.toStatus)
+                    + "\n" + DateFormatter.formatDateOrDash(latest.date)
+                    + " · " + (latest.actor != null ? latest.actor : "—"));
         }
 
         // Role-based UI

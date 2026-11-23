@@ -9,12 +9,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.AuditEntity;
@@ -34,7 +35,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddAuditDialog extends DialogFragment {
+public class AddAuditDialog extends FarmDialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
     private static final String ARG_CERTIFICATION_ID = "certification_id";
@@ -120,6 +121,11 @@ public class AddAuditDialog extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_audit, null);
 
+        TextView dialogTitle = view.findViewById(R.id.tvDialogTitle);
+        if (dialogTitle != null && correctionOfId != null) {
+            dialogTitle.setText("Correcting " + correctionOfId);
+        }
+
         initViews(view);
         setupDropdowns();
         setupDatePicker();
@@ -129,10 +135,8 @@ public class AddAuditDialog extends DialogFragment {
             addFindingItem(null, null);
         }
 
-        String title = correctionOfId != null ? "Correcting " + correctionOfId : "";
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle(title)
                 .setCancelable(false);
 
         if (correctionOfId != null) {

@@ -1,21 +1,18 @@
 package com.afrinuts.farmos.ui.compliance;
 
-import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,7 +20,6 @@ public class CertificationAdapter extends RecyclerView.Adapter<CertificationAdap
 
     private List<CertificationEntity> certifications;
     private OnCertificationClickListener listener;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     public interface OnCertificationClickListener {
         void onCertificationClick(CertificationEntity certification);
@@ -60,92 +56,64 @@ public class CertificationAdapter extends RecyclerView.Adapter<CertificationAdap
 
     static class CertificationViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvCertificationId;
         private TextView tvCertificationName;
         private TextView tvCertificationBody;
         private TextView tvStatus;
-        private ImageView ivStatusIcon;  // ✅ Add status icon
-        private TextView tvScope;
         private TextView tvDates;
-        private TextView tvStandards;
         private CardView cardView;
 
         CertificationViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvCertificationId = itemView.findViewById(R.id.tvCertificationId);
             tvCertificationName = itemView.findViewById(R.id.tvCertificationName);
             tvCertificationBody = itemView.findViewById(R.id.tvCertificationBody);
             tvStatus = itemView.findViewById(R.id.tvStatus);
-            ivStatusIcon = itemView.findViewById(R.id.ivStatusIcon);  // ✅ Initialize icon view
-            tvScope = itemView.findViewById(R.id.tvScope);
             tvDates = itemView.findViewById(R.id.tvDates);
-            tvStandards = itemView.findViewById(R.id.tvStandards);
             cardView = itemView.findViewById(R.id.cardView);
         }
 
         void bind(CertificationEntity certification, OnCertificationClickListener listener) {
-            // ✅ Show certification ID
-            tvCertificationId.setText(certification.getCertificationId());
             tvCertificationName.setText(certification.getCertificationName());
-            tvCertificationBody.setText("Issued by: " + certification.getCertificationBody());
+            String body = certification.getCertificationBody();
+            String id = certification.getCertificationId();
+            tvCertificationBody.setText(body == null || body.trim().isEmpty()
+                    ? id : body + " · " + id);
+            tvStatus.setText(certification.getEffectiveStatusDisplay().toUpperCase(Locale.ROOT));
 
-            // ✅ Set status text (without icon)
-            tvStatus.setText(certification.getEffectiveStatusDisplay());
-
-            // ✅ Set status icon
-            int iconResId = certification.getEffectiveStatus().getIconResId();
-            ivStatusIcon.setImageResource(iconResId);
-
-            // ✅ Color the icon based on status
-            int colorResId;
+            int statusBackground;
+            int statusForeground;
             switch (certification.getEffectiveStatus()) {
                 case CERTIFIED:
-                    colorResId = R.color.status_certified;
+                    statusBackground = 0xFFE3F0E7;
+                    statusForeground = 0xFF0A5530;
                     break;
                 case IN_PROGRESS:
-                    colorResId = R.color.status_in_progress;
+                    statusBackground = 0xFFF3EAD8;
+                    statusForeground = 0xFF735A2B;
                     break;
                 case AUDIT_READY:
-                    colorResId = R.color.status_audit_ready;
+                    statusBackground = 0xFFF7EDCF;
+                    statusForeground = 0xFF8A6414;
                     break;
                 case EXPIRED:
-                    colorResId = R.color.status_expired;
+                    statusBackground = 0xFFFCE7E2;
+                    statusForeground = 0xFF9F3528;
                     break;
                 case SUSPENDED:
-                    colorResId = R.color.status_suspended;
+                    statusBackground = 0xFFFCE7E2;
+                    statusForeground = 0xFF9F3528;
                     break;
                 default:
-                    colorResId = R.color.status_not_started;
+                    statusBackground = 0xFFEEEADF;
+                    statusForeground = 0xFF716B62;
                     break;
             }
-            ivStatusIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), colorResId));
+            GradientDrawable statusPill = new GradientDrawable();
+            statusPill.setColor(statusBackground);
+            statusPill.setCornerRadius(999 * itemView.getResources().getDisplayMetrics().density);
+            tvStatus.setBackground(statusPill);
+            tvStatus.setTextColor(statusForeground);
 
-            // Status background color
-            switch (certification.getEffectiveStatus()) {
-                case CERTIFIED:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_certified);
-                    break;
-                case IN_PROGRESS:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_in_progress);
-                    break;
-                case AUDIT_READY:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_audit_ready);
-                    break;
-                case EXPIRED:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_expired);
-                    break;
-                case SUSPENDED:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_suspended);
-                    break;
-                default:
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_not_started);
-                    break;
-            }
-
-            tvScope.setText(certification.getScope() != null ? certification.getScope() : "No scope defined");
-            tvDates.setText("Target: " + certification.getFormattedTargetDate() +
-                    " | Expires: " + certification.getFormattedExpiryDate());
-            tvStandards.setText("Standards: " + certification.getStandardsDisplay());
+            tvDates.setText(certification.getFormattedTargetDate());
 
             // Navigate to detail
             cardView.setOnClickListener(v -> {

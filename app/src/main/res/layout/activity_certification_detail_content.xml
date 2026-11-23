@@ -229,7 +229,7 @@
                 app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Standards" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="8dp" />
-                    <TextView android:id="@+id/tvStandards" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Applicable standards" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="5dp" android:fontFamily="@font/manrope_semibold" />
+                    <TextView android:id="@+id/tvStandards" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Applicable standards" android:textColor="@color/text_primary" android:textSize="15sp" android:lineSpacingExtra="6dp" android:fontFamily="@font/manrope_medium" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -242,7 +242,7 @@
                 app:cardElevation="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Status history" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" android:layout_marginBottom="12dp" />
-                    <TextView android:id="@+id/tvStatusHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No status changes yet" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="8dp" android:fontFamily="@font/manrope_semibold" />
+                    <TextView android:id="@+id/tvStatusHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No status changes yet" android:textColor="@color/text_primary" android:textSize="15sp" android:lineSpacingExtra="8dp" android:fontFamily="@font/manrope_medium" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

@@ -9,8 +9,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
@@ -20,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
@@ -38,7 +36,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddCertificationDialog extends DialogFragment {
+public class AddCertificationDialog extends FarmDialogFragment {
 
     private static final String ARG_FARM_ID = "farm_id";
 
@@ -122,18 +120,6 @@ public class AddCertificationDialog extends DialogFragment {
         });
 
         return dialog;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Window window = requireDialog().getWindow();
-        if (window != null) {
-            int horizontalInset = (int) (32 * getResources().getDisplayMetrics().density + 0.5f);
-            window.setBackgroundDrawableResource(android.R.color.transparent);
-            window.setLayout(getResources().getDisplayMetrics().widthPixels - horizontalInset,
-                    WindowManager.LayoutParams.WRAP_CONTENT);
-        }
     }
 
     private void initViews(View view) {
