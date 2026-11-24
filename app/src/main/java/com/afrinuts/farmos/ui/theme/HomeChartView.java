@@ -111,7 +111,7 @@ public class HomeChartView extends View {
         if (sweep <= 0) return;
         float endAngle = startAngle + sweep;
         float cornerAngle = Math.min(roundedAngle, sweep / 4f);
-        float innerRadius = cornerRadius;
+        float innerRadius = radius * 0.30f;
         float outerTangentRadius = radius - cornerRadius;
         float startInnerX = centerX + innerRadius * (float) Math.cos(Math.toRadians(startAngle));
         float startInnerY = centerY + innerRadius * (float) Math.sin(Math.toRadians(startAngle));
@@ -135,7 +135,10 @@ public class HomeChartView extends View {
                 centerX + outerTangentRadius * (float) Math.cos(Math.toRadians(endAngle)),
                         centerY + outerTangentRadius * (float) Math.sin(Math.toRadians(endAngle)));
         slice.lineTo(endInnerX, endInnerY);
-        slice.quadTo(centerX, centerY, startInnerX, startInnerY);
+        android.graphics.RectF innerBounds = new android.graphics.RectF(
+                centerX - innerRadius, centerY - innerRadius,
+                centerX + innerRadius, centerY + innerRadius);
+        slice.arcTo(innerBounds, endAngle, -sweep, false);
         slice.close();
         canvas.drawPath(slice, paint);
     }
