@@ -840,6 +840,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             currentFarm = finalFarm;
                             allBlocks = finalBlocks;
+                            updateHomeBlockHeatmap(finalBlocks);
                         });
                     }
                 } catch (Exception e) {
@@ -848,6 +849,174 @@ public class MainActivity extends AppCompatActivity {
             });
         } catch (RejectedExecutionException e) {
             Log.w(TAG, "loadFarmData rejected - executor already shut down", e);
+        }
+    }
+
+    private void updateHomeBlockHeatmap(List<BlockEntity> blocks) {
+        TextView averageSurvival = findViewById(R.id.homeAverageBlockSurvival);
+        LinearLayout grid = findViewById(R.id.homeBlockHeatmapGrid);
+        LinearLayout legend = findViewById(R.id.homeBlockHeatmapLegend);
+        if (averageSurvival == null || grid == null || legend == null) return;
+
+        int plantedCount = 0;
+        double survivalTotal = 0;
+        if (blocks != null) {
+            for (BlockEntity block : blocks) {
+                if (block != null && block.isPlanted()) {
+                    plantedCount++;
+                    survivalTotal += block.getSurvivalRate();
+                }
+            }
+        }
+        averageSurvival.setText(plantedCount == 0
+                ? "—%"
+                : String.format(Locale.getDefault(), "%.0f%%", survivalTotal / plantedCount));
+
+        float density = getResources().getDisplayMetrics().density;
+        int configuredWidthDp = getResources().getConfiguration().screenWidthDp;
+        int gridWidthDp = Math.min(344, Math.max(36, configuredWidthDp - 80));
+        int cellSize = Math.max(1, Math.min(Math.round(42 * density),
+                (int) ((gridWidthDp - 36f) * density / 7f)));
+        int gap = Math.round(6 * density);
+        grid.removeAllViews();
+
+        BlockEntity[] blocksByGridPosition = new BlockEntity[35];
+        if (blocks != null) {
+            for (BlockEntity block : blocks) {
+                if (block == null || block.getBlockName() == null) continue;
+                String name = block.getBlockName().trim().toUpperCase(Locale.ROOT);
+                if (name.length() < 2) continue;
+                char row = name.charAt(0);
+                int column;
+                try {
+                    column = Integer.parseInt(name.substring(1));
+                } catch (NumberFormatException ignored) {
+                    continue;
+                }
+                int rowIndex = row - 'A';
+                if (rowIndex >= 0 && rowIndex < 5 && column >= 1 && column <= 7) {
+                    blocksByGridPosition[rowIndex * 7 + column - 1] = block;
+                }
+            }
+        }
+
+        for (int rowIndex = 0; rowIndex < 5; rowIndex++) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, cellSize);
+            if (rowIndex > 0) rowParams.topMargin = gap;
+            grid.addView(row, rowParams);
+
+            for (int column = 0; column < 7; column++) {
+                int index = rowIndex * 7 + column;
+                String blockName = String.valueOf((char) ('A' + rowIndex)) + (column + 1);
+                BlockEntity block = blocksByGridPosition[index];
+                BlockEntity.BlockStatus status = block == null || block.getStatus() == null
+                        ? BlockEntity.BlockStatus.NOT_CLEARED : block.getStatus();
+                TextView cell = new TextView(this);
+                cell.setText(blockName);
+                cell.setTextColor(Color.WHITE);
+                cell.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                cell.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+                cell.setGravity(android.view.Gravity.CENTER);
+                cell.setIncludeFontPadding(false);
+                cell.setBackground(createHeatmapCellBackground(status));
+                cell.setContentDescription(blockName + " · " + status.getDisplayName());
+                if (block != null) {
+                    cell.setOnClickListener(v -> {
+                        Intent intent = new Intent(MainActivity.this,
+                                com.afrinuts.farmos.ui.blocks.BlockDetailActivity.class);
+                        intent.putExtra(com.afrinuts.farmos.ui.blocks.BlockDetailActivity.EXTRA_BLOCK_ID,
+                                block.getId());
+                        startActivity(intent);
+                    });
+                } else {
+                    cell.setClickable(false);
+                    cell.setFocusable(false);
+                }
+                LinearLayout.LayoutParams cellParams = new LinearLayout.LayoutParams(cellSize, cellSize);
+                if (column > 0) cellParams.leftMargin = gap;
+                row.addView(cell, cellParams);
+            }
+        }
+
+        legend.removeAllViews();
+        addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
+                BlockEntity.BlockStatus.PLANTED,
+                BlockEntity.BlockStatus.NOT_CLEARED,
+                BlockEntity.BlockStatus.CLEARED
+        }, density);
+        addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
+                BlockEntity.BlockStatus.PLOWED,
+                BlockEntity.BlockStatus.HARVESTED
+        }, density);
+    }
+
+    private android.graphics.drawable.GradientDrawable createHeatmapCellBackground(
+            BlockEntity.BlockStatus status) {
+        android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
+        background.setColor(getHeatmapStatusColor(status));
+        background.setCornerRadius(8 * getResources().getDisplayMetrics().density);
+        return background;
+    }
+
+    private int getHeatmapStatusColor(BlockEntity.BlockStatus status) {
+        if (status == null) status = BlockEntity.BlockStatus.HARVESTED;
+        switch (status) {
+            case NOT_CLEARED:
+                return ContextCompat.getColor(this, android.R.color.holo_red_dark);
+            case CLEARED:
+                return ContextCompat.getColor(this, android.R.color.holo_orange_dark);
+            case PLOWED:
+                return ContextCompat.getColor(this, android.R.color.holo_blue_dark);
+            case PLANTED:
+                return ContextCompat.getColor(this, android.R.color.holo_green_dark);
+            default:
+                return ContextCompat.getColor(this, R.color.primary);
+        }
+    }
+
+    private void addHeatmapLegendRow(LinearLayout legend, BlockEntity.BlockStatus[] statuses,
+                                    float density) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (legend.getChildCount() > 0) rowParams.topMargin = Math.round(8 * density);
+        legend.addView(row, rowParams);
+
+        for (int i = 0; i < statuses.length; i++) {
+            BlockEntity.BlockStatus status = statuses[i];
+            LinearLayout item = new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (i > 0) itemParams.leftMargin = Math.round(14 * density);
+            row.addView(item, itemParams);
+
+            View swatch = new View(this);
+            android.graphics.drawable.GradientDrawable swatchBackground =
+                    new android.graphics.drawable.GradientDrawable();
+            swatchBackground.setColor(getHeatmapStatusColor(status));
+            swatchBackground.setCornerRadius(3 * density);
+            swatch.setBackground(swatchBackground);
+            item.addView(swatch, new LinearLayout.LayoutParams(
+                    Math.round(10 * density), Math.round(10 * density)));
+
+            TextView label = new TextView(this);
+            label.setText(status.getDisplayName());
+            label.setTextColor(Color.parseColor("#3D3A35"));
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            label.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
+            label.setIncludeFontPadding(false);
+            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            labelParams.leftMargin = Math.round(6 * density);
+            item.addView(label, labelParams);
         }
     }
 
