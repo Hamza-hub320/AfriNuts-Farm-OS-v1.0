@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,6 +21,8 @@ import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
+import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
@@ -81,6 +84,7 @@ public class BlockDetailActivity extends BaseActivity {
     private TextView tvYieldPerHectare;
     private View harvestSection;
     private MaterialButton btnRecordHarvest;
+    private MaterialButton btnRecordHarvestBottom;
     private LinearLayout harvestHistoryContainer;
 
     // Notes
@@ -157,6 +161,7 @@ public class BlockDetailActivity extends BaseActivity {
         tvYieldPerHectare = findViewById(R.id.tvYieldPerHectare);
         harvestSection = findViewById(R.id.harvestSection);
         btnRecordHarvest = findViewById(R.id.btnRecordHarvest);
+        btnRecordHarvestBottom = findViewById(R.id.btnRecordHarvestBottom);
         harvestHistoryContainer = findViewById(R.id.harvestHistoryContainer);
 
         etNotes = findViewById(R.id.etNotes);
@@ -172,6 +177,7 @@ public class BlockDetailActivity extends BaseActivity {
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnRecordHarvest.setOnClickListener(v -> showRecordHarvestDialog());
+        btnRecordHarvestBottom.setOnClickListener(v -> showRecordHarvestDialog());
 
         btnPhotoGallery.setOnClickListener(v -> {
             Intent intent = new Intent(this, PhotoGalleryActivity.class);
@@ -184,11 +190,100 @@ public class BlockDetailActivity extends BaseActivity {
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
                 findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
                 findViewById(R.id.farmDetailMore), "Block details" );
+        findViewById(R.id.farmDetailEdit).setOnClickListener(v -> enableEditMode(true));
+        findViewById(R.id.farmDetailMore).setOnClickListener(v -> showBlockMoreMenu(v));
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.blockNameText, R.id.farmInfoText, R.id.statusBadge);
+        hideBlockHeroAvatar();
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
                 new String[]{"Alive trees", "Survival rate", "Total harvest"},
                 new int[]{R.id.aliveTreesText, R.id.etSurvivalRate, R.id.tvTotalHarvest });
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnEdit, R.id.btnRecordHarvest);
+        orderBlockStats();
+        restyleBlockSectionHeadings(findViewById(android.R.id.content));
+    }
+
+    private void hideBlockHeroAvatar() {
+        View hero = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero");
+        if (!(hero instanceof ViewGroup) || ((ViewGroup) hero).getChildCount() == 0) return;
+        View top = ((ViewGroup) hero).getChildAt(0);
+        if (top instanceof ViewGroup && ((ViewGroup) top).getChildCount() > 0) {
+            ((ViewGroup) top).getChildAt(0).setVisibility(View.GONE);
+        }
+    }
+
+    private void orderBlockStats() {
+        View row = findViewById(android.R.id.content).findViewWithTag("farm-detail-stats");
+        if (!(row instanceof ViewGroup)) return;
+        ViewGroup stats = (ViewGroup) row;
+        for (int i = 0; i < stats.getChildCount(); i++) {
+            View card = stats.getChildAt(i);
+            if (!(card instanceof ViewGroup)) continue;
+            ViewGroup values = (ViewGroup) card;
+            TextView unit = null;
+            TextView caption = null;
+            for (int j = 0; j < values.getChildCount(); j++) {
+                View child = values.getChildAt(j);
+                if (child instanceof TextView) {
+                    TextView text = (TextView) child;
+                    if (text.getTag() != null && text.getTag().toString().startsWith("farm-detail-stat-unit:")) unit = text;
+                    else if (text.getTag() == null && text.getText() != null && text.getText().length() > 0) caption = text;
+                }
+            }
+            if (unit != null && (unit.getText() == null || unit.getText().length() == 0)) values.removeView(unit);
+            if (caption != null) {
+                values.removeView(caption);
+                values.addView(caption, 0);
+            }
+        }
+    }
+
+    private void showBlockMoreMenu(View anchor) {
+        androidx.appcompat.widget.PopupMenu menu = new androidx.appcompat.widget.PopupMenu(this, anchor);
+        menu.getMenu().add("Delete block").setOnMenuItemClickListener(item -> {
+            confirmDelete();
+            return true;
+        });
+        menu.show();
+    }
+
+    private void restyleBlockSectionHeadings(View view) {
+        if (view instanceof androidx.cardview.widget.CardView && "farm-detail-hero".equals(view.getTag())) return;
+        if (view instanceof androidx.cardview.widget.CardView) {
+            TextView heading = findFirstText((ViewGroup) view);
+            if (heading != null) {
+                heading.setTextSize(16);
+                heading.setTextColor(0xFF1C1B1A);
+                heading.setTypeface(android.graphics.Typeface.create(
+                        androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold),
+                        android.graphics.Typeface.NORMAL));
+            }
+        }
+        if (view instanceof android.widget.FrameLayout) {
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            if (params != null && params.width > 0 && params.width <= dp(48)) view.setVisibility(View.GONE);
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) restyleBlockSectionHeadings(group.getChildAt(i));
+        }
+    }
+
+    private TextView findFirstText(View view) {
+        if (view instanceof TextView && !(view instanceof Button)) {
+            CharSequence value = ((TextView) view).getText();
+            if (value != null && value.length() > 0) return (TextView) view;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                TextView text = findFirstText(group.getChildAt(i));
+                if (text != null) return text;
+            }
+        }
+        return null;
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     @Override
@@ -213,6 +308,9 @@ public class BlockDetailActivity extends BaseActivity {
                 if (loadedBlock != null) {
                     block = loadedBlock;
 
+                    findViewById(R.id.farmDetailEdit).setVisibility(
+                            sessionManager.isInvestor() ? View.GONE : View.VISIBLE);
+
                     long correctFarmId = block.getFarmId();
                     if (correctFarmId != farmId) {
                         farmId = correctFarmId;
@@ -221,6 +319,7 @@ public class BlockDetailActivity extends BaseActivity {
                     }
 
                     displayBlockData();
+                    loadFarmName(correctFarmId);
                     loadPhotoCount();
                     setFieldsEditable(false);
 
@@ -265,7 +364,7 @@ public class BlockDetailActivity extends BaseActivity {
         }
         statusBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
 
-        farmInfoText.setText(String.format("Farm: AfriNuts Odienné | Size: %.1f ha",
+        farmInfoText.setText(String.format(Locale.getDefault(), "Farm | Size: %.1f ha",
                 block.getHectareSize()));
 
         updateTimelineVisibility();
@@ -278,11 +377,11 @@ public class BlockDetailActivity extends BaseActivity {
             int aliveTrees = block.getAliveTrees();
             int deadTrees = block.getDeadTrees();
 
-            etSurvivalRate.setText(String.valueOf(survivalRate));
+            etSurvivalRate.setText(new java.text.DecimalFormat("0.#").format(survivalRate) + "%");
             etReplacementCount.setText(String.valueOf(replacementCount));
 
-            aliveTreesText.setText(String.format("Alive: %d trees", aliveTrees));
-            deadTreesText.setText(String.format("Dead: %d trees", deadTrees));
+            aliveTreesText.setText(String.format(Locale.getDefault(), "%,d", aliveTrees));
+            deadTreesText.setText(String.format(Locale.getDefault(), "%,d", deadTrees));
 
             survivalProgress.setProgress((int) survivalRate);
         } else {
@@ -314,7 +413,8 @@ public class BlockDetailActivity extends BaseActivity {
 
             // Show button to record new harvest
             btnRecordHarvest.setVisibility(View.VISIBLE);
-            btnRecordHarvest.setText("Record New Harvest");
+            btnRecordHarvestBottom.setVisibility(View.VISIBLE);
+            btnRecordHarvest.setText("Record Harvest");
 
             // Load harvest history
             loadHarvestHistory();
@@ -329,10 +429,12 @@ public class BlockDetailActivity extends BaseActivity {
             tvYieldPerHectare.setText("—");
 
             btnRecordHarvest.setVisibility(View.VISIBLE);
-            btnRecordHarvest.setText("Record First Harvest");
+            btnRecordHarvestBottom.setVisibility(View.VISIBLE);
+            btnRecordHarvest.setText("Record Harvest");
 
         } else {
             harvestSection.setVisibility(View.GONE);
+            btnRecordHarvestBottom.setVisibility(View.GONE);
         }
     }
     private void loadHarvestHistory() {
@@ -435,6 +537,12 @@ public class BlockDetailActivity extends BaseActivity {
                     BlockEntity.BlockStatus.PLANTED.ordinal() ? View.VISIBLE : View.GONE);
             plantedDateText.setText("Not recorded");
         }
+        View clearedDivider = findViewById(R.id.timelineDividerCleared);
+        View plowedDivider = findViewById(R.id.timelineDividerPlowed);
+        clearedDivider.setVisibility(clearedSection.getVisibility() == View.VISIBLE
+                && plowedSection.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
+        plowedDivider.setVisibility(plowedSection.getVisibility() == View.VISIBLE
+                && plantedSection.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
     }
 
     private String formatDate(long timestamp) {
@@ -484,6 +592,8 @@ public class BlockDetailActivity extends BaseActivity {
 
         btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
+        findViewById(R.id.farmDetailEdit).setVisibility(
+                enable || sessionManager.isInvestor() ? View.GONE : View.VISIBLE);
 
         statusBadge.setClickable(enable);
         statusBadge.setFocusable(enable);
@@ -531,7 +641,18 @@ public class BlockDetailActivity extends BaseActivity {
     private void setFieldsEditable(boolean editable) {
         if (block == null) return;
 
+        if (editable) {
+            etSurvivalRate.setText(etSurvivalRate.getText().toString().replace("%", "").trim());
+        }
+
         etNotes.setEnabled(editable);
+        etNotes.setTextSize(14);
+        etNotes.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_semibold),
+                android.graphics.Typeface.NORMAL));
+        etNotes.setTextColor(0xFF3D3A35);
+        etNotes.setBackground(editable ? getDrawable(R.drawable.bg_rounded_description) : null);
+        if (!editable) etNotes.setPadding(0, 0, 0, 0);
 
         if (block.isPlanted()) {
             plantingDetailsSection.setVisibility(View.VISIBLE);
@@ -551,6 +672,19 @@ public class BlockDetailActivity extends BaseActivity {
         }
     }
 
+    private void loadFarmName(long id) {
+        executor.execute(() -> {
+            FarmEntity farm = AppDatabase.getInstance(getApplicationContext()).farmDao().getFarmById(id);
+            if (farm == null || isFinishing()) return;
+            runOnUiThread(() -> {
+                if (block != null && block.getFarmId() == id) {
+                    farmInfoText.setText(String.format(Locale.getDefault(), "Farm: %s | Size: %.1f ha",
+                            farm.getName(), block.getHectareSize()));
+                }
+            });
+        });
+    }
+
     private void saveChanges() {
         if (block == null || blockRepository == null) return;
 
@@ -558,7 +692,7 @@ public class BlockDetailActivity extends BaseActivity {
         block.setNotes(notes.isEmpty() ? null : notes);
 
         if (block.isPlanted()) {
-            String survivalRateStr = etSurvivalRate.getText().toString().trim();
+            String survivalRateStr = etSurvivalRate.getText().toString().replace("%", "").trim();
             String replacementCountStr = etReplacementCount.getText().toString().trim();
 
             if (TextUtils.isEmpty(survivalRateStr)) {
@@ -627,12 +761,13 @@ public class BlockDetailActivity extends BaseActivity {
         }
 
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Block")
+                .setTitle("Delete block")
                 .setMessage("Are you sure you want to delete " + block.getBlockName() +
                         "? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteBlock())
+                .setPositiveButton("Delete block", (dialog, which) -> deleteBlock())
                 .setNegativeButton("Cancel", null)
-                .show();
+                .show().getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(getColor(R.color.accent_ink));
     }
 
     private void deleteBlock() {
