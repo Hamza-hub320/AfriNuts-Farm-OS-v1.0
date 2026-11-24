@@ -33,6 +33,7 @@ import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.PhotoRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.compliance.PhotoSourceDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -143,6 +144,15 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void showPhotoSourceDialog() {
+        if (expenseId != -1) {
+            PhotoSourceDialog dialog = new PhotoSourceDialog();
+            dialog.setListener(source -> {
+                if (source == PhotoSourceDialog.SOURCE_CAMERA) dispatchTakePictureIntent();
+                else dispatchPickPictureIntent();
+            });
+            dialog.show(getSupportFragmentManager(), "ExpensePhotoSourceDialog");
+            return;
+        }
         String[] options = {"Take Photo", "Choose from Gallery"};
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Add Photo")
