@@ -3,18 +3,27 @@ package com.afrinuts.farmos.ui.photos;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
@@ -194,11 +203,13 @@ public class PhotoDetailActivity extends BaseActivity {
         if (input.getText() != null) {
             input.setSelection(input.getText().length());
         }
-        builder.setView(dialogView);
+        builder.setView(dialogView, 0, 0, 0, 0);
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        AlertDialog dialog = builder.create();
+        dialogView.findViewById(R.id.btnCancelCaption).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnSaveCaption).setOnClickListener(v -> {
             String newCaption = input.getText().toString().trim();
-
+            dialog.dismiss();
             photoRepository.updatePhotoCaption(photoId, newCaption,
                     new BaseRepository.RepositoryCallback<Boolean>() {
                         @Override
@@ -219,9 +230,8 @@ public class PhotoDetailActivity extends BaseActivity {
                         }
                     });
         });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+        dialog.setOnShowListener(ignored -> styleStandardDialog(dialog));
+        dialog.show();
     }
 
     private void sharePhoto() {
@@ -251,12 +261,71 @@ public class PhotoDetailActivity extends BaseActivity {
     private void confirmDelete() {
         if (photo == null) return;
 
-        new MaterialAlertDialogBuilder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Photo")
                 .setMessage("Are you sure you want to delete this photo?")
-                .setPositiveButton("Delete", (dialog, which) -> deletePhoto())
+                .setPositiveButton("Delete", (ignored, which) -> deletePhoto())
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        dialog.setOnShowListener(ignored -> styleStandardDialog(dialog));
+        dialog.show();
+    }
+
+    private void styleStandardDialog(AlertDialog dialog) {
+        float density = getResources().getDisplayMetrics().density;
+        Window window = dialog.getWindow();
+        if (window != null) {
+            GradientDrawable sheet = new GradientDrawable();
+            sheet.setColor(Color.WHITE);
+            sheet.setCornerRadius(dp(28));
+            window.setBackgroundDrawable(sheet);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.BOTTOM;
+            params.y = dp(16);
+            params.dimAmount = .48f;
+            window.setAttributes(params);
+            window.setLayout(getResources().getDisplayMetrics().widthPixels - dp(32),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView title = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (title != null) {
+            title.setTextColor(0xFF1C1B1A);
+            title.setTextSize(20);
+            title.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+        }
+        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_NEGATIVE), false, density);
+        styleDialogButton(dialog.getButton(AlertDialog.BUTTON_POSITIVE), true, density);
+    }
+
+    private void styleDialogButton(Button button, boolean primary, float density) {
+        if (button == null) return;
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(primary ? 0xFF0E6B3C : 0xFFF3EAD8);
+        background.setCornerRadius(999 * density);
+        button.setBackground(background);
+        button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
+        button.setTextSize(15);
+        button.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+        button.setAllCaps(false);
+        button.setMinHeight(dp(52));
+        button.setPadding(dp(10), 0, dp(10), 0);
+        button.setElevation(0);
+        ViewGroup.LayoutParams rawParams = button.getLayoutParams();
+        if (rawParams instanceof android.widget.LinearLayout.LayoutParams) {
+            android.widget.LinearLayout.LayoutParams params =
+                    (android.widget.LinearLayout.LayoutParams) rawParams;
+            params.width = 0;
+            params.weight = 1;
+            params.height = dp(52);
+            params.setMargins(dp(4), 0, dp(4), 0);
+            button.setLayoutParams(params);
+        }
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void deletePhoto() {

@@ -12,22 +12,24 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:paddingTop="8dp">
+            android:paddingTop="8dp"
+            android:paddingBottom="32dp">
 
             <!-- Full Photo Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
                 android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
@@ -47,8 +49,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
@@ -59,76 +61,125 @@
                     android:padding="20dp"
                     android:background="@color/surface">
 
-                    <!-- Caption Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Caption"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="4dp" />
+                        android:layout_marginBottom="12dp"
+                        android:text="Details"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
 
-                    <TextView
-                        android:id="@+id/tvCaption"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No caption"
-                        style="@style/Text.Body"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="16dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Caption"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvCaption"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="No caption"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Date Taken Section -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Date Taken"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvDate"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mar 15, 2024"
-                        style="@style/Text.Body"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="16dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Date Taken"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Mar 15, 2024"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Location Section -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Location"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvLocation"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Location not available"
-                        style="@style/Text.Body"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="16dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Location"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Location not available"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Type Section -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Type"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvType"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Block Photo"
-                        style="@style/Text.Body"
-                        android:textColor="@color/accent_ink" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Type"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvType"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Block Photo"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -150,8 +201,10 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Edit Caption"
-                    style="@style/Widget.AfriNuts.Button"
+                    style="@style/Widget.AfriNuts.Button.Secondary"
+                    android:textColor="#1C1B1A"
                     app:icon="@drawable/ic_edit"
+                    app:iconTint="#1C1B1A"
                     app:iconGravity="textStart"/>
 
                 <!-- Share Button - Primary Liquid Glass -->
@@ -173,10 +226,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:text="Delete Photo"
-                style="@style/Widget.AfriNuts.Button.Danger"
+                style="@style/Widget.AfriNuts.Button"
+                android:textColor="#B3402A"
+                app:backgroundTint="#F8E4DD"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
-                app:iconTint="@color/error"
+                app:iconTint="#B3402A"
                 android:layout_marginTop="8dp" />
         </LinearLayout>
     </ScrollView>
