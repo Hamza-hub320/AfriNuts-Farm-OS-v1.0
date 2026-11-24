@@ -9,380 +9,444 @@
     <include layout="@layout/view_farm_detail_header" />
 
     <ScrollView
+        android:id="@+id/taskDetailScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:clipToPadding="false"
+        android:fillViewport="false"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="28dp">
 
         <LinearLayout
+            android:id="@+id/taskDetailContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header Card with Task Icon and Title - Modern Gradient Card -->
+            <!-- Task hero -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:background="@color/surface">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical"
-                    android:background="@color/surface">
-
-                    <!-- Icon Container with Gradient Background -->
-                    <FrameLayout
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginEnd="16dp"
-                        android:background="@drawable/bg_icon_sand">
-
-                        <ImageView
-                            android:id="@+id/tvTaskIcon"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_tractor"
-                            app:tint="?attr/colorPrimary"
-                            android:contentDescription="Task icon" />
-
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvTaskTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Clear Block A1"
-                            style="@style/Text.H3"
-                            android:textColor="?attr/colorPrimary" />
-
-                        <TextView
-                            android:id="@+id/tvTaskType"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Land Clearing"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            android:layout_marginTop="4dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <EditText
-                android:id="@+id/etTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:background="@drawable/edit_mode_background"
-                android:hint="Task title"
-                android:inputType="text"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/colorOnSurface"
-                android:padding="12dp"
-                style="@style/Text.H3" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutTaskType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                style="@style/Widget.AfriNuts.EditText"
-                app:boxBackgroundColor="?attr/colorSurface"
-                app:endIconMode="dropdown_menu"
-                app:endIconDrawable="@drawable/ic_arrow_drop_down">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/actvTaskType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Type"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Status Card - Modern with Gradient -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:background="@color/surface">
-
-                <!-- Edge Effect -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
-
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/surface"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
-                    android:background="@color/surface">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Current Status"
-                        style="@style/Text.Label.Small"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:layout_marginBottom="12dp" />
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="16dp">
+                        android:orientation="horizontal">
 
+                        <FrameLayout
+                            android:layout_width="54dp"
+                            android:layout_height="54dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_task_icon_circle">
+
+                            <ImageView
+                                android:id="@+id/tvTaskIcon"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Task"
+                                android:src="@drawable/ic_clipboard_check"
+                                app:tint="#FFFFFF" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvTaskTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/manrope_extrabold"
+                                android:text="Task title"
+                                android:textColor="#1C1B1A"
+                                android:textSize="21sp"
+                                android:lineSpacingExtra="0dp" />
+
+                            <EditText
+                                android:id="@+id/etTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                android:background="@drawable/edit_mode_background"
+                                android:hint="Task title"
+                                android:inputType="textCapSentences"
+                                android:padding="8dp"
+                                android:textColor="#1C1B1A"
+                                android:textSize="21sp"
+                                android:fontFamily="@font/manrope_extrabold" />
+
+                            <TextView
+                                android:id="@+id/tvTaskType"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:fontFamily="@font/manrope_medium"
+                                android:text="Task type"
+                                android:textColor="#59544C"
+                                android:textSize="13.5sp" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/layoutTaskType"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                style="@style/Widget.AfriNuts.EditText"
+                                app:boxBackgroundColor="#FFFFFF"
+                                app:endIconMode="dropdown_menu"
+                                app:endIconDrawable="@drawable/ic_arrow_drop_down">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/actvTaskType"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Task type"
+                                    android:inputType="none" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_task_status_pill"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="6dp">
+
+                        <View
+                            android:layout_width="7dp"
+                            android:layout_height="7dp"
+                            android:background="@drawable/bg_task_status_dot" />
+
+                        <TextView
+                            android:id="@+id/tvHeroStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="7dp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:text="Pending"
+                            android:textColor="#0A5530"
+                            android:textSize="12.5sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Status / due / assignee stats -->
+            <LinearLayout
+                android:id="@+id/taskStatsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_task_stat_primary"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Status"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/manrope_bold" />
+                    <TextView
+                        android:id="@+id/statStatusValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Pending"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16.5sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_task_stat_card"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Due date"
+                        android:textColor="#59544C"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/manrope_bold" />
+                    <TextView
+                        android:id="@+id/statDueDateValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="—"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16.5sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_task_stat_card"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Assigned worker"
+                        android:textColor="#59544C"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/manrope_bold" />
+                    <TextView
+                        android:id="@+id/statAssignedWorkerValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="—"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16.5sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Current status and read-only progress stepper -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="18dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Current Status"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <View
+                            android:id="@+id/viewCurrentStatusDot"
+                            android:layout_width="7dp"
+                            android:layout_height="7dp"
+                            android:background="@drawable/bg_task_status_dot" />
                         <TextView
                             android:id="@+id/tvCurrentStatus"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="PENDING"
-                            style="@style/Text.H4"
-                            android:textColor="?attr/colorPrimary" />
-
+                            android:text="Pending"
+                            android:textColor="#1C1B1A"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/manrope_extrabold" />
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnUpdateStatus"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="38dp"
+                            android:minHeight="38dp"
                             android:text="Update"
-                            style="@style/Widget.AfriNuts.Button.Secondary"
-                            app:icon="@drawable/ic_sync"
-                            app:iconTint="@color/accent_ink"
-                            app:cornerRadius="20dp" />
-
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13.5sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            app:backgroundTint="#0E6B3C"
+                            app:cornerRadius="999dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            app:icon="@null" />
                     </LinearLayout>
 
-                    <!-- Status Timeline with Modern Design -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp">
-
+                        android:layout_marginTop="22dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
                             <TextView
                                 android:id="@+id/tvPendingDot"
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_green"
-                                android:layout_marginBottom="4dp" />
-
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:gravity="center"
+                                android:text="✓"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/manrope_extrabold"
+                                android:background="@android:color/transparent" />
                             <TextView
+                                android:id="@+id/tvPendingLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
                                 android:text="Pending"
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
-
+                                android:textColor="#0A5530"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/manrope_extrabold" />
                         </LinearLayout>
-
                         <View
+                            android:id="@+id/viewPendingInProgressLine"
                             android:layout_width="0dp"
                             android:layout_height="2dp"
-                            android:layout_weight="2"
-                            android:background="?attr/colorSurfaceVariant"
-                            android:layout_marginHorizontal="4dp" />
-
+                            android:layout_weight="0.7"
+                            android:layout_marginBottom="18dp"
+                            android:background="#E9E1CF" />
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
                             <TextView
                                 android:id="@+id/tvInProgressDot"
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_grey"
-                                android:layout_marginBottom="4dp" />
-
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:gravity="center"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/manrope_extrabold"
+                                android:background="@android:color/transparent" />
                             <TextView
+                                android:id="@+id/tvInProgressLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
                                 android:text="In Prog."
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7"
-                                android:maxLines="1"
-                                android:ellipsize="end" />
-
+                                android:textColor="#59544C"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/manrope_bold" />
                         </LinearLayout>
-
                         <View
+                            android:id="@+id/viewInProgressCompletedLine"
                             android:layout_width="0dp"
                             android:layout_height="2dp"
-                            android:layout_weight="2"
-                            android:background="?attr/colorSurfaceVariant"
-                            android:layout_marginHorizontal="4dp" />
-
+                            android:layout_weight="0.7"
+                            android:layout_marginBottom="18dp"
+                            android:background="#E9E1CF" />
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
                             <TextView
                                 android:id="@+id/tvCompletedDot"
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_grey"
-                                android:layout_marginBottom="4dp" />
-
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:gravity="center"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/manrope_extrabold"
+                                android:background="@android:color/transparent" />
                             <TextView
+                                android:id="@+id/tvCompletedLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
                                 android:text="Done"
-                                style="@style/Text.Caption.Small"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7"
-                                android:maxLines="1"
-                                android:ellipsize="end" />
-
+                                android:textColor="#59544C"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/manrope_bold" />
                         </LinearLayout>
-
                     </LinearLayout>
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Details Card -->
+            <!-- Task details -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:background="@color/surface">
-
-                <!-- Edge Effect -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
-
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/surface"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
-
+                app:cardElevation="0dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
-                    android:background="@color/surface">
-
+                    android:paddingStart="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="18dp">
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Task Details"
-                        style="@style/Text.H5"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginBottom="16dp" />
-
-                    <!-- Block Row with Icon -->
-                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp"
-                        android:gravity="center_vertical">
+                        android:layout_marginBottom="4dp"
+                        android:text="Task Details"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_inventory"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            android:layout_marginEnd="12dp" />
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Block:"
-                            style="@style/Text.Label" />
-
-                        <TextView
-                            android:id="@+id/tvBlockName"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Block A1"
-                            style="@style/Text.Body.Small" />
-
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Block" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvBlockName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" android:gravity="end" />
                     </LinearLayout>
-
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layoutBlock"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
                         android:visibility="gone"
                         style="@style/Widget.AfriNuts.EditText"
-                        app:boxBackgroundColor="?attr/colorSurface"
+                        app:boxBackgroundColor="#FFFFFF"
                         app:endIconMode="dropdown_menu"
                         app:endIconDrawable="@drawable/ic_arrow_drop_down">
-
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actvBlock"
                             android:layout_width="match_parent"
@@ -391,436 +455,282 @@
                             android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Due Date Row with Icon -->
-                    <LinearLayout
-                        android:id="@+id/layoutDueDate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp"
-                        android:gravity="center_vertical"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_today"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            android:layout_marginEnd="12dp" />
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Due Date:"
-                            style="@style/Text.Label" />
-
-                        <TextView
-                            android:id="@+id/tvDueDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Mar 15, 2024"
-                            style="@style/Text.Body.Small" />
-
+                    <LinearLayout android:id="@+id/layoutDueDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Due Date" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvDueDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" android:gravity="end" />
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
-                    <!-- Completed Date Row (if completed) -->
-                    <LinearLayout
-                        android:id="@+id/layoutCompletedDate"
+                    <LinearLayout android:id="@+id/layoutCompletedDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Completed" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvCompletedDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" android:gravity="end" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+
+                    <LinearLayout android:id="@+id/layoutStartDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="11dp" android:clickable="true" android:focusable="true" android:visibility="gone">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Started" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/tvStartDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_bold" android:gravity="end" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="Description"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
+                    <TextView
+                        android:id="@+id/tvDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#3D3A35"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_medium"
+                        android:lineSpacingExtra="2dp" />
+                    <EditText
+                        android:id="@+id/etDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_check_circle"
-                            app:tint="?attr/colorPrimary"
-                            android:layout_marginEnd="12dp" />
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Completed:"
-                            style="@style/Text.Label" />
-
-                        <TextView
-                            android:id="@+id/tvCompletedDate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text=""
-                            style="@style/Text.Body.Small"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <!-- Description Section with Icon -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_note"
-                                app:tint="?attr/colorOnSurface"
-                                android:alpha="0.7"
-                                android:layout_marginEnd="12dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Description:"
-                                style="@style/Text.Label" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvDescription"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_rounded_description"
-                            android:text="Clear land for planting cashew trees"
-                            style="@style/Text.Body.Small"
-                            android:padding="12dp"
-                            android:minLines="3"
-                            android:enabled="false"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurface"/>
-
-                        <EditText
-                            android:id="@+id/etDescription"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:visibility="gone"
-                            android:background="@drawable/edit_mode_background"
-                            android:hint="Description"
-                            android:inputType="textMultiLine"
-                            android:minLines="3"
-                            android:gravity="top|start"
-                            android:padding="12dp"
-                            style="@style/Text.Body.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textColorHint="?attr/colorOnSurface" />
-
-                    </LinearLayout>
-
+                        android:background="@drawable/edit_mode_background"
+                        android:hint="Description"
+                        android:inputType="textMultiLine"
+                        android:minLines="3"
+                        android:gravity="top|start"
+                        android:padding="10dp"
+                        android:textColor="#3D3A35"
+                        android:textSize="14sp" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- 42: work window start. Only visible when the task carries a startDate
-            (backdated work). Normal plan-then-do tasks don't show it. -->
-            <LinearLayout
-                android:id="@+id/layoutStartDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:visibility="gone"
-                android:background="@color/surface"
-                app:cornerRadius="12dp">
-
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="Started:"
-                    style="@style/Text.Label"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-                <TextView
-                    android:id="@+id/tvStartDate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    style="@style/Text.Body"
-                    android:textColor="?attr/colorOnSurface" />
-            </LinearLayout>
-
-            <!-- Photo Gallery Card -->
+            <!-- Photos -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                style="@style/Widget.AfriNuts.CardView"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                android:background="@color/surface"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
+                app:cardElevation="0dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="16dp"
                     android:id="@+id/btnPhotoGallery"
-                    android:background="@color/surface">
-
-                    <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_icon_sand"
-                        android:layout_marginEnd="16dp">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_photo"
-                            app:tint="@color/accent_ink" />
-
-                    </FrameLayout>
-
+                    android:orientation="vertical"
+                    android:padding="18dp">
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="Photos"
-                            style="@style/Text.H5"
-                            android:textColor="@color/accent_ink" />
-
+                            android:textColor="#1C1B1A"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/manrope_extrabold" />
                         <TextView
                             android:id="@+id/tvPhotoCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 photos"
-                            style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface" />
-
+                            android:textColor="#59544C"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold" />
                     </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_arrow_forward"
-                        app:tint="@color/accent_ink" />
-
+                    <HorizontalScrollView
+                        android:id="@+id/photoThumbnailScroller"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:clipToPadding="false"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/photoThumbnailStrip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Assignment Card -->
+            <!-- Assignment -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                style="@style/Widget.AfriNuts.CardView"
-                android:background="@color/surface">
-
-                <!-- Edge Effect -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_edge_effect"
-                    android:alpha="0.3" />
-
-                <!-- Glassy Overlay -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/surface"
-                    android:alpha="0.4" />
-
-                <!-- Inner Shadow -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_inner_shadow" />
-
+                app:cardElevation="0dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
-                    android:background="@color/surface">
-
-                    <LinearLayout
+                    android:padding="18dp">
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="16dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Worker Assignment"
-                            style="@style/Text.H5"
-                            android:textColor="?attr/colorPrimary" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAssignWorker"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Assign"
-                            style="@style/Widget.AfriNuts.Button"
-                            app:icon="@drawable/ic_add"
-                            app:cornerRadius="20dp" />
-
-                    </LinearLayout>
-
-                    <!-- Current Assignment Card -->
+                        android:text="Assignment"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Currently Assigned To:"
+                        android:textColor="#59544C"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/manrope_bold" />
                     <LinearLayout
                         android:id="@+id/layoutCurrentAssignment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp"
-                        android:layout_marginBottom="16dp"
-                        android:visibility="gone"
-                        app:cardCornerRadius="12dp">
-
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvWorkerInitials"
+                            android:layout_width="46dp"
+                            android:layout_height="46dp"
+                            android:background="@drawable/bg_task_worker_avatar"
+                            android:gravity="center"
+                            android:text="—"
+                            android:textColor="#7A5F22"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/manrope_extrabold" />
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Currently Assigned To:"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            android:layout_marginBottom="4dp" />
-
-                        <TextView
-                            android:id="@+id/tvCurrentWorker"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="John Doe"
-                            style="@style/Text.H6"
-                            android:textColor="?attr/colorPrimary"
-                            android:layout_marginBottom="4dp" />
-
-                        <TextView
-                            android:id="@+id/tvAssignedSince"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Assigned: Mar 10, 2024"
-                            style="@style/Text.Caption.Small"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
-
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvCurrentWorker"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Unassigned"
+                                android:textColor="#1C1B1A"
+                                android:textSize="15.5sp"
+                                android:fontFamily="@font/manrope_extrabold" />
+                            <TextView
+                                android:id="@+id/tvAssignedSince"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text=""
+                                android:textColor="#59544C"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/manrope_medium" />
+                        </LinearLayout>
                     </LinearLayout>
-
-                    <!-- Assignment History -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Assignment History"
-                        style="@style/Text.Label"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:layout_marginBottom="12dp" />
-
-                    <LinearLayout
-                        android:id="@+id/assignmentHistoryContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"/>
-
                     <TextView
                         android:id="@+id/tvNoAssignments"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No assignment history"
-                        style="@style/Text.Body.Small"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:gravity="center"
-                        android:padding="16dp"
-                        android:visibility="gone" />
-
+                        android:visibility="gone"
+                        android:text="No worker assigned"
+                        android:textColor="#59544C"
+                        android:textSize="13sp" />
+                    <LinearLayout
+                        android:id="@+id/assignmentHistoryContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:orientation="vertical" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons - Liquid Glass Style -->
+            <!-- Actions scroll with the task details -->
             <LinearLayout
+                android:id="@+id/taskBottomActions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp">
-
-                <!-- Edit Button - Accent -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEdit"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Edit"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_edit"
-                    app:iconGravity="textStart" />
-
-                <!-- Save Button - Primary -->
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAssignWorker"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="Assign Worker"
+                        android:textAllCaps="false"
+                        android:textColor="#1C1B1A"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        app:backgroundTint="#F3EAD8"
+                        app:cornerRadius="999dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUpdateStatusBottom"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="Update Status"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        app:backgroundTint="#0E6B3C"
+                        app:cornerRadius="999dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+                </LinearLayout>
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
                     android:text="Save"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_save"
-                    app:iconGravity="textStart"
-                    android:visibility="gone" />
-
-                <!-- Delete Button - Danger (Fixed: Use MaterialButton) -->
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    android:visibility="gone"
+                    app:backgroundTint="#0E6B3C"
+                    app:cornerRadius="999dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
-                    android:layout_width="0dp"
-                    android:layout_height="46dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
                     android:text="Delete"
-                    style="@style/Widget.AfriNuts.Button.Danger"
-                    app:icon="@drawable/ic_delete"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/error" />
-
+                    android:textAllCaps="false"
+                    android:textColor="#B3402A"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/manrope_extrabold"
+                    app:backgroundTint="#F8E4DD"
+                    app:cornerRadius="999dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone"
+                    android:text="Edit" />
             </LinearLayout>
-
         </LinearLayout>
-
     </ScrollView>
 
-    <!-- Floating Action Button for quick status update -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_sync"
-        android:contentDescription="Update status"
-        app:backgroundTint="@color/primary"
-        app:tint="@android:color/white"
-        app:fabSize="normal" />
-
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:visibility="gone" />
 </LinearLayout>

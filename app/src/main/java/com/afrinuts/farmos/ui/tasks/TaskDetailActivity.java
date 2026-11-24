@@ -11,19 +11,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.HorizontalScrollView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.repository.BaseRepository;
@@ -32,8 +33,9 @@ import com.afrinuts.farmos.data.repository.TaskAssignmentRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
+import com.afrinuts.farmos.ui.photos.PhotoDetailActivity;
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -42,10 +44,10 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.app.DatePickerDialog;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import java.util.Calendar;
 import java.util.Objects;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 
 public class TaskDetailActivity extends BaseActivity {
 
@@ -67,12 +69,19 @@ public class TaskDetailActivity extends BaseActivity {
     // UI Elements - Photo Gallery
     private LinearLayout btnPhotoGallery;
     private TextView tvPhotoCount;
+    private HorizontalScrollView photoThumbnailScroller;
+    private LinearLayout photoThumbnailStrip;
 
     // Existing UI Elements
     private ImageView tvTaskIcon;
     private TextView tvTaskTitle;
     private TextView tvTaskType;
     private TextView tvCurrentStatus;
+    private TextView tvHeroStatus;
+    private TextView statStatusValue;
+    private TextView statDueDateValue;
+    private TextView statAssignedWorkerValue;
+    private TextView tvWorkerInitials;
     private TextView tvPendingDot;
     private TextView tvInProgressDot;
     private TextView tvCompletedDot;
@@ -100,6 +109,7 @@ public class TaskDetailActivity extends BaseActivity {
     private Button btnDelete;
     private FloatingActionButton fabStatus;
     private MaterialButton btnUpdateStatus;
+    private MaterialButton btnUpdateStatusBottom;
 
     private android.widget.EditText etTitle;
     private android.widget.EditText etDescription;
@@ -159,11 +169,17 @@ public class TaskDetailActivity extends BaseActivity {
         // Photo Gallery
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
         tvPhotoCount = findViewById(R.id.tvPhotoCount);
+        photoThumbnailScroller = findViewById(R.id.photoThumbnailScroller);
+        photoThumbnailStrip = findViewById(R.id.photoThumbnailStrip);
 
         // Header
         tvTaskIcon = findViewById(R.id.tvTaskIcon);
         tvTaskTitle = findViewById(R.id.tvTaskTitle);
         tvTaskType = findViewById(R.id.tvTaskType);
+        tvHeroStatus = findViewById(R.id.tvHeroStatus);
+        statStatusValue = findViewById(R.id.statStatusValue);
+        statDueDateValue = findViewById(R.id.statDueDateValue);
+        statAssignedWorkerValue = findViewById(R.id.statAssignedWorkerValue);
 
         // Status
         tvCurrentStatus = findViewById(R.id.tvCurrentStatus);
@@ -182,6 +198,7 @@ public class TaskDetailActivity extends BaseActivity {
         // Assignment
         layoutCurrentAssignment = findViewById(R.id.layoutCurrentAssignment);
         tvCurrentWorker = findViewById(R.id.tvCurrentWorker);
+        tvWorkerInitials = findViewById(R.id.tvWorkerInitials);
         tvAssignedSince = findViewById(R.id.tvAssignedSince);
         assignmentHistoryContainer = findViewById(R.id.assignmentHistoryContainer);
         tvNoAssignments = findViewById(R.id.tvNoAssignments);
@@ -194,9 +211,11 @@ public class TaskDetailActivity extends BaseActivity {
         btnEdit = findViewById(R.id.btnEdit);
         btnDelete = findViewById(R.id.btnDelete);
         fabStatus = findViewById(R.id.fabStatus);
+        btnUpdateStatusBottom = findViewById(R.id.btnUpdateStatusBottom);
 
         // Set click listeners
         btnUpdateStatus.setOnClickListener(v -> showStatusUpdateDialog());
+        btnUpdateStatusBottom.setOnClickListener(v -> showStatusUpdateDialog());
         fabStatus.setOnClickListener(v -> showStatusUpdateDialog());
         btnAssignWorker.setOnClickListener(v -> showAssignWorkerDialog());
         btnEdit.setOnClickListener(v -> enableEditMode(true));
@@ -242,15 +261,31 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
     private void setupToolbar() {
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
-                findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
-                findViewById(R.id.farmDetailMore), "Task details" );
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvTaskTitle, R.id.tvTaskType, R.id.tvCurrentStatus);
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.moveTaskStatusToHero(this);
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
-                new String[]{"Status", "Due date", "Assigned worker"},
-                new int[]{R.id.tvCurrentStatus, R.id.tvDueDate, R.id.tvCurrentWorker });
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnAssignWorker, R.id.btnUpdateStatus);
+        TextView title = findViewById(R.id.farmDetailTitle);
+        View back = findViewById(R.id.farmDetailBack);
+        View edit = findViewById(R.id.farmDetailEdit);
+        View more = findViewById(R.id.farmDetailMore);
+        title.setText("Task details");
+        back.setOnClickListener(v -> onBackPressed());
+        edit.setVisibility(View.GONE);
+        btnEdit.setVisibility(View.GONE);
+        more.setVisibility(View.VISIBLE);
+        more.setOnClickListener(anchor -> {
+            androidx.appcompat.widget.PopupMenu menu = new androidx.appcompat.widget.PopupMenu(this, anchor);
+            if (sessionManager.canEditData() && !isEditMode) {
+                menu.getMenu().add("Edit").setOnMenuItemClickListener(item -> {
+                    enableEditMode(true);
+                    return true;
+                });
+            }
+            if (isEditMode) {
+                menu.getMenu().add("Cancel editing").setOnMenuItemClickListener(item -> {
+                    enableEditMode(false);
+                    return true;
+                });
+            }
+            menu.show();
+        });
     }
 
     private void loadData() {
@@ -325,6 +360,7 @@ public class TaskDetailActivity extends BaseActivity {
             btnDelete.setVisibility(View.GONE);
             fabStatus.setVisibility(View.GONE);
             btnUpdateStatus.setVisibility(View.GONE);
+            btnUpdateStatusBottom.setVisibility(View.GONE);
             btnAssignWorker.setVisibility(View.GONE);
         }
 
@@ -337,20 +373,45 @@ public class TaskDetailActivity extends BaseActivity {
 
     private void loadPhotoCount() {
         if (photoRepository == null) return;
+        photoRepository.getPhotosForTask(taskId).observe(this, this::displayTaskPhotos);
+    }
 
-        photoRepository.getPhotoCountForTaskAsync(taskId)
-                .thenAccept(count -> {
-                    runOnUiThread(() -> {
-                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
-                    });
-                })
-                .exceptionally(throwable -> {
-                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
-                    runOnUiThread(() -> {
-                        tvPhotoCount.setText("0 photos");
-                    });
-                    return null;
-                });
+    private void displayTaskPhotos(List<PhotoEntity> photos) {
+        photoThumbnailStrip.removeAllViews();
+        int count = photos == null ? 0 : photos.size();
+        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+        photoThumbnailScroller.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        if (count == 0) return;
+
+        int size = dp(88);
+        for (PhotoEntity photo : photos) {
+            ImageView thumbnail = new ImageView(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMarginEnd(dp(10));
+            thumbnail.setLayoutParams(params);
+            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            thumbnail.setContentDescription("Task photo");
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(0xFFF3EAD8);
+            background.setCornerRadius(dp(14));
+            background.setStroke(dp(1), 0xFFE9E1CF);
+            thumbnail.setBackground(background);
+            thumbnail.setClipToOutline(true);
+            String path = photo.getThumbnailPath();
+            if (path == null || path.trim().isEmpty()) path = photo.getFilePath();
+            Glide.with(this).load(path).placeholder(R.drawable.ic_photo_placeholder)
+                    .error(R.drawable.ic_photo_placeholder).centerCrop().into(thumbnail);
+            thumbnail.setOnClickListener(v -> {
+                Intent intent = new Intent(this, PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
+                startActivity(intent);
+            });
+            photoThumbnailStrip.addView(thumbnail);
+        }
+    }
+
+    private int dp(float value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void loadAssignmentHistory() {
@@ -362,8 +423,12 @@ public class TaskDetailActivity extends BaseActivity {
                 assignmentHistoryContainer.removeAllViews();
 
                 if (assignments == null || assignments.isEmpty()) {
-                    tvNoAssignments.setVisibility(View.VISIBLE);
-                    layoutCurrentAssignment.setVisibility(View.GONE);
+                    layoutCurrentAssignment.setVisibility(View.VISIBLE);
+                    tvNoAssignments.setVisibility(View.GONE);
+                    tvCurrentWorker.setText("Unassigned");
+                    tvWorkerInitials.setText("—");
+                    tvAssignedSince.setText("");
+                    statAssignedWorkerValue.setText("—");
                     return;
                 }
 
@@ -374,9 +439,17 @@ public class TaskDetailActivity extends BaseActivity {
                     layoutCurrentAssignment.setVisibility(View.VISIBLE);
                     tvCurrentWorker.setText(current.getAssignedTo());
                     tvAssignedSince.setText("Assigned: " +
-                            dateTimeFormat.format(new Date(current.getAssignedAt())));
+                            dateFormat.format(new Date(current.getAssignedAt())));
+                    tvWorkerInitials.setText(initials(current.getAssignedTo()));
+                    tvNoAssignments.setVisibility(View.GONE);
+                    statAssignedWorkerValue.setText(shortWorkerName(current.getAssignedTo()));
                 } else {
-                    layoutCurrentAssignment.setVisibility(View.GONE);
+                    layoutCurrentAssignment.setVisibility(View.VISIBLE);
+                    tvNoAssignments.setVisibility(View.GONE);
+                    tvCurrentWorker.setText("Unassigned");
+                    tvWorkerInitials.setText("—");
+                    tvAssignedSince.setText("");
+                    statAssignedWorkerValue.setText("—");
                 }
 
                 for (int i = (current != null && current.isActive()) ? 1 : 0; i < assignments.size(); i++) {
@@ -385,6 +458,20 @@ public class TaskDetailActivity extends BaseActivity {
                 }
             });
         });
+    }
+
+    private String initials(String name) {
+        if (name == null || name.trim().isEmpty()) return "—";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase(Locale.ROOT);
+        return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase(Locale.ROOT);
+    }
+
+    private String shortWorkerName(String name) {
+        if (name == null) return "—";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length < 2) return name;
+        return parts[0] + " " + parts[parts.length - 1].substring(0, 1) + ".";
     }
 
     private void addAssignmentToHistory(TaskAssignmentHistoryEntity assignment) {
@@ -418,7 +505,7 @@ public class TaskDetailActivity extends BaseActivity {
         dialog.setOnStatusUpdatedListener(newStatus -> {
             task.setStatus(newStatus);
 
-            if (task.getCompletedDate() == null) {
+            if (newStatus == TaskEntity.TaskStatus.COMPLETED && task.getCompletedDate() == null) {
                 task.setCompletedDate(System.currentTimeMillis());
             }
 
@@ -559,7 +646,7 @@ public class TaskDetailActivity extends BaseActivity {
             btnSave.setVisibility(View.VISIBLE);
         } else {
             btnSave.setVisibility(View.GONE);
-            btnEdit.setVisibility(sessionManager.isInvestor() ? View.GONE : View.VISIBLE);
+            btnEdit.setVisibility(View.GONE);
             displayTaskData();
         }
 
@@ -569,12 +656,9 @@ public class TaskDetailActivity extends BaseActivity {
     private void confirmDelete() {
         if (task == null) return;
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Task")
-                .setMessage("Are you sure you want to delete \"" + task.getTitle() + "\"? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteTask())
-                .setNegativeButton("Cancel", null)
-                .show();
+        TaskDeleteConfirmDialog dialog = TaskDeleteConfirmDialog.newInstance(task.getTitle());
+        dialog.setOnConfirmListener(this::deleteTask);
+        dialog.show(getSupportFragmentManager(), "TaskDeleteConfirmDialog");
     }
 
     private void deleteTask() {
@@ -603,12 +687,13 @@ public class TaskDetailActivity extends BaseActivity {
     private void displayTaskData() {
         if (task == null) return;
 
-        int iconRes = getTaskIcon(task.getType());
-        tvTaskIcon.setImageResource(iconRes);
-        tvTaskIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary));
+        tvTaskIcon.setImageResource(R.drawable.ic_clipboard_check);
+        tvTaskIcon.setColorFilter(Color.WHITE);
 
         tvTaskTitle.setText(task.getTitle());
         tvTaskType.setText(task.getType().getDisplayName());
+        statDueDateValue.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                .format(new Date(task.getDueDate())));
 
         updateStatusDisplay();
 
@@ -625,7 +710,8 @@ public class TaskDetailActivity extends BaseActivity {
             layoutCompletedDate.setVisibility(View.VISIBLE);
             tvCompletedDate.setText(dateFormat.format(new Date(task.getCompletedDate())));
         } else {
-            layoutCompletedDate.setVisibility(View.GONE);
+            layoutCompletedDate.setVisibility(View.VISIBLE);
+            tvCompletedDate.setText("—");
         }
 
         // 42: start date. Only present on backdated tasks.
@@ -633,14 +719,11 @@ public class TaskDetailActivity extends BaseActivity {
             layoutStartDate.setVisibility(View.VISIBLE);
             tvStartDate.setText(dateFormat.format(new Date(task.getStartDate())));
         } else {
-            layoutStartDate.setVisibility(View.GONE);
+            layoutStartDate.setVisibility(View.VISIBLE);
+            tvStartDate.setText("—");
         }
 
-        if (task.getDescription() != null && !task.getDescription().isEmpty()) {
-            tvDescription.setText(task.getDescription());
-        } else {
-            tvDescription.setText("No description provided");
-        }
+        tvDescription.setText(task.getDescription() == null ? "" : task.getDescription());
     }
 
     private int getTaskIcon(TaskEntity.TaskType type) {
@@ -664,48 +747,46 @@ public class TaskDetailActivity extends BaseActivity {
         if (task == null) return;
 
         tvCurrentStatus.setText(task.getStatus().getDisplayName());
+        tvHeroStatus.setText(task.getStatus().getDisplayName());
+        statStatusValue.setText(task.getStatus().getDisplayName());
+        int currentStep = task.getStatus() == TaskEntity.TaskStatus.PENDING ? 0
+                : task.getStatus() == TaskEntity.TaskStatus.IN_PROGRESS ? 1
+                : task.getStatus() == TaskEntity.TaskStatus.COMPLETED ? 2 : -1;
+        updateStep(tvPendingDot, findViewById(R.id.tvPendingLabel), 0, currentStep);
+        updateStep(tvInProgressDot, findViewById(R.id.tvInProgressLabel), 1, currentStep);
+        updateStep(tvCompletedDot, findViewById(R.id.tvCompletedLabel), 2, currentStep);
+        View firstLine = findViewById(R.id.viewPendingInProgressLine);
+        View secondLine = findViewById(R.id.viewInProgressCompletedLine);
+        firstLine.setBackgroundColor(currentStep > 0 ? 0xFF0E6B3C : 0xFFE9E1CF);
+        secondLine.setBackgroundColor(currentStep > 1 ? 0xFF0E6B3C : 0xFFE9E1CF);
 
-        switch (task.getStatus()) {
-            case PENDING:
-                tvPendingDot.setBackgroundResource(R.drawable.circle_green);
-                tvInProgressDot.setBackgroundResource(R.drawable.circle_grey);
-                tvCompletedDot.setBackgroundResource(R.drawable.circle_grey);
-                break;
-            case IN_PROGRESS:
-                tvPendingDot.setBackgroundResource(R.drawable.circle_green);
-                tvInProgressDot.setBackgroundResource(R.drawable.circle_blue);
-                tvCompletedDot.setBackgroundResource(R.drawable.circle_grey);
-                break;
-            case COMPLETED:
-                tvPendingDot.setBackgroundResource(R.drawable.circle_green);
-                tvInProgressDot.setBackgroundResource(R.drawable.circle_blue);
-                tvCompletedDot.setBackgroundResource(R.drawable.circle_green);
-                break;
-            case CANCELLED:
-                tvPendingDot.setBackgroundResource(R.drawable.circle_grey);
-                tvInProgressDot.setBackgroundResource(R.drawable.circle_grey);
-                tvCompletedDot.setBackgroundResource(R.drawable.circle_grey);
-                break;
-        }
+        tvCurrentStatus.setTextColor(0xFF1C1B1A);
+    }
 
-        int statusColor;
-        switch (task.getStatus()) {
-            case PENDING:
-                statusColor = ContextCompat.getColor(this, android.R.color.holo_orange_dark);
-                break;
-            case IN_PROGRESS:
-                statusColor = ContextCompat.getColor(this, android.R.color.holo_blue_dark);
-                break;
-            case COMPLETED:
-                statusColor = ContextCompat.getColor(this, android.R.color.holo_green_dark);
-                break;
-            case CANCELLED:
-                statusColor = ContextCompat.getColor(this, android.R.color.holo_red_dark);
-                break;
-            default:
-                statusColor = ContextCompat.getColor(this, R.color.primary);
+    private void updateStep(TextView dot, TextView label, int index, int currentStep) {
+        boolean reached = currentStep >= index && currentStep >= 0;
+        dot.setText(reached ? "✓" : "");
+        GradientDrawable outer = new GradientDrawable();
+        outer.setShape(GradientDrawable.OVAL);
+        outer.setColor(reached && index == currentStep ? 0xFFE3F0E7 : Color.TRANSPARENT);
+        GradientDrawable inner = new GradientDrawable();
+        inner.setShape(GradientDrawable.OVAL);
+        if (reached) inner.setColor(0xFF0E6B3C);
+        else {
+            inner.setColor(Color.WHITE);
+            inner.setStroke(dp(2), 0xFFC9C2B4);
         }
-        tvCurrentStatus.setTextColor(statusColor);
+        android.graphics.drawable.LayerDrawable layers =
+                new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{outer, inner});
+        layers.setLayerInset(1, dp(5), dp(5), dp(5), dp(5));
+        dot.setBackground(layers);
+        dot.setTextColor(reached ? Color.WHITE : Color.TRANSPARENT);
+        dot.setPadding(0, 0, 0, 0);
+        label.setTextColor(index == currentStep ? 0xFF0A5530 : 0xFF59544C);
+        label.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this,
+                        index == currentStep ? R.font.manrope_extrabold : R.font.manrope_bold),
+                android.graphics.Typeface.NORMAL));
     }
 
     private String getBlockName(Long blockId) {
