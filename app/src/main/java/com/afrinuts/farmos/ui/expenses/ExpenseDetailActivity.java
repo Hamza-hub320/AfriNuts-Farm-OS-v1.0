@@ -3,6 +3,8 @@ package com.afrinuts.farmos.ui.expenses;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,7 +15,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +29,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
+import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
@@ -36,6 +41,8 @@ import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.finance.FinanceDetailChrome;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
+import com.afrinuts.farmos.ui.photos.PhotoDetailActivity;
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -83,6 +90,14 @@ public class ExpenseDetailActivity extends BaseActivity {
     // UI Elements
     private LinearLayout btnPhotoGallery;
     private TextView tvPhotoCount;
+    private HorizontalScrollView photoThumbnailScroller;
+    private LinearLayout photoThumbnailStrip;
+    private LinearLayout expenseDetailContent;
+    private LinearLayout expenseDetailsBody;
+    private LinearLayout expenseReadout;
+    private CardView procurementReadoutCard;
+    private TextView readoutAmount, readoutDate, readoutCategory, readoutBlock, readoutNotes;
+    private TextView procurementSupplier, procurementInvoice, procurementReceipt;
     private ImageView tvCategoryIcon;
     private TextView tvCategoryName;
     private TextView tvBlockInfo;
@@ -104,7 +119,6 @@ public class ExpenseDetailActivity extends BaseActivity {
     private MaterialButton btnSave;
     private Button btnDelete;
     private FloatingActionButton fabEdit;
-    private MaterialButton footerPhotos;
     private ImageButton headerEdit;
 
     private boolean isEditMode = false;
@@ -150,13 +164,6 @@ public class ExpenseDetailActivity extends BaseActivity {
         applyRoleBasedRestrictions();
 
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
-        tvPhotoCount = findViewById(R.id.tvPhotoCount);
-
-        btnPhotoGallery.setOnClickListener(v -> {
-            Intent intent = new Intent(this, PhotoGalleryActivity.class);
-            intent.putExtra("expense_id", expenseId);
-            startActivity(intent);
-        });
     }
 
     private void applyRoleBasedRestrictions() {
@@ -167,10 +174,14 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
+        expenseDetailContent = findViewById(R.id.expenseDetailContent);
+        expenseDetailsBody = findViewById(R.id.expenseDetailsBody);
         // Category display
         tvCategoryIcon = findViewById(R.id.tvCategoryIcon);
         tvCategoryName = findViewById(R.id.tvCategoryName);
         tvBlockInfo = findViewById(R.id.tvBlockInfo);
+        btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
+        tvPhotoCount = findViewById(R.id.tvPhotoCount);
         tvProcurementInfo = findViewById(R.id.tvProcurementInfo);  // ✅ Add this
 
         layoutEditFields = findViewById(R.id.layoutEditFields);
@@ -207,7 +218,6 @@ public class ExpenseDetailActivity extends BaseActivity {
 
         // Set click listeners
         btnEdit.setOnClickListener(v -> enableEditMode(!isEditMode));
-        fabEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
         btnDelete.setOnClickListener(v -> confirmDelete());
 
@@ -240,34 +250,43 @@ public class ExpenseDetailActivity extends BaseActivity {
         FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
                 findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailEdit),
                 findViewById(R.id.farmDetailMore), "Expense details");
+        if (headerEdit != null) headerEdit.setVisibility(View.GONE);
+        buildExpenseReadouts();
+        configurePhotosCard();
     }
 
     private void installDetailFooter() {
-        LinearLayout root = (LinearLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
         ViewGroup sourceRow = (ViewGroup) btnEdit.getParent();
         sourceRow.removeView(btnEdit);
         sourceRow.removeView(btnSave);
+        sourceRow.removeView(btnDelete);
         sourceRow.setVisibility(View.GONE);
         btnDelete.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.GONE);
-
-        footerPhotos = new MaterialButton(this);
-        footerPhotos.setText("Photos");
-        styleFooterButton(footerPhotos, false);
-        footerPhotos.setOnClickListener(v -> btnPhotoGallery.performClick());
-        styleFooterButton(btnEdit, true);
+        btnEdit.setText("Edit");
+        btnEdit.setIcon(null);
+        btnSave.setIcon(null);
+        btnDelete.setText("Delete");
+        ((MaterialButton) btnDelete).setIcon(null);
+        styleFooterButton(btnEdit, false);
         styleFooterButton(btnSave, true);
+        styleFooterButton((MaterialButton) btnDelete, false);
+        btnDelete.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFF9E4DE));
+        btnDelete.setTextColor(0xFFC13D25);
 
         LinearLayout footer = new LinearLayout(this);
-        footer.setOrientation(LinearLayout.HORIZONTAL);
-        footer.setPadding(dp(20), dp(8), dp(20), dp(12));
-        footer.setBackgroundColor(0xFFF6F1E7);
-        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, dp(52), 1f);
-        left.setMargins(0, 0, dp(12), 0);
-        footer.addView(footerPhotos, left);
-        footer.addView(btnEdit, new LinearLayout.LayoutParams(0, dp(52), 1f));
-        footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(52), 1f));
-        root.addView(footer);
+        footer.setOrientation(LinearLayout.VERTICAL);
+        footer.setPadding(0, dp(4), 0, dp(28));
+        LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
+        footerParams.topMargin = dp(16);
+        expenseDetailContent.addView(footer, footerParams);
+        footer.addView(btnEdit, new LinearLayout.LayoutParams(-1, dp(52)));
+        LinearLayout.LayoutParams saveParams = new LinearLayout.LayoutParams(-1, dp(52));
+        saveParams.topMargin = dp(12);
+        footer.addView(btnSave, saveParams);
+        LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(-1, dp(52));
+        deleteParams.topMargin = dp(12);
+        footer.addView(btnDelete, deleteParams);
     }
 
     private void styleFooterButton(MaterialButton button, boolean primary) {
@@ -280,9 +299,216 @@ public class ExpenseDetailActivity extends BaseActivity {
         button.setMinHeight(dp(52));
         button.setInsetTop(0);
         button.setInsetBottom(0);
+        button.setElevation(0);
     }
 
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+
+    private void buildExpenseReadouts() {
+        if (expenseDetailsBody == null || expenseReadout != null) return;
+        expenseReadout = new LinearLayout(this);
+        expenseReadout.setOrientation(LinearLayout.VERTICAL);
+        expenseDetailsBody.addView(expenseReadout, 1);
+        readoutAmount = addReadoutRow(expenseReadout, "Amount", true);
+        readoutDate = addReadoutRow(expenseReadout, "Date", true);
+        readoutCategory = addReadoutRow(expenseReadout, "Category", true);
+        readoutBlock = addReadoutRow(expenseReadout, "Block", false);
+        addReadoutLabel(expenseReadout, "Notes");
+        readoutNotes = new TextView(this);
+        readoutNotes.setTextColor(0xFF3F3B35);
+        readoutNotes.setTextSize(14);
+        readoutNotes.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_medium));
+        readoutNotes.setLineSpacing(dp(3), 1f);
+        expenseReadout.addView(readoutNotes);
+        setExpenseInputVisibility(false);
+
+        procurementReadoutCard = createSectionCard("Procurement Details");
+        LinearLayout procurementBody = (LinearLayout) procurementReadoutCard.getChildAt(0);
+        procurementSupplier = addReadoutRow(procurementBody, "Supplier", true);
+        procurementInvoice = addReadoutRow(procurementBody, "Invoice", true);
+        procurementReceipt = addReadoutRow(procurementBody, "Receipt", false);
+        procurementReadoutCard.setVisibility(View.GONE);
+        int photoIndex = expenseDetailContent.indexOfChild(findViewById(R.id.expensePhotosCard));
+        expenseDetailContent.addView(procurementReadoutCard, Math.max(0, photoIndex + 1));
+        if (layoutProcurementSection.getParent() instanceof ViewGroup) {
+            ((ViewGroup) layoutProcurementSection.getParent()).removeView(layoutProcurementSection);
+            expenseDetailsBody.addView(layoutProcurementSection);
+        }
+        if (layoutEditFields != null) layoutEditFields.setVisibility(View.GONE);
+    }
+
+    private CardView createSectionCard(String title) {
+        CardView card = new CardView(this);
+        card.setCardBackgroundColor(Color.WHITE);
+        card.setRadius(dp(24));
+        card.setCardElevation(0);
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(20), dp(18), dp(20), dp(18));
+        TextView heading = new TextView(this);
+        heading.setText(title);
+        heading.setTextColor(0xFF1C1B1A);
+        heading.setTextSize(16);
+        heading.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+        LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(-1, -2);
+        headingParams.bottomMargin = dp(8);
+        body.addView(heading, headingParams);
+        card.addView(body);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.bottomMargin = dp(12);
+        card.setLayoutParams(params);
+        return card;
+    }
+
+    private TextView addReadoutRow(LinearLayout parent, String label, boolean dividerAfter) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(11), 0, dp(11));
+        TextView key = new TextView(this);
+        key.setText(label);
+        key.setTextColor(0xFF59544C);
+        key.setTextSize(13);
+        key.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold));
+        row.addView(key, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView value = new TextView(this);
+        value.setGravity(android.view.Gravity.END);
+        value.setTextColor(0xFF1C1B1A);
+        value.setTextSize(14.5f);
+        value.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold));
+        value.setMaxWidth(dp(210));
+        value.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        value.setMaxLines(2);
+        row.addView(value);
+        parent.addView(row);
+        if (dividerAfter) {
+            View divider = new View(this);
+            divider.setBackgroundColor(0xFFE9E1CF);
+            parent.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));
+        }
+        return value;
+    }
+
+    private void addReadoutLabel(LinearLayout parent, String label) {
+        TextView title = new TextView(this);
+        title.setText(label);
+        title.setTextColor(0xFF59544C);
+        title.setTextSize(13);
+        title.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.topMargin = dp(13);
+        params.bottomMargin = dp(6);
+        parent.addView(title, params);
+    }
+
+    private void setExpenseInputVisibility(boolean editing) {
+        if (expenseReadout != null) expenseReadout.setVisibility(editing ? View.GONE : View.VISIBLE);
+        View[] forms = { (View) etAmount.getParent(), (View) etDate.getParent(),
+                (View) etDescription.getParent() };
+        for (View form : forms) if (form != null) form.setVisibility(editing ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateExpenseReadouts() {
+        if (expense == null || readoutAmount == null) return;
+        readoutAmount.setText(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount()));
+        readoutDate.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(expense.getDate()));
+        readoutCategory.setText(expense.getCategory() == null ? "—" : expense.getCategory().getDisplayName());
+        String block = expense.isFarmWide() ? "Farm-Wide" : getBlockName(expense.getBlockId());
+        readoutBlock.setText(TextUtils.isEmpty(block) ? "—" : (block.startsWith("Block ") ? block : "Block " + block));
+        if (expense.isFarmWide()) readoutBlock.setText("Farm-Wide");
+        ((View) readoutBlock.getParent()).setVisibility(expense.isProcurementRelated() ? View.GONE : View.VISIBLE);
+        readoutNotes.setText(TextUtils.isEmpty(expense.getDescription()) ? "No notes" : expense.getDescription());
+        expenseReadout.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
+        procurementReadoutCard.setVisibility(expense.isProcurementRelated() && !isEditMode ? View.VISIBLE : View.GONE);
+        procurementSupplier.setText(TextUtils.isEmpty(expense.getSupplierName()) ? "—" : expense.getSupplierName());
+        procurementInvoice.setText("—");
+        String receipt = expense.getReceiptPath();
+        procurementReceipt.setText(TextUtils.isEmpty(receipt) ? "—" : new java.io.File(receipt).getName());
+    }
+
+    private void configurePhotosCard() {
+        if (btnPhotoGallery == null) return;
+        if (tvPhotoCount.getParent() instanceof ViewGroup) {
+            ((ViewGroup) tvPhotoCount.getParent()).removeView(tvPhotoCount);
+        }
+        btnPhotoGallery.removeAllViews();
+        btnPhotoGallery.setOrientation(LinearLayout.VERTICAL);
+        btnPhotoGallery.setPadding(dp(20), dp(18), dp(20), dp(18));
+        btnPhotoGallery.setBackgroundColor(Color.WHITE);
+        btnPhotoGallery.setClickable(false);
+        btnPhotoGallery.setFocusable(false);
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        TextView title = new TextView(this);
+        title.setText("Photos");
+        title.setTextColor(0xFF1C1B1A);
+        title.setTextSize(16);
+        title.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+        header.addView(title, new LinearLayout.LayoutParams(0, -2, 1f));
+        tvPhotoCount.setTextColor(0xFF59544C);
+        tvPhotoCount.setTextSize(13);
+        tvPhotoCount.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_semibold));
+        header.addView(tvPhotoCount);
+        btnPhotoGallery.addView(header);
+        photoThumbnailScroller = new HorizontalScrollView(this);
+        photoThumbnailScroller.setHorizontalScrollBarEnabled(false);
+        photoThumbnailScroller.setVisibility(View.GONE);
+        photoThumbnailStrip = new LinearLayout(this);
+        photoThumbnailStrip.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams stripParams = new LinearLayout.LayoutParams(-1, -2);
+        stripParams.topMargin = dp(14);
+        btnPhotoGallery.addView(photoThumbnailScroller, stripParams);
+        photoThumbnailScroller.addView(photoThumbnailStrip);
+        MaterialButton gallery = new MaterialButton(this);
+        gallery.setText("View gallery");
+        gallery.setIconResource(R.drawable.ic_photo);
+        gallery.setIconTint(android.content.res.ColorStateList.valueOf(0xFF0A5530));
+        gallery.setTextColor(0xFF0A5530);
+        gallery.setTextSize(14);
+        gallery.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold));
+        gallery.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE3F0E7));
+        gallery.setCornerRadius(dp(999));
+        gallery.setInsetTop(0); gallery.setInsetBottom(0); gallery.setElevation(0);
+        LinearLayout.LayoutParams galleryParams = new LinearLayout.LayoutParams(-2, dp(44));
+        galleryParams.gravity = android.view.Gravity.END;
+        galleryParams.topMargin = dp(14);
+        btnPhotoGallery.addView(gallery, galleryParams);
+        gallery.setOnClickListener(v -> openExpenseGallery());
+    }
+
+    private void openExpenseGallery() {
+        Intent intent = new Intent(this, PhotoGalleryActivity.class);
+        intent.putExtra("expense_id", expenseId);
+        startActivity(intent);
+    }
+
+    private void displayExpensePhotos(List<PhotoEntity> photos) {
+        if (photoThumbnailStrip == null) return;
+        photoThumbnailStrip.removeAllViews();
+        int count = photos == null ? 0 : photos.size();
+        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+        photoThumbnailScroller.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        if (count == 0) return;
+        int size = dp(88);
+        for (PhotoEntity photo : photos) {
+            ImageView thumbnail = new ImageView(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMarginEnd(dp(10));
+            thumbnail.setLayoutParams(params);
+            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setColor(0xFFF3EAD8); bg.setCornerRadius(dp(14)); bg.setStroke(dp(1), 0xFFE9E1CF);
+            thumbnail.setBackground(bg); thumbnail.setClipToOutline(true);
+            String path = TextUtils.isEmpty(photo.getThumbnailPath()) ? photo.getFilePath() : photo.getThumbnailPath();
+            Glide.with(this).load(path).placeholder(R.drawable.ic_photo_placeholder)
+                    .error(R.drawable.ic_photo_placeholder).centerCrop().into(thumbnail);
+            thumbnail.setOnClickListener(v -> {
+                Intent intent = new Intent(this, PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
+                startActivity(intent);
+            });
+            photoThumbnailStrip.addView(thumbnail);
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -303,17 +529,7 @@ public class ExpenseDetailActivity extends BaseActivity {
     }
 
     private void setEditModeVisibility(boolean visible) {
-        View layoutEditFields = findViewById(R.id.layoutEditFields);
-        if (layoutEditFields != null) {
-            layoutEditFields.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
-
-        int editVisibility = visible ? View.VISIBLE : View.GONE;
-        if (etAmountEdit != null) etAmountEdit.setVisibility(editVisibility);
-        if (etDateEdit != null) etDateEdit.setVisibility(editVisibility);
-        if (etDescriptionEdit != null) etDescriptionEdit.setVisibility(editVisibility);
-        if (etSupplier != null) etSupplier.setVisibility(editVisibility);
-        if (etBatch != null) etBatch.setVisibility(editVisibility);
+        if (layoutEditFields != null) layoutEditFields.setVisibility(View.GONE);
     }
 
     private void showDatePicker() {
@@ -341,17 +557,7 @@ public class ExpenseDetailActivity extends BaseActivity {
     private void loadPhotoCount() {
         if (expenseId == -1 || photoRepository == null) return;
 
-        photoRepository.getPhotoCountForExpenseAsync(expenseId)
-                .thenAccept(count -> {
-                    runOnUiThread(() -> {
-                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
-                    });
-                })
-                .exceptionally(throwable -> {
-                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
-                    runOnUiThread(() -> tvPhotoCount.setText("0 photos"));
-                    return null;
-                });
+        photoRepository.getPhotosForExpense(expenseId).observe(this, this::displayExpensePhotos);
     }
 
     private void loadData() {
@@ -371,6 +577,7 @@ public class ExpenseDetailActivity extends BaseActivity {
 
             farmId = farm.getId();
             expenseRepository = new ExpenseRepository(ExpenseDetailActivity.this, farmId);
+            photoRepository = new PhotoRepository(ExpenseDetailActivity.this, farmId);
             batchRepository = new QualityBatchRepository(ExpenseDetailActivity.this, farmId);
             supplierRepository = new SupplierRepository(ExpenseDetailActivity.this, farmId);
 
@@ -472,7 +679,7 @@ public class ExpenseDetailActivity extends BaseActivity {
 
             // Show procurement info
             if (tvProcurementInfo != null) {
-                tvProcurementInfo.setVisibility(View.VISIBLE);
+                tvProcurementInfo.setVisibility(View.GONE);
                 String info = "";
                 if (expense.getBatchNumber() != null) {
                     info += "Batch: " + expense.getBatchNumber();
@@ -514,9 +721,7 @@ public class ExpenseDetailActivity extends BaseActivity {
             tvBlockInfo.setVisibility(View.VISIBLE);
 
             // Hide procurement info
-            if (tvProcurementInfo != null) {
-                tvProcurementInfo.setVisibility(View.GONE);
-            }
+            if (tvProcurementInfo != null) tvProcurementInfo.setVisibility(View.GONE);
         }
 
         // Set amount
@@ -535,7 +740,8 @@ public class ExpenseDetailActivity extends BaseActivity {
         String sourceText = sourceLabel;
         String formattedDate = expense.getDate() > 0
                 ? new java.text.SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(expense.getDate()) : "Date not recorded";
-        if (!formattedDate.isEmpty()) sourceText += " · " + formattedDate;
+        String location = currentFarm == null ? "" : currentFarm.getLocation();
+        if (!TextUtils.isEmpty(location)) sourceText += " · " + location;
         tvBlockInfo.setText(sourceText);
         ((TextView) findViewById(R.id.tvFinanceAmountDisplay)).setText(String.format(Locale.getDefault(), "%,.0f XAF", expense.getAmount()));
         ((TextView) findViewById(R.id.tvFinanceDateDisplay)).setText(formattedDate);
@@ -544,6 +750,66 @@ public class ExpenseDetailActivity extends BaseActivity {
         FinanceDetailChrome.addStats(this,
                 new String[]{"Amount", "Date", "Source"},
                 new int[]{R.id.tvFinanceAmountDisplay, R.id.tvFinanceDateDisplay, R.id.tvFinanceSourceDisplay});
+        decorateExpenseHero(iconRes);
+        updateExpenseReadouts();
+        moveExpenseSectionsIntoWireframeOrder();
+    }
+
+    private void decorateExpenseHero(int iconRes) {
+        LinearLayout content = findViewById(R.id.expenseDetailContent);
+        View heroView = content.findViewWithTag("finance-detail-hero");
+        if (!(heroView instanceof CardView)) return;
+        LinearLayout body = (LinearLayout) ((CardView) heroView).getChildAt(0);
+        TextView name = body.findViewWithTag("finance-detail-name");
+        TextView subtitle = body.findViewWithTag("finance-detail-subtitle");
+        if (name == null || subtitle == null || body.findViewWithTag("expense-hero-icon") != null) return;
+        // Procurement sources include both a batch number and supplier; let the
+        // subtitle wrap so neither part is clipped inside the hero card.
+        subtitle.setMaxLines(3);
+        subtitle.setEllipsize(null);
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        body.removeView(name);
+        body.removeView(subtitle);
+        FrameLayout icon = new FrameLayout(this);
+        icon.setTag("expense-hero-icon");
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(0xFFE3F0E7);
+        icon.setBackground(bg);
+        ImageView image = new ImageView(this);
+        image.setImageResource(iconRes);
+        image.setColorFilter(0xFF0A5530);
+        FrameLayout.LayoutParams imageParams = new FrameLayout.LayoutParams(dp(26), dp(26), android.view.Gravity.CENTER);
+        icon.addView(image, imageParams);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dp(54), dp(54));
+        iconParams.rightMargin = dp(14);
+        row.addView(icon, iconParams);
+        LinearLayout textStack = new LinearLayout(this);
+        textStack.setOrientation(LinearLayout.VERTICAL);
+        textStack.addView(name);
+        LinearLayout.LayoutParams subtitleParams = new LinearLayout.LayoutParams(-1, -2);
+        subtitleParams.topMargin = dp(3);
+        textStack.addView(subtitle, subtitleParams);
+        row.addView(textStack, new LinearLayout.LayoutParams(0, -2, 1f));
+        body.addView(row, 0);
+        TextView grade = body.findViewWithTag("finance-detail-grade");
+        if (grade != null) grade.setVisibility(View.GONE);
+    }
+
+    private void moveExpenseSectionsIntoWireframeOrder() {
+        if (expenseDetailContent == null) return;
+        View details = findViewById(R.id.expenseDetailsCard);
+        View photos = findViewById(R.id.expensePhotosCard);
+        if (details != null && photos != null) {
+            expenseDetailContent.removeView(details);
+            expenseDetailContent.addView(details, Math.min(2, expenseDetailContent.getChildCount()));
+        }
+        if (procurementReadoutCard != null && photos != null) {
+            expenseDetailContent.removeView(procurementReadoutCard);
+            int photoIndex = expenseDetailContent.indexOfChild(photos);
+            expenseDetailContent.addView(procurementReadoutCard, photoIndex + 1);
+        }
     }
 
     private int getIconForCategory(ExpenseEntity.ExpenseCategory category) {
@@ -603,14 +869,16 @@ public class ExpenseDetailActivity extends BaseActivity {
 
         isEditMode = enable;
 
-        btnEdit.setText(enable ? "Cancel" : "Edit");
-        btnEdit.setVisibility(View.VISIBLE);
+        btnEdit.setText("Edit");
+        btnEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
         btnSave.setVisibility(enable ? View.VISIBLE : View.GONE);
-        fabEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
-        footerPhotos.setVisibility(enable ? View.GONE : View.VISIBLE);
-        if (headerEdit != null) headerEdit.setVisibility(enable ? View.GONE : View.VISIBLE);
+        if (fabEdit != null) fabEdit.setVisibility(View.GONE);
+        if (headerEdit != null) headerEdit.setVisibility(View.GONE);
 
         setFieldsEditable(enable);
+        setExpenseInputVisibility(enable);
+        setEditModeVisibility(enable);
+        updateExpenseReadouts();
 
         // ✅ Show/hide procurement section based on expense type
         if (enable) {
@@ -813,12 +1081,34 @@ public class ExpenseDetailActivity extends BaseActivity {
             return;
         }
 
-        new MaterialAlertDialogBuilder(this)
+        androidx.appcompat.app.AlertDialog alert = new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Expense")
                 .setMessage("Are you sure you want to delete this expense? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteExpense())
+                .setPositiveButton("Delete", (alertDialog, which) -> deleteExpense())
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        alert.setOnShowListener(ignored -> {
+            styleDialogAction(alert.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE), 0xFFF9E4DE, 0xFFC13D25);
+            styleDialogAction(alert.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE), 0xFFF3EAD8, 0xFF1C1B1A);
+            if (alert.getWindow() != null) {
+                GradientDrawable sheet = new GradientDrawable();
+                sheet.setColor(Color.WHITE);
+                sheet.setCornerRadius(dp(28));
+                alert.getWindow().setBackgroundDrawable(sheet);
+            }
+        });
+        alert.show();
+    }
+
+    private void styleDialogAction(Button button, int fill, int text) {
+        if (button == null) return;
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(fill);
+        background.setCornerRadius(dp(999));
+        button.setBackground(background);
+        button.setTextColor(text);
+        button.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold));
+        button.setElevation(0);
     }
 
     private void deleteExpense() {

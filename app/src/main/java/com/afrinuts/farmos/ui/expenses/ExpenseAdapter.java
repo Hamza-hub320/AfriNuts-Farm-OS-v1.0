@@ -91,7 +91,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
                 tvCategory.setText(expense.getCategory().getDisplayName());
 
                 // Set category icon
-                int iconRes = expense.getCategory().getIconResId();
+                int iconRes = ExpenseIconHelper.getCategoryIconResId(expense.getCategory());
                 ivCategoryIcon.setImageResource(iconRes);
             }
 
@@ -118,7 +118,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
                 tvProcurementInfo.setVisibility(View.GONE);
 
                 if (blockName != null) {
-                    tvSourceInfo.setText("Block " + blockName);
+                    String normalizedBlock = blockName.startsWith("Block ") ? blockName : "Block " + blockName;
+                    tvSourceInfo.setText(normalizedBlock);
                     tvSourceInfo.setTextColor(0xFF59544C);
                 } else {
                     tvSourceInfo.setText("Farm-Wide");

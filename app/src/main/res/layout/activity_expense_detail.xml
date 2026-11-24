@@ -58,13 +58,19 @@
 
 
     <ScrollView
+        android:id="@+id/expenseDetailScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="20dp"
+        android:paddingStart="20dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false"
         android:fillViewport="true">
 
         <LinearLayout
+            android:id="@+id/expenseDetailContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -77,9 +83,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
                 android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
@@ -160,12 +166,13 @@
 
             <!-- Photos Card - Modern Glass -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/expensePhotosCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 style="@style/Widget.AfriNuts.CardView"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 android:background="@color/surface"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
@@ -264,20 +271,32 @@
 
             <!-- Details Card - Modern Glass -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/expenseDetailsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 android:background="@color/surface"
                 style="@style/Widget.AfriNuts.CardView">
 
                 <LinearLayout
+                    android:id="@+id/expenseDetailsBody"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="20dp"
                     android:background="@color/surface">
+
+                    <TextView
+                        android:id="@+id/expenseDetailsHeading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Details"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:layout_marginBottom="8dp" />
 
                     <!-- Amount Field -->
                     <com.google.android.material.textfield.TextInputLayout
