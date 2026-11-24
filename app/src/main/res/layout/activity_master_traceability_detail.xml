@@ -22,7 +22,7 @@
             android:background="@drawable/bg_detail_header_button"
             android:contentDescription="Back"
             android:padding="12dp"
-            android:src="@drawable/ic_backward"
+            android:src="@drawable/ic_finance_back_chevron"
             app:tint="#1C1B1A" />
 
         <TextView

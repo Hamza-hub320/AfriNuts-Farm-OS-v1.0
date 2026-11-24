@@ -17,12 +17,12 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:background="@drawable/bg_detail_header_button"
             android:contentDescription="Back"
-            android:padding="14dp"
-            android:src="@drawable/ic_backward"
+            android:padding="12dp"
+            android:src="@drawable/ic_finance_back_chevron"
             app:tint="@color/text_primary" />
 
         <TextView
