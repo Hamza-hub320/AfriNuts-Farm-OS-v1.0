@@ -69,12 +69,12 @@
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent" android:layout_height="105dp" android:layout_marginTop="4dp"
-            app:cardBackgroundColor="@color/surface" app:cardCornerRadius="18dp" app:cardElevation="0dp">
+            app:cardBackgroundColor="@color/primary" app:cardCornerRadius="18dp" app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical" android:paddingHorizontal="14dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avg Quality Score" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avg Quality Score" android:textColor="#CCFFFFFF" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/avgQualityScoreValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="/100" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                    <TextView android:id="@+id/avgQualityScoreValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#FFFFFF" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="3dp" android:text="/100" android:textColor="#CCFFFFFF" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
