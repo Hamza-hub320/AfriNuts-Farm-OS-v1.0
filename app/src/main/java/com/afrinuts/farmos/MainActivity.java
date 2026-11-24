@@ -87,6 +87,7 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "AfriNutsFarmOS";
+    private static final int SUPPLIER_GOAL = 1000;
     private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // Sync Components
@@ -1065,7 +1066,7 @@ public class MainActivity extends AppCompatActivity {
                     final float[] finalMonthlyKg = monthlyKg;
                     final int finalPremium = premium, finalStandard = standard, finalReject = reject;
                     final int finalGraded = graded, finalOnboarded = onboarded;
-                    final int finalSupplierTotal = suppliers.size();
+                    final int finalSupplierTotal = SUPPLIER_GOAL;
                     runOnUiThread(() -> {
                         TextView rcn = findViewById(R.id.homeRcnNumber);
                         TextView premiumPercent = findViewById(R.id.homePremiumGradePercent);
@@ -1097,7 +1098,7 @@ public class MainActivity extends AppCompatActivity {
                         rejectPercent.setText(gradePercentages[2] + "%");
                         gradedCount.setText(String.valueOf(finalGraded));
                         supplierOnboarded.setText(String.valueOf(finalOnboarded));
-                        supplierTotal.setText(String.valueOf(finalSupplierTotal));
+                        supplierTotal.setText(String.format(Locale.getDefault(), "%,d", finalSupplierTotal));
                         int toGo = Math.max(finalSupplierTotal - finalOnboarded, 0);
                         supplierRemaining.setText(toGo + " to go");
                         int percent = finalSupplierTotal == 0 ? 0 : Math.round(finalOnboarded * 100f / finalSupplierTotal);
