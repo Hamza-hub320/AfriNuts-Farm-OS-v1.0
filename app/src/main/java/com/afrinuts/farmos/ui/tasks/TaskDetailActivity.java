@@ -1,7 +1,13 @@
 package com.afrinuts.farmos.ui.tasks;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +23,11 @@ import java.util.Calendar;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 
 import com.afrinuts.farmos.R;
@@ -34,6 +44,7 @@ import com.afrinuts.farmos.data.repository.TaskRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
 import com.afrinuts.farmos.ui.photos.PhotoDetailActivity;
+import com.afrinuts.farmos.ui.compliance.PhotoSourceDialog;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,6 +54,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import android.app.DatePickerDialog;
 import android.widget.EditText;
 import java.util.Objects;
@@ -53,6 +69,9 @@ public class TaskDetailActivity extends BaseActivity {
 
     public static final String EXTRA_TASK_ID = "task_id";
     private static final String TAG = "TaskDetailActivity";
+    private static final int REQUEST_IMAGE_CAPTURE = 7401;
+    private static final int REQUEST_IMAGE_PICK = 7402;
+    private static final int REQUEST_CAMERA_PERMISSION = 7403;
 
     private long taskId;
     private TaskEntity task;
@@ -69,8 +88,10 @@ public class TaskDetailActivity extends BaseActivity {
     // UI Elements - Photo Gallery
     private LinearLayout btnPhotoGallery;
     private TextView tvPhotoCount;
+    private MaterialButton btnAddPhoto;
     private HorizontalScrollView photoThumbnailScroller;
     private LinearLayout photoThumbnailStrip;
+    private String currentPhotoPath;
 
     // Existing UI Elements
     private ImageView tvTaskIcon;
@@ -169,6 +190,7 @@ public class TaskDetailActivity extends BaseActivity {
         // Photo Gallery
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
         tvPhotoCount = findViewById(R.id.tvPhotoCount);
+        btnAddPhoto = findViewById(R.id.btnAddPhoto);
         photoThumbnailScroller = findViewById(R.id.photoThumbnailScroller);
         photoThumbnailStrip = findViewById(R.id.photoThumbnailStrip);
 
@@ -258,6 +280,7 @@ public class TaskDetailActivity extends BaseActivity {
             intent.putExtra("task_id", taskId);
             startActivity(intent);
         });
+        btnAddPhoto.setOnClickListener(v -> showPhotoSourceDialog());
     }
 
     private void setupToolbar() {
@@ -414,6 +437,139 @@ public class TaskDetailActivity extends BaseActivity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
+    private void showPhotoSourceDialog() {
+        if (photoRepository == null) {
+            Toast.makeText(this, "Task is still loading", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        PhotoSourceDialog dialog = new PhotoSourceDialog();
+        dialog.setListener(source -> {
+            if (source == PhotoSourceDialog.SOURCE_CAMERA) dispatchTakePictureIntent();
+            else dispatchPickPictureIntent();
+        });
+        dialog.show(getSupportFragmentManager(), "TaskPhotoSourceDialog");
+    }
+
+    private void dispatchTakePictureIntent() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+        Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (capture.resolveActivity(getPackageManager()) == null) {
+            Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            File image = createTaskPhotoFile();
+            Uri uri = FileProvider.getUriForFile(this,
+                    "com.afrinuts.farmos.fileprovider", image);
+            capture.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            capture.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(capture, REQUEST_IMAGE_CAPTURE);
+        } catch (IOException error) {
+            Log.e(TAG, "Unable to create task photo file", error);
+            Toast.makeText(this, "Could not create photo file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File createTaskPhotoFile() throws IOException {
+        File directory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (directory == null) throw new IOException("Photo storage is unavailable");
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Could not create photo folder");
+        }
+        File file = File.createTempFile("TASK_" + System.currentTimeMillis() + "_", ".jpg", directory);
+        currentPhotoPath = file.getAbsolutePath();
+        return file;
+    }
+
+    private void dispatchPickPictureIntent() {
+        Intent pick = new Intent(Intent.ACTION_PICK);
+        pick.setType("image/*");
+        startActivityForResult(pick, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQUEST_IMAGE_CAPTURE && requestCode != REQUEST_IMAGE_PICK) return;
+        if (resultCode != RESULT_OK) return;
+        try {
+            File image;
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                image = currentPhotoPath == null ? null : new File(currentPhotoPath);
+                if ((image == null || !image.exists() || image.length() == 0)
+                        && data != null && data.getExtras() != null) {
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    if (bitmap != null) image = saveTaskPhotoBitmap(bitmap);
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
+                image = copyPickedTaskPhoto(data.getData());
+            } else {
+                return;
+            }
+            if (image == null || !image.exists() || image.length() == 0) {
+                Toast.makeText(this, "Could not read the selected photo", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            saveTaskPhoto(image);
+        } catch (Exception error) {
+            Log.e(TAG, "Could not prepare task photo", error);
+            Toast.makeText(this, "Could not prepare photo", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take a photo", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private File saveTaskPhotoBitmap(Bitmap bitmap) throws IOException {
+        File file = createTaskPhotoFile();
+        try (FileOutputStream output = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output);
+        }
+        return file;
+    }
+
+    private File copyPickedTaskPhoto(Uri uri) throws IOException {
+        File file = createTaskPhotoFile();
+        try (InputStream input = getContentResolver().openInputStream(uri);
+             OutputStream output = new FileOutputStream(file)) {
+            if (input == null) throw new IOException("Cannot open selected photo");
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        }
+        return file;
+    }
+
+    private void saveTaskPhoto(File file) {
+        PhotoEntity photo = new PhotoEntity(farmId, null, taskId, null,
+                file.getAbsolutePath(), null, System.currentTimeMillis());
+        photoRepository.insertPhoto(photo, file, new PhotoRepository.PhotoUploadCallback() {
+            @Override public void onSuccess(long id, String downloadUrl) { }
+            @Override public void onError(String error) {
+                Log.e(TAG, "Task photo upload failed", new IllegalStateException(error));
+                runOnUiThread(() -> Toast.makeText(TaskDetailActivity.this,
+                        "Photo saved locally; upload failed", Toast.LENGTH_LONG).show());
+            }
+            @Override public void onProgress(double progress) { }
+        });
+    }
+
     private void loadAssignmentHistory() {
         executor.execute(() -> {
             List<TaskAssignmentHistoryEntity> assignments =
@@ -428,7 +584,7 @@ public class TaskDetailActivity extends BaseActivity {
                     tvCurrentWorker.setText("Unassigned");
                     tvWorkerInitials.setText("—");
                     tvAssignedSince.setText("");
-                    statAssignedWorkerValue.setText("—");
+                    statAssignedWorkerValue.setText("Unassigned");
                     return;
                 }
 
@@ -446,10 +602,20 @@ public class TaskDetailActivity extends BaseActivity {
                 } else {
                     layoutCurrentAssignment.setVisibility(View.VISIBLE);
                     tvNoAssignments.setVisibility(View.GONE);
-                    tvCurrentWorker.setText("Unassigned");
-                    tvWorkerInitials.setText("—");
-                    tvAssignedSince.setText("");
-                    statAssignedWorkerValue.setText("—");
+                    if (current != null) {
+                        // Completed tasks have no active assignment. Show the
+                        // most recent worker who carried out the work instead.
+                        tvCurrentWorker.setText(current.getAssignedTo());
+                        tvWorkerInitials.setText(initials(current.getAssignedTo()));
+                        tvAssignedSince.setText("Assigned: " +
+                                dateFormat.format(new Date(current.getAssignedAt())));
+                        statAssignedWorkerValue.setText(shortWorkerName(current.getAssignedTo()));
+                    } else {
+                        tvCurrentWorker.setText("Unassigned");
+                        tvWorkerInitials.setText("—");
+                        tvAssignedSince.setText("");
+                        statAssignedWorkerValue.setText("Unassigned");
+                    }
                 }
 
                 for (int i = (current != null && current.isActive()) ? 1 : 0; i < assignments.size(); i++) {
