@@ -75,6 +75,17 @@ public class TasksFragment extends Fragment {
         return view;
     }
 
+    private String getDisplayedAssigneeName(long taskId) {
+        com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity assignment =
+                database.taskAssignmentDao().getCurrentAssignment(taskId);
+        if (assignment == null) {
+            List<com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity> history =
+                    database.taskDao().getAssignmentsForTask(taskId);
+            if (history != null && !history.isEmpty()) assignment = history.get(0);
+        }
+        return assignment == null ? null : assignment.getAssignedTo();
+    }
+
     private void initViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
         progressBar = view.findViewById(R.id.progressBar);
@@ -196,9 +207,8 @@ public class TasksFragment extends Fragment {
                                 executor.execute(() -> {
                                     Map<Long, String> assignedNames = new HashMap<>();
                                     for (TaskEntity task : snapshot) {
-                                        com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity assignment =
-                                                database.taskAssignmentDao().getCurrentAssignment(task.getId());
-                                        if (assignment != null) assignedNames.put(task.getId(), assignment.getAssignedTo());
+                                        String assignedName = getDisplayedAssigneeName(task.getId());
+                                        if (assignedName != null) assignedNames.put(task.getId(), assignedName);
                                     }
                                     if (getActivity() != null) getActivity().runOnUiThread(() -> processTasks(snapshot, assignedNames));
                                 });
