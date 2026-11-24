@@ -488,17 +488,12 @@ public class LoginActivity extends AppCompatActivity {
                 firestoreUser.setLocalId(userId);
                 Log.d(TAG, "✅ Created local user from Firestore: " + firestoreUser.getName() + " with ID: " + userId);
             } else {
-                // Update local user from Firestore
-                existingLocal.setName(firestoreUser.getName());
-                existingLocal.setRole(firestoreUser.getRole());
-                existingLocal.setPhone(firestoreUser.getPhone());
-                existingLocal.setActive(firestoreUser.isActive());
-                if (firestoreUser.getPasswordHash() != null && !firestoreUser.getPasswordHash().isEmpty()) {
-                    existingLocal.setPasswordHash(firestoreUser.getPasswordHash());
-                }
-                database.userDao().update(existingLocal);
+                // Replace with the full Firestore profile while retaining local credentials and row identity.
+                firestoreUser.setLocalId(existingLocal.getLocalId());
+                firestoreUser.setPasswordHash(existingLocal.getPasswordHash());
+                firestoreUser.setPinHash(existingLocal.getPinHash());
+                database.userDao().update(firestoreUser);
                 userId = existingLocal.getLocalId();
-                firestoreUser.setLocalId(userId);
                 Log.d(TAG, "📝 Updated local user from Firestore: " + firestoreUser.getName() + " with ID: " + userId);
             }
 
@@ -524,6 +519,9 @@ public class LoginActivity extends AppCompatActivity {
             String roleStr = doc.getString("role");
             String phone = doc.getString("phone");
             String email = doc.getString("email");
+            String bio = doc.getString("bio");
+            String company = doc.getString("company");
+            String title = doc.getString("title");
             String authMethodStr = doc.getString("authMethod");
             Boolean isActive = doc.getBoolean("isActive");
             Long createdAt = doc.getLong("createdAt");
@@ -567,6 +565,9 @@ public class LoginActivity extends AppCompatActivity {
             user.setAuthMethod(UserEntity.AuthMethod.valueOf(authMethodStr));
             user.setActive(isActive != null ? isActive : true);
             if (createdAt != null) user.setCreatedAt(createdAt);
+            user.setBio(bio);
+            user.setCompany(company);
+            user.setTitle(title);
 
             return user;
         } catch (Exception e) {

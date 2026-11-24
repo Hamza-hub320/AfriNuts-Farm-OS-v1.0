@@ -614,12 +614,11 @@ public class FirestoreSyncManager {
                                     isApplyingRemoteUpdate = true;
                                     try {
                                         if (existing != null) {
-                                            // User exists locally - update
-                                            existing.setName(remoteUser.getName());
-                                            existing.setRole(remoteUser.getRole());
-                                            existing.setPhone(remoteUser.getPhone());
-                                            existing.setActive(remoteUser.isActive());
-                                            database.userDao().update(existing);
+                                            // Update the full remote profile while preserving local-only credentials and ID.
+                                            remoteUser.setLocalId(existing.getLocalId());
+                                            remoteUser.setPasswordHash(existing.getPasswordHash());
+                                            remoteUser.setPinHash(existing.getPinHash());
+                                            database.userDao().update(remoteUser);
                                             Log.d(TAG, "📝 Updated user from Firestore: " + remoteUser.getName());
                                         } else {
                                             Log.w(TAG, "⚠️ User not in local DB, skipping sync: " + remoteUser.getUid());

@@ -13,8 +13,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -22,19 +20,13 @@ import com.afrinuts.farmos.data.repository.BaseRepository;
 import com.afrinuts.farmos.data.repository.UserRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
-import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,9 +40,6 @@ public class UserDetailActivity extends BaseActivity {
     private UserRepository userRepository;
     private long farmId = 1L;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    // ✅ Dialog reference
-    private AlertDialog editDialog;
 
     // UI Elements
     private TextView tvUserInitials;
@@ -391,112 +380,6 @@ public class UserDetailActivity extends BaseActivity {
             });
         }));
         dialog.show(getSupportFragmentManager(), "EditUserDialog");
-    }
-
-    // Save user to both local DB and Firestore
-    private void saveUserToDatabaseAndFirestore(UserEntity user, Button btnSave) {
-        userRepository.updateUser(user, new BaseRepository.RepositoryCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                runOnUiThread(() -> {
-                    if (btnSave != null) {
-                        btnSave.setEnabled(true);
-                        btnSave.setText("Save Changes");
-                    }
-                    Toast.makeText(UserDetailActivity.this,
-                            "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                    displayUserData();
-
-                    // Update Firestore directly with all fields
-                    updateUserInFirestore(user);
-
-                    if (editDialog != null && editDialog.isShowing()) {
-                        editDialog.dismiss();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() -> {
-                    if (btnSave != null) {
-                        btnSave.setEnabled(true);
-                        btnSave.setText("Save Changes");
-                    }
-                    Toast.makeText(UserDetailActivity.this,
-                            "Error: " + error, Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
-
-    // ✅ Direct Firestore update with all fields
-    private void updateUserInFirestore(UserEntity user) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        Map<String, Object> userMap = new HashMap<>();
-
-        // Core fields
-        userMap.put("name", user.getName());
-        userMap.put("role", user.getRole().name());
-        userMap.put("phone", user.getPhone());
-        userMap.put("email", user.getEmail());
-
-        // Profile fields
-        userMap.put("bio", user.getBio());
-        userMap.put("company", user.getCompany());
-        userMap.put("title", user.getTitle());
-
-        // Account status fields
-        userMap.put("lastUpdatedAt", user.getLastUpdatedAt());
-        userMap.put("updatedAt", System.currentTimeMillis());
-
-        // ✅ Add missing fields with defaults for legacy profiles
-        if (!userMap.containsKey("emailVerified")) {
-            userMap.put("emailVerified", false);
-        }
-        if (!userMap.containsKey("failedLoginAttempts")) {
-            userMap.put("failedLoginAttempts", 0);
-        }
-        if (!userMap.containsKey("lockedUntil")) {
-            userMap.put("lockedUntil", 0);
-        }
-        if (!userMap.containsKey("twoFactorEnabled")) {
-            userMap.put("twoFactorEnabled", false);
-        }
-        if (!userMap.containsKey("twoFactorSecret")) {
-            userMap.put("twoFactorSecret", null);
-        }
-        if (!userMap.containsKey("lastLoginAt")) {
-            userMap.put("lastLoginAt", 0);
-        }
-        if (!userMap.containsKey("lastLoginIp")) {
-            userMap.put("lastLoginIp", null);
-        }
-        if (!userMap.containsKey("lastLoginDevice")) {
-            userMap.put("lastLoginDevice", null);
-        }
-        if (!userMap.containsKey("deactivatedAt")) {
-            userMap.put("deactivatedAt", 0);
-        }
-        if (!userMap.containsKey("deactivatedBy")) {
-            userMap.put("deactivatedBy", null);
-        }
-        if (!userMap.containsKey("deactivationReason")) {
-            userMap.put("deactivationReason", null);
-        }
-
-        Log.d("UserDetailActivity", "📤 Updating Firestore with fields: " + userMap.keySet());
-
-        db.collection("users")
-                .document(user.getUid())
-                .set(userMap, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("UserDetailActivity", "User updated in Firestore successfully");
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("UserDetailActivity", "Error updating user in Firestore", e);
-                });
     }
 
     @Override
