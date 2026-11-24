@@ -69,7 +69,9 @@ public final class FinanceDetailChrome {
             }
             if (popup.getMenu().size() > 0) popup.show();
         });
-        styleSectionCards(findScroll(activity.findViewById(android.R.id.content)));
+        ScrollView scroll = findScroll(activity.findViewById(android.R.id.content));
+        styleSectionCards(scroll);
+        if ("Revenue details".equals(label)) styleRevenueBatchHeader(activity, scroll);
     }
 
     public static void addHero(Activity activity, int nameId, int subtitleId, int gradeId) {
@@ -202,18 +204,6 @@ public final class FinanceDetailChrome {
             contentSection(activity, content, section, "Notes", null);
         }
 
-        TextView batchTitle = findText(content, "Batch");
-        View viewBatch = activity.findViewById(R.id.btnViewBatch);
-        if (batchTitle != null && batchTitle.getParent() instanceof LinearLayout) {
-            LinearLayout header = (LinearLayout) batchTitle.getParent();
-            LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, -2, 1f);
-            batchTitle.setLayoutParams(titleParams);
-            TextView seeAll = makeSeeAll(activity);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-2, -2);
-            params.leftMargin = dp(activity, 12);
-            header.addView(seeAll, params);
-            if (viewBatch != null) seeAll.setOnClickListener(v -> viewBatch.performClick());
-        }
     }
 
 
@@ -314,9 +304,11 @@ public final class FinanceDetailChrome {
         heading.setTextSize(16);
         heading.setTypeface(font(activity, R.font.manrope_extrabold));
         header.addView(heading, new LinearLayout.LayoutParams(0, -2, 1f));
-        TextView seeAll = makeSeeAll(activity);
-        header.addView(seeAll, new LinearLayout.LayoutParams(-2, -2));
-        if (target != null) seeAll.setOnClickListener(v -> target.performClick());
+        if (target != null) {
+            TextView seeAll = makeSeeAll(activity);
+            header.addView(seeAll, new LinearLayout.LayoutParams(-2, -2));
+            seeAll.setOnClickListener(v -> target.performClick());
+        }
         body.addView(header);
         LinearLayout.LayoutParams sourceParams = new LinearLayout.LayoutParams(-1, -2);
         sourceParams.topMargin = dp(activity, 8);
@@ -445,7 +437,10 @@ public final class FinanceDetailChrome {
             TextView heading = firstText(card);
             if (heading != null) {
                 String value = heading.getText() == null ? "" : heading.getText().toString().trim();
-                if ("Harvest Details".equalsIgnoreCase(value)) heading.setText("Batch");
+                if ("Harvest Details".equalsIgnoreCase(value)) {
+                    heading.setText("Batch");
+                    heading.setTag("finance-detail-batch-heading");
+                }
                 if ("Procurement Details".equalsIgnoreCase(value)) heading.setText("Supplier");
                 heading.setTextSize(16);
                 heading.setTextColor(0xFF1C1B1A);
@@ -453,6 +448,30 @@ public final class FinanceDetailChrome {
             }
         }
         for (int i = 0; i < group.getChildCount(); i++) styleCardTree(group.getChildAt(i));
+    }
+
+    private static void styleRevenueBatchHeader(Activity activity, ScrollView scroll) {
+        if (scroll == null || scroll.getChildCount() == 0) return;
+        View root = scroll.getChildAt(0);
+        TextView heading = root.findViewWithTag("finance-detail-batch-heading");
+        if (heading == null || !(heading.getParent() instanceof ViewGroup)) return;
+        ViewGroup header = (ViewGroup) heading.getParent();
+        for (int i = header.getChildCount() - 1; i >= 0; i--) {
+            View child = header.getChildAt(i);
+            if (child != heading && child instanceof ViewGroup) header.removeViewAt(i);
+        }
+        heading.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView seeAll = header.findViewWithTag("finance-detail-batch-see-all");
+        if (seeAll == null) {
+            seeAll = makeSeeAll(activity);
+            seeAll.setTag("finance-detail-batch-see-all");
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-2, -2);
+            params.leftMargin = dp(activity, 12);
+            header.addView(seeAll, params);
+        }
+        View viewBatch = activity.findViewById(R.id.btnViewBatch);
+        seeAll.setVisibility(View.VISIBLE);
+        if (viewBatch != null) seeAll.setOnClickListener(v -> viewBatch.performClick());
     }
 
     private static TextView firstText(View view) {

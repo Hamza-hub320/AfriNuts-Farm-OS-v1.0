@@ -261,13 +261,17 @@ public class RevenueDetailActivity extends BaseActivity {
 
         footerViewBatch = new MaterialButton(this);
         footerViewBatch.setText("View batch");
-        footerViewBatch.setTextSize(15);
+        footerViewBatch.setTextSize(16);
         footerViewBatch.setTypeface(android.graphics.Typeface.create(
                 androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
         footerViewBatch.setTextColor(Color.WHITE);
         footerViewBatch.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF0E6B3C));
         footerViewBatch.setCornerRadius(dp(999));
-        footerViewBatch.setMinHeight(dp(52));
+        footerViewBatch.setMinHeight(dp(56));
+        footerViewBatch.setInsetTop(0);
+        footerViewBatch.setInsetBottom(0);
+        footerViewBatch.setElevation(0f);
+        footerViewBatch.setStateListAnimator(null);
         footerViewBatch.setOnClickListener(v -> btnViewBatch.performClick());
 
         styleFooterButton(btnEdit, false);
@@ -276,25 +280,28 @@ public class RevenueDetailActivity extends BaseActivity {
         footer.setOrientation(LinearLayout.HORIZONTAL);
         footer.setPadding(dp(20), dp(8), dp(20), dp(12));
         footer.setBackgroundColor(0xFFF6F1E7);
-        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, dp(56), 1f);
         left.setMargins(0, 0, dp(12), 0);
-        LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, dp(52), 1f);
+        LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, dp(56), 1f);
         footer.addView(btnEdit, left);
-        footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(52), 1f));
+        footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(56), 1f));
         footer.addView(footerViewBatch, right);
         root.addView(footer);
     }
 
     private void styleFooterButton(MaterialButton button, boolean primary) {
-        button.setTextSize(15);
+        button.setIcon(null);
+        button.setTextSize(16);
         button.setTypeface(android.graphics.Typeface.create(
                 androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold), android.graphics.Typeface.NORMAL));
         button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
         button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(primary ? 0xFF0E6B3C : 0xFFF3EAD8));
         button.setCornerRadius(dp(999));
-        button.setMinHeight(dp(52));
+        button.setMinHeight(dp(56));
         button.setInsetTop(0);
         button.setInsetBottom(0);
+        button.setElevation(0f);
+        button.setStateListAnimator(null);
     }
 
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
@@ -576,7 +583,8 @@ public class RevenueDetailActivity extends BaseActivity {
             etNotes.setText(revenue.getNotes());
             notesLayout.setVisibility(View.VISIBLE);
         } else {
-            notesLayout.setVisibility(View.GONE);
+            tvNotes.setText("No notes recorded.");
+            notesLayout.setVisibility(View.VISIBLE);
             etNotes.setText("");
         }
 
@@ -686,12 +694,8 @@ public class RevenueDetailActivity extends BaseActivity {
 
         if (visible) {
             if (notesLayout != null) notesLayout.setVisibility(View.VISIBLE);
-        } else {
-            if (revenue != null && revenue.getNotes() != null && !revenue.getNotes().isEmpty()) {
-                if (notesLayout != null) notesLayout.setVisibility(View.VISIBLE);
-            } else {
-                if (notesLayout != null) notesLayout.setVisibility(View.GONE);
-            }
+        } else if (notesLayout != null) {
+            notesLayout.setVisibility(View.VISIBLE);
         }
         if (footerViewBatch != null) footerViewBatch.setVisibility(visible || revenue == null || revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
         if (headerEdit != null) headerEdit.setVisibility(visible ? View.GONE : View.VISIBLE);
