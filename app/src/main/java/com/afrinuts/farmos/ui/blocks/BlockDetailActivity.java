@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.blocks;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,6 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,6 +25,7 @@ import androidx.lifecycle.Observer;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
+import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.afrinuts.farmos.data.repository.PhotoRepository;
@@ -29,6 +33,8 @@ import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.blocks.RecordHarvestDialog;
 import com.afrinuts.farmos.ui.blocks.StatusUpdateDialog;
 import com.afrinuts.farmos.ui.photos.PhotoGalleryActivity;
+import com.afrinuts.farmos.ui.photos.PhotoDetailActivity;
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -93,6 +99,8 @@ public class BlockDetailActivity extends BaseActivity {
     // Photo gallery
     private LinearLayout btnPhotoGallery;
     private TextView tvPhotoCount;
+    private HorizontalScrollView photoThumbnailScroller;
+    private LinearLayout photoThumbnailStrip;
 
     // Edit mode
     private boolean isEditMode = false;
@@ -168,6 +176,8 @@ public class BlockDetailActivity extends BaseActivity {
 
         btnPhotoGallery = findViewById(R.id.btnPhotoGallery);
         tvPhotoCount = findViewById(R.id.tvPhotoCount);
+        photoThumbnailScroller = findViewById(R.id.photoThumbnailScroller);
+        photoThumbnailStrip = findViewById(R.id.photoThumbnailStrip);
 
         btnEdit = findViewById(R.id.btnEdit);
         btnSave = findViewById(R.id.btnSave);
@@ -204,9 +214,11 @@ public class BlockDetailActivity extends BaseActivity {
     private void hideBlockHeroAvatar() {
         View hero = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero");
         if (!(hero instanceof ViewGroup) || ((ViewGroup) hero).getChildCount() == 0) return;
-        View top = ((ViewGroup) hero).getChildAt(0);
-        if (top instanceof ViewGroup && ((ViewGroup) top).getChildCount() > 0) {
-            ((ViewGroup) top).getChildAt(0).setVisibility(View.GONE);
+        View body = ((ViewGroup) hero).getChildAt(0);
+        if (!(body instanceof ViewGroup) || ((ViewGroup) body).getChildCount() == 0) return;
+        View topRow = ((ViewGroup) body).getChildAt(0);
+        if (topRow instanceof ViewGroup && ((ViewGroup) topRow).getChildCount() > 0) {
+            ((ViewGroup) topRow).getChildAt(0).setVisibility(View.GONE);
         }
     }
 
@@ -814,21 +826,42 @@ public class BlockDetailActivity extends BaseActivity {
 
     private void loadPhotoCount() {
         if (photoRepository == null) return;
+        photoRepository.getPhotosForBlock(blockId).observe(this, photos -> displayPhotoThumbnails(photos));
+    }
 
-        // Use CompletableFuture pattern with the new async method
-        photoRepository.getPhotoCountForBlockAsync(blockId)  // ← Note the Async suffix
-                .thenAccept(count -> {
-                    runOnUiThread(() -> {
-                        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
-                    });
-                })
-                .exceptionally(throwable -> {
-                    Log.e(TAG, "Error loading photo count: " + throwable.getMessage());
-                    runOnUiThread(() -> {
-                        tvPhotoCount.setText("0 photos");
-                    });
-                    return null;
-                });
+    private void displayPhotoThumbnails(List<PhotoEntity> photos) {
+        photoThumbnailStrip.removeAllViews();
+        int count = photos == null ? 0 : photos.size();
+        tvPhotoCount.setText(count + " " + (count == 1 ? "photo" : "photos"));
+        photoThumbnailScroller.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        if (count == 0) return;
+
+        int size = dp(88);
+        for (PhotoEntity photo : photos) {
+            ImageView thumbnail = new ImageView(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMarginEnd(dp(10));
+            thumbnail.setLayoutParams(params);
+            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            thumbnail.setContentDescription("Block photo");
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(0xFFF5F1E8);
+            background.setCornerRadius(dp(14));
+            background.setStroke(dp(1), 0xFFE9E1CF);
+            thumbnail.setBackground(background);
+            thumbnail.setClipToOutline(true);
+
+            String imagePath = photo.getThumbnailPath();
+            if (imagePath == null || imagePath.trim().isEmpty()) imagePath = photo.getFilePath();
+            Glide.with(this).load(imagePath).placeholder(R.drawable.ic_photo_placeholder)
+                    .error(R.drawable.ic_photo_placeholder).centerCrop().into(thumbnail);
+            thumbnail.setOnClickListener(v -> {
+                Intent intent = new Intent(this, PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
+                startActivity(intent);
+            });
+            photoThumbnailStrip.addView(thumbnail);
+        }
     }
 
     @Override
