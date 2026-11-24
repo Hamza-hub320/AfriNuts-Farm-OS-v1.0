@@ -97,7 +97,7 @@ public class ExpenseDetailActivity extends BaseActivity {
     private LinearLayout expenseReadout;
     private CardView procurementReadoutCard;
     private TextView readoutAmount, readoutDate, readoutCategory, readoutBlock, readoutNotes;
-    private TextView procurementSupplier, procurementInvoice, procurementReceipt;
+    private TextView procurementSupplier, procurementBatch;
     private ImageView tvCategoryIcon;
     private TextView tvCategoryName;
     private TextView tvBlockInfo;
@@ -129,6 +129,7 @@ public class ExpenseDetailActivity extends BaseActivity {
     private Long selectedBatchId = null;
     private String selectedSupplierName = null;
     private String selectedBatchNumber = null;
+    private String procurementBatchNumber = null;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -325,8 +326,7 @@ public class ExpenseDetailActivity extends BaseActivity {
         procurementReadoutCard = createSectionCard("Procurement Details");
         LinearLayout procurementBody = (LinearLayout) procurementReadoutCard.getChildAt(0);
         procurementSupplier = addReadoutRow(procurementBody, "Supplier", true);
-        procurementInvoice = addReadoutRow(procurementBody, "Invoice", true);
-        procurementReceipt = addReadoutRow(procurementBody, "Receipt", false);
+        procurementBatch = addReadoutRow(procurementBody, "Batch", false);
         procurementReadoutCard.setVisibility(View.GONE);
         int photoIndex = expenseDetailContent.indexOfChild(findViewById(R.id.expensePhotosCard));
         expenseDetailContent.addView(procurementReadoutCard, Math.max(0, photoIndex + 1));
@@ -420,9 +420,7 @@ public class ExpenseDetailActivity extends BaseActivity {
         expenseReadout.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
         procurementReadoutCard.setVisibility(expense.isProcurementRelated() && !isEditMode ? View.VISIBLE : View.GONE);
         procurementSupplier.setText(TextUtils.isEmpty(expense.getSupplierName()) ? "—" : expense.getSupplierName());
-        procurementInvoice.setText("—");
-        String receipt = expense.getReceiptPath();
-        procurementReceipt.setText(TextUtils.isEmpty(receipt) ? "—" : new java.io.File(receipt).getName());
+        procurementBatch.setText(TextUtils.isEmpty(procurementBatchNumber) ? "—" : procurementBatchNumber);
     }
 
     private void configurePhotosCard() {
@@ -584,6 +582,14 @@ public class ExpenseDetailActivity extends BaseActivity {
             // ✅ Load all suppliers and batches for dropdowns
             allSuppliers = supplierRepository.getSuppliersSync();
             allBatches = batchRepository.getAllBatchesSync();
+            if (expense.getBatchId() != null) {
+                QualityBatchEntity linkedBatch = batchRepository.getBatchByIdSync(expense.getBatchId());
+                if (linkedBatch != null) {
+                    procurementBatchNumber = linkedBatch.getBatchNumber();
+                    selectedBatchId = linkedBatch.getId();
+                    selectedBatchNumber = linkedBatch.getBatchNumber();
+                }
+            }
 
             final ExpenseEntity finalExpense = expense;
             final FarmEntity finalFarm = farm;
@@ -1050,6 +1056,7 @@ public class ExpenseDetailActivity extends BaseActivity {
             @Override
             public void onSuccess(Boolean result) {
                 runOnUiThread(() -> {
+                    procurementBatchNumber = selectedBatchId == null ? null : selectedBatchNumber;
                     Toast.makeText(ExpenseDetailActivity.this,
                             Boolean.TRUE.equals(result)
                                     ? "Changes saved successfully!"
