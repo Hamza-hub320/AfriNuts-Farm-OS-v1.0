@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,7 +101,8 @@ public class SupplierDetailActivity extends BaseActivity {
     private CardView cardCommitments, cardInspections, cardDisputes, cardScoreSnapshot;
     private LinearLayout containerCommitments, containerInspections, containerDisputes;
     private TextView tvCommitmentsEmpty, tvInspectionsEmpty, tvDisputesEmpty;
-    private TextView tvOverallScore, tvConfidence, tvScoreBreakdown, tvScoreMeta;
+    private TextView tvOverallScore, tvConfidence, tvScoreMeta;
+    private LinearLayout tvScoreBreakdown;
     private com.google.android.material.button.MaterialButton btnAddCommitment, btnAddInspection;
 
     private SupplierCommitmentRepository commitmentRepository;
@@ -211,11 +214,14 @@ public class SupplierDetailActivity extends BaseActivity {
                 findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
                 findViewById(R.id.farmDetailMore), "Supplier details" );
         styleSupplierSectionHeadings();
+        styleSectionActionButtons();
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvSupplierName, R.id.tvSupplierType, R.id.chipStatus);
         addSupplierHeroRating();
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
                 new String[]{"Trust score", "Batches", "Total volume"},
                 new int[]{R.id.tvOverallScore, R.id.tvTotalBatches, R.id.tvTotalBatchVolume });
+        reorderSupplierStats();
+        stylePerformanceMetrics();
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnEditSupplier, R.id.btnRecordDelivery);
 
         // Supplier actions are content actions on this screen, so keep the chrome row
@@ -235,6 +241,7 @@ public class SupplierDetailActivity extends BaseActivity {
             actionContainer.addView(actions, 0, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         }
+        styleSupplierBottomActions();
 
         ImageButton headerEdit = findViewById(R.id.farmDetailEdit);
         if (headerEdit != null) headerEdit.setVisibility(View.GONE);
@@ -252,13 +259,180 @@ public class SupplierDetailActivity extends BaseActivity {
         }
     }
 
+    private void reorderSupplierStats() {
+        View row = findViewById(android.R.id.content).findViewWithTag("farm-detail-stats");
+        if (!(row instanceof LinearLayout)) return;
+        LinearLayout stats = (LinearLayout) row;
+        for (int i = 0; i < stats.getChildCount(); i++) {
+            if (!(stats.getChildAt(i) instanceof LinearLayout)) continue;
+            LinearLayout card = (LinearLayout) stats.getChildAt(i);
+            TextView value = null;
+            TextView unit = null;
+            TextView caption = null;
+            for (int j = 0; j < card.getChildCount(); j++) {
+                View child = card.getChildAt(j);
+                if (!(child instanceof TextView)) continue;
+                Object tag = child.getTag();
+                if (tag instanceof String && ((String) tag).startsWith("farm-detail-stat-value:")) value = (TextView) child;
+                else if (tag instanceof String && ((String) tag).startsWith("farm-detail-stat-unit:")) unit = (TextView) child;
+                else caption = (TextView) child;
+            }
+            if (value != null && unit != null && caption != null) {
+                card.removeAllViews();
+                card.addView(caption, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                card.addView(value, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                card.addView(unit, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            }
+        }
+    }
+
+    private void stylePerformanceMetrics() {
+        CardView card = findViewById(R.id.cardPerformanceMetrics);
+        if (card == null || !(card.getChildAt(0) instanceof LinearLayout)) return;
+        LinearLayout body = (LinearLayout) card.getChildAt(0);
+        View oldStats = body.getChildAt(1);
+        if (!(oldStats instanceof LinearLayout)) return;
+        LinearLayout stats = (LinearLayout) oldStats;
+        TextView annualVolume = findViewById(R.id.tvAnnualVolume);
+        TextView avgQuality = findViewById(R.id.tvAvgQualityScore);
+        if (annualVolume == null || avgQuality == null) return;
+
+        body.removeView(stats);
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        addMetricRow(rows, "Annual Volume", annualVolume);
+        addMetricRow(rows, "Avg Quality", avgQuality);
+        rows.removeViewAt(rows.getChildCount() - 1);
+        body.addView(rows, 1, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout certification = findViewById(R.id.layoutCertification);
+        if (certification != null) {
+            ImageView icon = findViewById(R.id.ivCertificationIcon);
+            if (icon != null) icon.setVisibility(View.GONE);
+            certification.setOrientation(LinearLayout.HORIZONTAL);
+            certification.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            certification.setPadding(0, dp(11), 0, dp(11));
+            TextView label = new TextView(this);
+            label.setText("Certification");
+            styleMetricLabel(label);
+            LinearLayout valueColumn = new LinearLayout(this);
+            valueColumn.setOrientation(LinearLayout.VERTICAL);
+            valueColumn.setGravity(android.view.Gravity.END);
+            certification.removeView(findViewById(R.id.tvCertification));
+            certification.removeView(findViewById(R.id.tvCertificationExpiry));
+            TextView certName = findViewById(R.id.tvCertification);
+            TextView certExpiry = findViewById(R.id.tvCertificationExpiry);
+            if (certName != null) {
+                certName.setTextColor(0xFF1C1B1A);
+                certName.setTextSize(14.5f);
+                valueColumn.addView(certName);
+            }
+            if (certExpiry != null) {
+                certExpiry.setTextColor(0xFF59544C);
+                certExpiry.setTextSize(12.5f);
+                valueColumn.addView(certExpiry);
+            }
+            certification.addView(label, new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            certification.addView(valueColumn, new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+    }
+
+    private void styleSectionActionButtons() {
+        for (MaterialButton button : new MaterialButton[]{btnAddCommitment, btnAddInspection}) {
+            if (button == null) continue;
+            button.setMinHeight(dp(38));
+            button.setMinimumHeight(dp(38));
+            button.setInsetTop(0);
+            button.setInsetBottom(0);
+            button.setCornerRadius(dp(999));
+            button.setTextSize(13.5f);
+            button.setPadding(dp(14), 0, dp(14), 0);
+            ViewGroup.LayoutParams params = button.getLayoutParams();
+            if (params != null) {
+                params.height = dp(38);
+                button.setLayoutParams(params);
+            }
+        }
+    }
+
+    private void styleSupplierBottomActions() {
+        View actions = findViewById(android.R.id.content).findViewWithTag("farm-detail-actions");
+        if (actions instanceof LinearLayout) {
+            LinearLayout row = (LinearLayout) actions;
+            for (int i = 0; i < row.getChildCount(); i++) {
+                View child = row.getChildAt(i);
+                if (!(child instanceof MaterialButton)) continue;
+                MaterialButton button = (MaterialButton) child;
+                button.setElevation(0f);
+                button.setStateListAnimator(null);
+                button.setInsetTop(0);
+                button.setInsetBottom(0);
+                button.setCornerRadius(dp(999));
+            }
+        }
+        if (btnDelete instanceof MaterialButton) {
+            MaterialButton delete = (MaterialButton) btnDelete;
+            delete.setElevation(0f);
+            delete.setStateListAnimator(null);
+            delete.setInsetTop(0);
+            delete.setInsetBottom(0);
+            delete.setCornerRadius(dp(999));
+            delete.setMinHeight(dp(52));
+            delete.setMinimumHeight(dp(52));
+            ViewGroup.LayoutParams params = delete.getLayoutParams();
+            if (params != null) {
+                params.height = dp(52);
+                delete.setLayoutParams(params);
+            }
+        }
+    }
+
+    private void addMetricRow(LinearLayout container, String labelText, TextView value) {
+        if (value.getParent() instanceof ViewGroup) {
+            ((ViewGroup) value.getParent()).removeView(value);
+        }
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(11), 0, dp(11));
+        TextView label = new TextView(this);
+        label.setText(labelText);
+        styleMetricLabel(label);
+        value.setTextColor(0xFF1C1B1A);
+        value.setTextSize(14.5f);
+        value.setGravity(android.view.Gravity.END);
+        row.addView(label, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        row.addView(value, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        container.addView(row);
+        View divider = new View(this);
+        divider.setBackgroundColor(0xFFE9E1CF);
+        container.addView(divider, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(1)));
+    }
+
+    private void styleMetricLabel(TextView label) {
+        label.setTextColor(0xFF59544C);
+        label.setTextSize(13);
+        label.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold),
+                android.graphics.Typeface.NORMAL));
+    }
+
     private void styleSupplierSectionHeadings() {
         int[] ids = {R.id.headingContactInfo, R.id.headingAbout, R.id.headingPerformance,
                 R.id.headingCommitments, R.id.headingInspections, R.id.headingDisputes,
                 R.id.headingTrustScore};
         for (int id : ids) {
             TextView heading = findViewById(id);
-            if (heading != null) heading.setTextColor(0xFF0E6B3C);
+            if (heading != null) heading.setTextColor(0xFF1C1B1A);
         }
     }
 
@@ -274,19 +448,16 @@ public class SupplierDetailActivity extends BaseActivity {
             LinearLayout top = (LinearLayout) body.getChildAt(0);
             if (top.getChildCount() > 0 && top.getChildAt(0) instanceof TextView) {
                 TextView avatar = (TextView) top.getChildAt(0);
-                avatar.setText("");
                 android.graphics.drawable.GradientDrawable avatarBg = new android.graphics.drawable.GradientDrawable();
                 avatarBg.setColor(0xFF0E6B3C);
                 avatarBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-                avatar.setBackground(avatarBg);
-                android.graphics.drawable.Drawable icon = ContextCompat.getDrawable(this,
-                        supplier != null && supplier.getTypeDisplay().toLowerCase(Locale.ROOT).contains("coop")
-                                ? R.drawable.ic_handshake : R.drawable.ic_person);
-                if (icon != null) {
-                    icon = DrawableCompat.wrap(icon.mutate());
-                    DrawableCompat.setTint(icon, android.graphics.Color.WHITE);
-                    avatar.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-                }
+                FrameLayout avatarFrame = new FrameLayout(this);
+                avatarFrame.setTag("supplier-hero-avatar");
+                avatarFrame.setBackground(avatarBg);
+                ViewGroup.LayoutParams avatarParams = avatar.getLayoutParams();
+                top.removeView(avatar);
+                top.addView(avatarFrame, 0, avatarParams);
+                setSupplierHeroIcon(R.drawable.ic_person);
             }
         }
 
@@ -303,6 +474,15 @@ public class SupplierDetailActivity extends BaseActivity {
         params.bottomMargin = dp(2);
         params.leftMargin = dp(68);
         body.addView(stars, Math.min(1, body.getChildCount()), params);
+        TextView heroName = body.findViewWithTag("farm-detail-hero-name");
+        if (heroName != null) {
+            heroName.setTextSize(21);
+            heroName.setMaxLines(2);
+            heroName.setLineSpacing(dp(2), 1f);
+            heroName.setTypeface(android.graphics.Typeface.create(
+                    androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold),
+                    android.graphics.Typeface.NORMAL));
+        }
     }
 
     private int dp(int value) {
@@ -315,26 +495,40 @@ public class SupplierDetailActivity extends BaseActivity {
         LinearLayout body = (LinearLayout) ((CardView) hero).getChildAt(0);
         if (body.getChildCount() == 0 || !(body.getChildAt(0) instanceof LinearLayout)) return;
         LinearLayout top = (LinearLayout) body.getChildAt(0);
-        if (top.getChildCount() == 0 || !(top.getChildAt(0) instanceof TextView)) return;
-        TextView avatar = (TextView) top.getChildAt(0);
-        android.graphics.drawable.Drawable icon = ContextCompat.getDrawable(this,
-                supplier.getTypeDisplay().toLowerCase(Locale.ROOT).contains("coop")
-                        ? R.drawable.ic_handshake : R.drawable.ic_person);
-        if (icon != null) {
-            icon = DrawableCompat.wrap(icon.mutate());
-            DrawableCompat.setTint(icon, android.graphics.Color.WHITE);
-            avatar.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-        }
+        View avatar = top.findViewWithTag("supplier-hero-avatar");
+        if (!(avatar instanceof FrameLayout)) return;
+        setSupplierHeroIcon(supplier.getTypeDisplay().toLowerCase(Locale.ROOT).contains("coop")
+                ? R.drawable.ic_people : R.drawable.ic_person);
+    }
+
+    private void setSupplierHeroIcon(int iconResource) {
+        View avatar = findViewById(android.R.id.content).findViewWithTag("supplier-hero-avatar");
+        if (!(avatar instanceof FrameLayout)) return;
+        FrameLayout frame = (FrameLayout) avatar;
+        frame.removeAllViews();
+        ImageView iconView = new ImageView(this);
+        iconView.setImageResource(iconResource);
+        iconView.setColorFilter(android.graphics.Color.WHITE);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(dp(26), dp(26),
+                android.view.Gravity.CENTER);
+        frame.addView(iconView, params);
     }
 
     private void openMap() {
-        if (supplier == null || !supplier.hasLocation()) {
+        if (supplier == null) {
             Toast.makeText(this, "No location data available", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String uri = "geo:" + supplier.getLatitude() + "," + supplier.getLongitude() +
-                "?q=" + supplier.getLatitude() + "," + supplier.getLongitude();
+        String location = supplier.getLocation();
+        if (supplier.hasLocation()) location = supplier.getLatitude() + "," + supplier.getLongitude();
+        if (TextUtils.isEmpty(location)) {
+            Toast.makeText(this, "No location data available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String query = Uri.encode(location);
+        String uri = supplier.hasLocation()
+                ? "geo:" + supplier.getLatitude() + "," + supplier.getLongitude() + "?q=" + query
+                : "geo:0,0?q=" + query;
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         startActivity(intent);
     }
@@ -390,6 +584,7 @@ public class SupplierDetailActivity extends BaseActivity {
         if (batches.isEmpty()) {
             tvTotalBatches.setText("Total: 0 batches");
             tvTotalBatchVolume.setText("Total: 0 kg");
+            tvAnnualVolume.setText("0 kg");
             return;
         }
 
@@ -401,6 +596,7 @@ public class SupplierDetailActivity extends BaseActivity {
 
         tvTotalBatches.setText("Total: " + count + " batch" + (count > 1 ? "es" : ""));
         tvTotalBatchVolume.setText(String.format(Locale.getDefault(), "Total: %,.0f kg", totalVolume));
+        tvAnnualVolume.setText(String.format(Locale.getDefault(), "%,.0f kg", totalVolume));
     }
 
     private void displaySupplierData() {
@@ -424,6 +620,9 @@ public class SupplierDetailActivity extends BaseActivity {
         tvPhone.setText(supplier.getPhone() != null ? supplier.getPhone() : "No phone");
         tvEmail.setText(supplier.getEmail() != null ? supplier.getEmail() : "No email");
         tvLocation.setText(supplier.getLocation() != null ? supplier.getLocation() : "No location");
+        btnShowMap.setVisibility(!TextUtils.isEmpty(supplier.getLocation()) || supplier.hasLocation()
+                ? View.VISIBLE : View.GONE);
+        setMapButtonIcon();
 
         tvAnnualVolume.setText(String.format(Locale.getDefault(),
                 "%,.0f kg", supplier.getAnnualVolumeKg()));
@@ -468,16 +667,16 @@ public class SupplierDetailActivity extends BaseActivity {
         CardView layoutFarmerProfile = findViewById(R.id.layoutFarmerProfile);
 
         // Show farmer profile section only if there's data
-        boolean hasProfileData = supplier.getYearsFarming() > 0 ||
-                supplier.getFarmSize() > 0 ||
+        boolean hasProfileData = supplier.getFarmSize() > 0 ||
                 !TextUtils.isEmpty(supplier.getQuote()) ||
-                !TextUtils.isEmpty(supplier.getBio());
+                !TextUtils.isEmpty(supplier.getBio()) || supplier.isFirebreakProtection()
+                || supplier.isSustainableHarvesting() || supplier.isNoChildLabor();
 
         if (hasProfileData) {
             layoutFarmerProfile.setVisibility(View.VISIBLE);
-
+            findViewById(R.id.rowYearsFarming).setVisibility(View.GONE);
             tvYearsFarming.setText(supplier.getFormattedYearsFarming());
-            tvFarmSize.setText(String.format(Locale.getDefault(), "%.1f hectares", supplier.getFarmSize()));
+            tvFarmSize.setText(String.format(Locale.getDefault(), "%.1f ha", supplier.getFarmSize()));
 
             if (!TextUtils.isEmpty(supplier.getQuote())) {
                 tvQuote.setText("\"" + supplier.getQuote() + "\"");
@@ -497,9 +696,59 @@ public class SupplierDetailActivity extends BaseActivity {
             layoutFirebreak.setVisibility(supplier.isFirebreakProtection() ? View.VISIBLE : View.GONE);
             layoutSustainable.setVisibility(supplier.isSustainableHarvesting() ? View.VISIBLE : View.GONE);
             layoutChildLabor.setVisibility(supplier.isNoChildLabor() ? View.VISIBLE : View.GONE);
+            stylePracticeChip(layoutFirebreak, true);
+            stylePracticeChip(layoutSustainable, true);
+            stylePracticeChip(layoutChildLabor, false);
 
         } else {
             layoutFarmerProfile.setVisibility(View.GONE);
+        }
+    }
+
+    private void setMapButtonIcon() {
+        Drawable icon = ContextCompat.getDrawable(this, R.drawable.ic_location);
+        if (icon == null) return;
+        icon = DrawableCompat.wrap(icon.mutate());
+        DrawableCompat.setTint(icon, 0xFF0A5530);
+        icon.setBounds(0, 0, dp(14), dp(14));
+        btnShowMap.setCompoundDrawables(icon, null, null, null);
+        btnShowMap.setCompoundDrawablePadding(dp(4));
+        btnShowMap.setMinHeight(dp(34));
+        btnShowMap.setMinimumHeight(dp(34));
+        btnShowMap.setPadding(dp(14), 0, dp(14), 0);
+        btnShowMap.setIncludeFontPadding(false);
+        if (btnShowMap instanceof MaterialButton) {
+            MaterialButton mapButton = (MaterialButton) btnShowMap;
+            mapButton.setInsetTop(0);
+            mapButton.setInsetBottom(0);
+        }
+    }
+
+    private void stylePracticeChip(View view, boolean verified) {
+        if (!(view instanceof LinearLayout)) return;
+        LinearLayout chip = (LinearLayout) view;
+        chip.setOrientation(LinearLayout.HORIZONTAL);
+        chip.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        chip.setWeightSum(0);
+        chip.setPadding(dp(12), dp(7), dp(12), dp(7));
+        chip.setBackground(new android.graphics.drawable.GradientDrawable() {{
+            setColor(verified ? 0xFFE3F0E7 : 0xFFF3EAD8);
+            setCornerRadius(dp(999));
+        }});
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) chip.getLayoutParams();
+        params.width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        params.weight = 0;
+        params.setMargins(0, 0, dp(7), 0);
+        chip.setLayoutParams(params);
+        if (chip.getChildCount() > 0) chip.getChildAt(0).setVisibility(View.GONE);
+        if (chip.getChildCount() > 1 && chip.getChildAt(1) instanceof TextView) {
+            TextView label = (TextView) chip.getChildAt(1);
+            label.setTextSize(12.5f);
+            label.setTypeface(android.graphics.Typeface.create(
+                    androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold),
+                    android.graphics.Typeface.NORMAL));
+            label.setTextColor(verified ? 0xFF064526 : 0xFF60450E);
+            label.setAlpha(1f);
         }
     }
 
@@ -919,7 +1168,7 @@ public class SupplierDetailActivity extends BaseActivity {
         if (s == null) {
             tvOverallScore.setText("—");
             tvConfidence.setText("No score yet");
-            tvScoreBreakdown.setText("");
+            tvScoreBreakdown.removeAllViews();
             tvScoreMeta.setText("Scores are computed on the portal from validated evidence.");
             return;
         }
@@ -929,21 +1178,105 @@ public class SupplierDetailActivity extends BaseActivity {
         } else {
             tvOverallScore.setText(String.format(Locale.getDefault(), "%.0f", s.getOverall()));
         }
-        tvConfidence.setText(s.getConfidence() != null ? s.getConfidence().name() : "—");
-
-        StringBuilder b = new StringBuilder();
-        appendDim(b, "Quality",       s.getQuality());
-        appendDim(b, "Delivery",      s.getDelivery());
-        appendDim(b, "Traceability",  s.getTraceability());
-        appendDim(b, "Compliance",    s.getCompliance());
-        appendDim(b, "Sustainability", s.getSustainability());
-        appendDim(b, "Cooperation",   s.getCooperation());
-        tvScoreBreakdown.setText(b.toString().trim());
+        String confidence = s.getConfidence() != null
+                ? titleCase(s.getConfidence().name()) : "—";
+        int verifiedCount = s.getVerifiedTransactions();
+        String confidenceLead = "Confidence: " + confidence;
+        android.text.SpannableString confidenceText = new android.text.SpannableString(
+                confidenceLead + " — scored from " + verifiedCount
+                        + (verifiedCount == 1 ? " batch" : " batches")
+                        + " with delivery and traceability evidence on file.");
+        confidenceText.setSpan(new android.text.style.ForegroundColorSpan(0xFF0A5530),
+                0, confidenceLead.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        confidenceText.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                0, confidenceLead.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvConfidence.setText(confidenceText);
+        tvConfidence.setTextColor(0xFF59544C);
+        tvConfidence.setTextSize(13.5f);
+        tvConfidence.setAlpha(1f);
+        tvConfidence.setMaxWidth(dp(230));
+        tvOverallScore.setTextSize(40);
+        tvScoreBreakdown.removeAllViews();
+        addScoreDimension("Quality", "25%", s.getQuality());
+        addScoreDimension("Delivery", "20%", s.getDelivery());
+        addScoreDimension("Traceability", "20%", s.getTraceability());
+        addScoreDimension("Compliance", "15%", s.getCompliance());
+        addScoreDimension("Sustainability", "10%", s.getSustainability());
+        addScoreDimension("Cooperation", "10%", s.getCooperation());
 
         String meta = "v" + (s.getScoringVersion() != null ? s.getScoringVersion() : "?")
                 + " · " + shortDate.format(new Date(s.getCalculatedAt()))
                 + " · " + s.getVerifiedTransactions() + " verified transactions";
         tvScoreMeta.setText(meta);
+    }
+
+    private String titleCase(String value) {
+        String lower = value.toLowerCase(Locale.getDefault()).replace('_', ' ');
+        return lower.isEmpty() ? lower : Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+    }
+
+    private void addScoreDimension(String name, String weight, Double score) {
+        if (score == null) return;
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, dp(7), 0, dp(7));
+
+        LinearLayout labels = new LinearLayout(this);
+        labels.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        TextView title = new TextView(this);
+        title.setText(name);
+        title.setTextColor(0xFF3F3C37);
+        title.setTextSize(13.5f);
+        title.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_bold),
+                android.graphics.Typeface.NORMAL));
+        labels.addView(title, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        TextView percent = new TextView(this);
+        percent.setText(weight);
+        percent.setTextColor(0xFF8A857B);
+        percent.setTextSize(11.5f);
+        LinearLayout.LayoutParams percentParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        percentParams.leftMargin = dp(8);
+        percent.setLayoutParams(percentParams);
+        labels.addView(percent);
+        View spacer = new View(this);
+        labels.addView(spacer, new LinearLayout.LayoutParams(0, 1, 1));
+        TextView value = new TextView(this);
+        value.setText(String.format(Locale.getDefault(), "%.0f", score));
+        value.setTextColor(0xFF1C1B1A);
+        value.setTextSize(13.5f);
+        value.setTypeface(android.graphics.Typeface.create(
+                androidx.core.content.res.ResourcesCompat.getFont(this, R.font.manrope_extrabold),
+                android.graphics.Typeface.NORMAL));
+        labels.addView(value);
+        row.addView(labels, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout track = new LinearLayout(this);
+        track.setOrientation(LinearLayout.HORIZONTAL);
+        track.setBackground(makePillDrawable(0xFFF3EAD8));
+        track.setClipToOutline(true);
+        LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(8));
+        trackParams.topMargin = dp(5);
+        View fill = new View(this);
+        fill.setBackground(makePillDrawable(0xFF0E6B3C));
+        View remainder = new View(this);
+        track.addView(fill, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.MATCH_PARENT, Math.max(0, Math.min(100, score.floatValue()))));
+        track.addView(remainder, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.MATCH_PARENT, 100 - Math.max(0, Math.min(100, score.floatValue()))));
+        row.addView(track, trackParams);
+        tvScoreBreakdown.addView(row);
+    }
+
+    private android.graphics.drawable.GradientDrawable makePillDrawable(int color) {
+        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+        drawable.setColor(color);
+        drawable.setCornerRadius(dp(999));
+        return drawable;
     }
 
     private void appendDim(StringBuilder b, String name, Double value) {

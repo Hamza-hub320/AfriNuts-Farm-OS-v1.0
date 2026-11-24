@@ -251,6 +251,12 @@ public class TaskDetailActivity extends BaseActivity {
         layoutBlock        = findViewById(R.id.layoutBlock);
         actvBlock          = findViewById(R.id.actvBlock);
         btnSave            = findViewById(R.id.btnSave);
+        styleTaskBottomAction(btnAssignWorker);
+        styleTaskBottomAction(btnUpdateStatusBottom);
+        styleTaskBottomAction(btnSave);
+        if (btnDelete instanceof MaterialButton) {
+            styleTaskBottomAction((MaterialButton) btnDelete);
+        }
 
         // 42: date rows become tappable only in edit mode — the listener
         // checks isEditMode and returns early otherwise, so the view-mode
@@ -281,6 +287,15 @@ public class TaskDetailActivity extends BaseActivity {
             startActivity(intent);
         });
         btnAddPhoto.setOnClickListener(v -> showPhotoSourceDialog());
+    }
+
+    private void styleTaskBottomAction(MaterialButton button) {
+        if (button == null) return;
+        button.setElevation(0f);
+        button.setStateListAnimator(null);
+        button.setInsetTop(0);
+        button.setInsetBottom(0);
+        button.setCornerRadius(dp(999));
     }
 
     private void setupToolbar() {

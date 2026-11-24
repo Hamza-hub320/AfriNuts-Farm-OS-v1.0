@@ -27,7 +27,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
@@ -111,7 +111,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
@@ -134,19 +134,21 @@
 
                     <!-- Contact Person -->
                     <LinearLayout
+                        android:id="@+id/rowContactPerson"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:paddingVertical="11dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_person"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Contact person"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
 
                         <TextView
                             android:id="@+id/tvContactPerson"
@@ -154,25 +156,32 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="John Doe"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:gravity="end"
+                            android:textSize="14.5sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold" />
 
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Phone -->
                     <LinearLayout
+                        android:id="@+id/rowPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:paddingVertical="11dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_phone"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Phone"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
 
                         <TextView
                             android:id="@+id/tvPhone"
@@ -180,25 +189,32 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="+225 00 00 00 00"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:gravity="end"
+                            android:textSize="14.5sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold" />
 
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Email -->
                     <LinearLayout
+                        android:id="@+id/rowEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:paddingVertical="11dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_email"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Email"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
 
                         <TextView
                             android:id="@+id/tvEmail"
@@ -206,24 +222,32 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="john@cooperative.com"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:gravity="end"
+                            android:textSize="14.5sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold" />
 
                     </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
 
                     <!-- Location with Map Button -->
                     <LinearLayout
+                        android:id="@+id/rowLocation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:paddingVertical="11dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_location"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Location"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
 
                         <TextView
                             android:id="@+id/tvLocation"
@@ -231,17 +255,31 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Odienné, Côte d'Ivoire"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:gravity="end"
+                            android:textSize="14.5sp"
+                            android:textColor="#1C1B1A"
+                            android:fontFamily="@font/manrope_bold" />
 
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end">
                         <Button
                             android:id="@+id/btnShowMap"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="34dp"
                             android:text="Map"
                             style="@style/Widget.AfriNuts.Button.Small"
-                            android:backgroundTint="@color/accent"
+                            android:backgroundTint="#E3F0E7"
+                            android:textColor="#0A5530"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
                             android:visibility="gone" />
-
                     </LinearLayout>
 
                 </LinearLayout>
@@ -253,7 +291,7 @@
                 android:id="@+id/layoutFarmerProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
@@ -277,7 +315,8 @@
                             android:layout_width="36dp"
                             android:layout_height="36dp"
                             android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
+                            android:layout_marginEnd="12dp"
+                            android:visibility="gone">
 
                             <ImageView
                                 android:layout_width="20dp"
@@ -300,6 +339,7 @@
 
                     <!-- Years Farming -->
                     <LinearLayout
+                        android:id="@+id/rowYearsFarming"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -325,28 +365,40 @@
 
                     <!-- Farm Size -->
                     <LinearLayout
+                        android:id="@+id/rowFarmSize"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="11dp"
                         android:layout_marginBottom="8dp">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_farm"
-                            app:tint="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
-
                         <TextView
-                            android:id="@+id/tvFarmSize"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:text="Farm size"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+
+                        <TextView
+                            android:id="@+id/tvFarmSize"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="15.0 hectares"
-                            style="@style/Text.Body" />
+                            style="@style/Text.Body"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A"
+                            android:gravity="end" />
 
                     </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E9E1CF" />
 
                     <!-- Quote -->
                     <LinearLayout
@@ -361,17 +413,17 @@
                             android:src="@drawable/ic_quote"
                             app:tint="@color/accent_ink"
                             android:alpha="0.6"
-                            android:layout_marginEnd="12dp" />
+                            android:visibility="gone" />
 
                         <TextView
                             android:id="@+id/tvQuote"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="Quality over quantity"
-                        style="@style/Text.Body"
-                        android:textColor="@color/accent_ink"
-                        android:textStyle="italic" />
+                            android:textSize="15.5sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A"
+                            android:textStyle="italic" />
 
                     </LinearLayout>
 
@@ -389,8 +441,9 @@
                             android:layout_height="wrap_content"
                             android:text="Dedicated farmer with over 14 years of experience in cashew farming..."
                             style="@style/Text.Caption"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7" />
+                            android:textSize="14sp"
+                            android:fontFamily="@font/manrope_semibold"
+                            android:textColor="#3D3A35" />
 
                     </LinearLayout>
 
@@ -488,9 +541,10 @@
 
             <!-- Performance Metrics -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardPerformanceMetrics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="24dp"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardElevation="2dp">
@@ -619,7 +673,7 @@
                 android:id="@+id/cardCommitments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
@@ -644,7 +698,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
+                            android:layout_marginEnd="12dp"
+                            android:visibility="gone">
 
                             <ImageView
                                 android:layout_width="18dp"
@@ -701,8 +756,8 @@
                         style="@style/Text.Caption"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.7"
-                        android:gravity="center"
                         android:paddingVertical="12dp"
+                        android:gravity="start"
                         android:visibility="visible" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -714,7 +769,7 @@
                 android:id="@+id/cardInspections"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
@@ -739,7 +794,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
+                            android:layout_marginEnd="12dp"
+                            android:visibility="gone">
 
                             <ImageView
                                 android:layout_width="18dp"
@@ -796,8 +852,8 @@
                         style="@style/Text.Caption"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.7"
-                        android:gravity="center"
                         android:paddingVertical="12dp"
+                        android:gravity="start"
                         android:visibility="visible" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -809,7 +865,7 @@
                 android:id="@+id/cardDisputes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
@@ -834,7 +890,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
+                            android:layout_marginEnd="12dp"
+                            android:visibility="gone">
 
                             <ImageView
                                 android:layout_width="18dp"
@@ -868,8 +925,8 @@
                         style="@style/Text.Caption"
                         android:textColor="?attr/colorOnSurface"
                         android:alpha="0.7"
-                        android:gravity="center"
                         android:paddingVertical="12dp"
+                        android:gravity="start"
                         android:visibility="visible" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -881,7 +938,7 @@
                 android:id="@+id/cardScoreSnapshot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"
                 style="@style/Widget.AfriNuts.CardView"
                 app:cardCornerRadius="24dp"
@@ -906,7 +963,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
+                            android:layout_marginEnd="12dp"
+                            android:visibility="gone">
 
                             <ImageView
                                 android:layout_width="18dp"
@@ -931,50 +989,55 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:paddingTop="36dp"
+                        android:paddingBottom="32dp">
 
-                        <TextView
-                            android:id="@+id/tvOverallScore"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="76dp"
                             android:layout_height="wrap_content"
-                            android:text="—"
-                            style="@style/Text.Stat"
-                            android:textSize="28sp"
-                            android:textColor="@color/accent_ink" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=" / 100"
-                            style="@style/Text.Body"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.6"
-                            android:layout_marginStart="4dp" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
+                            android:orientation="vertical"
+                            android:gravity="start">
+                            <TextView
+                                android:id="@+id/tvOverallScore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="—"
+                                style="@style/Text.Stat"
+                                android:textSize="40sp"
+                                android:textColor="#1C1B1A"
+                                android:fontFamily="@font/manrope_extrabold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="/ 100"
+                                android:textSize="16sp"
+                                android:textColor="#59544C"
+                                android:fontFamily="@font/manrope_bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvConfidence"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
                             android:text="—"
                             style="@style/Text.Caption"
                             android:textColor="?attr/colorOnSurface"
                             android:alpha="0.7" />
                     </LinearLayout>
 
-                    <TextView
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="#E9E1CF" />
+
+                    <LinearLayout
                         android:id="@+id/tvScoreBreakdown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        style="@style/Text.Caption.Small"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:lineSpacingExtra="2dp"
+                        android:orientation="vertical"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
@@ -1074,9 +1137,9 @@
                     android:layout_marginTop="12dp"
                     android:text="Delete Supplier"
                     style="@style/Widget.AfriNuts.Button.Danger"
-                    app:icon="@drawable/ic_delete"
-                    app:iconGravity="textStart"
-                    app:iconTint="@android:color/white" />
+                    android:backgroundTint="#F8E4DD"
+                    android:textColor="#B3402A"
+                    android:textAllCaps="false" />
 
             </LinearLayout>
 

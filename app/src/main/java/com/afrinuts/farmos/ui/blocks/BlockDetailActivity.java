@@ -182,6 +182,12 @@ public class BlockDetailActivity extends BaseActivity {
         btnEdit = findViewById(R.id.btnEdit);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
+        styleBlockActionButton(btnEdit);
+        styleBlockActionButton(btnSave);
+        styleBlockActionButton(btnRecordHarvestBottom);
+        if (btnDelete instanceof MaterialButton) {
+            styleBlockActionButton((MaterialButton) btnDelete);
+        }
 
         btnEdit.setOnClickListener(v -> enableEditMode(true));
         btnSave.setOnClickListener(v -> saveChanges());
@@ -194,6 +200,15 @@ public class BlockDetailActivity extends BaseActivity {
             intent.putExtra("block_id", blockId);
             startActivity(intent);
         });
+    }
+
+    private void styleBlockActionButton(MaterialButton button) {
+        if (button == null) return;
+        button.setElevation(0f);
+        button.setStateListAnimator(null);
+        button.setInsetTop(0);
+        button.setInsetBottom(0);
+        button.setCornerRadius(dp(999));
     }
 
     private void setupToolbar() {

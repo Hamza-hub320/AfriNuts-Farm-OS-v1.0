@@ -414,7 +414,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
 
     private void styleAction(Button button, boolean primary, float density, boolean destructive) {
         if (button == null) return;
-        int fill = destructive ? 0xFFB3402A : primary ? 0xFF0E6B3C : 0xFFF3EAD8;
+        int fill = destructive ? 0xFFF8E4DD : primary ? 0xFF0E6B3C : 0xFFF3EAD8;
         if (button instanceof com.google.android.material.button.MaterialButton) {
             com.google.android.material.button.MaterialButton materialButton =
                     (com.google.android.material.button.MaterialButton) button;
@@ -424,13 +424,14 @@ public abstract class FarmDialogFragment extends DialogFragment {
             materialButton.setInsetBottom(0);
             materialButton.setStrokeWidth(0);
             materialButton.setIcon(null);
+            materialButton.setStateListAnimator(null);
         } else {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(fill);
             bg.setCornerRadius(999 * density);
             button.setBackground(bg);
         }
-        button.setTextColor(primary ? Color.WHITE : 0xFF1C1B1A);
+        button.setTextColor(destructive ? 0xFFB3402A : primary ? Color.WHITE : 0xFF1C1B1A);
         button.setTextSize(15);
         button.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
         button.setTextSize(15);
@@ -441,6 +442,8 @@ public abstract class FarmDialogFragment extends DialogFragment {
         button.setEllipsize(null);
         button.setGravity(Gravity.CENTER);
         button.setElevation(0);
+        button.setTranslationZ(0);
+        button.setStateListAnimator(null);
         button.setCompoundDrawables(null, null, null, null);
     }
 }
