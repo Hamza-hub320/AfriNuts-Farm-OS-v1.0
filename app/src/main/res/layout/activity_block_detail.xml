@@ -15,7 +15,7 @@
         android:padding="16dp"
         android:fillViewport="true"
         android:clipToPadding="false"
-        android:paddingBottom="16dp">
+        android:paddingBottom="32dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -320,13 +320,12 @@
                         app:backgroundTint="#0E6B3C"
                         app:cornerRadius="999dp" />
 
-                    <!-- Harvest History -->
                     <LinearLayout
                         android:id="@+id/harvestHistoryContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginTop="12dp" />
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
@@ -346,31 +345,53 @@
                 android:focusable="true">
 
                 <LinearLayout
-                    android:id="@+id/btnPhotoGallery"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:orientation="vertical"
                     android:padding="18dp"
                     android:background="@color/surface">
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:id="@+id/btnPhotoGallery"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Photos"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/manrope_extrabold"
-                        android:textColor="#1C1B1A" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/tvPhotoCount"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Photos"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/manrope_extrabold"
+                            android:textColor="#1C1B1A" />
+
+                        <TextView
+                            android:id="@+id/tvPhotoCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 photos"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+
+                    </LinearLayout>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0 photos"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/manrope_bold"
-                        android:textColor="#59544C" />
+                        android:layout_marginTop="14dp"
+                        android:scrollbars="none"
+                        android:clipToPadding="false">
+
+                        <LinearLayout
+                            android:id="@+id/photoThumbnailStrip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+
+                    </HorizontalScrollView>
 
                 </LinearLayout>
 
@@ -456,40 +477,30 @@
                     android:paddingBottom="18dp"
                     android:background="@color/surface">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="12dp"
+                        android:text="Notes"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:textColor="#1C1B1A" />
 
-                        <FrameLayout
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="@drawable/bg_icon_sand"
-                            android:layout_marginEnd="12dp">
-
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_note"
-                                app:tint="?attr/colorPrimary" />
-
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Notes"
-                            style="@style/Text.H4"
-                            android:textColor="?attr/colorPrimary" />
-
-                    </LinearLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
+                    <TextView
+                        android:id="@+id/tvNotesDisplay"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="No notes yet."
+                        android:textSize="14sp"
+                        android:fontFamily="@font/manrope_semibold"
+                        android:textColor="#3D3A35"
+                        android:lineSpacingExtra="2dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/notesInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
                         style="@style/Widget.AfriNuts.EditText">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -516,7 +527,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -366,6 +366,7 @@ public class BlockDetailActivity extends BaseActivity {
 
         farmInfoText.setText(String.format(Locale.getDefault(), "Farm | Size: %.1f ha",
                 block.getHectareSize()));
+        syncBlockHero();
 
         updateTimelineVisibility();
 
@@ -680,9 +681,30 @@ public class BlockDetailActivity extends BaseActivity {
                 if (block != null && block.getFarmId() == id) {
                     farmInfoText.setText(String.format(Locale.getDefault(), "Farm: %s | Size: %.1f ha",
                             farm.getName(), block.getHectareSize()));
+                    syncBlockHero();
                 }
             });
         });
+    }
+
+    private void syncBlockHero() {
+        if (block == null) return;
+        TextView heroName = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero-name");
+        if (heroName != null) {
+            String name = block.getBlockName();
+            heroName.setText(name == null || name.trim().isEmpty() ? "Block" : name.trim());
+        }
+
+        TextView heroSubtitle = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero-subtitle");
+        if (heroSubtitle != null) heroSubtitle.setText(farmInfoText.getText());
+
+        TextView heroStatus = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero-status");
+        View heroStatusRow = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero-status-row");
+        if (heroStatus != null && heroStatusRow != null) {
+            CharSequence status = statusBadge.getText();
+            heroStatus.setText(status == null || status.length() == 0 ? "" : "•  " + status);
+            heroStatusRow.setVisibility(status == null || status.length() == 0 ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void saveChanges() {
