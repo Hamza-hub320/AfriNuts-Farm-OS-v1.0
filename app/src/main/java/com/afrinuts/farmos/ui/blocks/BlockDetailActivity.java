@@ -447,6 +447,20 @@ public class BlockDetailActivity extends BaseActivity {
             // Load harvest history
             loadHarvestHistory();
 
+        } else if (block.getStatus() == BlockEntity.BlockStatus.HARVESTED) {
+            // The block can be marked harvested without a harvest quantity record.
+            // Keep the KPI consistent with the explicit block status in that case.
+            harvestSection.setVisibility(View.VISIBLE);
+            tvTotalHarvest.setText("Harvested");
+            tvLastHarvestDate.setText("—");
+            tvLastHarvestQuantity.setText("—");
+            tvHarvestCount.setText("—");
+            tvYieldPerHectare.setText("—");
+
+            btnRecordHarvest.setVisibility(View.VISIBLE);
+            btnRecordHarvestBottom.setVisibility(View.VISIBLE);
+            btnRecordHarvest.setText("Record Harvest");
+
         } else if (block.isPlanted()) {
             // Block is planted but not yet harvested
             harvestSection.setVisibility(View.VISIBLE);
