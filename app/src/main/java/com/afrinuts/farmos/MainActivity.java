@@ -678,6 +678,12 @@ public class MainActivity extends AppCompatActivity {
             String roleStr = doc.getString("role");
             String phone = doc.getString("phone");
             String email = doc.getString("email");
+            String bio = doc.getString("bio");
+            String company = doc.getString("company");
+            String title = doc.getString("title");
+            Long lastLoginAt = doc.getLong("lastLoginAt");
+            String lastLoginIp = doc.getString("lastLoginIp");
+            String lastLoginDevice = doc.getString("lastLoginDevice");
             String authMethodStr = doc.getString("authMethod");
             Boolean isActive = doc.getBoolean("isActive");
             Long createdAt = doc.getLong("createdAt");
@@ -735,6 +741,12 @@ public class MainActivity extends AppCompatActivity {
             user.setActive(isActive != null ? isActive : true);
             if (createdAt != null) user.setCreatedAt(createdAt);
             if (localId != null && localId > 0) user.setLocalId(localId);
+            user.setBio(bio);
+            user.setCompany(company);
+            user.setTitle(title);
+            if (lastLoginAt != null) user.setLastLoginAt(lastLoginAt);
+            user.setLastLoginIp(lastLoginIp);
+            user.setLastLoginDevice(lastLoginDevice);
 
             // ✅ For password users, ensure password hash is set
             if (UserEntity.AuthMethod.PASSWORD.name().equals(authMethodStr) && passwordHash != null) {

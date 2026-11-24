@@ -370,9 +370,9 @@ public class EditUserDialog extends FarmDialogFragment {
         userMap.put("email", user.getEmail());
 
         // Profile fields
-        userMap.put("bio", user.getBio());
-        userMap.put("company", user.getCompany());
-        userMap.put("title", user.getTitle());
+        if (user.getBio() != null) userMap.put("bio", user.getBio());
+        if (user.getCompany() != null) userMap.put("company", user.getCompany());
+        if (user.getTitle() != null) userMap.put("title", user.getTitle());
 
         // Account status fields
         userMap.put("lastUpdatedAt", user.getLastUpdatedAt());
