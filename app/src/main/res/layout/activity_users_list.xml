@@ -5,315 +5,162 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Toolbar + Scrollable content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Toolbar with back arrow -->
-        <androidx.appcompat.widget.Toolbar
+        <LinearLayout
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/surface"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            app:title="Team Members" />
+            android:layout_height="64dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageButton
+                android:id="@+id/toolbarBack"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_farm_action_circle"
+                android:contentDescription="Back"
+                android:padding="12dp"
+                android:src="@drawable/ic_finance_back_chevron"
+                app:tint="#1C1B1A" />
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Users"
+                android:textColor="#1C1B1A"
+                android:textSize="17sp"
+                android:fontFamily="@font/manrope_extrabold" />
 
-                <!-- Summary Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
-                    android:background="@color/surface"
-                    style="@style/Widget.AfriNuts.CardView">
+            <ImageButton
+                android:id="@+id/toolbarMore"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_farm_action_circle"
+                android:contentDescription="More actions"
+                android:padding="11dp"
+                android:src="@drawable/ic_farm_more"
+                app:tint="#1C1B1A" />
+        </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:weightSum="3"
-                        android:background="@color/surface">
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filterChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="12dp"
+            app:chipSpacingHorizontal="8dp"
+            app:chipSpacingVertical="8dp"
+            app:singleLine="false"
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-                        <!-- Total -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:checked="true"
+                android:text="All"
+                style="@style/Widget.AfriNuts.Chip" />
 
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_icon_sand">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipOwners"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Owners"
+                style="@style/Widget.AfriNuts.Chip" />
 
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_people"
-                                    app:tint="@color/accent_ink" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipManagers"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Managers"
+                style="@style/Widget.AfriNuts.Chip" />
 
-                            </FrameLayout>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipWorkers"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Workers"
+                style="@style/Widget.AfriNuts.Chip" />
 
-                            <TextView
-                                android:id="@+id/totalUsersValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.Stat"
-                                android:textSize="18sp"
-                                android:textColor="@color/accent_ink"
-                                android:layout_marginTop="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipInvestors"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Investors"
+                style="@style/Widget.AfriNuts.Chip" />
+        </com.google.android.material.chip.ChipGroup>
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Total"
-                                style="@style/Text.Caption"
-                                android:textSize="11sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AfriNuts.ProgressBar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
 
-                        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-                        <!-- Owners -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No users yet"
+                android:textColor="#1C1B1A"
+                android:textSize="16sp"
+                android:fontFamily="@font/manrope_extrabold" />
 
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_icon_sand">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Add your first user"
+                android:textColor="#59544C"
+                android:textSize="14sp"
+                android:fontFamily="@font/manrope" />
+        </LinearLayout>
 
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_star"
-                                    app:tint="@color/accent_ink" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:id="@+id/ownersValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.Stat"
-                                android:textSize="18sp"
-                                android:textColor="@color/accent_ink"
-                                android:layout_marginTop="4dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Owners"
-                                style="@style/Text.Caption"
-                                android:textSize="11sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
-
-                        </LinearLayout>
-
-                        <!-- Active -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_icon_sand">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_person"
-                                    app:tint="@color/accent_ink" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:id="@+id/activeUsersValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/Text.Stat"
-                                android:textSize="18sp"
-                                android:textColor="@color/accent_ink"
-                                android:layout_marginTop="4dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Active"
-                                style="@style/Text.Caption"
-                                android:textSize="11sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:alpha="0.7" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <!-- Filter Chips -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:scrollbars="none">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/filterChipGroup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipAll"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="All"
-                            android:checked="true"
-                            style="@style/Widget.AfriNuts.Chip" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipOwners"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Owners"
-                            style="@style/Widget.AfriNuts.Chip" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipManagers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Managers"
-                            style="@style/Widget.AfriNuts.Chip" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipWorkers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Workers"
-                            style="@style/Widget.AfriNuts.Chip" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipInvestors"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Investors"
-                            style="@style/Widget.AfriNuts.Chip" />
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                </HorizontalScrollView>
-
-                <!-- Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="@style/Widget.AfriNuts.ProgressBar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="24dp"
-                    android:indeterminate="true"
-                    android:visibility="gone" />
-
-                <!-- Empty State -->
-                <LinearLayout
-                    android:id="@+id/emptyView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="48dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:visibility="gone">
-
-                    <FrameLayout
-                        android:layout_width="72dp"
-                        android:layout_height="72dp"
-                        android:background="@drawable/bg_icon_sand">
-
-                        <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_people"
-                            app:tint="@color/warm_grey" />
-
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No team members"
-                        style="@style/Text.H4"
-                        android:textSize="16sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add your first team member"
-                        style="@style/Text.Caption"
-                        android:textSize="11sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-
-                <!-- RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:clipToPadding="false"
-                    android:visibility="visible" />
-
-            </LinearLayout>
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingStart="12dp"
+            android:paddingTop="0dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="92dp" />
     </LinearLayout>
 
-    <!-- Floating Action Button — floats above everything -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="24dp"
-        android:src="@drawable/ic_person_add"
-        android:contentDescription="Add team member"
-        app:backgroundTint="@color/primary"
-        app:tint="@android:color/white"
-        app:rippleColor="@color/primary_light" />
-
+        android:layout_margin="20dp"
+        android:contentDescription="Add user"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="#0E6B3C"
+        app:elevation="0dp"
+        app:tint="@android:color/white" />
 </FrameLayout>

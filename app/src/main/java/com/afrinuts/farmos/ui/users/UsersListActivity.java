@@ -1,15 +1,20 @@
 package com.afrinuts.farmos.ui.users;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,18 +26,17 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import android.graphics.drawable.GradientDrawable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not BaseHubActivity
 
     private RecyclerView recyclerView;
-    private UserAdapter adapter;
+    private RecyclerView.Adapter<?> adapter;
     private ProgressBar progressBar;
     private LinearLayout emptyView;
-    private TextView totalUsersValue;
-    private TextView ownersValue;
-    private TextView activeUsersValue;
     private ChipGroup filterChipGroup;
 
     private AppDatabase database;
@@ -63,16 +67,8 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setDisplayShowHomeEnabled(true);
-                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-                getSupportActionBar().setTitle("Team Members");
-            }
-        }
+        ImageButton back = findViewById(R.id.toolbarBack);
+        if (back != null) back.setOnClickListener(v -> finish());
     }
 
     @Override
@@ -88,9 +84,6 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         emptyView = findViewById(R.id.emptyView);
-        totalUsersValue = findViewById(R.id.totalUsersValue);
-        ownersValue = findViewById(R.id.ownersValue);
-        activeUsersValue = findViewById(R.id.activeUsersValue);
         filterChipGroup = findViewById(R.id.filterChipGroup);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -137,6 +130,20 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
                 applyFilter();
             }
         });
+
+        Chip[] chips = {chipAll, chipOwners, chipManagers, chipWorkers, chipInvestors};
+        int[][] checkedStates = {new int[]{android.R.attr.state_checked}, new int[]{}};
+        ColorStateList backgrounds = new ColorStateList(checkedStates, new int[]{0xFF0E6B3C, 0xFFF3EAD8});
+        ColorStateList textColors = new ColorStateList(checkedStates, new int[]{0xFFFFFFFF, 0xFF59544C});
+        float density = getResources().getDisplayMetrics().density;
+        for (Chip chip : chips) {
+            chip.setChipBackgroundColor(backgrounds);
+            chip.setTextColor(textColors);
+            chip.setChipStrokeColor(ColorStateList.valueOf(0xFFE9E1CF));
+            chip.setChipStrokeWidth(density);
+            chip.setChipCornerRadius(999 * density);
+            chip.setEnsureMinTouchTargetSize(false);
+        }
     }
 
     private void setupFab() {
@@ -163,30 +170,10 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
                     showEmpty(true);
                 } else {
                     showEmpty(false);
-                    updateSummaryStats();
                     applyFilter();
                 }
             });
         }).start();
-    }
-
-    private void updateSummaryStats() {
-        int total = allUsers.size();
-        int owners = 0;
-        int active = 0;
-
-        for (UserEntity user : allUsers) {
-            if (user.getRole() == UserEntity.UserRole.OWNER) {
-                owners++;
-            }
-            if (user.isActive()) {
-                active++;
-            }
-        }
-
-        totalUsersValue.setText(String.valueOf(total));
-        ownersValue.setText(String.valueOf(owners));
-        activeUsersValue.setText(String.valueOf(active));
     }
 
     private void applyFilter() {
@@ -220,13 +207,89 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
             }
         }
 
-        adapter = new UserAdapter(filteredUsers, user -> {
+        adapter = new UserRowAdapter(filteredUsers, user -> {
             Intent intent = new Intent(UsersListActivity.this, UserDetailActivity.class);
             intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getLocalId());
             startActivity(intent);
         });
 
         recyclerView.setAdapter(adapter);
+    }
+
+    private static class UserRowAdapter extends RecyclerView.Adapter<UserRowAdapter.UserRowHolder> {
+        private final List<UserEntity> users;
+        private final UserAdapter.OnUserClickListener listener;
+
+        UserRowAdapter(List<UserEntity> users, UserAdapter.OnUserClickListener listener) {
+            this.users = users;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public UserRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new UserRowHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_user, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull UserRowHolder holder, int position) {
+            UserEntity user = users.get(position);
+            holder.initials.setText(user.getInitials());
+            int[] fills = {0xFFE3F0E7, 0xFFF3EAD8, 0xFFEFEAE0};
+            int[] inks = {0xFF0A5530, 0xFF7A5F22, 0xFF6F6A61};
+            int tintIndex = position % fills.length;
+            GradientDrawable avatar = new GradientDrawable();
+            avatar.setShape(GradientDrawable.OVAL);
+            avatar.setColor(fills[tintIndex]);
+            holder.initials.setBackground(avatar);
+            holder.initials.setTextColor(inks[tintIndex]);
+
+            holder.name.setText(user.getName());
+            holder.role.setText(user.getDisplayRole());
+            holder.roleIcon.setImageResource(roleIcon(user.getRole()));
+            holder.roleIcon.setColorFilter(0xFF8A857B);
+            holder.status.setImageResource(user.isActive() ? R.drawable.ic_check_circle : R.drawable.ic_cancel);
+            holder.status.setColorFilter(user.isActive() ? 0xFF0E6B3C : 0xFFB9B2A2);
+            holder.status.setContentDescription(user.isActive() ? "Active" : "Inactive");
+            holder.card.setOnClickListener(v -> listener.onUserClick(user));
+        }
+
+        private static int roleIcon(UserEntity.UserRole role) {
+            if (role == null) return R.drawable.ic_person;
+            switch (role) {
+                case OWNER: return R.drawable.ic_star;
+                case CEO: return R.drawable.ic_farm;
+                case COMPLIANCE_OFFICER: return R.drawable.ic_nav_shield_check;
+                case MANAGER: return R.drawable.ic_assignment;
+                case FIELD_OFFICER: return R.drawable.ic_nav_sprout;
+                case INVESTOR: return R.drawable.ic_trending_up;
+                case WORKER:
+                default: return R.drawable.ic_person;
+            }
+        }
+
+        @Override
+        public int getItemCount() { return users.size(); }
+
+        static class UserRowHolder extends RecyclerView.ViewHolder {
+            final CardView card;
+            final TextView initials;
+            final TextView name;
+            final TextView role;
+            final ImageView roleIcon;
+            final ImageView status;
+
+            UserRowHolder(@NonNull View itemView) {
+                super(itemView);
+                card = (CardView) itemView;
+                initials = itemView.findViewById(R.id.userInitials);
+                name = itemView.findViewById(R.id.userName);
+                role = itemView.findViewById(R.id.userRole);
+                roleIcon = itemView.findViewById(R.id.roleIcon);
+                status = itemView.findViewById(R.id.userStatus);
+            }
+        }
     }
 
     private void showLoading(boolean show) {

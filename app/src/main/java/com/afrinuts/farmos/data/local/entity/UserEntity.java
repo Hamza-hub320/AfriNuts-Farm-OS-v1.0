@@ -53,48 +53,42 @@ public class UserEntity {
     private long farmId;
 
     public enum UserRole {
-        OWNER("Owner", "👑", "Full access to all farm data", 100),
-        CEO("CEO", "🏛️", "Executive authority; approves certification status changes", 90),
-        COMPLIANCE_OFFICER("Compliance Officer", "🛡️", "Certification compliance; approves status changes and validations", 85),
-        MANAGER("Manager", "📋", "Manage operations, no deletion", 80),
-        FIELD_OFFICER("Field Officer", "🌱", "Supplier onboarding: profiles, commitments, inspections", 50),
-        WORKER("Worker", "👤", "View and update assigned tasks", 30),
-        INVESTOR("Investor", "📈", "View-only reports and analytics", 10);
+        OWNER("Owner", "Full access to all farm data", 100),
+        CEO("CEO", "Executive authority; approves certification status changes", 90),
+        COMPLIANCE_OFFICER("Compliance Officer", "Certification compliance; approves status changes and validations", 85),
+        MANAGER("Manager", "Manage operations, no deletion", 80),
+        FIELD_OFFICER("Field Officer", "Supplier onboarding: profiles, commitments, inspections", 50),
+        WORKER("Worker", "View and update assigned tasks", 30),
+        INVESTOR("Investor", "View-only reports and analytics", 10);
 
         private final String displayName;
-        private final String icon;
         private final String description;
         private final int accessLevel;
 
-        UserRole(String displayName, String icon, String description, int accessLevel) {
+        UserRole(String displayName, String description, int accessLevel) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
             this.accessLevel = accessLevel;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
         public int getAccessLevel() { return accessLevel; }
     }
 
     public enum AuthMethod {
-        PIN("PIN", "🔢", "4-6 digit PIN"),
-        PASSWORD("Password", "🔐", "Email and password");
+        PIN("PIN", "4-6 digit PIN"),
+        PASSWORD("Password", "Email and password");
 
         private final String displayName;
-        private final String icon;
         private final String description;
 
-        AuthMethod(String displayName, String icon, String description) {
+        AuthMethod(String displayName, String description) {
             this.displayName = displayName;
-            this.icon = icon;
             this.description = description;
         }
 
         public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
         public String getDescription() { return description; }
     }
 
@@ -412,7 +406,7 @@ public class UserEntity {
     }
 
     public String getDisplayRole() {
-        return role.getIcon() + " " + role.getDisplayName();
+        return role == null ? "" : role.getDisplayName();
     }
 
     // ✅ Helper: Check if account is locked

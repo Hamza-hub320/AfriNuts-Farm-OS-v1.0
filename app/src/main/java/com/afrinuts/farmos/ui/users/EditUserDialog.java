@@ -12,16 +12,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EditUserDialog extends DialogFragment {
+public class EditUserDialog extends FarmDialogFragment {
 
     private static final String TAG = "EditUserDialog";
     private static final String ARG_USER_ID = "user_id";
@@ -212,11 +213,24 @@ public class EditUserDialog extends DialogFragment {
         etName.setText(existingUser.getName());
         etPhone.setText(existingUser.getPhone());
         etEmail.setText(existingUser.getEmail());
+        selectedRole = existingUser.getRole();
+        etRole.setText(selectedRole != null ? selectedRole.getDisplayName() : "", false);
 
         // Populate profile fields
         etBio.setText(existingUser.getBio());
         etCompany.setText(existingUser.getCompany());
         etTitle.setText(existingUser.getTitle());
+
+        boolean isCurrentUser = isEditingCurrentAccount();
+        etNewPassword.setEnabled(isCurrentUser);
+        etConfirmPassword.setEnabled(isCurrentUser);
+    }
+
+    private boolean isEditingCurrentAccount() {
+        com.google.firebase.auth.FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
+        return current != null && existingUser != null
+                && current.getUid() != null
+                && current.getUid().equals(existingUser.getUid());
     }
 
     private void saveUser() {
@@ -255,6 +269,12 @@ public class EditUserDialog extends DialogFragment {
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
+        if ((!TextUtils.isEmpty(newPassword) || !TextUtils.isEmpty(confirmPassword))
+                && !isEditingCurrentAccount()) {
+            etNewPassword.setError("Only your own account password can be changed here");
+            return;
+        }
+
         if (!TextUtils.isEmpty(newPassword) || !TextUtils.isEmpty(confirmPassword)) {
             if (newPassword.length() < 6) {
                 etNewPassword.setError("Password must be at least 6 characters");
@@ -283,13 +303,31 @@ public class EditUserDialog extends DialogFragment {
         existingUser.setUpdatedAt(System.currentTimeMillis());
         existingUser.setLastUpdatedAt(System.currentTimeMillis());
 
-        // If password is changing, update it
         if (!TextUtils.isEmpty(newPassword)) {
-            existingUser.setPasswordHash(AuthUtils.hash(newPassword));
-            existingUser.setPasswordChangedAt(System.currentTimeMillis());
+            com.google.firebase.auth.FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
+            if (current == null) {
+                btnSave.setEnabled(true);
+                btnSave.setText("Save changes");
+                Toast.makeText(getContext(), "Sign in again to change your password", Toast.LENGTH_LONG).show();
+                return;
+            }
+            current.updatePassword(newPassword)
+                    .addOnSuccessListener(unused -> {
+                        existingUser.setPasswordHash(AuthUtils.hash(newPassword));
+                        existingUser.setPasswordChangedAt(System.currentTimeMillis());
+                        persistUserUpdate();
+                    })
+                    .addOnFailureListener(error -> {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Save changes");
+                        Toast.makeText(getContext(), "Failed to update password: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+        } else {
+            persistUserUpdate();
         }
+    }
 
-        // Update in local database AND Firestore
+    private void persistUserUpdate() {
         executor.execute(() -> {
             try {
                 // Update local database
@@ -301,7 +339,7 @@ public class EditUserDialog extends DialogFragment {
 
                 requireActivity().runOnUiThread(() -> {
                     btnSave.setEnabled(true);
-                    btnSave.setText("Save");
+                    btnSave.setText("Save changes");
 
                     Toast.makeText(getContext(), "User updated successfully!", Toast.LENGTH_SHORT).show();
                     if (listener != null) {
@@ -313,7 +351,7 @@ public class EditUserDialog extends DialogFragment {
                 Log.e(TAG, "❌ Error saving user", e);
                 requireActivity().runOnUiThread(() -> {
                     btnSave.setEnabled(true);
-                    btnSave.setText("Save");
+                    btnSave.setText("Save changes");
                     Toast.makeText(getContext(), "Error saving user: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             }

@@ -7,13 +7,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -80,8 +80,6 @@ public class UserDetailActivity extends BaseActivity {
     private Button btnDeactivate;
     private MaterialButton btnDelete;
     private MaterialButton btnResetPin;
-    private Button btnCall;
-    private Button btnEmail;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MMM dd, yyyy, hh:mm a", Locale.getDefault());
@@ -120,9 +118,6 @@ public class UserDetailActivity extends BaseActivity {
     }
 
     private void initViews() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         tvUserInitials = findViewById(R.id.tvUserInitials);
         tvUserName = findViewById(R.id.tvUserName);
         tvUserRole = findViewById(R.id.tvUserRole);
@@ -142,8 +137,6 @@ public class UserDetailActivity extends BaseActivity {
         btnDeactivate = findViewById(R.id.btnDeactivate);
         btnDelete = findViewById(R.id.btnDelete);
         btnResetPin = findViewById(R.id.btnResetPin);
-        btnCall = findViewById(R.id.btnCall);
-        btnEmail = findViewById(R.id.btnEmail);
 
         tvUserTitle = findViewById(R.id.tvUserTitle);
         layoutProfileDetails = findViewById(R.id.layoutProfileDetails);
@@ -160,32 +153,13 @@ public class UserDetailActivity extends BaseActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
         btnResetPin.setOnClickListener(v -> showResetPinDialog());
 
-        btnCall.setOnClickListener(v -> {
-            if (user != null && user.getPhone() != null) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + user.getPhone()));
-                startActivity(intent);
-            }
-        });
-
-        btnEmail.setOnClickListener(v -> {
-            if (user != null && user.getEmail() != null) {
-                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                intent.setData(Uri.parse("mailto:" + user.getEmail()));
-                startActivity(intent);
-            }
-        });
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-            getSupportActionBar().setTitle("Team Details");
-        }
+        ImageButton back = findViewById(R.id.toolbarBack);
+        if (back != null) back.setOnClickListener(v -> finish());
+        ImageButton more = findViewById(R.id.toolbarMore);
+        if (more != null) more.setOnClickListener(v -> showEditUserDialog());
     }
 
     private void loadUserData() {
@@ -219,50 +193,36 @@ public class UserDetailActivity extends BaseActivity {
         // Status
         if (user.isActive()) {
             chipUserStatus.setText("Active");
-            chipUserStatus.setChipBackgroundColorResource(R.color.primary);
+            chipUserStatus.setChipBackgroundColor(android.content.res.ColorStateList.valueOf(0xFFE3F0E7));
+            chipUserStatus.setTextColor(0xFF0A5530);
+            chipUserStatus.setChipIconResource(R.drawable.ic_check_circle);
+            chipUserStatus.setChipIconTint(android.content.res.ColorStateList.valueOf(0xFF0A5530));
         } else {
             chipUserStatus.setText("Inactive");
-            chipUserStatus.setChipBackgroundColorResource(android.R.color.holo_red_dark);
+            chipUserStatus.setChipBackgroundColor(android.content.res.ColorStateList.valueOf(0xFFEFEAE0));
+            chipUserStatus.setTextColor(0xFF6F6A61);
+            chipUserStatus.setChipIconResource(R.drawable.ic_cancel);
+            chipUserStatus.setChipIconTint(android.content.res.ColorStateList.valueOf(0xFF6F6A61));
         }
 
         btnDeactivate.setText(user.isActive() ? "Deactivate" : "Activate");
 
         // ✅ Display Profile Details
-        boolean hasProfileInfo = false;
-
         // Company
-        if (user.getCompany() != null && !user.getCompany().isEmpty()) {
-            tvUserCompany.setText(user.getCompany());
-            layoutCompany.setVisibility(View.VISIBLE);
-            hasProfileInfo = true;
-        } else {
-            layoutCompany.setVisibility(View.GONE);
-        }
+        tvUserCompany.setText(user.getCompany() != null && !user.getCompany().isEmpty()
+                ? user.getCompany() : "—");
+        layoutCompany.setVisibility(View.VISIBLE);
 
         // Title (in profile section)
-        if (user.getTitle() != null && !user.getTitle().isEmpty()) {
-            tvUserTitleDetail.setText(user.getTitle());
-            layoutTitle.setVisibility(View.VISIBLE);
-            hasProfileInfo = true;
-        } else {
-            layoutTitle.setVisibility(View.GONE);
-        }
+        tvUserTitleDetail.setText(user.getTitle() != null && !user.getTitle().isEmpty()
+                ? user.getTitle() : "—");
+        layoutTitle.setVisibility(View.VISIBLE);
 
         // Bio
-        if (user.getBio() != null && !user.getBio().isEmpty()) {
-            tvUserBio.setText(user.getBio());
-            layoutBio.setVisibility(View.VISIBLE);
-            hasProfileInfo = true;
-        } else {
-            layoutBio.setVisibility(View.GONE);
-        }
-
-        // Show/hide Profile Details card
-        if (hasProfileInfo) {
-            layoutProfileDetails.setVisibility(View.VISIBLE);
-        } else {
-            layoutProfileDetails.setVisibility(View.GONE);
-        }
+        tvUserBio.setText(user.getBio() != null && !user.getBio().isEmpty()
+                ? user.getBio() : "No bio available.");
+        layoutBio.setVisibility(View.VISIBLE);
+        layoutProfileDetails.setVisibility(View.VISIBLE);
 
         // Contact info
         tvUserPhone.setText(user.getPhone() != null ? user.getPhone() : "No phone");
@@ -295,9 +255,9 @@ public class UserDetailActivity extends BaseActivity {
         }
 
         // Access level
-        tvAccessRole.setText(user.getRole().getDisplayName());
+        tvAccessRole.setText(user.getDisplayRole());
+        tvAccessLevel.setText(user.isActive() ? "Active" : "Inactive");
         int accessLevel = user.getRole().getAccessLevel();
-        tvAccessLevel.setText(accessLevel + " (" + getAccessLevelDescription(accessLevel) + ")");
         accessProgress.setProgress(accessLevel);
         tvAccessDescription.setText(user.getRole().getDescription());
 
@@ -305,7 +265,7 @@ public class UserDetailActivity extends BaseActivity {
         tvMemberSince.setText(dateFormat.format(new Date(user.getCreatedAt())));
 
         if (user.getLastLoginAt() > 0) {
-            tvLastLogin.setText(dateTimeFormat.format(new Date(user.getLastLoginAt())));
+            tvLastLogin.setText(dateFormat.format(new Date(user.getLastLoginAt())));
         } else {
             tvLastLogin.setText("Never");
         }
@@ -420,155 +380,17 @@ public class UserDetailActivity extends BaseActivity {
     }
 
     private void showEditUserDialog() {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_user, null);
-
-        // Core fields
-        TextInputEditText etName = dialogView.findViewById(R.id.etName);
-        TextInputEditText etPhone = dialogView.findViewById(R.id.etPhone);
-        TextInputEditText etEmail = dialogView.findViewById(R.id.etEmail);
-
-        // New Profile fields
-        TextInputEditText etBio = dialogView.findViewById(R.id.etBio);
-        TextInputEditText etCompany = dialogView.findViewById(R.id.etCompany);
-        TextInputEditText etTitle = dialogView.findViewById(R.id.etTitle);
-
-        // Password fields
-        TextInputEditText etNewPassword = dialogView.findViewById(R.id.etNewPassword);
-        TextInputEditText etConfirmPassword = dialogView.findViewById(R.id.etConfirmPassword);
-        TextView tvHelper = dialogView.findViewById(R.id.tvHelperText);
-
-        // Custom buttons
-        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-        Button btnSave = dialogView.findViewById(R.id.btnSave);
-
-        // Populate existing data
-        etName.setText(user.getName());
-        etPhone.setText(user.getPhone());
-        if (user.getEmail() != null) {
-            etEmail.setText(user.getEmail());
-        }
-
-        // Populate new profile fields
-        if (user.getBio() != null) {
-            etBio.setText(user.getBio());
-        }
-        if (user.getCompany() != null) {
-            etCompany.setText(user.getCompany());
-        }
-        if (user.getTitle() != null) {
-            etTitle.setText(user.getTitle());
-        }
-
-        boolean isCurrentUser = user.getLocalId() == sessionManager.getUserId();
-
-        tvHelper.setVisibility(View.VISIBLE);
-
-        if (isCurrentUser) {
-            tvHelper.setText("You are updating YOUR OWN account.");
-            etEmail.setEnabled(false);
-        } else {
-            tvHelper.setText("You are updating another user.");
-            etEmail.setEnabled(false);
-            etNewPassword.setEnabled(false);
-            etConfirmPassword.setEnabled(false);
-        }
-
-        // Create custom dialog
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle("")
-                .setView(dialogView)
-                .setCancelable(false)
-                .create();
-
-        // Store dialog reference
-        this.editDialog = dialog;
-
-        dialog.setOnShowListener(dialogInterface -> {
-            btnSave.setOnClickListener(v -> {
-                String newName = etName.getText().toString().trim();
-                String newPhone = etPhone.getText().toString().trim();
-                String newBio = etBio.getText().toString().trim();
-                String newCompany = etCompany.getText().toString().trim();
-                String newTitle = etTitle.getText().toString().trim();
-
-                String newPassword = etNewPassword.getText().toString().trim();
-                String confirmPassword = etConfirmPassword.getText().toString().trim();
-
-                if (TextUtils.isEmpty(newName)) {
-                    Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Update user object with all fields
-                user.setName(newName);
-                user.setPhone(newPhone);
-                user.setBio(newBio.isEmpty() ? null : newBio);
-                user.setCompany(newCompany.isEmpty() ? null : newCompany);
-                user.setTitle(newTitle.isEmpty() ? null : newTitle);
-                user.setLastUpdatedAt(System.currentTimeMillis());
-                user.setUpdatedAt(System.currentTimeMillis());
-
-                // Handle password change for current user
-                if (isCurrentUser && !TextUtils.isEmpty(newPassword)) {
-                    if (newPassword.length() < 6) {
-                        Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    if (!newPassword.equals(confirmPassword)) {
-                        Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    btnSave.setEnabled(false);
-                    btnSave.setText("Saving...");
-
-                    // Update password in Firebase
-                    com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser()
-                            .updatePassword(newPassword)
-                            .addOnSuccessListener(aVoid -> {
-                                user.setPasswordHash(AuthUtils.hash(newPassword));
-                                user.setPasswordChangedAt(System.currentTimeMillis());
-
-                                // Save to local DB and Firestore
-                                saveUserToDatabaseAndFirestore(user, btnSave);
-
-                                runOnUiThread(() -> {
-                                    Toast.makeText(UserDetailActivity.this,
-                                            "Password updated! Please log in with your new password.",
-                                            Toast.LENGTH_LONG).show();
-
-                                    sessionManager.logout();
-                                    Intent intent = new Intent(UserDetailActivity.this, LoginActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    finish();
-                                });
-                            })
-                            .addOnFailureListener(e -> {
-                                runOnUiThread(() -> {
-                                    btnSave.setEnabled(true);
-                                    btnSave.setText("Save Changes");
-                                    Toast.makeText(UserDetailActivity.this,
-                                            "Failed to update password: " + e.getMessage(),
-                                            Toast.LENGTH_LONG).show();
-                                });
-                            });
-                } else {
-                    // Update profile only (no password change)
-                    btnSave.setEnabled(false);
-                    btnSave.setText("Saving...");
-                    saveUserToDatabaseAndFirestore(user, btnSave);
+        EditUserDialog dialog = EditUserDialog.newInstance(userId);
+        dialog.setOnUserUpdatedListener(() -> executor.execute(() -> {
+            UserEntity refreshed = database.userDao().getUserById(userId);
+            runOnUiThread(() -> {
+                if (refreshed != null) {
+                    user = refreshed;
+                    displayUserData();
                 }
             });
-
-            btnCancel.setOnClickListener(v -> {
-                if (editDialog != null && editDialog.isShowing()) {
-                    editDialog.dismiss();
-                }
-            });
-        });
-
-        dialog.show();
+        }));
+        dialog.show(getSupportFragmentManager(), "EditUserDialog");
     }
 
     // Save user to both local DB and Firestore

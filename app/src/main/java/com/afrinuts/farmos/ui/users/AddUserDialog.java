@@ -14,12 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddUserDialog extends DialogFragment {
+public class AddUserDialog extends FarmDialogFragment {
 
     private static final String TAG = "AddUserDialog";
     private AppDatabase database;
@@ -49,6 +49,7 @@ public class AddUserDialog extends DialogFragment {
     private TextInputEditText etEmail;
     private MaterialAutoCompleteTextView etRole;
     private LinearLayout layoutInvestorTier;
+    private LinearLayout layoutEmail;
     private MaterialAutoCompleteTextView etInvestorTier;
     private MaterialButtonToggleGroup toggleAuthMethod;
     private LinearLayout layoutPassword;
@@ -145,6 +146,7 @@ public class AddUserDialog extends DialogFragment {
         etEmail = view.findViewById(R.id.etEmail);
         etRole = view.findViewById(R.id.etRole);
         layoutInvestorTier = view.findViewById(R.id.layoutInvestorTier);
+        layoutEmail = view.findViewById(R.id.layoutEmail);
         etInvestorTier = view.findViewById(R.id.etInvestorTier);
         toggleAuthMethod = view.findViewById(R.id.toggleAuthMethod);
         layoutPassword = view.findViewById(R.id.layoutPassword);
@@ -161,8 +163,28 @@ public class AddUserDialog extends DialogFragment {
 
         // Default to PIN for workers
         toggleAuthMethod.check(R.id.btnPin);
+        toggleAuthMethod.post(this::roundAuthMethodToggle);
         layoutPin.setVisibility(View.VISIBLE);
         layoutPassword.setVisibility(View.GONE);
+    }
+
+    private void roundAuthMethodToggle() {
+        toggleAuthMethod.setBackgroundResource(R.drawable.bg_expense_scope_toggle);
+        toggleAuthMethod.setClipToOutline(true);
+        float radius = 16f * getResources().getDisplayMetrics().density;
+        for (int i = 0; i < toggleAuthMethod.getChildCount(); i++) {
+            View child = toggleAuthMethod.getChildAt(i);
+            if (child instanceof com.google.android.material.button.MaterialButton) {
+                com.google.android.material.button.MaterialButton button =
+                        (com.google.android.material.button.MaterialButton) child;
+                button.setShapeAppearanceModel(button.getShapeAppearanceModel().toBuilder()
+                        .setAllCornerSizes(radius).build());
+                button.setInsetTop(0);
+                button.setInsetBottom(0);
+                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+                button.setStrokeColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+            }
+        }
     }
 
     private void setupRoleDropdown() {
@@ -217,11 +239,13 @@ public class AddUserDialog extends DialogFragment {
                 toggleAuthMethod.check(R.id.btnPin);
                 layoutPin.setVisibility(View.VISIBLE);
                 layoutPassword.setVisibility(View.GONE);
+                layoutEmail.setVisibility(View.GONE);
                 selectedAuthMethod = UserEntity.AuthMethod.PIN;
             } else {
                 toggleAuthMethod.check(R.id.btnPassword);
                 layoutPassword.setVisibility(View.VISIBLE);
                 layoutPin.setVisibility(View.GONE);
+                layoutEmail.setVisibility(View.VISIBLE);
                 selectedAuthMethod = UserEntity.AuthMethod.PASSWORD;
             }
 
@@ -254,10 +278,12 @@ public class AddUserDialog extends DialogFragment {
                     selectedAuthMethod = UserEntity.AuthMethod.PIN;
                     layoutPin.setVisibility(View.VISIBLE);
                     layoutPassword.setVisibility(View.GONE);
+                    layoutEmail.setVisibility(View.GONE);
                 } else {
                     selectedAuthMethod = UserEntity.AuthMethod.PASSWORD;
                     layoutPassword.setVisibility(View.VISIBLE);
                     layoutPin.setVisibility(View.GONE);
+                    layoutEmail.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -371,7 +397,7 @@ public class AddUserDialog extends DialogFragment {
 
             requireActivity().runOnUiThread(() -> {
                 btnSave.setEnabled(true);
-                btnSave.setText("Add User");
+                btnSave.setText("Create user");
 
                 if (id > 0) {
                     Toast.makeText(getContext(),
@@ -411,7 +437,7 @@ public class AddUserDialog extends DialogFragment {
                 Log.e(TAG, "Firebase creation failed: " + error);
                 requireActivity().runOnUiThread(() -> {
                     btnSave.setEnabled(true);
-                    btnSave.setText("Add User");
+                    btnSave.setText("Create user");
 
                     String errorMessage;
                     if (error.contains("email-already-in-use")) {
@@ -479,7 +505,7 @@ public class AddUserDialog extends DialogFragment {
 
             requireActivity().runOnUiThread(() -> {
                 btnSave.setEnabled(true);
-                btnSave.setText("Add User");
+                btnSave.setText("Create user");
 
                 if (id > 0) {
                     Toast.makeText(getContext(),

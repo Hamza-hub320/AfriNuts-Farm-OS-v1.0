@@ -3,179 +3,96 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp"
     android:clickable="true"
     android:focusable="true"
-    android:background="@color/surface"
-    style="@style/Widget.AfriNuts.CardView">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/surface">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/userInitials"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_icon_sand"
+            android:gravity="center"
+            android:text="HS"
+            android:textColor="#0A5530"
+            android:textSize="14sp"
+            android:fontFamily="@font/manrope_extrabold" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <!-- Avatar with Glass Container -->
-            <FrameLayout
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_icon_sand"
-                android:layout_marginEnd="12dp">
-
-                <ImageView
-                    android:id="@+id/userAvatar"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_person"
-                    app:tint="?attr/colorPrimary" />
-
-            </FrameLayout>
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Hamza Sangare"
+                android:textColor="#1C1B1A"
+                android:textSize="15.5sp"
+                android:fontFamily="@font/manrope_extrabold" />
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/userName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="John Doe"
-                    style="@style/Text.H4"
-                    android:textColor="?attr/colorPrimary" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
-
-                    <!-- Role Icon with Glass Container (Small) -->
-                    <FrameLayout
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="@drawable/bg_icon_sand"
-                        android:layout_marginEnd="6dp">
-
-                        <ImageView
-                            android:id="@+id/roleIcon"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_person"
-                            app:tint="?attr/colorPrimary" />
-
-                    </FrameLayout>
-
-                    <TextView
-                        android:id="@+id/userRole"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Owner"
-                        style="@style/Text.Body.Small"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Status Indicator with Glass Container -->
-            <FrameLayout
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="@drawable/bg_icon_sand"
-                android:visibility="visible">
+                android:layout_marginTop="3dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/userStatus"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_check_circle"
-                    app:tint="@color/accent_ink" />
+                    android:id="@+id/roleIcon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription=""
+                    android:src="@drawable/ic_star"
+                    app:tint="#8A857B" />
 
-            </FrameLayout>
-
+                <TextView
+                    android:id="@+id/userRole"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Owner / CEO"
+                    android:textColor="#59544C"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/manrope_semibold" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Contact Info Card -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/surface"
-            android:padding="12dp"
-            app:cardCornerRadius="12dp">
+        <ImageView
+            android:id="@+id/userStatus"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="Active"
+            android:src="@drawable/ic_check_circle"
+            app:tint="#0E6B3C" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_phone"
-                    app:tint="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:layout_marginEnd="6dp" />
-
-                <TextView
-                    android:id="@+id/userPhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+225 07 89 45 67"
-                    style="@style/Text.Caption.Small"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="end">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_email"
-                    app:tint="?attr/colorOnSurface"
-                    android:alpha="0.6"
-                    android:layout_marginEnd="6dp" />
-
-                <TextView
-                    android:id="@+id/userEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="john@afrinuts.com"
-                    style="@style/Text.Caption.Small"
-                    android:textColor="?attr/colorOnSurface"
-                    android:alpha="0.7" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+        <ImageView android:id="@+id/userAvatar" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
+        <TextView android:id="@+id/userPhone" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
+        <TextView android:id="@+id/userEmail" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>
