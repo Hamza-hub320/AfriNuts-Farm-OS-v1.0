@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -251,7 +252,10 @@ public class RevenueDetailActivity extends BaseActivity {
     }
 
     private void installDetailFooter() {
-        LinearLayout root = (LinearLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ScrollView scroll = findViewById(R.id.revenueDetailScroll);
+        LinearLayout content = scroll != null && scroll.getChildAt(0) instanceof LinearLayout
+                ? (LinearLayout) scroll.getChildAt(0) : null;
+        if (content == null) return;
         ViewGroup sourceRow = (ViewGroup) btnEdit.getParent();
         sourceRow.removeView(btnEdit);
         sourceRow.removeView(btnSave);
@@ -286,7 +290,10 @@ public class RevenueDetailActivity extends BaseActivity {
         footer.addView(btnEdit, left);
         footer.addView(btnSave, new LinearLayout.LayoutParams(0, dp(56), 1f));
         footer.addView(footerViewBatch, right);
-        root.addView(footer);
+        LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
+        footerParams.topMargin = dp(8);
+        footerParams.bottomMargin = dp(12);
+        content.addView(footer, footerParams);
     }
 
     private void styleFooterButton(MaterialButton button, boolean primary) {
@@ -642,7 +649,19 @@ public class RevenueDetailActivity extends BaseActivity {
         FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),
                 findViewById(R.id.farmDetailBack), findViewById(R.id.farmDetailEdit),
                 findViewById(R.id.farmDetailMore), "Revenue details");
+        moveFooterToContentEnd();
         headerEdit = findViewById(R.id.farmDetailEdit);
+    }
+
+    private void moveFooterToContentEnd() {
+        if (footerViewBatch == null || !(footerViewBatch.getParent() instanceof ViewGroup)) return;
+        View footer = (View) footerViewBatch.getParent();
+        ViewGroup oldParent = (ViewGroup) footer.getParent();
+        if (oldParent == null) return;
+        oldParent.removeView(footer);
+        ScrollView scroll = findViewById(R.id.revenueDetailScroll);
+        if (scroll == null || scroll.getChildCount() == 0 || !(scroll.getChildAt(0) instanceof LinearLayout)) return;
+        ((LinearLayout) scroll.getChildAt(0)).addView(footer);
     }
 
     private void setFieldsEditable(boolean editable) {
