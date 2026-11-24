@@ -11,13 +11,17 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="40dp">
 
             <!-- Profile Header Card -->
             <androidx.cardview.widget.CardView
@@ -120,6 +124,7 @@
                     android:background="@color/surface">
 
                     <TextView
+                        android:id="@+id/headingContactInfo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Contact Information"
@@ -284,9 +289,10 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/headingAbout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Farmer Profile"
+                            android:text="About"
                             style="@style/Text.H5"
                             android:textColor="@color/accent_ink" />
 
@@ -497,6 +503,7 @@
                     android:background="@color/surface">
 
                     <TextView
+                        android:id="@+id/headingPerformance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Performance Metrics"
@@ -648,6 +655,7 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/headingCommitments"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -742,6 +750,7 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/headingInspections"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -836,6 +845,7 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/headingDisputes"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -907,6 +917,7 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/headingTrustScore"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -979,21 +990,25 @@
 
             <!-- Batches Section -->
             <TextView
+                android:id="@+id/tvBatchesHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Batches"
                 style="@style/Text.H5"
                 android:textColor="?attr/colorPrimary"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
 
             <!-- Batch Stats -->
             <LinearLayout
+                android:id="@+id/layoutBatchStats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp"
-                android:weightSum="2">
+                android:weightSum="2"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tvTotalBatches"
@@ -1020,10 +1035,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:visibility="gone" />
 
             <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout
+                android:id="@+id/layoutBottomActions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -1042,45 +1059,19 @@
                     app:iconGravity="textStart"
                     app:iconTint="@android:color/white" />
 
-                <!-- Middle Row: Edit Supplier and Edit Batch -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginBottom="8dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEditSupplier"
-                        android:layout_width="0dp"
-                        android:layout_height="46dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        android:text="Edit Supplier"
-                        style="@style/Widget.AfriNuts.Button"
-                        app:icon="@drawable/ic_edit"
-                        app:iconGravity="textStart"
-                        app:iconTint="@android:color/white" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEditBatch"
-                        android:layout_width="0dp"
-                        android:layout_height="46dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:text="Edit Batch"
-                        style="@style/Widget.AfriNuts.Button"
-                        app:icon="@drawable/ic_edit"
-                        app:iconGravity="textStart"
-                        app:iconTint="@android:color/white" />
-
-                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditSupplier"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone"
+                    android:text="Edit Supplier" />
 
                 <!-- Bottom Row: Delete Button (Full Width) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
+                    android:layout_marginTop="12dp"
                     android:text="Delete Supplier"
                     style="@style/Widget.AfriNuts.Button.Danger"
                     app:icon="@drawable/ic_delete"

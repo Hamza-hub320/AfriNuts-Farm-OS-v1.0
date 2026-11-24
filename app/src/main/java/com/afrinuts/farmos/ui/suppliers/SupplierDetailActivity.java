@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,7 +32,6 @@ import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,7 +85,6 @@ public class SupplierDetailActivity extends BaseActivity {
     private SupplierBatchAdapter batchAdapter;
     private MaterialButton btnRecordDelivery;
     private MaterialButton btnEditSupplier;
-    private MaterialButton btnEditBatch;
     private MaterialButton btnDelete;
     private Button btnShowMap;
     private View layoutFarmerProfile;
@@ -158,7 +157,6 @@ public class SupplierDetailActivity extends BaseActivity {
         batchesRecyclerView = findViewById(R.id.batchesRecyclerView);
         btnRecordDelivery = findViewById(R.id.btnRecordDelivery);
         btnEditSupplier = findViewById(R.id.btnEditSupplier);
-        btnEditBatch = findViewById(R.id.btnEditBatch);
         btnDelete = findViewById(R.id.btnDelete);
         btnShowMap = findViewById(R.id.btnShowMap);
 
@@ -204,7 +202,6 @@ public class SupplierDetailActivity extends BaseActivity {
         btnShowMap.setOnClickListener(v -> openMap());
         btnRecordDelivery.setOnClickListener(v -> showRecordDeliveryDialog());
         btnEditSupplier.setOnClickListener(v -> showEditSupplierDialog());
-        btnEditBatch.setOnClickListener(v -> showSelectBatchToEditDialog());
         btnDelete.setOnClickListener(v -> confirmDelete());
         chipStatus.setOnClickListener(v -> showStatusChangeDialog());
     }
@@ -213,11 +210,121 @@ public class SupplierDetailActivity extends BaseActivity {
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.apply(this,
                 findViewById(R.id.farmDetailTitle), findViewById(R.id.farmDetailBack),
                 findViewById(R.id.farmDetailMore), "Supplier details" );
-        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvSupplierName, R.id.tvLocation, R.id.chipStatus);
+        styleSupplierSectionHeadings();
+        com.afrinuts.farmos.ui.farm.FarmDetailChrome.addHero(this, R.id.tvSupplierName, R.id.tvSupplierType, R.id.chipStatus);
+        addSupplierHeroRating();
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addStats(this,
                 new String[]{"Trust score", "Batches", "Total volume"},
                 new int[]{R.id.tvOverallScore, R.id.tvTotalBatches, R.id.tvTotalBatchVolume });
         com.afrinuts.farmos.ui.farm.FarmDetailChrome.addBottomActions(this, R.id.btnEditSupplier, R.id.btnRecordDelivery);
+
+        // Supplier actions are content actions on this screen, so keep the chrome row
+        // at the end of the scrollable content instead of pinning it below the scroll.
+        View actions = findViewById(android.R.id.content).findViewWithTag("farm-detail-actions");
+        LinearLayout actionContainer = findViewById(R.id.layoutBottomActions);
+        if (actions != null && actions.getParent() instanceof android.view.ViewGroup && actionContainer != null) {
+            ((android.view.ViewGroup) actions.getParent()).removeView(actions);
+            actions.setPadding(0, 0, 0, 0);
+            actions.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            if (actions instanceof LinearLayout && ((LinearLayout) actions).getChildCount() == 2) {
+                View first = ((LinearLayout) actions).getChildAt(0);
+                LinearLayout.LayoutParams firstParams = (LinearLayout.LayoutParams) first.getLayoutParams();
+                firstParams.setMargins(0, 0, dp(12), 0);
+                first.setLayoutParams(firstParams);
+            }
+            actionContainer.addView(actions, 0, new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+
+        ImageButton headerEdit = findViewById(R.id.farmDetailEdit);
+        if (headerEdit != null) headerEdit.setVisibility(View.GONE);
+        ImageButton more = findViewById(R.id.farmDetailMore);
+        if (more != null) {
+            more.setVisibility(View.VISIBLE);
+            more.setOnClickListener(anchor -> {
+                androidx.appcompat.widget.PopupMenu popup = new androidx.appcompat.widget.PopupMenu(this, anchor);
+                popup.getMenu().add("Edit Batch").setOnMenuItemClickListener(item -> {
+                    showSelectBatchToEditDialog();
+                    return true;
+                });
+                popup.show();
+            });
+        }
+    }
+
+    private void styleSupplierSectionHeadings() {
+        int[] ids = {R.id.headingContactInfo, R.id.headingAbout, R.id.headingPerformance,
+                R.id.headingCommitments, R.id.headingInspections, R.id.headingDisputes,
+                R.id.headingTrustScore};
+        for (int id : ids) {
+            TextView heading = findViewById(id);
+            if (heading != null) heading.setTextColor(0xFF0E6B3C);
+        }
+    }
+
+    private void addSupplierHeroRating() {
+        View hero = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero");
+        if (!(hero instanceof CardView)) return;
+        LinearLayout body = (LinearLayout) ((CardView) hero).getChildAt(0);
+        if (body.findViewWithTag("supplier-hero-rating") != null) return;
+
+        // Use the supplier-type icon in the chrome's avatar slot; the name/type/status
+        // themselves continue to be copied by FarmDetailChrome from the source views.
+        if (body.getChildCount() > 0 && body.getChildAt(0) instanceof LinearLayout) {
+            LinearLayout top = (LinearLayout) body.getChildAt(0);
+            if (top.getChildCount() > 0 && top.getChildAt(0) instanceof TextView) {
+                TextView avatar = (TextView) top.getChildAt(0);
+                avatar.setText("");
+                android.graphics.drawable.GradientDrawable avatarBg = new android.graphics.drawable.GradientDrawable();
+                avatarBg.setColor(0xFF0E6B3C);
+                avatarBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                avatar.setBackground(avatarBg);
+                android.graphics.drawable.Drawable icon = ContextCompat.getDrawable(this,
+                        supplier != null && supplier.getTypeDisplay().toLowerCase(Locale.ROOT).contains("coop")
+                                ? R.drawable.ic_handshake : R.drawable.ic_person);
+                if (icon != null) {
+                    icon = DrawableCompat.wrap(icon.mutate());
+                    DrawableCompat.setTint(icon, android.graphics.Color.WHITE);
+                    avatar.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+                }
+            }
+        }
+
+        TextView stars = new TextView(this);
+        stars.setTag("supplier-hero-rating");
+        stars.setText(tvRating.getText());
+        stars.setTextColor(0xFFD9A62E);
+        stars.setTextSize(17);
+        stars.setIncludeFontPadding(false);
+        stars.setLetterSpacing(0.08f);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(12);
+        params.bottomMargin = dp(2);
+        params.leftMargin = dp(68);
+        body.addView(stars, Math.min(1, body.getChildCount()), params);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void updateSupplierHeroTypeIcon() {
+        View hero = findViewById(android.R.id.content).findViewWithTag("farm-detail-hero");
+        if (!(hero instanceof CardView) || supplier == null) return;
+        LinearLayout body = (LinearLayout) ((CardView) hero).getChildAt(0);
+        if (body.getChildCount() == 0 || !(body.getChildAt(0) instanceof LinearLayout)) return;
+        LinearLayout top = (LinearLayout) body.getChildAt(0);
+        if (top.getChildCount() == 0 || !(top.getChildAt(0) instanceof TextView)) return;
+        TextView avatar = (TextView) top.getChildAt(0);
+        android.graphics.drawable.Drawable icon = ContextCompat.getDrawable(this,
+                supplier.getTypeDisplay().toLowerCase(Locale.ROOT).contains("coop")
+                        ? R.drawable.ic_handshake : R.drawable.ic_person);
+        if (icon != null) {
+            icon = DrawableCompat.wrap(icon.mutate());
+            DrawableCompat.setTint(icon, android.graphics.Color.WHITE);
+            avatar.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        }
     }
 
     private void openMap() {
@@ -300,6 +407,9 @@ public class SupplierDetailActivity extends BaseActivity {
         tvSupplierName.setText(supplier.getName());
         tvSupplierType.setText(supplier.getTypeDisplay());
         tvRating.setText(supplier.getFormattedRating());
+        updateSupplierHeroTypeIcon();
+        TextView heroRating = findViewById(android.R.id.content).findViewWithTag("supplier-hero-rating");
+        if (heroRating != null) heroRating.setText(supplier.getFormattedRating());
 
         updateStatusDisplay();
 
@@ -487,38 +597,8 @@ public class SupplierDetailActivity extends BaseActivity {
 
     private void showStatusChangeDialog() {
         if (supplier == null) return;
-
-        String[] statusOptions = {
-                "Active - Currently supplying",
-                "Pending - Awaiting approval",
-                "Suspended - Temporarily suspended",
-                "Inactive - No longer supplying"
-        };
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Change Status")
-                .setItems(statusOptions, (dialog, which) -> {
-                    SupplierEntity.SupplierStatus newStatus;
-                    switch (which) {
-                        case 0:
-                            newStatus = SupplierEntity.SupplierStatus.ACTIVE;
-                            break;
-                        case 1:
-                            newStatus = SupplierEntity.SupplierStatus.PENDING;
-                            break;
-                        case 2:
-                            newStatus = SupplierEntity.SupplierStatus.SUSPENDED;
-                            break;
-                        case 3:
-                            newStatus = SupplierEntity.SupplierStatus.INACTIVE;
-                            break;
-                        default:
-                            return;
-                    }
-                    updateSupplierStatus(newStatus);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        StatusChangeDialog.newInstance(supplier.getStatus().ordinal())
+                .show(getSupportFragmentManager(), "SupplierStatusChangeDialog");
     }
 
     private void updateSupplierStatus(SupplierEntity.SupplierStatus newStatus) {
@@ -580,13 +660,8 @@ public class SupplierDetailActivity extends BaseActivity {
 
     private void confirmDelete() {
         if (supplier == null) return;
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Supplier")
-                .setMessage("Are you sure you want to delete " + supplier.getName() + "? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteSupplier())
-                .setNegativeButton("Cancel", null)
-                .show();
+        DeleteSupplierDialog.newInstance(supplier.getName())
+                .show(getSupportFragmentManager(), "DeleteSupplierDialog");
     }
 
     private void deleteSupplier() {
@@ -888,5 +963,138 @@ public class SupplierDetailActivity extends BaseActivity {
         if (supplierRepository != null)   supplierRepository.shutdown();
         if (qualityBatchRepository != null) qualityBatchRepository.shutdown();
         executor.shutdown();
+    }
+
+    public static class StatusChangeDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
+        private static final String ARG_STATUS = "selected_status";
+
+        static StatusChangeDialog newInstance(int status) {
+            StatusChangeDialog dialog = new StatusChangeDialog();
+            Bundle args = new Bundle();
+            args.putInt(ARG_STATUS, status);
+            dialog.setArguments(args);
+            return dialog;
+        }
+
+        @NonNull @Override
+        public android.app.Dialog onCreateDialog(Bundle state) {
+            android.content.Context context = requireContext();
+            LinearLayout content = dialogContent(context, "Change Status");
+            LinearLayout choices = new LinearLayout(context);
+            choices.setOrientation(LinearLayout.VERTICAL);
+            String[] labels = {"Active — Currently supplying", "Pending — Awaiting approval",
+                    "Suspended — Temporarily suspended", "Inactive — No longer supplying"};
+            int[] selected = {getArguments().getInt(ARG_STATUS, 0)};
+            TextView[] markers = new TextView[labels.length];
+            for (int i = 0; i < labels.length; i++) {
+                final int index = i;
+                LinearLayout row = new LinearLayout(context);
+                row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                TextView marker = new TextView(context);
+                markers[i] = marker;
+                marker.setTextSize(20);
+                marker.setTextColor(0xFF0E6B3C);
+                marker.setMinWidth(dp(context, 32));
+                TextView label = new TextView(context);
+                label.setText(labels[i]);
+                label.setTextSize(14);
+                label.setTextColor(0xFF59544C);
+                row.addView(marker);
+                row.addView(label);
+                row.setMinimumHeight(dp(context, 48));
+                row.setOnClickListener(v -> {
+                    selected[0] = index;
+                    for (int j = 0; j < markers.length; j++) {
+                        if (markers[j] != null) markers[j].setText(j == index ? "●" : "○");
+                    }
+                });
+                choices.addView(row);
+            }
+            for (int i = 0; i < markers.length; i++) markers[i].setText(i == selected[0] ? "●" : "○");
+            content.addView(choices);
+            LinearLayout buttons = dialogButtons(context, "Update status");
+            content.addView(buttons);
+            buttons.getChildAt(0).setOnClickListener(v -> dismiss());
+            buttons.getChildAt(1).setOnClickListener(v -> {
+                SupplierEntity.SupplierStatus[] statuses = SupplierEntity.SupplierStatus.values();
+                if (selected[0] >= 0 && selected[0] < statuses.length
+                        && getActivity() instanceof SupplierDetailActivity) {
+                    ((SupplierDetailActivity) getActivity()).updateSupplierStatus(statuses[selected[0]]);
+                }
+                dismiss();
+            });
+            return new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                    .setView(content).create();
+        }
+    }
+
+    public static class DeleteSupplierDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragment {
+        private static final String ARG_NAME = "supplier_name";
+
+        static DeleteSupplierDialog newInstance(String name) {
+            DeleteSupplierDialog dialog = new DeleteSupplierDialog();
+            Bundle args = new Bundle();
+            args.putString(ARG_NAME, name);
+            dialog.setArguments(args);
+            return dialog;
+        }
+
+        @NonNull @Override
+        public android.app.Dialog onCreateDialog(Bundle state) {
+            android.content.Context context = requireContext();
+            LinearLayout content = dialogContent(context, "Delete Supplier");
+            TextView message = new TextView(context);
+            message.setText("Are you sure you want to delete "
+                    + getArguments().getString(ARG_NAME, "this supplier")
+                    + "? This action cannot be undone.");
+            message.setTextSize(14);
+            message.setTextColor(0xFF59544C);
+            content.addView(message);
+            LinearLayout buttons = dialogButtons(context, "Delete supplier");
+            content.addView(buttons);
+            buttons.getChildAt(0).setOnClickListener(v -> dismiss());
+            buttons.getChildAt(1).setOnClickListener(v -> {
+                if (getActivity() instanceof SupplierDetailActivity) {
+                    ((SupplierDetailActivity) getActivity()).deleteSupplier();
+                }
+                dismiss();
+            });
+            return new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                    .setView(content).create();
+        }
+    }
+
+    private static LinearLayout dialogContent(android.content.Context context, String title) {
+        LinearLayout content = new LinearLayout(context);
+        content.setOrientation(LinearLayout.VERTICAL);
+        TextView heading = new TextView(context);
+        heading.setText(title);
+        heading.setTextSize(20);
+        heading.setTextColor(0xFF1C1B1A);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.bottomMargin = dp(context, 14);
+        content.addView(heading, params);
+        return content;
+    }
+
+    private static LinearLayout dialogButtons(android.content.Context context, String primaryLabel) {
+        LinearLayout buttons = new LinearLayout(context);
+        buttons.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        cancelParams.setMargins(0, 0, dp(context, 8), 0);
+        android.widget.Button cancel = new android.widget.Button(context);
+        cancel.setText("Cancel");
+        buttons.addView(cancel, cancelParams);
+        android.widget.Button primary = new android.widget.Button(context);
+        primary.setText(primaryLabel);
+        buttons.addView(primary, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        return buttons;
+    }
+
+    private static int dp(android.content.Context context, int value) {
+        return Math.round(value * context.getResources().getDisplayMetrics().density);
     }
 }
