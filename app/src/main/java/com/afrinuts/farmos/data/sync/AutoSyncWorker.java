@@ -30,6 +30,7 @@ import com.afrinuts.farmos.data.local.entity.TaskAssignmentHistoryEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.local.entity.VerificationEntity;
+import com.afrinuts.farmos.data.remote.EntityMapper;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.google.android.gms.tasks.Tasks;
@@ -515,7 +516,8 @@ public class AutoSyncWorker extends Worker {
             case CREATE:
             case UPDATE:
                 try {
-                    firebaseManager.saveBlock(block, farmId);
+                    Tasks.await(firebaseManager.saveBlockMap(
+                            EntityMapper.blockToMap(block), String.valueOf(farmId), block.getId()));
                     Log.d(TAG, "Block saved to Firestore: " + block.getBlockName());
                 } catch (Exception e) {
                     Log.e(TAG, "Firestore saveBlock failed", e);

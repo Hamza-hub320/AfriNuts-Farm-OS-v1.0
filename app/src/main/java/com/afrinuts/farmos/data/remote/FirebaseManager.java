@@ -206,32 +206,6 @@ public class FirebaseManager {
     // BLOCK OPERATIONS - UPDATED to use subcollections
     // ========================================
 
-    public void saveBlock(BlockEntity block, String farmId) {
-        Map<String, Object> blockMap = new HashMap<>();
-        blockMap.put("id", block.getId());
-        blockMap.put("farmId", farmId);
-        blockMap.put("blockName", block.getBlockName());
-        blockMap.put("hectareSize", block.getHectareSize());
-        blockMap.put("status", block.getStatus().name());
-        blockMap.put("clearedDate", block.getClearedDate());
-        blockMap.put("plowedDate", block.getPlowedDate());
-        blockMap.put("plantedDate", block.getPlantedDate());
-        blockMap.put("survivalRate", block.getSurvivalRate());
-        blockMap.put("replacementCount", block.getReplacementCount());
-        blockMap.put("notes", block.getNotes());
-        blockMap.put("createdAt", block.getCreatedAt());
-        blockMap.put("updatedAt", System.currentTimeMillis());
-
-        // Save under farms/{farmId}/blocks/{blockId}
-        db.collection(COLLECTION_FARMS)
-                .document(farmId)
-                .collection(SUBCOLLECTION_BLOCKS)
-                .document(String.valueOf(block.getId()))
-                .set(blockMap)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Block saved: " + block.getId()))
-                .addOnFailureListener(e -> Log.e(TAG, "Error saving block", e));
-    }
-
     public Task<QuerySnapshot> getBlocksForFarm(String farmId) {
         return db.collection(COLLECTION_FARMS)
                 .document(farmId)
