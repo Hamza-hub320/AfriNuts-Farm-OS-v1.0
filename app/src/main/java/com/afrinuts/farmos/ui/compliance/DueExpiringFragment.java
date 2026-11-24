@@ -29,13 +29,16 @@ import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.DocumentRepository;
 import com.afrinuts.farmos.data.repository.InspectionRepository;
 import com.afrinuts.farmos.data.sync.CertificationDueCheckWorker;
-import com.afrinuts.farmos.utils.DateFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.text.NumberFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -260,11 +263,13 @@ public class DueExpiringFragment extends Fragment {
         long days = isOverdue
                 ? Math.max(1, (long) Math.ceil((now - date) / (double) DAY_MS))
                 : Math.max(1, (long) Math.ceil((date - now) / (double) DAY_MS));
-        String daysText = isOverdue ? days + (days == 1 ? " day overdue" : " days overdue")
-                : days + (days == 1 ? " day remaining" : " days remaining");
+        String dayCount = NumberFormat.getIntegerInstance(Locale.US).format(days);
+        String daysText = isOverdue ? dayCount + (days == 1 ? " day overdue" : " days overdue")
+                : "Due in " + dayCount + (days == 1 ? " day" : " days");
         return DueExpiringAdapter.Row.item(
                 hasText(title) ? title : "Compliance item", subtitle,
-                DateFormatter.formatDateOrDash(date), daysText, recordId, recordType, date);
+                new SimpleDateFormat("d MMM yyyy", Locale.US).format(new Date(date)),
+                daysText, recordId, recordType, date, isOverdue);
     }
 
     private boolean isClosed(String status) {

@@ -1,7 +1,7 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
@@ -37,9 +36,10 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final String recordId;
         public final String recordType;
         public final long sortDate;
+        public final boolean overdue;
 
         private Row(int viewType, String title, String subtitle, String dateText, String daysText,
-                    String recordId, String recordType, long sortDate) {
+                    String recordId, String recordType, long sortDate, boolean overdue) {
             this.viewType = viewType;
             this.title = title;
             this.subtitle = subtitle;
@@ -48,19 +48,20 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.recordId = recordId;
             this.recordType = recordType;
             this.sortDate = sortDate;
+            this.overdue = overdue;
         }
 
         public static Row section(String title) {
-            return new Row(TYPE_SECTION, title, null, null, null, null, null, 0);
+            return new Row(TYPE_SECTION, title, null, null, null, null, null, 0, false);
         }
 
         public static Row empty(String message) {
-            return new Row(TYPE_EMPTY, message, null, null, null, null, null, 0);
+            return new Row(TYPE_EMPTY, message, null, null, null, null, null, 0, false);
         }
 
         public static Row item(String title, String subtitle, String dateText, String daysText,
-                               String recordId, String recordType, long sortDate) {
-            return new Row(TYPE_ITEM, title, subtitle, dateText, daysText, recordId, recordType, sortDate);
+                               String recordId, String recordType, long sortDate, boolean overdue) {
+            return new Row(TYPE_ITEM, title, subtitle, dateText, daysText, recordId, recordType, sortDate, overdue);
         }
     }
 
@@ -89,46 +90,58 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SECTION) {
             TextView title = new TextView(context);
-            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            title.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-            title.setTextColor(ContextCompat.getColor(context, R.color.primary));
-            title.setPadding(0, dp(18), 0, dp(8));
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            title.setTypeface(context.getResources().getFont(R.font.manrope_extrabold));
+            title.setTextColor(0xFF0E6B3C);
+            title.setPadding(0, dp(12), 0, dp(10));
             return new TextHolder(title);
         }
         if (viewType == TYPE_EMPTY) {
             TextView message = new TextView(context);
             message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            message.setTextColor(0xFF777777);
-            message.setPadding(dp(4), dp(4), dp(4), dp(12));
+            message.setTypeface(context.getResources().getFont(R.font.manrope_semibold));
+            message.setTextColor(0xFF59544C);
+            message.setPadding(0, 0, 0, dp(8));
+            message.setLineSpacing(0, 1.18f);
             return new TextHolder(message);
         }
 
         CardView card = new CardView(context);
-        card.setRadius(dp(12));
-        card.setCardElevation(dp(2));
+        card.setRadius(dp(24));
+        card.setCardElevation(0);
         card.setCardBackgroundColor(0xFFFFFFFF);
         RecyclerView.LayoutParams cardParams = new RecyclerView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        cardParams.bottomMargin = dp(10);
+        cardParams.bottomMargin = dp(8);
         card.setLayoutParams(cardParams);
 
         LinearLayout content = new LinearLayout(context);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(16), dp(13), dp(16), dp(13));
+        content.setPadding(dp(16), dp(16), dp(16), dp(16));
 
-        TextView title = textView(16, true, 0xFF222222);
-        TextView subtitle = textView(13, false, 0xFF666666);
+        TextView title = textView(16, true, 0xFF1C1B1A);
+        title.setTypeface(context.getResources().getFont(R.font.manrope_extrabold));
+        title.setLineSpacing(0, 1.31f);
+        TextView subtitle = textView(13, true, 0xFF59544C);
+        subtitle.setTypeface(context.getResources().getFont(R.font.manrope_semibold));
         LinearLayout meta = new LinearLayout(context);
         meta.setOrientation(LinearLayout.HORIZONTAL);
         meta.setGravity(Gravity.CENTER_VERTICAL);
-        TextView date = textView(12, false, 0xFF666666);
-        TextView days = textView(12, true, ContextCompat.getColor(context, R.color.primary));
+        TextView date = textView(13, true, 0xFF1C1B1A);
+        date.setTypeface(context.getResources().getFont(R.font.manrope_extrabold));
+        TextView days = textView(11.5f, true, 0xFF8A6414);
+        days.setTypeface(context.getResources().getFont(R.font.manrope_extrabold));
+        days.setPadding(dp(10), dp(4), dp(10), dp(4));
 
         content.addView(title);
         content.addView(subtitle, margins(0, dp(4), 0, 0));
+        View divider = new View(context);
+        divider.setBackgroundColor(0xFFE9E1CF);
+        content.addView(divider, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) {{ topMargin = dp(12); }});
         meta.addView(date, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         meta.addView(days, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        content.addView(meta, margins(0, dp(8), 0, 0));
+        content.addView(meta, margins(0, dp(12), 0, 0));
         card.addView(content);
         return new ItemHolder(card, title, subtitle, date, days);
     }
@@ -142,11 +155,19 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             item.subtitle.setText(row.subtitle);
             item.date.setText(row.dateText);
             item.days.setText(row.daysText);
+            GradientDrawable pill = new GradientDrawable();
+            pill.setColor(row.overdue ? 0xFFF8E4DD : 0xFFF6ECD2);
+            pill.setCornerRadius(dp(999));
+            item.days.setBackground(pill);
             item.card.setOnClickListener(view -> {
                 if (listener != null) listener.onItemClick(row);
             });
         } else {
-            ((TextHolder) holder).text.setText(row.title);
+            TextView text = ((TextHolder) holder).text;
+            text.setText(row.title);
+            if (row.viewType == TYPE_SECTION) {
+                text.setPadding(0, dp("Overdue".equals(row.title) ? 16 : 12), 0, dp(10));
+            }
         }
     }
 
@@ -159,7 +180,7 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView view = new TextView(context);
         view.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp);
         view.setTextColor(color);
-        if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        if (bold) view.setTypeface(context.getResources().getFont(R.font.manrope_bold));
         return view;
     }
 
@@ -171,6 +192,10 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private int dp(int value) {
+        return Math.round(value * context.getResources().getDisplayMetrics().density);
+    }
+
+    private int dp(float value) {
         return Math.round(value * context.getResources().getDisplayMetrics().density);
     }
 
