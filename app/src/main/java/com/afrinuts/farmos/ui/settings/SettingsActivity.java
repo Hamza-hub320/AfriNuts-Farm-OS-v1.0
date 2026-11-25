@@ -1,12 +1,14 @@
 package com.afrinuts.farmos.ui.settings;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
@@ -58,6 +59,17 @@ public class SettingsActivity extends BaseActivity {
         tvVersion = findViewById(R.id.tvVersion);
         tvVersion.setText("Version " + getAppVersion());
 
+        // About is a read-only row; the version is displayed inline.
+        cardAbout.setClickable(false);
+        cardAbout.setFocusable(false);
+        cardAbout.setForeground(null);
+        if (cardAbout instanceof ViewGroup) {
+            ViewGroup aboutRow = (ViewGroup) cardAbout;
+            if (aboutRow.getChildCount() > 0) {
+                aboutRow.getChildAt(aboutRow.getChildCount() - 1).setVisibility(View.GONE);
+            }
+        }
+
         findViewById(R.id.toolbarBack).setOnClickListener(v -> finish());
         cardChangePassword.setOnClickListener(v -> showChangePasswordDialog());
         cardSync.setOnClickListener(v -> {
@@ -67,7 +79,6 @@ public class SettingsActivity extends BaseActivity {
             Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
             syncManager.forceSyncNow();
         });
-        cardAbout.setOnClickListener(v -> showAboutDialog());
     }
 
     private String getAppVersion() {
@@ -81,11 +92,6 @@ public class SettingsActivity extends BaseActivity {
 
     private void showChangePasswordDialog() {
         new ChangePasswordDialog().show(getSupportFragmentManager(), "change_password");
-    }
-
-    private void showAboutDialog() {
-        AboutDialog.newInstance(getAppVersion(), BuildConfig.VERSION_CODE)
-                .show(getSupportFragmentManager(), "about");
     }
 
     private int calculatePasswordStrength(String password) {
@@ -111,6 +117,47 @@ public class SettingsActivity extends BaseActivity {
         if (strength < 60) return R.color.accent_ink;
         if (strength < 80) return R.color.primary;
         return R.color.secondary;
+    }
+
+    private LinearLayout createStrengthSegments(View oldBar) {
+        float density = getResources().getDisplayMetrics().density;
+        ViewGroup parent = (ViewGroup) oldBar.getParent();
+        int index = parent.indexOfChild(oldBar);
+        parent.removeView(oldBar);
+
+        LinearLayout segments = new LinearLayout(this);
+        segments.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, Math.round(8 * density));
+        parent.addView(segments, index, rowParams);
+
+        for (int i = 0; i < 4; i++) {
+            View segment = new View(this);
+            segment.setBackground(strengthSegmentBackground(0xFFF3EAD8, density));
+            LinearLayout.LayoutParams segmentParams = new LinearLayout.LayoutParams(0,
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+            if (i > 0) segmentParams.leftMargin = Math.round(5 * density);
+            segments.addView(segment, segmentParams);
+        }
+        return segments;
+    }
+
+    private GradientDrawable strengthSegmentBackground(int color, float density) {
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(color);
+        background.setCornerRadius(999 * density);
+        return background;
+    }
+
+    private void updateStrengthSegments(LinearLayout segments, int score) {
+        float density = getResources().getDisplayMetrics().density;
+        int activeCount = score <= 0 ? 0 : Math.min(4, (score + 24) / 25);
+        int activeColor = score < 30 ? 0xFFB3402A : score < 60 ? 0xFFE8912D : 0xFF0E6B3C;
+        for (int i = 0; i < segments.getChildCount(); i++) {
+            int color = i < activeCount ? activeColor : 0xFFF3EAD8;
+            if (score >= 60 && score < 80 && i == activeCount - 1) color = 0xFFC99B20;
+            segments.getChildAt(i).setBackground(strengthSegmentBackground(color, density));
+        }
     }
 
     private void submitPasswordChange(String current, String newPass, String confirm, DialogFragment dialog) {
@@ -181,7 +228,8 @@ public class SettingsActivity extends BaseActivity {
             TextInputEditText current = view.findViewById(R.id.etCurrentPassword);
             TextInputEditText newPassword = view.findViewById(R.id.etNewPassword);
             TextInputEditText confirm = view.findViewById(R.id.etConfirmPassword);
-            ProgressBar strength = view.findViewById(R.id.passwordStrength);
+            LinearLayout strengthSegments = ((SettingsActivity) requireActivity())
+                    .createStrengthSegments(view.findViewById(R.id.passwordStrength));
             TextView strengthLabel = view.findViewById(R.id.tvStrengthLabel);
             View strengthLayout = view.findViewById(R.id.layoutStrength);
 
@@ -197,9 +245,8 @@ public class SettingsActivity extends BaseActivity {
                     SettingsActivity activity = (SettingsActivity) requireActivity();
                     int score = activity.calculatePasswordStrength(password);
                     int color = activity.getColor(activity.getStrengthColor(score));
-                    strength.setProgress(score);
-                    strength.setProgressTintList(android.content.res.ColorStateList.valueOf(color));
-                    strengthLabel.setText("Password strength · " + activity.getStrengthLabel(score));
+                    activity.updateStrengthSegments(strengthSegments, score);
+                    strengthLabel.setText(activity.getStrengthLabel(score));
                     strengthLabel.setTextColor(color);
                 }
                 @Override public void afterTextChanged(android.text.Editable s) { }
@@ -211,51 +258,34 @@ public class SettingsActivity extends BaseActivity {
             change.setOnClickListener(v -> ((SettingsActivity) requireActivity()).submitPasswordChange(
                     value(current), value(newPassword), value(confirm), this));
 
-            return new MaterialAlertDialogBuilder(requireContext()).setView(view).create();
+            View content = view instanceof android.widget.ScrollView
+                    ? ((android.widget.ScrollView) view).getChildAt(0) : view;
+            if (content.getParent() instanceof ViewGroup) {
+                ((ViewGroup) content.getParent()).removeView(content);
+            }
+            return new MaterialAlertDialogBuilder(requireContext()).setView(content).create();
         }
 
         private String value(TextInputEditText editText) {
             return editText.getText() == null ? "" : editText.getText().toString();
         }
-    }
-
-    public static class AboutDialog extends FarmDialogFragment {
-        private static final String ARG_VERSION = "version";
-        private static final String ARG_BUILD = "build";
-
-        static AboutDialog newInstance(String version, int build) {
-            AboutDialog dialog = new AboutDialog();
-            Bundle args = new Bundle();
-            args.putString(ARG_VERSION, version);
-            args.putInt(ARG_BUILD, build);
-            dialog.setArguments(args);
-            return dialog;
-        }
-
-        @NonNull
-        @Override
-        public android.app.Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-            View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_about, null, false);
-            Bundle args = requireArguments();
-            ((TextView) view.findViewById(R.id.tvVersionValue)).setText(args.getString(ARG_VERSION, "1.0"));
-            ((TextView) view.findViewById(R.id.tvBuildValue)).setText(String.valueOf(args.getInt(ARG_BUILD, 1)));
-            view.findViewById(R.id.btnAboutOk).setOnClickListener(v -> dismiss());
-            return new MaterialAlertDialogBuilder(requireContext()).setView(view).create();
-        }
 
         @Override
         public void onStart() {
             super.onStart();
-            View action = getDialog() == null ? null : getDialog().findViewById(R.id.btnAboutOk);
-            if (action instanceof com.google.android.material.button.MaterialButton) {
-                com.google.android.material.button.MaterialButton ok =
-                        (com.google.android.material.button.MaterialButton) action;
-                ok.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF0E6B3C));
-                ok.setCornerRadius(Math.round(999 * getResources().getDisplayMetrics().density));
-                ok.setTextColor(0xFFFFFFFF);
-                ok.setMinHeight(Math.round(60 * getResources().getDisplayMetrics().density));
-                ok.setElevation(0);
-                ok.setStateListAnimator(null);
+            Button change = getDialog() == null ? null : getDialog().findViewById(R.id.btnChangePassword);
+            if (change != null) {
+                float density = getResources().getDisplayMetrics().density;
+                GradientDrawable background = new GradientDrawable();
+                background.setColor(0xFF0E6B3C);
+                background.setCornerRadius(999 * density);
+                change.setBackground(background);
+                change.setTextColor(0xFFFFFFFF);
+                change.setMinHeight(Math.round(60 * density));
+                change.setAllCaps(false);
+                change.setElevation(0);
+                change.setTranslationZ(0);
+                change.setStateListAnimator(null);
             }
         }
     }
