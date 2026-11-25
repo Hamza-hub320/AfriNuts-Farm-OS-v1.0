@@ -182,6 +182,7 @@ public class FirestoreHelper {
         updates.put("totalAmount", revenue.getTotalAmount());
         updates.put("buyer", revenue.getBuyer());
         updates.put("notes", revenue.getNotes());
+        updates.put("invoiceNumber", revenue.getInvoiceNumber());
         updates.put("updatedAt", System.currentTimeMillis());
 
         return db.collection(COLLECTION_FARMS)

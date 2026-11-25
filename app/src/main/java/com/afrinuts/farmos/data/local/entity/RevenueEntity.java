@@ -69,6 +69,8 @@ public class RevenueEntity {
     /** Denormalized for display — no round-trip needed on list screens. */
     private String batchNumber;
     private String supplierName;
+    /** Invoice number shared by every document generated for this sale. */
+    private String invoiceNumber;
 
     /**
      * For newly-created records this is the sale date the user picked in
@@ -191,6 +193,12 @@ public class RevenueEntity {
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String supplierName) {
         this.supplierName = supplierName;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    public String getInvoiceNumber() { return invoiceNumber; }
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
         this.updatedAt = System.currentTimeMillis();
     }
 

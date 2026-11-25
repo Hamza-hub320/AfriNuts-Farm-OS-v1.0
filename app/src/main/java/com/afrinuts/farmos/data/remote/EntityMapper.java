@@ -566,6 +566,7 @@ public class EntityMapper {
         map.put("supplierId", revenue.getSupplierId());
         map.put("batchNumber", revenue.getBatchNumber());
         map.put("supplierName", revenue.getSupplierName());
+        map.put("invoiceNumber", revenue.getInvoiceNumber());
 
         map.put("quantityKg", revenue.getQuantityKg());
         map.put("pricePerKg", revenue.getPricePerKg());
@@ -632,6 +633,7 @@ public class EntityMapper {
             // Denormalized for display
             revenue.setBatchNumber(batchNumber);
             revenue.setSupplierName(supplierName);
+            revenue.setInvoiceNumber(doc.getString("invoiceNumber"));
 
             return revenue;
         } catch (Exception e) {

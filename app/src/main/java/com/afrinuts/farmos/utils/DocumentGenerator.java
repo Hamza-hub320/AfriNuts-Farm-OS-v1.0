@@ -10,6 +10,8 @@ import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
+import com.afrinuts.farmos.data.repository.BaseRepository;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -30,6 +32,11 @@ public class DocumentGenerator {
         void onSuccess(String downloadUrl);
         void onError(String error);
         void onProgress(int progress);
+    }
+
+    private interface InvoiceNumberCallback {
+        void onSuccess(String invoiceNumber);
+        void onError(String error);
     }
 
     // ========================================
@@ -64,11 +71,21 @@ public class DocumentGenerator {
                                                           SupplierEntity supplier,
                                                           BatchTraceabilityEntity traceability,
                                                           String farmId,
+                                                          RevenueRepository revenueRepository,
                                                           DocumentUploadCallback callback) {
-        String invoiceNumber = nextInvoiceNumber(context, farmId);
-        String content = generateCommercialInvoice(batch, revenue, supplier, traceability, invoiceNumber);
-        String fileName = "Commercial_Invoice_" + invoiceNumber + "_" + batch.getBatchNumber() + ".txt";
-        uploadDocument(context, content, fileName, farmId, "documents", callback);
+        getOrIssueInvoiceNumber(context, farmId, revenue, revenueRepository, new InvoiceNumberCallback() {
+            @Override
+            public void onSuccess(String invoiceNumber) {
+                String content = generateCommercialInvoice(batch, revenue, supplier, traceability, invoiceNumber);
+                String fileName = "Commercial_Invoice_" + invoiceNumber + "_" + batch.getBatchNumber() + ".txt";
+                uploadDocument(context, content, fileName, farmId, "documents", callback);
+            }
+
+            @Override
+            public void onError(String error) {
+                callback.onError(error);
+            }
+        });
     }
 
     public static void generateAndUploadDocumentPackage(Context context,
@@ -77,11 +94,60 @@ public class DocumentGenerator {
                                                         RevenueEntity revenue,
                                                         BatchTraceabilityEntity traceability,
                                                         String farmId,
+                                                        RevenueRepository revenueRepository,
                                                         DocumentUploadCallback callback) {
-        String invoiceNumber = nextInvoiceNumber(context, farmId);
-        String content = generateBatchDocumentPackage(supplier, batch, revenue, traceability, invoiceNumber);
-        String fileName = "Document_Package_" + batch.getBatchNumber() + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
-        uploadDocument(context, content, fileName, farmId, "documents", callback);
+        getOrIssueInvoiceNumber(context, farmId, revenue, revenueRepository, new InvoiceNumberCallback() {
+            @Override
+            public void onSuccess(String invoiceNumber) {
+                String content = generateBatchDocumentPackage(supplier, batch, revenue, traceability, invoiceNumber);
+                String fileName = "Document_Package_" + invoiceNumber + "_" + batch.getBatchNumber()
+                        + "_" + FILE_DATE_FORMAT.format(new Date()) + ".txt";
+                uploadDocument(context, content, fileName, farmId, "documents", callback);
+            }
+
+            @Override
+            public void onError(String error) {
+                callback.onError(error);
+            }
+        });
+    }
+
+    /** Reuses a sale's invoice number or persists its first number before document generation. */
+    private static void getOrIssueInvoiceNumber(Context context,
+                                                String farmId,
+                                                RevenueEntity revenue,
+                                                RevenueRepository revenueRepository,
+                                                InvoiceNumberCallback callback) {
+        if (revenue == null || revenueRepository == null) {
+            callback.onError("Revenue record is unavailable; invoice number was not issued");
+            return;
+        }
+        String existing = revenue.getInvoiceNumber();
+        if (existing != null && !existing.trim().isEmpty()) {
+            callback.onSuccess(existing.trim());
+            return;
+        }
+
+        final String invoiceNumber;
+        try {
+            invoiceNumber = nextInvoiceNumber(context, farmId);
+            revenue.setInvoiceNumber(invoiceNumber);
+        } catch (Exception e) {
+            callback.onError("Could not issue invoice number: " + e.getMessage());
+            return;
+        }
+
+        revenueRepository.updateRevenue(revenue, new BaseRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                callback.onSuccess(invoiceNumber);
+            }
+
+            @Override
+            public void onError(String error) {
+                callback.onError("Could not save invoice number: " + error);
+            }
+        });
     }
 
     private static void uploadDocument(Context context,

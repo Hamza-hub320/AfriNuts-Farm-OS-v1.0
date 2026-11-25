@@ -644,6 +644,7 @@ public class RevenueDetailActivity extends BaseActivity {
             }
         }
         FinanceDetailChrome.bindRevenueSupplier(this, supplier, supplierBatchCount);
+        FinanceDetailChrome.bindRevenueInvoice(this, revenue.getInvoiceNumber());
         footerViewBatch.setVisibility(revenue.getBatchId() == null ? View.GONE : View.VISIBLE);
         if (btnViewBatch != null) btnViewBatch.setVisibility(View.GONE);
         FinanceDetailChrome.apply(this, findViewById(R.id.farmDetailTitle),

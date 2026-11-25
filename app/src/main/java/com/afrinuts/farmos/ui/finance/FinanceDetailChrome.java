@@ -206,6 +206,61 @@ public final class FinanceDetailChrome {
 
     }
 
+    /** Adds the sale's issued invoice number without affecting shared expense sections. */
+    public static void bindRevenueInvoice(Activity activity, String invoiceNumber) {
+        LinearLayout content = content(activity);
+        if (content == null) return;
+
+        String value = TextUtils.isEmpty(invoiceNumber) ? "Not issued yet" : invoiceNumber;
+        View existing = content.findViewWithTag("revenue-invoice-card");
+        if (existing instanceof CardView) {
+            TextView valueView = existing.findViewWithTag("revenue-invoice-number");
+            if (valueView != null) valueView.setText(value);
+            return;
+        }
+
+        CardView card = new CardView(activity);
+        card.setTag("revenue-invoice-card");
+        card.setCardBackgroundColor(Color.WHITE);
+        card.setRadius(dp(activity, 24));
+        card.setCardElevation(0);
+
+        LinearLayout body = new LinearLayout(activity);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(activity, 20), dp(activity, 18), dp(activity, 20), dp(activity, 18));
+        TextView heading = new TextView(activity);
+        heading.setText("Invoice");
+        heading.setTextColor(0xFF1C1B1A);
+        heading.setTextSize(16);
+        heading.setTypeface(font(activity, R.font.manrope_extrabold));
+        body.addView(heading);
+
+        LinearLayout row = new LinearLayout(activity);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(0, dp(activity, 11), 0, dp(activity, 11));
+        TextView key = new TextView(activity);
+        key.setText("Invoice no.");
+        key.setTextColor(0xFF59544C);
+        key.setTextSize(13);
+        key.setTypeface(font(activity, R.font.manrope_bold));
+        row.addView(key, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView number = new TextView(activity);
+        number.setTag("revenue-invoice-number");
+        number.setText(value);
+        number.setTextColor(0xFF1C1B1A);
+        number.setTextSize(14.5f);
+        number.setTypeface(font(activity, R.font.manrope_bold));
+        number.setGravity(Gravity.END);
+        row.addView(number, new LinearLayout.LayoutParams(-2, -2));
+        body.addView(row);
+        card.addView(body);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.bottomMargin = dp(activity, 12);
+        content.addView(card, Math.min(2, content.getChildCount()), params);
+    }
+
 
     /** Replaces legacy sale stats inside the Batch section with fields from the linked batch. */
     public static void bindRevenueBatch(Activity activity, QualityBatchEntity batch) {

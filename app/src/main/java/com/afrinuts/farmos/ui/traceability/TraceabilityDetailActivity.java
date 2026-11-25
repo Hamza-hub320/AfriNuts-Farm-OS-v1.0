@@ -39,6 +39,7 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
+import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.afrinuts.farmos.ui.BaseActivity;
 import com.afrinuts.farmos.ui.quality.QualityBatchDetailActivity;
@@ -69,6 +70,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
     private AppDatabase database;
     private BatchTraceabilityRepository repository;
     private QualityBatchRepository qualityBatchRepository;
+    private RevenueRepository revenueRepository;
     private SupplierRepository supplierRepository;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -168,6 +170,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
         database = AppDatabase.getInstance(this);
         repository = new BatchTraceabilityRepository(this, 1);
+        revenueRepository = new RevenueRepository(this, farmId);
 
         applyWireframeCardStyling();
         initViews();
@@ -1134,7 +1137,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
                     case "Commercial Invoice":
                         if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
                             DocumentGenerator.generateAndUploadCommercialInvoice(
-                                    this, qualityBatch, finalRevenue, supplier, traceability, String.valueOf(currentFarmId), callback);
+                                    this, qualityBatch, finalRevenue, supplier, traceability,
+                                    String.valueOf(currentFarmId), revenueRepository, callback);
                         } else {
                             runOnUiThread(() -> showAddRevenueDialog());
                         }
@@ -1143,7 +1147,8 @@ public class TraceabilityDetailActivity extends BaseActivity {
                     case "Document Package":
                         if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
                             DocumentGenerator.generateAndUploadDocumentPackage(
-                                    this, supplier, qualityBatch, finalRevenue, traceability, String.valueOf(currentFarmId), callback);
+                                    this, supplier, qualityBatch, finalRevenue, traceability,
+                                    String.valueOf(currentFarmId), revenueRepository, callback);
                         } else {
                             runOnUiThread(() -> showAddRevenueDialog());
                         }
