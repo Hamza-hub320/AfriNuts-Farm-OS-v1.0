@@ -1,59 +1,43 @@
 package com.afrinuts.farmos.ui.settings;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
-import com.afrinuts.farmos.ui.auth.LoginActivity;
-import com.afrinuts.farmos.utils.LanguageHelper;
-import com.github.mikephil.charting.BuildConfig;
-import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.AuthCredential;
-
+import com.afrinuts.farmos.BuildConfig;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
-import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.data.sync.SyncManager;
-import com.afrinuts.farmos.ui.BaseActivity;   // ← was BaseHubActivity
+import com.afrinuts.farmos.ui.BaseActivity;
+import com.afrinuts.farmos.ui.auth.LoginActivity;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not BaseHubActivity
+public class SettingsActivity extends BaseActivity {
 
-    private CardView cardChangePassword;
-    private CardView cardChangePin;
-    private CardView cardLanguage;
-    private CardView cardUnits;
-    private CardView cardSync;
-    private CardView cardAbout;
+    private View cardChangePassword;
+    private View cardSync;
+    private View cardAbout;
     private TextView tvVersion;
-    private TextView tvLanguage;
-    private TextView tvUnits;
-    private CardView cardDarkMode;
-    private SwitchMaterial darkModeSwitch;
-
     private AppDatabase database;
     private SyncManager syncManager;
-    private FirebaseManager firebaseManager;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -64,394 +48,54 @@ public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);   // ← set layout here
+        setContentView(R.layout.activity_settings);
 
         database = AppDatabase.getInstance(this);
         syncManager = SyncManager.getInstance(this);
-        firebaseManager = FirebaseManager.getInstance();
-
-        setupToolbar();
-        initViews();
-        setupClickListeners();
-        loadSettings();
-        setupDarkModeToggle();
-    }
-
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setDisplayShowHomeEnabled(true);
-                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_backward);
-                getSupportActionBar().setTitle("Settings");
-            }
-        }
-    }
-
-    private void initViews() {
         cardChangePassword = findViewById(R.id.cardChangePassword);
-        cardChangePin = findViewById(R.id.cardChangePin);
-        cardLanguage = findViewById(R.id.cardLanguage);
-        cardUnits = findViewById(R.id.cardUnits);
         cardSync = findViewById(R.id.cardSync);
         cardAbout = findViewById(R.id.cardAbout);
         tvVersion = findViewById(R.id.tvVersion);
-        tvLanguage = findViewById(R.id.tvLanguage);
-        tvUnits = findViewById(R.id.tvUnits);
-        cardDarkMode = findViewById(R.id.cardDarkMode);
-        darkModeSwitch = findViewById(R.id.darkModeSwitch);
+        tvVersion.setText("Version " + getAppVersion());
 
-        // Hide PIN change for non-PIN users
-        if (sessionManager.getUserRole() != UserEntity.UserRole.WORKER) {
-            cardChangePin.setVisibility(View.GONE);
-        }
-
-        // Hide password change for PIN users
-        if (sessionManager.getUserRole() == UserEntity.UserRole.WORKER) {
-            cardChangePassword.setVisibility(View.GONE);
-        }
-    }
-
-    private void setupDarkModeToggle() {
-        if (darkModeSwitch == null) return;
-
-        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        boolean isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-        darkModeSwitch.setChecked(isDarkMode);
-
-        darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            AppCompatDelegate.setDefaultNightMode(
-                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
-
-            getSharedPreferences("settings", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("dark_mode", isChecked)
-                    .apply();
-
-            Toast.makeText(this,
-                    "Theme changed. App will restart to apply changes.",
-                    Toast.LENGTH_SHORT).show();
-
-            recreate();
-        });
-    }
-
-    private void loadDarkModePreference() {
-        boolean darkModeEnabled = getSharedPreferences("settings", MODE_PRIVATE)
-                .getBoolean("dark_mode", false);
-
-        AppCompatDelegate.setDefaultNightMode(darkModeEnabled
-                ? AppCompatDelegate.MODE_NIGHT_YES
-                : AppCompatDelegate.MODE_NIGHT_NO);
-    }
-
-    private void setupClickListeners() {
+        findViewById(R.id.toolbarBack).setOnClickListener(v -> finish());
         cardChangePassword.setOnClickListener(v -> showChangePasswordDialog());
-        cardChangePin.setOnClickListener(v -> showChangePinDialog());
-        cardLanguage.setOnClickListener(v -> showLanguageDialog());
-        cardUnits.setOnClickListener(v -> showUnitsDialog());
-
         cardSync.setOnClickListener(v -> {
-            animateCardClick(cardSync);
+            cardSync.animate().cancel();
+            cardSync.animate().scaleX(.97f).scaleY(.97f).setDuration(90)
+                    .withEndAction(() -> cardSync.animate().scaleX(1f).scaleY(1f).setDuration(90).start()).start();
             Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
             syncManager.forceSyncNow();
         });
-
         cardAbout.setOnClickListener(v -> showAboutDialog());
-    }
-
-    private void animateCardClick(CardView card) {
-        card.animate()
-                .scaleX(0.95f)
-                .scaleY(0.95f)
-                .setDuration(100)
-                .withEndAction(() -> {
-                    card.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(100)
-                            .start();
-                })
-                .start();
-    }
-
-    private void animateSyncIcon(ImageView icon, boolean start) {
-        if (start) {
-            icon.animate().rotationBy(360).setDuration(1000).withEndAction(() -> {
-                icon.setRotation(0);
-                if (syncManager != null && syncManager.isSyncing()) {
-                    animateSyncIcon(icon, true);
-                }
-            }).start();
-        } else {
-            icon.animate().cancel();
-            icon.setRotation(0);
-        }
     }
 
     private String getAppVersion() {
         try {
-            return getPackageManager()
-                    .getPackageInfo(getPackageName(), 0)
-                    .versionName;
-        } catch (PackageManager.NameNotFoundException e) {
+            String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            return version == null ? "1.0" : version;
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
             return "1.0";
         }
     }
 
-    private void loadSettings() {
-        String version = getAppVersion();
-        tvVersion.setText("Version " + version);
-
-        String language = getSharedPreferences("settings", MODE_PRIVATE)
-                .getString("language", "English");
-        String units = getSharedPreferences("settings", MODE_PRIVATE)
-                .getString("units", "Metric (kg, XAF)");
-
-        tvLanguage.setText(language);
-        tvUnits.setText(units);
-    }
-
     private void showChangePasswordDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_change_password, null);
-
-        TextInputEditText etCurrent = dialogView.findViewById(R.id.etCurrentPassword);
-        TextInputEditText etNew = dialogView.findViewById(R.id.etNewPassword);
-        TextInputEditText etConfirm = dialogView.findViewById(R.id.etConfirmPassword);
-
-        ProgressBar passwordStrength = dialogView.findViewById(R.id.passwordStrength);
-        TextView tvStrengthLabel = dialogView.findViewById(R.id.tvStrengthLabel);
-        View layoutStrength = dialogView.findViewById(R.id.layoutStrength);
-
-        etNew.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String password = s.toString();
-                if (password.isEmpty()) {
-                    layoutStrength.setVisibility(View.GONE);
-                    return;
-                }
-
-                layoutStrength.setVisibility(View.VISIBLE);
-                int strength = calculatePasswordStrength(password);
-                passwordStrength.setProgress(strength);
-
-                String strengthLabel = getStrengthLabel(strength);
-                tvStrengthLabel.setText("Strength: " + strengthLabel);
-
-                int color = getStrengthColor(strength);
-                tvStrengthLabel.setTextColor(getColor(color));
-                passwordStrength.setProgressTintList(android.content.res.ColorStateList.valueOf(getColor(color)));
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {}
-        });
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("")
-                .setView(dialogView)
-                .setPositiveButton("Change", (dialog, which) -> {
-                    String current = etCurrent.getText().toString();
-                    String newPass = etNew.getText().toString();
-                    String confirm = etConfirm.getText().toString();
-
-                    if (TextUtils.isEmpty(current)) {
-                        Toast.makeText(this, "Current password required", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (TextUtils.isEmpty(newPass)) {
-                        Toast.makeText(this, "New password required", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (newPass.length() < 6) {
-                        Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (!newPass.equals(confirm)) {
-                        Toast.makeText(this, "New passwords don't match", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    Toast.makeText(this, "Verifying current password...", Toast.LENGTH_SHORT).show();
-
-                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if (firebaseUser == null) {
-                        Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    String email = firebaseUser.getEmail();
-                    if (email == null) {
-                        Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    AuthCredential credential = EmailAuthProvider.getCredential(email, current);
-                    firebaseUser.reauthenticate(credential)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Password verified, updating...", Toast.LENGTH_SHORT).show();
-
-                                firebaseUser.updatePassword(newPass)
-                                        .addOnSuccessListener(aVoid2 -> {
-                                            new Thread(() -> {
-                                                UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
-                                                String newHash = AuthUtils.hash(newPass);
-                                                user.setPasswordHash(newHash);
-                                                database.userDao().update(user);
-
-                                                runOnUiThread(() -> {
-                                                    Toast.makeText(
-                                                            SettingsActivity.this,
-                                                            "Password updated. Please sign in again.",
-                                                            Toast.LENGTH_LONG).show();
-                                                    FirebaseAuth.getInstance().signOut();
-                                                    sessionManager.logout();
-                                                    Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
-                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                    startActivity(intent);
-                                                    finish();
-                                                });
-                                            }).start();
-                                        })
-                                        .addOnFailureListener(e ->
-                                                Toast.makeText(this,
-                                                        "Failed to update password: " + e.getMessage(),
-                                                        Toast.LENGTH_LONG).show());
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this,
-                                            "Current password is incorrect",
-                                            Toast.LENGTH_SHORT).show());
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        new ChangePasswordDialog().show(getSupportFragmentManager(), "change_password");
     }
 
-    private void showChangePinDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_change_pin, null);
-
-        TextInputEditText etCurrent = dialogView.findViewById(R.id.etCurrentPin);
-        TextInputEditText etNew = dialogView.findViewById(R.id.etNewPin);
-        TextInputEditText etConfirm = dialogView.findViewById(R.id.etConfirmPin);
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Change PIN")
-                .setView(dialogView)
-                .setPositiveButton("Change", (dialog, which) -> {
-                    String current = etCurrent.getText().toString();
-                    String newPin = etNew.getText().toString();
-                    String confirm = etConfirm.getText().toString();
-
-                    if (TextUtils.isEmpty(current)) {
-                        Toast.makeText(this, "Current PIN required", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (!AuthUtils.isValidPin(newPin)) {
-                        Toast.makeText(this, "PIN must be 4-6 digits", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (!newPin.equals(confirm)) {
-                        Toast.makeText(this, "New PINs don't match", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    new Thread(() -> {
-                        UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
-
-                        if (!AuthUtils.verify(current, user.getPinHash())) {
-                            runOnUiThread(() ->
-                                    Toast.makeText(this, "Current PIN incorrect", Toast.LENGTH_SHORT).show());
-                            return;
-                        }
-
-                        String newHash = AuthUtils.hash(newPin);
-                        user.setPinHash(newHash);
-                        database.userDao().update(user);
-
-                        runOnUiThread(() ->
-                                Toast.makeText(this, "PIN updated successfully", Toast.LENGTH_SHORT).show());
-                    }).start();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void showLanguageDialog() {
-        String[] languages = {"English", "Français"};
-        String[] codes = {"en", "fr"};
-        int currentIndex = tvLanguage.getText().toString().equals("English") ? 0 : 1;
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Select Language")
-                .setSingleChoiceItems(languages, currentIndex, (dialog, which) -> {
-                    String selected = languages[which];
-                    String code = codes[which];
-
-                    tvLanguage.setText(selected);
-
-                    LanguageHelper.setLocale(this, code);
-
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle("Language Changed")
-                            .setMessage("Language changed to " + selected + ". Please restart the app for changes to take effect.")
-                            .setPositiveButton("Restart Now", (d, w) -> {
-                                android.os.Process.killProcess(android.os.Process.myPid());
-                                System.exit(0);
-                            })
-                            .setNegativeButton("Later", null)
-                            .show();
-
-                    dialog.dismiss();
-                })
-                .show();
-    }
-
-    private void showUnitsDialog() {
-        String[] units = {"Metric (kg, ha, XAF)", "Imperial (lb, acres, USD)"};
-        String[] unitCodes = {"metric", "imperial"};
-        int currentIndex = tvUnits.getText().toString().contains("Metric") ? 0 : 1;
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Select Units")
-                .setSingleChoiceItems(units, currentIndex, (dialog, which) -> {
-                    String selected = units[which];
-                    String code = unitCodes[which];
-
-                    tvUnits.setText(selected);
-
-                    getSharedPreferences("settings", MODE_PRIVATE)
-                            .edit()
-                            .putString("units", code)
-                            .apply();
-
-                    Toast.makeText(this, "Units changed to " + selected, Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                })
-                .show();
+    private void showAboutDialog() {
+        AboutDialog.newInstance(getAppVersion(), BuildConfig.VERSION_CODE)
+                .show(getSupportFragmentManager(), "about");
     }
 
     private int calculatePasswordStrength(String password) {
         int strength = 0;
-
         if (password.length() >= 8) strength += 25;
         else if (password.length() >= 6) strength += 15;
-
         if (password.matches(".*[A-Z].*")) strength += 25;
         if (password.matches(".*[a-z].*")) strength += 25;
         if (password.matches(".*\\d.*")) strength += 15;
         if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) strength += 10;
-
         return Math.min(strength, 100);
     }
 
@@ -469,30 +113,147 @@ public class SettingsActivity extends BaseActivity {   // ← BaseActivity, not 
         return R.color.secondary;
     }
 
-    private void showAboutDialog() {
-        String version = getAppVersion();
+    private void submitPasswordChange(String current, String newPass, String confirm, DialogFragment dialog) {
+        if (TextUtils.isEmpty(current)) {
+            Toast.makeText(this, "Current password required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(newPass)) {
+            Toast.makeText(this, "New password required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (newPass.length() < 6) {
+            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!newPass.equals(confirm)) {
+            Toast.makeText(this, "New passwords don't match", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_about, null);
+        dialog.dismiss();
+        Toast.makeText(this, "Verifying current password...", Toast.LENGTH_SHORT).show();
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null) {
+            Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String email = firebaseUser.getEmail();
+        if (email == null) {
+            Toast.makeText(this, "User email not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        TextView tvVersionValue = dialogView.findViewById(R.id.tvVersionValue);
-        TextView tvBuildValue = dialogView.findViewById(R.id.tvBuildValue);
-
-        tvVersionValue.setText(version);
-        tvBuildValue.setText(String.valueOf(BuildConfig.VERSION_CODE));
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("")
-                .setView(dialogView)
-                .setPositiveButton("OK", null)
-                .show();
+        AuthCredential credential = EmailAuthProvider.getCredential(email, current);
+        firebaseUser.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Password verified, updating...", Toast.LENGTH_SHORT).show();
+                    firebaseUser.updatePassword(newPass)
+                            .addOnSuccessListener(aVoid2 -> new Thread(() -> {
+                                UserEntity user = database.userDao().getUserById(sessionManager.getUserId());
+                                if (user != null) {
+                                    user.setPasswordHash(AuthUtils.hash(newPass));
+                                    database.userDao().update(user);
+                                }
+                                runOnUiThread(() -> {
+                                    Toast.makeText(SettingsActivity.this,
+                                            "Password updated. Please sign in again.", Toast.LENGTH_LONG).show();
+                                    FirebaseAuth.getInstance().signOut();
+                                    sessionManager.logout();
+                                    Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                });
+                            }).start())
+                            .addOnFailureListener(e -> Toast.makeText(this,
+                                    "Failed to update password: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(this,
+                        "Current password is incorrect", Toast.LENGTH_SHORT).show());
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+    public static class ChangePasswordDialog extends FarmDialogFragment {
+        @NonNull
+        @Override
+        public android.app.Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_change_password, null, false);
+            TextInputEditText current = view.findViewById(R.id.etCurrentPassword);
+            TextInputEditText newPassword = view.findViewById(R.id.etNewPassword);
+            TextInputEditText confirm = view.findViewById(R.id.etConfirmPassword);
+            ProgressBar strength = view.findViewById(R.id.passwordStrength);
+            TextView strengthLabel = view.findViewById(R.id.tvStrengthLabel);
+            View strengthLayout = view.findViewById(R.id.layoutStrength);
+
+            newPassword.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String password = s.toString();
+                    if (password.isEmpty()) {
+                        strengthLayout.setVisibility(View.GONE);
+                        return;
+                    }
+                    strengthLayout.setVisibility(View.VISIBLE);
+                    SettingsActivity activity = (SettingsActivity) requireActivity();
+                    int score = activity.calculatePasswordStrength(password);
+                    int color = activity.getColor(activity.getStrengthColor(score));
+                    strength.setProgress(score);
+                    strength.setProgressTintList(android.content.res.ColorStateList.valueOf(color));
+                    strengthLabel.setText("Password strength · " + activity.getStrengthLabel(score));
+                    strengthLabel.setTextColor(color);
+                }
+                @Override public void afterTextChanged(android.text.Editable s) { }
+            });
+
+            Button cancel = view.findViewById(R.id.btnCancelPassword);
+            Button change = view.findViewById(R.id.btnChangePassword);
+            cancel.setOnClickListener(v -> dismiss());
+            change.setOnClickListener(v -> ((SettingsActivity) requireActivity()).submitPasswordChange(
+                    value(current), value(newPassword), value(confirm), this));
+
+            return new MaterialAlertDialogBuilder(requireContext()).setView(view).create();
         }
-        return super.onOptionsItemSelected(item);
+
+        private String value(TextInputEditText editText) {
+            return editText.getText() == null ? "" : editText.getText().toString();
+        }
+    }
+
+    public static class AboutDialog extends FarmDialogFragment {
+        private static final String ARG_VERSION = "version";
+        private static final String ARG_BUILD = "build";
+
+        static AboutDialog newInstance(String version, int build) {
+            AboutDialog dialog = new AboutDialog();
+            Bundle args = new Bundle();
+            args.putString(ARG_VERSION, version);
+            args.putInt(ARG_BUILD, build);
+            dialog.setArguments(args);
+            return dialog;
+        }
+
+        @NonNull
+        @Override
+        public android.app.Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_about, null, false);
+            Bundle args = requireArguments();
+            ((TextView) view.findViewById(R.id.tvVersionValue)).setText(args.getString(ARG_VERSION, "1.0"));
+            ((TextView) view.findViewById(R.id.tvBuildValue)).setText(String.valueOf(args.getInt(ARG_BUILD, 1)));
+            return new MaterialAlertDialogBuilder(requireContext())
+                    .setView(view)
+                    .setPositiveButton("OK", (dialog, which) -> dismiss())
+                    .create();
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            Button ok = getDialog() == null ? null : getDialog().findViewById(android.R.id.button1);
+            if (ok != null && ok.getLayoutParams() != null) {
+                android.view.ViewGroup.LayoutParams params = ok.getLayoutParams();
+                params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+                ok.setLayoutParams(params);
+            }
+        }
     }
 }
