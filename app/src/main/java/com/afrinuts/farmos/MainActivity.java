@@ -483,6 +483,9 @@ public class MainActivity extends AppCompatActivity {
         }
         addAccountMenuItem(menu, popup, "Settings", R.drawable.ic_settings, 0xFF1C1B1A, false,
                 () -> startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.settings.SettingsActivity.class)));
+        if (sessionManager.isOwner() || sessionManager.isCEO() || sessionManager.isManager())
+            addAccountMenuItem(menu, popup, "Sync Center", R.drawable.ic_sync, 0xFF1C1B1A, false,
+                    () -> startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.sync.SyncCenterActivity.class)));
         View divider = new View(this);
         divider.setBackgroundColor(0xFFE9E1CF);
         menu.addView(divider, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
