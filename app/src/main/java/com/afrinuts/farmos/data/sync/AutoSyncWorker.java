@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import androidx.work.Data;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.AuditEntity;
@@ -63,6 +64,9 @@ public class AutoSyncWorker extends Worker {
         Log.d(TAG, "========== AUTO SYNC WORKER STARTED ==========");
         Log.d(TAG, "Farm ID: " + farmId);
 
+        // A process death can leave an item stuck in SYNCING. Make it eligible again.
+        database.syncDao().reclaimStaleSyncing(System.currentTimeMillis() - TimeUnit.HOURS.toMillis(1));
+
         // Check if we have internet
         if (!NetworkUtils.isConnected(getApplicationContext())) {
             Log.e(TAG, "No internet connection, rescheduling...");
@@ -110,9 +114,22 @@ public class AutoSyncWorker extends Worker {
             Log.d(TAG, "========== AUTO SYNC WORKER FINISHED ==========");
 
             if (failCount > 0) {
-                return Result.retry();
+                String reason = pendingItems.stream()
+                        .filter(item -> item.getStatus() == SyncEntity.SyncStatus.FAILED)
+                        .map(SyncEntity::getErrorMessage)
+                        .filter(message -> message != null && !message.trim().isEmpty())
+                        .findFirst().orElse("One or more records could not be synced");
+                return Result.success(new Data.Builder()
+                        .putInt("synced_count", successCount)
+                        .putInt("failed_count", failCount)
+                        .putString("failure_reason", reason)
+                        .build());
             }
-            return Result.success();
+            if (successCount > 0) {
+                getApplicationContext().getSharedPreferences("sync_center", Context.MODE_PRIVATE)
+                        .edit().putLong("last_sync_success_" + farmId, System.currentTimeMillis()).apply();
+            }
+            return Result.success(new Data.Builder().putInt("synced_count", successCount).putInt("failed_count", 0).build());
 
         } catch (Exception e) {
             Log.e(TAG, "Sync failed with exception", e);
@@ -203,6 +220,7 @@ public class AutoSyncWorker extends Worker {
 
             // Mark as completed
             syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
+            syncItem.setErrorMessage(null);
             database.syncDao().update(syncItem);
             Log.d(TAG, "Successfully synced: " + syncItem.getEntityType() + ":" + syncItem.getEntityId());
             return true;
@@ -212,6 +230,9 @@ public class AutoSyncWorker extends Worker {
 
             syncItem.setStatus(SyncEntity.SyncStatus.FAILED);
             syncItem.setAttemptCount(syncItem.getAttemptCount() + 1);
+            String reason = e.getMessage();
+            syncItem.setErrorMessage(reason == null || reason.trim().isEmpty()
+                    ? e.getClass().getSimpleName() : reason.trim());
             database.syncDao().update(syncItem);
             return false;
         }
@@ -228,7 +249,7 @@ public class AutoSyncWorker extends Worker {
                 DocumentEntity document = database.documentDao().getDocumentById(documentId);
                 if (document == null) {
                     Log.e(TAG, "Document not found in local DB: " + documentId);
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveDocument(document, farmId);
                 Log.d(TAG, "Document saved to Firestore: " + document.getDocumentId());
@@ -259,7 +280,7 @@ public class AutoSyncWorker extends Worker {
                         .getVerificationById(verificationId);
                 if (verification == null) {
                     Log.e(TAG, "Verification not found in local DB: " + verificationId);
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveVerification(verification, farmId);
                 Log.d(TAG, "Verification saved to Firestore: " + verification.getVerificationId());
@@ -289,7 +310,7 @@ public class AutoSyncWorker extends Worker {
                 InspectionEntity inspection = database.inspectionDao().getInspectionById(inspectionId);
                 if (inspection == null) {
                     Log.e(TAG, "Inspection not found in local DB: " + inspectionId);
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveInspection(inspection, farmId);
                 Log.d(TAG, "Inspection saved to Firestore: " + inspection.getInspectionId());
@@ -320,7 +341,7 @@ public class AutoSyncWorker extends Worker {
                 AuditEntity audit = database.auditDao().getAuditById(auditId);
                 if (audit == null) {
                     Log.e(TAG, "Audit not found in local DB: " + auditId);
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveAudit(audit, farmId);
                 Log.d(TAG, "Audit saved to Firestore: " + audit.getAuditId());
@@ -357,7 +378,7 @@ public class AutoSyncWorker extends Worker {
                             .getCertificationById(String.valueOf(syncItem.getEntityId()));
                     if (certification == null) {
                         Log.e(TAG, "Certification not found by numeric ID either: " + syncItem.getEntityId());
-                        return;
+                        throw new IllegalStateException("Local record not found");
                     }
                 }
                 firebaseManager.saveCertification(certification, farmId);
@@ -387,7 +408,7 @@ public class AutoSyncWorker extends Worker {
                         .getById(syncItem.getEntityId());
                 if (traceability == null) {
                     Log.e(TAG, "Traceability not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveBatchTraceability(traceability, farmId);
                 Log.d(TAG, "Traceability saved to Firestore: " + traceability.getBatchNumber());
@@ -417,7 +438,7 @@ public class AutoSyncWorker extends Worker {
                         .getById(syncItem.getEntityId());
                 if (master == null) {
                     Log.e(TAG, "Master traceability not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveMasterTraceability(master, farmId);
                 Log.d(TAG, "Master traceability saved to Firestore: " + master.getMasterBatchNumber());
@@ -440,7 +461,7 @@ public class AutoSyncWorker extends Worker {
         TaskAssignmentHistoryEntity assignment = database.taskAssignmentDao().getAssignmentById(syncItem.getEntityId());
         if (assignment == null) {
             Log.e(TAG, "Assignment not found in local DB: " + syncItem.getEntityId());
-            return;
+            throw new IllegalStateException("Local record not found");
         }
 
         Log.d(TAG, "Syncing assignment ID: " + syncItem.getEntityId() +
@@ -465,7 +486,7 @@ public class AutoSyncWorker extends Worker {
         UserEntity user = database.userDao().getUserById(syncItem.getEntityId());
         if (user == null) {
             Log.e(TAG, "User not found in local DB: " + syncItem.getEntityId());
-            return;
+            throw new IllegalStateException("Local record not found");
         }
 
         Log.d(TAG, "Syncing user ID: " + syncItem.getEntityId());
@@ -507,7 +528,7 @@ public class AutoSyncWorker extends Worker {
         BlockEntity block = database.blockDao().getBlockById(syncItem.getEntityId());
         if (block == null) {
             Log.e(TAG, "Block not found in local DB: " + syncItem.getEntityId());
-            return;
+            throw new IllegalStateException("Local record not found");
         }
 
         Log.d(TAG, "Syncing block: " + block.getBlockName() + " action: " + syncItem.getAction());
@@ -545,7 +566,7 @@ public class AutoSyncWorker extends Worker {
                 ExpenseEntity expense = database.expenseDao().getExpenseById(syncItem.getEntityId());
                 if (expense == null) {
                     Log.e(TAG, "Expense not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 Log.d(TAG, "Syncing expense: " + expense.getId() + " amount: " + expense.getAmount());
                 firebaseManager.saveExpense(expense, farmId);
@@ -569,7 +590,7 @@ public class AutoSyncWorker extends Worker {
                 RevenueEntity revenue = database.revenueDao().getRevenueById(syncItem.getEntityId());
                 if (revenue == null) {
                     Log.e(TAG, "Revenue not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 Log.d(TAG, "Syncing revenue: " + revenue.getId() + " amount: " + revenue.getTotalAmount());
                 firebaseManager.saveRevenue(revenue, farmId);
@@ -602,7 +623,7 @@ public class AutoSyncWorker extends Worker {
 
         if (task == null) {
             Log.e(TAG, "Task not found in local DB: " + syncItem.getEntityId());
-            return;
+            throw new IllegalStateException("Local record not found");
         }
 
         Log.d(TAG, "Syncing task ID: " + syncItem.getEntityId() + " action: " + syncItem.getAction());
@@ -636,7 +657,7 @@ public class AutoSyncWorker extends Worker {
                 SupplierEntity supplier = database.supplierDao().getSupplierById(syncItem.getEntityId());
                 if (supplier == null) {
                     Log.e(TAG, "Supplier not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveSupplier(supplier, farmId);
                 Log.d(TAG, "Supplier saved to Firestore: " + supplier.getName());
@@ -680,7 +701,7 @@ public class AutoSyncWorker extends Worker {
                         database.supplierCommitmentDao().getById(syncItem.getEntityId());
                 if (c == null) {
                     Log.e(TAG, "Commitment not in DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 // Commitments carry no evidence files — no uploader pass.
                 firebaseManager.saveSupplierCommitment(c, farmId);
@@ -701,7 +722,7 @@ public class AutoSyncWorker extends Worker {
                         database.supplierInspectionDao().getById(syncItem.getEntityId());
                 if (i == null) {
                     Log.e(TAG, "Inspection not in DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
 
                 // ── ordering rule: upload evidence → rewrite URLs → save record ──
@@ -738,7 +759,7 @@ public class AutoSyncWorker extends Worker {
                         database.supplierDisputeDao().getById(syncItem.getEntityId());
                 if (d == null) {
                     Log.e(TAG, "Dispute not in DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
 
                 EvidencePhotoUploader uploader =
@@ -772,7 +793,7 @@ public class AutoSyncWorker extends Worker {
                 QualityBatchEntity batch = database.qualityBatchDao().getBatchById(syncItem.getEntityId());
                 if (batch == null) {
                     Log.e(TAG, "Quality batch not found in local DB: " + syncItem.getEntityId());
-                    return;
+                    throw new IllegalStateException("Local record not found");
                 }
                 firebaseManager.saveQualityBatch(batch, farmId);
                 Log.d(TAG, "Quality batch saved to Firestore: " + batch.getBatchNumber());
@@ -796,9 +817,7 @@ public class AutoSyncWorker extends Worker {
         PhotoEntity photo = database.photoDao().getPhotoById(syncItem.getEntityId());
         if (photo == null) {
             Log.e(TAG, "Photo not found in local DB: " + syncItem.getEntityId());
-            syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
-            database.syncDao().update(syncItem);
-            return;
+            throw new IllegalStateException("Local photo record not found");
         }
 
         File photoFile = new File(photo.getFilePath());
@@ -807,9 +826,7 @@ public class AutoSyncWorker extends Worker {
 
         if (!photoFile.exists()) {
             Log.e(TAG, "Photo file not found: " + photo.getFilePath());
-            syncItem.setStatus(SyncEntity.SyncStatus.COMPLETED);
-            database.syncDao().update(syncItem);
-            return;
+            throw new IllegalStateException("Photo file not found");
         }
 
         Log.d(TAG, "📸 File size: " + photoFile.length() + " bytes");

@@ -25,6 +25,12 @@ public interface SyncDao {
     @Query("SELECT * FROM sync_queue WHERE status = 'PENDING' OR status = 'FAILED' ORDER BY lastAttemptAt ASC")
     LiveData<List<SyncEntity>> getPendingSyncItemsLiveData();
 
+    @Query("SELECT * FROM sync_queue WHERE status = 'COMPLETED' ORDER BY lastAttemptAt DESC LIMIT 3")
+    LiveData<List<SyncEntity>> getRecentCompletedLiveData();
+
+    @Query("UPDATE sync_queue SET status = 'PENDING' WHERE status = 'SYNCING' AND lastAttemptAt < :cutoffTime")
+    int reclaimStaleSyncing(long cutoffTime);
+
     @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityId = :entityId")
     SyncEntity getSyncItem(String entityType, long entityId);
 

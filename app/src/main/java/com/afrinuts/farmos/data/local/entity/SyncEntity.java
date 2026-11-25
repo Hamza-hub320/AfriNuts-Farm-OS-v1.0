@@ -18,6 +18,7 @@ public class SyncEntity {
     private long lastAttemptAt;
     private int attemptCount;
     private SyncStatus status;
+    private String errorMessage;
 
     public enum SyncAction {
         CREATE, UPDATE, DELETE
@@ -84,10 +85,11 @@ public class SyncEntity {
 
     public SyncStatus getStatus() { return status; }
     public void setStatus(SyncStatus status) { this.status = status; }
+    public String getErrorMessage() { return errorMessage; }
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 
     public boolean shouldRetry() {
-        int maxAttempts = 6;
-        return status == SyncStatus.FAILED && attemptCount < maxAttempts;
+        return status == SyncStatus.FAILED;
     }
 
     public long getNextRetryDelay() {

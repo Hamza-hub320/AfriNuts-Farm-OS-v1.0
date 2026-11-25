@@ -168,6 +168,9 @@ public class FinanceHubActivity extends BaseHubActivity {
                 startActivity(new Intent(this, UsersListActivity.class)));
         addMenuRow(menu, popup, "Settings", R.drawable.ic_settings, () ->
                 startActivity(new Intent(this, SettingsActivity.class)));
+        if (sessionManager.isOwner() || sessionManager.isCEO() || sessionManager.isManager())
+            addMenuRow(menu, popup, "Sync Center", R.drawable.ic_sync, () ->
+                    startActivity(new Intent(this, com.afrinuts.farmos.ui.sync.SyncCenterActivity.class)));
         View divider = new View(this);
         divider.setBackgroundColor(0xFFE9E1CF);
         menu.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));

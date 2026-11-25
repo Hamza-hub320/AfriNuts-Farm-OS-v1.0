@@ -35,6 +35,7 @@ public class SyncManager {
     private NetworkUtils networkUtils;
     private long currentFarmId;
     private SyncListener listener;
+    private SyncListener syncCenterListener;
 
     private boolean isSyncing = false;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -101,6 +102,33 @@ public class SyncManager {
 
         isInitialized = true;
         Log.d(TAG, "SyncManager initialized for farm: " + farmId);
+    }
+
+    /** Supplies the active farm and a screen-scoped observer without replacing hub callbacks. */
+    public void setSyncCenterContext(long farmId, SyncListener observer) {
+        this.currentFarmId = farmId;
+        this.syncCenterListener = observer;
+    }
+
+    public void clearSyncCenterListener(SyncListener observer) {
+        if (syncCenterListener == observer) syncCenterListener = null;
+    }
+
+    private void notifyStarted() {
+        mainHandler.post(() -> {
+            if (listener != null) listener.onSyncStarted();
+            if (syncCenterListener != null) syncCenterListener.onSyncStarted();
+        });
+    }
+
+    private void notifyCompleted(int count) {
+        if (listener != null) listener.onSyncCompleted(count);
+        if (syncCenterListener != null) syncCenterListener.onSyncCompleted(count);
+    }
+
+    private void notifyFailed(String message) {
+        if (listener != null) listener.onSyncFailed(message);
+        if (syncCenterListener != null) syncCenterListener.onSyncFailed(message);
     }
 
     private void debouncedTriggerSync() {
@@ -228,7 +256,7 @@ public class SyncManager {
                     .build();
 
             isSyncing = true;
-            if (listener != null) listener.onSyncStarted();
+            notifyStarted();
 
             // ✅ Cancel any existing work
             WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
@@ -255,9 +283,11 @@ public class SyncManager {
                                     Log.d(TAG, "✅ Sync work SUCCEEDED");
                                     isSyncing = false;
                                     currentWorkId = null;
-                                    if (listener != null) {
-                                        listener.onSyncCompleted(pendingCount);
-                                    }
+                                    int failed = workInfo.getOutputData().getInt("failed_count", 0);
+                                    int completed = workInfo.getOutputData().getInt("synced_count", Math.max(0, pendingCount - failed));
+                                    if (failed > 0) notifyFailed(workInfo.getOutputData().getString("failure_reason") != null
+                                            ? workInfo.getOutputData().getString("failure_reason") : "Some records could not be synced");
+                                    else notifyCompleted(completed);
                                     WorkManager.getInstance(context)
                                             .getWorkInfoByIdLiveData(syncWork.getId())
                                             .removeObserver(this);
@@ -265,9 +295,8 @@ public class SyncManager {
                                     Log.e(TAG, "❌ Sync work FAILED");
                                     isSyncing = false;
                                     currentWorkId = null;
-                                    if (listener != null) {
-                                        listener.onSyncFailed("Sync failed");
-                                    }
+                                    String reason = workInfo.getOutputData().getString("failure_reason");
+                                    notifyFailed(reason == null ? "Sync failed" : reason);
                                     WorkManager.getInstance(context)
                                             .getWorkInfoByIdLiveData(syncWork.getId())
                                             .removeObserver(this);
@@ -289,9 +318,7 @@ public class SyncManager {
                     Log.e(TAG, "⚠️ Sync timed out after 60 seconds - forcing reset");
                     isSyncing = false;
                     currentWorkId = null;
-                    if (listener != null) {
-                        listener.onSyncFailed("Sync timeout");
-                    }
+                    notifyFailed("Sync timeout");
                     // Cancel the work
                     WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
                 }

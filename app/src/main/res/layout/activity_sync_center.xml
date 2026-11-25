@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/background">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
+        android:layout_marginHorizontal="20dp" android:layout_marginTop="8dp"
+        android:gravity="center_vertical" android:orientation="horizontal">
+        <ImageButton android:id="@+id/toolbarBack" android:layout_width="44dp" android:layout_height="44dp"
+            android:background="@drawable/bg_detail_header_button" android:contentDescription="Back"
+            android:padding="12dp" android:src="@drawable/ic_backward" app:tint="#1C1B1A" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="Sync Center" android:textColor="#1C1B1A"
+            android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+        <View android:layout_width="44dp" android:layout_height="44dp" />
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:clipToPadding="false" android:fillViewport="true" android:scrollbars="none">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="16dp"
+            android:paddingEnd="20dp" android:paddingBottom="18dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp"
+                app:cardElevation="0dp" app:strokeColor="#B3E9E1CF" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:paddingHorizontal="18dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_sync_wifi" app:tint="#0A5530" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp"
+                            android:text="Connection" android:textColor="#59544C" android:textSize="13.5sp" android:fontFamily="@font/manrope_bold" />
+                        <View android:id="@+id/connectionDot" android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_sync_dot" />
+                        <TextView android:id="@+id/connectionValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp"
+                            android:text="Offline" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_sync_clock" app:tint="#0A5530" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp"
+                            android:text="Last successful sync" android:textColor="#59544C" android:textSize="13.5sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/lastSyncValue" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="—" android:textColor="#1C1B1A" android:textSize="14.5sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp"
+                    app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="#B3E9E1CF" app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/pendingCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp"
+                    app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="#B3E9E1CF" app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Failed" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/failedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#B3402A" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSyncNow" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginBottom="20dp" android:text="Sync now" android:textAllCaps="false" android:textSize="15sp"
+                android:fontFamily="@font/manrope_extrabold" android:textColor="#FFFFFF" app:backgroundTint="#0E6B3C"
+                app:cornerRadius="999dp" app:icon="@drawable/ic_refresh_due" app:iconTint="#FFFFFF" app:iconSize="19dp" app:iconGravity="textStart" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginBottom="8dp"
+                android:text="PENDING UPLOADS" android:textColor="#0E6B3C" android:textSize="13sp" android:letterSpacing="0.12" android:fontFamily="@font/manrope_extrabold" />
+            <LinearLayout android:id="@+id/pendingRows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
+                android:text="RECENT ACTIVITY" android:textColor="#0E6B3C" android:textSize="13sp" android:letterSpacing="0.12" android:fontFamily="@font/manrope_extrabold" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content"
+                app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="#B3E9E1CF" app:strokeWidth="1dp">
+                <LinearLayout android:id="@+id/recentRows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" />
+            </com.google.android.material.card.MaterialCardView>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                android:text="Shows uploads managed by Farm OS. Other app and cloud writes may not appear here." android:textColor="#59544C" android:textSize="11sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout android:id="@+id/bottomNav" android:layout_width="match_parent" android:layout_height="64dp"
+        android:layout_marginHorizontal="20dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_navbar_glass"
+        android:gravity="center_vertical" android:orientation="horizontal" android:padding="6dp">
+        <LinearLayout android:id="@+id/homeNav" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5"
+            android:background="@drawable/bg_nav_active_pill" android:gravity="center" android:orientation="horizontal">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="6dp" android:src="@drawable/ic_nav_home" app:tint="#FFFFFF" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Home" android:textColor="#FFFFFF" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+        </LinearLayout>
+        <ImageView android:layout_width="0dp" android:layout_height="22dp" android:layout_weight="1" android:src="@drawable/ic_nav_sprout" app:tint="#D0C9BA" />
+        <ImageView android:layout_width="0dp" android:layout_height="22dp" android:layout_weight="1" android:src="@drawable/ic_finance_analytics" app:tint="#D0C9BA" />
+        <ImageView android:layout_width="0dp" android:layout_height="22dp" android:layout_weight="1" android:src="@drawable/ic_nav_analytics" app:tint="#D0C9BA" />
+        <ImageView android:layout_width="0dp" android:layout_height="22dp" android:layout_weight="1" android:src="@drawable/ic_security" app:tint="#D0C9BA" />
+    </LinearLayout>
+</LinearLayout>
