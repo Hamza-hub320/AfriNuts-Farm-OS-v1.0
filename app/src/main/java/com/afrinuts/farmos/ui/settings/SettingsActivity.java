@@ -239,20 +239,23 @@ public class SettingsActivity extends BaseActivity {
             Bundle args = requireArguments();
             ((TextView) view.findViewById(R.id.tvVersionValue)).setText(args.getString(ARG_VERSION, "1.0"));
             ((TextView) view.findViewById(R.id.tvBuildValue)).setText(String.valueOf(args.getInt(ARG_BUILD, 1)));
-            return new MaterialAlertDialogBuilder(requireContext())
-                    .setView(view)
-                    .setPositiveButton("OK", (dialog, which) -> dismiss())
-                    .create();
+            view.findViewById(R.id.btnAboutOk).setOnClickListener(v -> dismiss());
+            return new MaterialAlertDialogBuilder(requireContext()).setView(view).create();
         }
 
         @Override
         public void onStart() {
             super.onStart();
-            Button ok = getDialog() == null ? null : getDialog().findViewById(android.R.id.button1);
-            if (ok != null && ok.getLayoutParams() != null) {
-                android.view.ViewGroup.LayoutParams params = ok.getLayoutParams();
-                params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-                ok.setLayoutParams(params);
+            View action = getDialog() == null ? null : getDialog().findViewById(R.id.btnAboutOk);
+            if (action instanceof com.google.android.material.button.MaterialButton) {
+                com.google.android.material.button.MaterialButton ok =
+                        (com.google.android.material.button.MaterialButton) action;
+                ok.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF0E6B3C));
+                ok.setCornerRadius(Math.round(999 * getResources().getDisplayMetrics().density));
+                ok.setTextColor(0xFFFFFFFF);
+                ok.setMinHeight(Math.round(60 * getResources().getDisplayMetrics().density));
+                ok.setElevation(0);
+                ok.setStateListAnimator(null);
             }
         }
     }
