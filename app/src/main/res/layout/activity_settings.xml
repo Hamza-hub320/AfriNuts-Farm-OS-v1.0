@@ -137,6 +137,7 @@
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/manrope_extrabold"
                 android:letterSpacing="0.12"
+                android:id="@+id/tvSectionData"
                 android:text="DATA"
                 android:textColor="#0E6B3C"
                 android:textSize="13sp" />
@@ -204,6 +205,7 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
+                android:id="@+id/tvSectionAbout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"

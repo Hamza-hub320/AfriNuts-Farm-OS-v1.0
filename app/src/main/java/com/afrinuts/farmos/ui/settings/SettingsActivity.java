@@ -58,6 +58,12 @@ public class SettingsActivity extends BaseActivity {
         cardAbout = findViewById(R.id.cardAbout);
         tvVersion = findViewById(R.id.tvVersion);
         tvVersion.setText("Version " + getAppVersion());
+        if (sessionManager.isFieldOfficer()) {
+            cardSync.setVisibility(View.GONE);
+            cardAbout.setVisibility(View.GONE);
+            findViewById(R.id.tvSectionData).setVisibility(View.GONE);
+            findViewById(R.id.tvSectionAbout).setVisibility(View.GONE);
+        }
 
         // About is a read-only row; the version is displayed inline.
         cardAbout.setClickable(false);
