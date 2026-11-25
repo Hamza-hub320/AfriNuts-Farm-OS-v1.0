@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import com.google.android.material.card.MaterialCardView;
 import androidx.lifecycle.Observer;
 
-import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.BlockEntity;
@@ -79,10 +78,6 @@ public class SyncCenterActivity extends BaseActivity {
         connectionDot = findViewById(R.id.connectionDot);
         lastSyncValue = findViewById(R.id.lastSyncValue);
         ((ImageButton) findViewById(R.id.toolbarBack)).setOnClickListener(v -> finish());
-        findViewById(R.id.homeNav).setOnClickListener(v -> {
-            startActivity(new android.content.Intent(this, MainActivity.class));
-            finish();
-        });
         findViewById(R.id.btnSyncNow).setOnClickListener(v -> startSync());
         new NetworkUtils(this).observe(this, connected -> setConnection(Boolean.TRUE.equals(connected)));
         database.syncDao().getPendingSyncItemsLiveData().observe(this, items -> renderPending(items));
