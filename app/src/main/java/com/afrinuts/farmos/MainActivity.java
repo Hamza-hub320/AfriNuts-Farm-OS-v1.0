@@ -5,10 +5,7 @@ import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
-import com.afrinuts.farmos.ui.weather.WeatherActivity;
 
-import com.afrinuts.farmos.data.remote.WeatherResponse;
-import com.afrinuts.farmos.data.repository.WeatherRepository;
 import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
@@ -70,7 +67,6 @@ import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -133,20 +129,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Recent Activity
     private LinearLayout recentActivityContainer;
-
-    // Weather fields
-    private TextView weatherFeelsLike;
-    private TextView weatherHumidity;
-    private TextView weatherWind;
-    private TextView weatherLocationDetail;
-    private LinearLayout forecastContainer;
-    private ImageView weatherIcon;
-    private CardView weatherCard;
-    private TextView weatherTemp;
-    private TextView weatherCondition;
-    private TextView weatherUpdateTime;
-    private WeatherRepository weatherRepository;
-    private WeatherResponse currentWeather;
 
     // Offline Banner
     private View offlineBanner;
@@ -260,9 +242,6 @@ public class MainActivity extends AppCompatActivity {
         if (syncManager != null) {
             syncManager.shutdown();
         }
-        if (weatherRepository != null) {
-            weatherRepository.shutdown();
-        }
     }
 
     // ========================================
@@ -292,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
         // Toolbar
         btnToolbarSync = findViewById(R.id.btnToolbarSync);
         btnProfile = findViewById(R.id.btnProfile);
+        if (btnProfile instanceof TextView) ((TextView) btnProfile).setText(new UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
         syncStatusDot = findViewById(R.id.syncStatusDot);
 
@@ -304,8 +284,6 @@ public class MainActivity extends AppCompatActivity {
         // Financial Snapshot
 
         // Recent Activity
-
-        // Weather
 
         // Offline Banner
         offlineBanner = findViewById(R.id.offlineBanner);
@@ -1787,184 +1765,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error converting document to task", e);
             return null;
         }
-    }
-
-    // ========================================
-    // WEATHER
-    // ========================================
-    private void setupWeather() {
-        weatherRepository = new WeatherRepository(this);
-        if (weatherCard != null) {
-            weatherCard.setOnClickListener(v -> {
-                if (currentWeather != null) {
-                    Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
-                    intent.putExtra("weather_json", new Gson().toJson(currentWeather));
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(this, "Weather data not available", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    private void loadWeatherData() {
-        weatherRepository.getWeatherForecast(new WeatherRepository.WeatherCallback() {
-            @Override
-            public void onSuccess(WeatherResponse weather) {
-                runOnUiThread(() -> {
-                    currentWeather = weather;
-                    displayWeather(weather);
-                });
-            }
-
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() -> {
-                    if (weatherCondition != null) {
-                        weatherCondition.setText("Weather unavailable");
-                    }
-                    Log.e(TAG, "Weather error: " + error);
-                });
-            }
-        });
-    }
-
-    private void displayWeather(WeatherResponse weather) {
-        if (weather == null) return;
-
-        currentWeather = weather;
-        WeatherResponse.Current current = weather.getCurrent();
-        WeatherResponse.Location location = weather.getLocation();
-
-        if (weatherLocationDetail != null && location != null) {
-            weatherLocationDetail.setText(location.getRegion() != null ?
-                    location.getRegion() : "Côte d'Ivoire");
-        }
-
-        if (weatherUpdateTime != null && location != null && location.getLocaltime() != null) {
-            String timeStr = location.getLocaltime();
-            try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-                SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                Date date = inputFormat.parse(timeStr);
-                weatherUpdateTime.setText("Updated " + outputFormat.format(date));
-            } catch (Exception e) {
-                weatherUpdateTime.setText("Updated");
-            }
-        } else if (weatherUpdateTime != null) {
-            weatherUpdateTime.setText("");
-        }
-
-        // Temperature and condition - with null checks
-        if (weatherTemp != null) {
-            weatherTemp.setText(String.format(Locale.getDefault(), "%.0f°C", current.getTempC()));
-        }
-        if (weatherCondition != null) {
-            weatherCondition.setText(current.getCondition().getText());
-        }
-        if (weatherFeelsLike != null) {
-            weatherFeelsLike.setText(String.format(Locale.getDefault(), "%.0f°C", current.getFeelslikeC()));
-        }
-
-        // Humidity and wind - with null checks
-        if (weatherHumidity != null) {
-            weatherHumidity.setText(current.getHumidity() + "%");
-        }
-        if (weatherWind != null) {
-            weatherWind.setText(String.format(Locale.getDefault(), "%.0f km/h", current.getWindKph()));
-        }
-
-        // Set weather icon
-        if (weatherIcon != null) {
-            setWeatherIcon(current.getCondition().getText());
-        }
-
-        // Load forecast if available
-        if (forecastContainer != null && weather.getForecast() != null &&
-                weather.getForecast().getForecastday() != null) {
-            displayForecast(weather.getForecast());
-        }
-    }
-
-    private void displayForecast(WeatherResponse.Forecast forecast) {
-        if (forecastContainer == null || forecast.getForecastday() == null) return;
-
-        forecastContainer.removeAllViews();
-
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat outputFormat = new SimpleDateFormat("EEE", Locale.getDefault());
-
-        // Get up to 3 days of forecast
-        int maxDays = Math.min(3, forecast.getForecastday().size());
-
-        for (int i = 0; i < maxDays; i++) {
-            WeatherResponse.ForecastDay day = forecast.getForecastday().get(i);
-
-            View dayView = getLayoutInflater().inflate(R.layout.item_forecast_day, forecastContainer, false);
-
-            TextView tvDay = dayView.findViewById(R.id.forecastDay);
-            ImageView ivIcon = dayView.findViewById(R.id.forecastIcon);
-            TextView tvTemp = dayView.findViewById(R.id.forecastTemp);
-            TextView tvRain = dayView.findViewById(R.id.forecastRain);
-
-            // Set day name
-            try {
-                Date date = inputFormat.parse(day.getDate());
-                tvDay.setText(outputFormat.format(date));
-            } catch (Exception e) {
-                tvDay.setText("--");
-            }
-
-            // Set icon based on condition
-            String condition = day.getDay().getCondition().getText().toLowerCase();
-            int iconRes;
-            if (condition.contains("rain")) {
-                iconRes = R.drawable.ic_rain;
-            } else if (condition.contains("cloud")) {
-                iconRes = R.drawable.ic_cloud;
-            } else if (condition.contains("storm")) {
-                iconRes = R.drawable.ic_storm;
-            } else {
-                iconRes = R.drawable.ic_wb_sunny;
-            }
-
-            ivIcon.setImageResource(iconRes);
-            ivIcon.setColorFilter(getColor(R.color.accent_ink));
-
-            // Set temperature
-            tvTemp.setText(String.format(Locale.getDefault(), "%.0f°", day.getDay().getAvgtempC()));
-
-            // Set rain chance
-            tvRain.setText(day.getDay().getDailyChanceOfRain() + "%");
-
-            forecastContainer.addView(dayView);
-        }
-    }
-
-    private void setWeatherIcon(String condition) {
-        if (weatherIcon == null) return;
-
-        String lower = condition.toLowerCase();
-        int iconRes;
-
-        if (lower.contains("rain")) {
-            iconRes = R.drawable.ic_rain;
-        } else if (lower.contains("cloud")) {
-            iconRes = R.drawable.ic_cloud;
-        } else if (lower.contains("storm")) {
-            iconRes = R.drawable.ic_storm;
-        } else if (lower.contains("snow")) {
-            iconRes = R.drawable.ic_snow;
-        } else if (lower.contains("fog")) {
-            iconRes = R.drawable.ic_fog;
-        } else if (lower.contains("wind")) {
-            iconRes = R.drawable.ic_air;
-        } else {
-            iconRes = R.drawable.ic_wb_sunny;
-        }
-
-        weatherIcon.setImageResource(iconRes);
-        weatherIcon.setColorFilter(getColor(R.color.accent_ink));
     }
 
     // ========================================

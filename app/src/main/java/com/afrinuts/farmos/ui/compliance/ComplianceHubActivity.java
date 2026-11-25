@@ -107,6 +107,7 @@ public class ComplianceHubActivity extends BaseHubActivity {
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
         View profile = findViewById(R.id.complianceProfileButton);
+        if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
         TextView complianceDate = findViewById(R.id.complianceDateText);
         if (complianceDate != null) {
