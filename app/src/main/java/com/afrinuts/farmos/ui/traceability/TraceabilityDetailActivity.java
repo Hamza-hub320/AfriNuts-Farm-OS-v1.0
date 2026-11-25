@@ -1036,37 +1036,12 @@ public class TraceabilityDetailActivity extends BaseActivity {
     }
 
     private void showDocumentGenerationDialog() {
-        String[] options = {
-                "Certificate of Origin",
-                "Packing List",
-                "Commercial Invoice",
-                "Full Document Package"
-        };
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Generate Document")
-                .setItems(options, (dialog, which) -> {
-                    switch (which) {
-                        case 0:
-                            generateDocument("Certificate of Origin");
-                            break;
-                        case 1:
-                            generateDocument("Packing List");
-                            break;
-                        case 2:
-                            generateDocument("Commercial Invoice");
-                            break;
-                        case 3:
-                            generateDocument("Document Package");
-                            break;
-                    }
-                })
-                .show();
+        GenerateDocumentDialog dialog = GenerateDocumentDialog.newInstance();
+        dialog.setListener(this::generateDocument);
+        dialog.show(getSupportFragmentManager(), "GenerateDocumentDialog");
     }
 
     private void generateDocument(String documentType) {
-        Toast.makeText(this, "Generating " + documentType + "...", Toast.LENGTH_SHORT).show();
-
         new Thread(() -> {
             try {
                 // Get data
@@ -1125,17 +1100,20 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 // Generate and upload based on document type
                 switch (documentType) {
                     case "Certificate of Origin":
+                        showGeneratingDocumentToast(documentType);
                         DocumentGenerator.generateAndUploadCertificateOfOrigin(
                                 this, supplier, qualityBatch, traceability, String.valueOf(currentFarmId), callback);
                         break;
 
                     case "Packing List":
+                        showGeneratingDocumentToast(documentType);
                         DocumentGenerator.generateAndUploadPackingList(
                                 this, qualityBatch, supplier, traceability, String.valueOf(currentFarmId), callback);
                         break;
 
                     case "Commercial Invoice":
                         if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
+                            showGeneratingDocumentToast(documentType);
                             DocumentGenerator.generateAndUploadCommercialInvoice(
                                     this, qualityBatch, finalRevenue, supplier, traceability,
                                     String.valueOf(currentFarmId), revenueRepository, callback);
@@ -1146,6 +1124,7 @@ public class TraceabilityDetailActivity extends BaseActivity {
 
                     case "Document Package":
                         if (finalRevenue != null && finalRevenue.getPricePerKg() > 0) {
+                            showGeneratingDocumentToast(documentType);
                             DocumentGenerator.generateAndUploadDocumentPackage(
                                     this, supplier, qualityBatch, finalRevenue, traceability,
                                     String.valueOf(currentFarmId), revenueRepository, callback);
@@ -1166,6 +1145,11 @@ public class TraceabilityDetailActivity extends BaseActivity {
                 );
             }
         }).start();
+    }
+
+    private void showGeneratingDocumentToast(String documentType) {
+        runOnUiThread(() -> Toast.makeText(this,
+                "Generating " + documentType + "...", Toast.LENGTH_SHORT).show());
     }
 
     private void updateTraceabilityWithDocument(String documentType, String downloadUrl) {
@@ -1257,12 +1241,9 @@ public class TraceabilityDetailActivity extends BaseActivity {
     }
 
     private void showAddRevenueDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Revenue Required")
-                .setMessage("Commercial Invoice requires price data. Would you like to add revenue for this batch?")
-                .setPositiveButton("Add Revenue", (dialog, which) -> openAddRevenueDialog())
-                .setNegativeButton("Cancel", null)
-                .show();
+        RevenueRequiredDialog dialog = RevenueRequiredDialog.newInstance();
+        dialog.setListener(this::openAddRevenueDialog);
+        dialog.show(getSupportFragmentManager(), "RevenueRequiredDialog");
     }
 
     private void openAddRevenueDialog() {

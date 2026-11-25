@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Document"
+        android:textColor="#1C1B1A"
+        android:textSize="20sp"
+        android:paddingEnd="44dp"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCertificateOfOrigin"
+        style="@style/Widget.AfriNuts.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:text="Certificate of Origin" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPackingList"
+        style="@style/Widget.AfriNuts.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:text="Packing List" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCommercialInvoice"
+        style="@style/Widget.AfriNuts.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:text="Commercial Invoice" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDocumentPackage"
+        style="@style/Widget.AfriNuts.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Full Document Package" />
+
+</LinearLayout>

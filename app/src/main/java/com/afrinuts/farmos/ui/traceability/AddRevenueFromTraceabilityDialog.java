@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -25,6 +24,7 @@ import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.repository.BatchTraceabilityRepository;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class AddRevenueFromTraceabilityDialog extends DialogFragment {
+public class AddRevenueFromTraceabilityDialog extends FarmDialogFragment {
 
     private static final String ARG_BATCH_ID = "batch_id";
 
@@ -100,23 +100,11 @@ public class AddRevenueFromTraceabilityDialog extends DialogFragment {
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
-                .setTitle("Add Revenue for Invoice")
                 .setCancelable(false);
 
-        AlertDialog dialog = builder.create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button btnSaveDialog = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button btnCancelDialog = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            btnSaveDialog.setVisibility(View.GONE);
-            btnCancelDialog.setVisibility(View.GONE);
-
-            // Use the class fields
-            btnCancel.setOnClickListener(v -> dismiss());
-            btnSave.setOnClickListener(v -> saveRevenue());
-        });
-
-        return dialog;
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnSave.setOnClickListener(v -> saveRevenue());
+        return builder.create();
     }
 
     private void initViews(View view) {
