@@ -280,6 +280,7 @@ public class SettingsActivity extends BaseActivity {
                 background.setColor(0xFF0E6B3C);
                 background.setCornerRadius(999 * density);
                 change.setBackground(background);
+                change.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF0E6B3C));
                 change.setTextColor(0xFFFFFFFF);
                 change.setMinHeight(Math.round(60 * density));
                 change.setAllCaps(false);
