@@ -394,7 +394,7 @@ public class DocumentGenerator {
         doc.append("RCCM: CI-ABJ-03-2026-B12-04223\n");
         doc.append("IDU: CI-2026-0066959 J\n");
         doc.append("Phone: +225 07 02 27 27 70\n");
-        doc.append("Email: info@afrinutsexport.com\n\n");
+        doc.append("Email: contact@afrinutsexport.com\n\n");
 
         doc.append("Invoice Number: ").append(invoiceNumber).append("\n");
         doc.append("Invoice Date: ").append(DATE_FORMAT.format(new Date())).append("\n\n");
