@@ -330,6 +330,7 @@
 
                     <!-- Years Farming -->
                     <LinearLayout
+                        android:id="@+id/rowYearsFarming"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -991,15 +992,11 @@
                             android:alpha="0.7" />
                     </LinearLayout>
 
-                    <TextView
+                    <LinearLayout
                         android:id="@+id/tvScoreBreakdown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        style="@style/Text.Caption.Small"
-                        android:textColor="?attr/colorOnSurface"
-                        android:alpha="0.7"
-                        android:lineSpacingExtra="2dp"
+                        android:orientation="vertical"
                         android:layout_marginBottom="8dp" />
 
                     <TextView

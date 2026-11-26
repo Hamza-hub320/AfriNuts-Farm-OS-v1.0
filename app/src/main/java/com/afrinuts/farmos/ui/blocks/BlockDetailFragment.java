@@ -161,8 +161,8 @@ public class BlockDetailFragment extends Fragment {
     private void styleTabletActions(){
         com.google.android.material.button.MaterialButton editButton=(com.google.android.material.button.MaterialButton)edit;
         com.google.android.material.button.MaterialButton deleteButton=(com.google.android.material.button.MaterialButton)delete;
-        styleOutlinedAction(editButton,0xFF1C1B1A);
-        styleOutlinedAction(deleteButton,0xFFB3402A);
+        styleTabletAction(editButton,0xFFF3EAD8,0xFF1C1B1A);
+        styleTabletAction(deleteButton,0xFFF9E4DE,0xFFB3402A);
         ViewGroup row=(ViewGroup)editButton.getParent().getParent();
         ViewGroup oldParent=(ViewGroup)deleteButton.getParent();
         if(row==null||oldParent==row)return;
@@ -172,10 +172,9 @@ public class BlockDetailFragment extends Fragment {
         deleteButton.setLayoutParams(lp);
         row.addView(deleteButton);
     }
-    private void styleOutlinedAction(com.google.android.material.button.MaterialButton button,int textColor){
-        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
-        button.setStrokeColor(android.content.res.ColorStateList.valueOf(0xFFE9E1CF));
-        button.setStrokeWidth(dp(2));
+    private void styleTabletAction(com.google.android.material.button.MaterialButton button,int backgroundColor,int textColor){
+        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(backgroundColor));
+        button.setStrokeWidth(0);
         button.setTextColor(textColor);
         button.setCornerRadius(dp(999));
         button.setElevation(0);

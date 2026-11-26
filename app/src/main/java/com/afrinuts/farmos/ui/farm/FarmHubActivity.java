@@ -52,6 +52,8 @@ public class FarmHubActivity extends BaseHubActivity implements
         com.afrinuts.farmos.ui.tasks.TaskDetailFragment.Listener,
         com.afrinuts.farmos.ui.workers.WorkerDashboardFragment.WorkerSelectionListener {
 
+    public static final String EXTRA_OPEN_SUPPLIER_ID = "farm_open_supplier_id";
+
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private FloatingActionButton fabAdd;
@@ -79,6 +81,23 @@ public class FarmHubActivity extends BaseHubActivity implements
         setupViewPager();
         setupFab();
         setupFarmHeader();
+        openRequestedSupplier();
+    }
+
+    private void openRequestedSupplier() {
+        if (getIntent() == null || !getIntent().hasExtra(EXTRA_OPEN_SUPPLIER_ID)) return;
+        long supplierId = getIntent().getLongExtra(EXTRA_OPEN_SUPPLIER_ID, -1);
+        if (supplierId < 0) return;
+        for (int i = 0; i < visibleTabs.size(); i++) {
+            if (visibleTabs.get(i).type == TabType.SUPPLIERS) {
+                viewPager.setCurrentItem(i, false);
+                Fragment fragment = pagerAdapter.getFragment(i);
+                if (fragment instanceof SuppliersFragment) {
+                    ((SuppliersFragment) fragment).openSupplierById(supplierId);
+                }
+                return;
+            }
+        }
     }
 
     private void setupFarmHeader() {

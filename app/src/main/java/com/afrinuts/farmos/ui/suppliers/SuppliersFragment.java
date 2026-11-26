@@ -71,6 +71,7 @@ public class SuppliersFragment extends Fragment {
     private SupplierSelectionListener selectionListener;
     private boolean tablet;
     private long selectedSupplierId = -1;
+    private long requestedSupplierId = -1;
 
     @Override public void onAttach(@NonNull android.content.Context context) {
         super.onAttach(context);
@@ -179,10 +180,29 @@ public class SuppliersFragment extends Fragment {
 
     public void showSelectedTabletDetail() {
         if (!tablet || filteredSuppliers.isEmpty() || selectionListener == null) return;
+        if (requestedSupplierId >= 0) {
+            openSupplierById(requestedSupplierId);
+            return;
+        }
         SupplierEntity first = filteredSuppliers.get(0);
         selectedSupplierId = first.getId();
         if (adapter != null) adapter.setSelectedSupplierId(selectedSupplierId);
         showTabletSupplierDetail(first);
+    }
+
+    public void openSupplierById(long supplierId) {
+        if (supplierId < 0) return;
+        requestedSupplierId = supplierId;
+        if (!tablet || filteredSuppliers.isEmpty()) return;
+        for (SupplierEntity supplier : filteredSuppliers) {
+            if (supplier.getId() == supplierId) {
+                requestedSupplierId = -1;
+                selectedSupplierId = supplierId;
+                if (adapter != null) adapter.setSelectedSupplierId(supplierId);
+                showTabletSupplierDetail(supplier);
+                return;
+            }
+        }
     }
 
     private void setupFilters() {
@@ -297,6 +317,9 @@ public class SuppliersFragment extends Fragment {
 
         adapter.updateSuppliers(filteredSuppliers);
         if (tablet && !filteredSuppliers.isEmpty()) {
+            if (requestedSupplierId >= 0) {
+                openSupplierById(requestedSupplierId);
+            }
             if (selectedSupplierId < 0 || filteredSuppliers.stream().noneMatch(s -> s.getId() == selectedSupplierId)) {
                 SupplierEntity preferred = filteredSuppliers.get(0);
                 for (SupplierEntity candidate : filteredSuppliers) {
