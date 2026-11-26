@@ -130,6 +130,7 @@ public class TraceabilityDetailFragment extends Fragment {
             if (subtitle != null) {
                 subtitle.setTextSize(15.5f);
                 subtitle.setSingleLine(true);
+                subtitle.setMaxWidth(dp(560));
                 subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
             }
             if (subtitle != null && status != null && grade != null
@@ -143,7 +144,7 @@ public class TraceabilityDetailFragment extends Fragment {
                     if (grade.getParent() instanceof ViewGroup) ((ViewGroup) grade.getParent()).removeView(grade);
                     LinearLayout headerLine = new LinearLayout(requireContext());
                     headerLine.setGravity(Gravity.CENTER_VERTICAL);
-                    headerLine.addView(subtitle, new LinearLayout.LayoutParams(0, -2, 1f));
+                    headerLine.addView(subtitle, new LinearLayout.LayoutParams(-2, -2));
                     status.setPadding(dp(10), dp(4), dp(10), dp(4));
                     grade.setPadding(dp(10), dp(4), dp(10), dp(4));
                     LinearLayout.LayoutParams statusParams = new LinearLayout.LayoutParams(-2, -2);
@@ -327,11 +328,11 @@ public class TraceabilityDetailFragment extends Fragment {
         setText(R.id.tvHeroQualityGrade, value(item.getQualityGrade(), item.getGrade()));
         String date = item.isExported() ? item.getFormattedExportDate() : "Not exported";
         setText(R.id.tvHeroExportDate, date);
-        setText(R.id.tvStatus, item.isExported() ? "• Exported" : "• Processing");
+        setText(R.id.tvStatus, item.isExported() ? "• EXPORTED" : "• PROCESSING");
         TextView status = root.findViewById(R.id.tvStatus);
         status.setBackgroundResource(item.isExported() ? R.drawable.bg_traceability_status_exported : R.drawable.bg_traceability_status_processing);
         status.setTextColor(item.isExported() ? 0xFF0A5530 : 0xFF8A6414);
-        setText(R.id.tvGrade, value(item.getGrade(), "—"));
+        setText(R.id.tvGrade, (value(item.getGrade(), "—") + " GRADE").toUpperCase(Locale.getDefault()));
         setText(R.id.tvSupplierName, value(item.getSupplierName(), "—"));
         setText(R.id.tvQualityGrade, value(item.getQualityGrade(), item.getGrade()));
         setText(R.id.tvOriginSourceType, batch != null && batch.getSourceType() != null ? batch.getSourceType().getDisplayName() : "—");
@@ -411,7 +412,6 @@ public class TraceabilityDetailFragment extends Fragment {
         bindDoc(R.id.layoutQualityCertificateRow, R.id.tvQualityCertificate, R.id.tvQualityCertificateBadge, "Quality certificate", docs.getQualityCertificate());
         bindDoc(R.id.layoutPhytoSanitaryRow, R.id.tvPhytoSanitary, R.id.tvPhytoSanitaryBadge, "Phytosanitary certificate", docs.getPhytoSanitary());
         bindDoc(R.id.layoutBillOfLadingRow, R.id.tvBillOfLading, R.id.tvBillOfLadingBadge, "Bill of lading", docs.getBillOfLading());
-        bindDoc(R.id.layoutCommercialInvoice, R.id.tvCommercialInvoice, R.id.tvCommercialInvoiceBadge, "Commercial invoice", docs.getCommercialInvoice());
         bindDoc(R.id.layoutInsuranceCertificateRow, R.id.tvInsuranceCertificate, R.id.tvInsuranceCertificateBadge, "Insurance certificate", docs.getInsuranceCertificate());
     }
 

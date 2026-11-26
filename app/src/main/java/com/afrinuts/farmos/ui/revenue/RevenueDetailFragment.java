@@ -116,6 +116,7 @@ public class RevenueDetailFragment extends Fragment {
             setRow(R.id.rowRevenueSaleSource, "Source", "RCN sale");
             setRow(R.id.rowRevenueHarvestDate, "Harvest date", date(item.getCreatedAt()));
             setRow(R.id.rowRevenueBuyer, "Buyer", blank(item.getBuyer()) ? "Not recorded" : item.getBuyer());
+            setRow(R.id.rowRevenueInvoice, "Invoice", blank(item.getInvoiceNumber()) ? "Not recorded" : item.getInvoiceNumber());
             setRow(R.id.rowRevenueBatch, "Batch", blank(item.getBatchNumber()) ? "Not linked" : item.getBatchNumber());
             setRow(R.id.rowRevenueSupplier, "Supplier", blank(supplierDisplayName) ? "Not recorded" : supplierDisplayName);
             setRow(R.id.rowRevenueKor, "KOR", linkedBatch == null || linkedBatch.getKorGPerKg() <= 0

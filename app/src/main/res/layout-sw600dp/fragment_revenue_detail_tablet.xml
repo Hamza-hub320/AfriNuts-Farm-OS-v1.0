@@ -126,8 +126,8 @@
                 <include layout="@layout/finance_detail_row" android:id="@+id/rowRevenueHarvestDate" />
                 <include layout="@layout/finance_detail_row" android:id="@+id/rowRevenueBuyer" />
             </LinearLayout>
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Notes" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
-            <TextView android:id="@+id/tvNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#393632" android:textSize="15sp" android:fontFamily="@font/manrope_medium" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Invoice" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+            <include layout="@layout/finance_detail_row" android:id="@+id/rowRevenueInvoice" />
 
             <LinearLayout
                 android:id="@+id/layoutProcurementInfo"
@@ -145,6 +145,8 @@
                 <include layout="@layout/finance_detail_row" android:id="@+id/rowRevenueBatchesSupplied" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnViewSupplier" android:layout_width="wrap_content" android:layout_height="46dp" android:layout_gravity="end" android:layout_marginTop="4dp" android:layout_marginBottom="4dp" android:insetTop="0dp" android:insetBottom="0dp" android:text="View Supplier" android:textColor="#075C37" app:backgroundTint="#E2F1E8" app:cornerRadius="999dp" />
             </LinearLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Notes" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/tvNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#393632" android:textSize="15sp" android:fontFamily="@font/manrope_medium" />
             <LinearLayout android:id="@+id/layoutEditFields" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="20dp">
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnEdit" android:layout_width="match_parent" android:layout_height="58dp" android:insetTop="0dp" android:insetBottom="0dp" android:text="Edit" android:textColor="#1C1B1A" app:backgroundTint="#F1E8D7" app:cornerRadius="999dp" />
