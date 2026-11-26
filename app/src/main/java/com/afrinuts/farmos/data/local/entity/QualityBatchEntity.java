@@ -44,6 +44,7 @@ public class QualityBatchEntity {
     private String verificationCode;
 
     private transient String supplierName;
+    private transient String supplierCooperativeName;
 
     // Batch identification
     private String batchNumber;
@@ -452,6 +453,8 @@ public class QualityBatchEntity {
 
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+    public String getSupplierCooperativeName() { return supplierCooperativeName; }
+    public void setSupplierCooperativeName(String supplierCooperativeName) { this.supplierCooperativeName = supplierCooperativeName; }
 
     // Helper methods
     public String getFormattedBatchNumber() { return "#" + batchNumber; }

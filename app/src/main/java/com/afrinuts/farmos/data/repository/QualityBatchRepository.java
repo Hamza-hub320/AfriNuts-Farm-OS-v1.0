@@ -152,6 +152,7 @@ public class QualityBatchRepository {
                     SupplierEntity supplier = database.supplierDao().getSupplierById(batch.getSupplierId());
                     if (supplier != null) {
                         batch.setSupplierName(supplier.getName());
+                        batch.setSupplierCooperativeName(supplier.getCooperativeName());
                     }
                 }
             }

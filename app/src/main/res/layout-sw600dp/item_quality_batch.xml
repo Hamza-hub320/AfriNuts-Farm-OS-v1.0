@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="0dp"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="14dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvBatchNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="QB-2026-018"
+                android:textColor="#1C1B1A"
+                android:textSize="15sp"
+                android:fontFamily="@font/manrope_extrabold" />
+
+            <TextView
+                android:id="@+id/tvSupplierName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Salimata Keïta · Gbélégban Cooperative"
+                android:textColor="#59544C"
+                android:textSize="13sp"
+                android:fontFamily="@font/manrope_semibold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvGrade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_icon_sand"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:text="PREMIUM"
+                android:textColor="#0A5530"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/manrope_extrabold"
+                android:letterSpacing="0.04" />
+
+            <TextView
+                android:id="@+id/tvTabletBatchMetrics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:text="KOR 282 g/kg · 1,240 kg"
+                android:textColor="#59544C"
+                android:textSize="12sp"
+                android:fontFamily="@font/manrope_semibold" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvSourceType" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <ImageView android:id="@+id/ivSupplierIcon" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <ImageView android:id="@+id/ivSourceIcon" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <ImageView android:id="@+id/ivGradeIcon" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <ImageView android:id="@+id/ivThirdMetricIcon" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvProductType" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvQualityScore" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvMoisture" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvDefectiveRate" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvWeight" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvDate" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvThirdMetricValue" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvMetricKernelLabel" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/tabletRowDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="10dp"
+        android:background="#E9E1CF" />
+</androidx.cardview.widget.CardView>

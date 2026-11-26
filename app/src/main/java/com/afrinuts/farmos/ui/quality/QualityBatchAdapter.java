@@ -26,6 +26,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
     private List<QualityBatchEntity> batches;
     private OnBatchClickListener listener;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+    private long selectedBatchId = -1;
 
 
     public interface OnBatchClickListener {
@@ -42,6 +43,11 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
         notifyDataSetChanged();
     }
 
+    public void setSelectedBatchId(long batchId) {
+        selectedBatchId = batchId;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public BatchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -53,7 +59,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
     @Override
     public void onBindViewHolder(@NonNull BatchViewHolder holder, int position) {
         QualityBatchEntity batch = batches.get(position);
-        holder.bind(batch, listener);
+        holder.bind(batch, listener, batch.getId() == selectedBatchId);
     }
 
     @Override
@@ -81,6 +87,8 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
         private TextView tvThirdMetricValue;
         private TextView tvMetricKernelLabel;
         private ImageView ivThirdMetricIcon;
+        private TextView tvTabletBatchMetrics;
+        private View tabletRowDivider;
 
 
         BatchViewHolder(@NonNull View itemView) {
@@ -102,16 +110,26 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             tvThirdMetricValue = itemView.findViewById(R.id.tvThirdMetricValue);
             tvMetricKernelLabel = itemView.findViewById(R.id.tvMetricKernelLabel);
             ivThirdMetricIcon = itemView.findViewById(R.id.ivThirdMetricIcon);
+            tvTabletBatchMetrics = itemView.findViewById(R.id.tvTabletBatchMetrics);
+            tabletRowDivider = itemView.findViewById(R.id.tabletRowDivider);
         }
 
-        void bind(QualityBatchEntity batch, OnBatchClickListener listener) {
+        void bind(QualityBatchEntity batch, OnBatchClickListener listener, boolean selected) {
+            boolean tablet = itemView.getResources().getConfiguration().screenWidthDp >= 600;
+            cardView.setCardBackgroundColor(selected ? Color.rgb(225, 240, 231) : Color.WHITE);
+            if (tabletRowDivider != null) tabletRowDivider.setVisibility(selected ? View.GONE : View.VISIBLE);
             boolean isRcn = "RCN".equalsIgnoreCase(batch.getProductType());
 
             // --- Supplier (unchanged) ---
             if (batch.getSupplierName() != null && !batch.getSupplierName().isEmpty()) {
                 String source = batch.getSourceType() == null ? "" : batch.getSourceType().getDisplayName();
-                tvSupplierName.setText(source.isEmpty() ? batch.getSupplierName()
-                        : batch.getSupplierName() + " · " + source);
+                String cooperative = batch.getSupplierCooperativeName();
+                if (tablet && cooperative != null && !cooperative.trim().isEmpty()) {
+                    tvSupplierName.setText(batch.getSupplierName() + " · " + cooperative.trim());
+                } else {
+                    tvSupplierName.setText(source.isEmpty() ? batch.getSupplierName()
+                            : batch.getSupplierName() + " · " + source);
+                }
                 tvSupplierName.setVisibility(View.VISIBLE);
                 if (ivSupplierIcon != null) ivSupplierIcon.setVisibility(View.GONE);
             } else {
@@ -145,7 +163,7 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             // --- Batch number (unchanged) ---
             String batchNumber = batch.getBatchNumber();
             tvBatchNumber.setText(batchNumber != null && !batchNumber.isEmpty()
-                    ? "#" + batchNumber : "#—");
+                    ? (tablet ? batchNumber : "#" + batchNumber) : (tablet ? "—" : "#—"));
 
             // --- Grade (unchanged — repository computes it) ---
             tvGrade.setText(batch.getQualityGrade().getDisplayName().toUpperCase(Locale.ROOT));
@@ -205,6 +223,10 @@ public class QualityBatchAdapter extends RecyclerView.Adapter<QualityBatchAdapte
             }
 
             tvWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
+            if (tvTabletBatchMetrics != null) {
+                tvTabletBatchMetrics.setText(String.format(Locale.getDefault(), "KOR %.0f g/kg · %.0f kg",
+                        batch.getKorGPerKg(), batch.getWeightKg()));
+            }
 
             // --- Date (unchanged) ---
             tvDate.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault())

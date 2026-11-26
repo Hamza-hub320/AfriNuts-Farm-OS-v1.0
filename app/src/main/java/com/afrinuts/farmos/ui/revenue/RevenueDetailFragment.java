@@ -159,6 +159,12 @@ public class RevenueDetailFragment extends Fragment {
     }
     private void openBatch() {
         if (revenue.getBatchId() == null) return;
+        if (getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+            Intent intent = new Intent(requireContext(), com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity.class);
+            intent.putExtra(com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity.EXTRA_OPEN_BATCH_ID, revenue.getBatchId());
+            startActivity(intent);
+            return;
+        }
         Intent intent = new Intent(requireContext(), QualityBatchDetailActivity.class);
         intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, revenue.getBatchId()); startActivity(intent);
     }

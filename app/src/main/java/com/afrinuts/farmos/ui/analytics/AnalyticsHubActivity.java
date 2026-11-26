@@ -22,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.quality.QualityMetricsFragment;
+import com.afrinuts.farmos.ui.quality.QualityBatchDetailFragment;
 import com.afrinuts.farmos.ui.quality.QualityBatchDialog;
 import com.afrinuts.farmos.ui.reports.ReportsFragment;
 import com.afrinuts.farmos.ui.traceability.CreateMasterTraceabilityDialog;
@@ -38,7 +39,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class AnalyticsHubActivity extends BaseHubActivity {
+public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener {
+
+    public static final String EXTRA_OPEN_BATCH_ID = "analytics_open_quality_batch_id";
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -63,6 +66,21 @@ public class AnalyticsHubActivity extends BaseHubActivity {
         initViews();
         setupViewPager();
         setupFab();
+        long openBatchId = getIntent().getLongExtra(EXTRA_OPEN_BATCH_ID, -1);
+        if (openBatchId >= 0) {
+            int qualityPosition = -1;
+            for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
+                if ("QUALITY".equals(pagerAdapter.getTabKey(i))) { qualityPosition = i; break; }
+            }
+            if (qualityPosition >= 0) {
+                viewPager.setCurrentItem(qualityPosition, false);
+                long batchId = openBatchId;
+                viewPager.post(() -> {
+                    if (qualityMetricsFragment != null) qualityMetricsFragment.openBatchById(batchId);
+                    else onBatchSelected(batchId);
+                });
+            }
+        }
     }
 
     @Override
@@ -171,6 +189,25 @@ public class AnalyticsHubActivity extends BaseHubActivity {
 
     private void setupFab() {
         updateFabForTab(viewPager.getCurrentItem());
+    }
+
+    @Override
+    public void onBatchSelected(long batchId) {
+        View detailPane = findViewById(R.id.detailContainer);
+        if (detailPane == null) return;
+        if (batchId < 0) {
+            Fragment currentDetail = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+            if (currentDetail != null) getSupportFragmentManager().beginTransaction().remove(currentDetail).commit();
+            return;
+        }
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+        if (current instanceof QualityBatchDetailFragment
+                && current.getArguments() != null
+                && current.getArguments().getLong("batch_id", -1) == batchId) return;
+        Fragment detail = QualityBatchDetailFragment.newInstance(batchId);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, detail, "quality_batch_detail_" + batchId)
+                .commit();
     }
 
     private void showAccountMenu(View anchor) {

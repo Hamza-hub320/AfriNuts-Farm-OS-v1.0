@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.quality;
 
 import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +35,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class QualityMetricsFragment extends Fragment {
+
+    public interface OnBatchSelectedListener {
+        void onBatchSelected(long batchId);
+    }
 
     private static final String TAG = "QualityMetricsFragment";
 
@@ -61,6 +68,18 @@ public class QualityMetricsFragment extends Fragment {
 
     // Flag to track if fragment is destroyed
     private boolean isDestroyed = false;
+    private boolean tablet;
+    private long selectedBatchId = -1;
+    private long pendingSelectedBatchId = -1;
+    private OnBatchSelectedListener selectionListener;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnBatchSelectedListener) {
+            selectionListener = (OnBatchSelectedListener) context;
+        }
+    }
 
     @Nullable
     @Override
@@ -79,6 +98,20 @@ public class QualityMetricsFragment extends Fragment {
         }
 
         initViews(view);
+        tablet = getResources().getConfiguration().screenWidthDp >= 600;
+        if (tablet) {
+            View kpiRow = ((ViewGroup) view).getChildAt(0);
+            if (kpiRow != null) kpiRow.setVisibility(View.GONE);
+            if (filterChipGroup != null && filterChipGroup.getParent() instanceof View) {
+                ((View) filterChipGroup.getParent()).setVisibility(View.GONE);
+            }
+            GradientDrawable listSurface = new GradientDrawable();
+            listSurface.setColor(Color.WHITE);
+            listSurface.setCornerRadius(getResources().getDisplayMetrics().density * 26f);
+            recyclerView.setBackground(listSurface);
+            recyclerView.setPadding(dp(8), dp(8), dp(8), dp(20));
+            recyclerView.setClipToOutline(true);
+        }
         setupRecyclerView();
         setupFilters();
         loadFarmAndData();
@@ -99,8 +132,11 @@ public class QualityMetricsFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new QualityBatchAdapter(filteredBatches, batch -> {
-            // ✅ Use getActivity() to start intent
-            if (getActivity() != null) {
+            if (tablet && selectionListener != null) {
+                selectedBatchId = batch.getId();
+                adapter.setSelectedBatchId(selectedBatchId);
+                selectionListener.onBatchSelected(selectedBatchId);
+            } else if (getActivity() != null) {
                 Intent intent = new Intent(getActivity(), QualityBatchDetailActivity.class);
                 intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
                 getActivity().startActivity(intent);
@@ -174,6 +210,11 @@ public class QualityMetricsFragment extends Fragment {
     // Method for parent activity to get farmId
     public long getFarmId() {
         return farmId;
+    }
+
+    public void openBatchById(long batchId) {
+        pendingSelectedBatchId = batchId;
+        if (!allBatches.isEmpty()) applyFilter();
     }
 
     // Method for parent activity to refresh data after adding batch
@@ -261,6 +302,8 @@ public class QualityMetricsFragment extends Fragment {
                 showEmpty(true);
                 filteredBatches.clear();
                 adapter.updateBatches(filteredBatches);
+                selectedBatchId = -1;
+                if (tablet && selectionListener != null) selectionListener.onBatchSelected(-1);
                 updateSummaryStats();
             } else {
                 showEmpty(false);
@@ -297,6 +340,24 @@ public class QualityMetricsFragment extends Fragment {
         }
 
         adapter.updateBatches(filteredBatches);
+        if (tablet) {
+            selectedBatchId = filteredBatches.isEmpty() ? -1 : filteredBatches.get(0).getId();
+            int selectedPosition = filteredBatches.isEmpty() ? -1 : 0;
+            if (pendingSelectedBatchId >= 0) {
+                for (int i = 0; i < filteredBatches.size(); i++) {
+                    QualityBatchEntity item = filteredBatches.get(i);
+                    if (item.getId() == pendingSelectedBatchId) {
+                        selectedBatchId = pendingSelectedBatchId;
+                        selectedPosition = i;
+                        break;
+                    }
+                }
+                pendingSelectedBatchId = -1;
+            }
+            adapter.setSelectedBatchId(selectedBatchId);
+            if (selectedPosition >= 0) recyclerView.scrollToPosition(selectedPosition);
+            if (selectionListener != null) selectionListener.onBatchSelected(selectedBatchId);
+        }
         recyclerView.setVisibility(View.VISIBLE);
         updateSummaryStats();
     }
@@ -362,6 +423,10 @@ public class QualityMetricsFragment extends Fragment {
         progressBar.setVisibility(View.GONE);
     }
 
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -391,5 +456,6 @@ public class QualityMetricsFragment extends Fragment {
         if (repository != null) {
             repository.shutdown();
         }
+        selectionListener = null;
     }
 }
