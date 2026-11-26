@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener, TraceabilityFragment.OnTraceabilitySelectedListener {
+public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener, TraceabilityFragment.OnTraceabilitySelectedListener, MasterTraceabilityFragment.OnMasterSelectedListener {
 
     public static final String EXTRA_OPEN_BATCH_ID = "analytics_open_quality_batch_id";
 
@@ -230,6 +230,30 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
                 .commit();
     }
 
+    @Override
+    public void onMasterSelected(long masterId) {
+        View detailPane = findViewById(R.id.detailContainer);
+        if (detailPane == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+        if (masterId < 0) {
+            if (current != null) getSupportFragmentManager().beginTransaction().remove(current).commit();
+            return;
+        }
+        if (current instanceof com.afrinuts.farmos.ui.traceability.MasterTraceabilityDetailFragment
+                && current.getArguments() != null
+                && current.getArguments().getLong("master_id", -1) == masterId) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer,
+                        com.afrinuts.farmos.ui.traceability.MasterTraceabilityDetailFragment.newInstance(masterId),
+                        "master_traceability_detail_" + masterId)
+                .commit();
+    }
+
+    public void onMasterDeleted() {
+        onMasterSelected(-1);
+        if (masterTraceabilityFragment != null) masterTraceabilityFragment.refreshData();
+    }
+
     public void openQualityBatch(long batchId) {
         if (viewPager == null || pagerAdapter == null) return;
         for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
@@ -319,10 +343,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         CreateMasterTraceabilityDialog dialog = CreateMasterTraceabilityDialog.newInstance();
         dialog.setOnMasterTraceabilityCreatedListener(master -> {
             Toast.makeText(this, "Master created: " + master.getMasterBatchNumber(), Toast.LENGTH_LONG).show();
-            if (masterTraceabilityFragment != null) {
-                // Refresh the master list
-                // You'll need to add a refreshData() method to MasterTraceabilityFragment
-            }
+            if (masterTraceabilityFragment != null) masterTraceabilityFragment.refreshData();
         });
         dialog.show(getSupportFragmentManager(), "CreateMasterTraceabilityDialog");
     }

@@ -32,6 +32,10 @@ import java.util.concurrent.Executors;
 
 public class MasterTraceabilityFragment extends Fragment {
 
+    public interface OnMasterSelectedListener {
+        void onMasterSelected(long masterId);
+    }
+
     private RecyclerView recyclerView;
     private MasterTraceabilityAdapter adapter;
     private ProgressBar progressBar;
@@ -39,6 +43,8 @@ public class MasterTraceabilityFragment extends Fragment {
     private TextView tvTotalMasters;
     private TextView tvTotalMasterWeight;
     private FloatingActionButton fabAdd;
+    private View summaryRow;
+    private boolean tabletMasterDetail;
 
     private AppDatabase database;
     private MasterTraceabilityRepository repository;
@@ -61,6 +67,8 @@ public class MasterTraceabilityFragment extends Fragment {
 
         database = AppDatabase.getInstance(requireContext());
         initViews(view);
+        tabletMasterDetail = requireActivity().findViewById(R.id.detailContainer) != null;
+        if (tabletMasterDetail && summaryRow != null) summaryRow.setVisibility(View.GONE);
         setupRecyclerView();
         setupFab();
         loadFarmData();
@@ -73,6 +81,7 @@ public class MasterTraceabilityFragment extends Fragment {
         tvTotalMasters = view.findViewById(R.id.tvTotalMasters);
         tvTotalMasterWeight = view.findViewById(R.id.tvTotalMasterWeight);
         fabAdd = view.findViewById(R.id.fabAdd);
+        summaryRow = view.findViewById(R.id.summaryRow);
     }
 
     private void setupFab() {
@@ -95,9 +104,7 @@ public class MasterTraceabilityFragment extends Fragment {
         adapter = new MasterTraceabilityAdapter(allMasters, new MasterTraceabilityAdapter.OnMasterClickListener() {
             @Override
             public void onMasterClick(MasterBatchTraceabilityEntity master) {
-                Intent intent = new Intent(getActivity(), MasterTraceabilityDetailActivity.class);
-                intent.putExtra(MasterTraceabilityDetailActivity.EXTRA_MASTER_ID, master.getId());
-                startActivity(intent);
+                openMaster(master);
             }
 
             @Override
@@ -116,9 +123,7 @@ public class MasterTraceabilityFragment extends Fragment {
                 .setItems(options, (dialog, which) -> {
                     switch (which) {
                         case 0:
-                            Intent intent = new Intent(getActivity(), MasterTraceabilityDetailActivity.class);
-                            intent.putExtra(MasterTraceabilityDetailActivity.EXTRA_MASTER_ID, master.getId());
-                            startActivity(intent);
+                            openMaster(master);
                             break;
                         case 1:
                             shareMaster(master);
@@ -203,10 +208,22 @@ public class MasterTraceabilityFragment extends Fragment {
 
                 if (allMasters.isEmpty()) {
                     showEmpty(true);
+                    adapter.updateMasters(allMasters);
+                    adapter.setSelectedMasterId(-1);
+                    if (tabletMasterDetail && getActivity() instanceof OnMasterSelectedListener) {
+                        ((OnMasterSelectedListener) getActivity()).onMasterSelected(-1);
+                    }
                 } else {
                     showEmpty(false);
                     updateSummaryStats();
                     adapter.updateMasters(allMasters);
+                    if (tabletMasterDetail) {
+                        MasterBatchTraceabilityEntity first = allMasters.get(0);
+                        adapter.setSelectedMasterId(first.getId());
+                        if (getActivity() instanceof OnMasterSelectedListener) {
+                            ((OnMasterSelectedListener) getActivity()).onMasterSelected(first.getId());
+                        }
+                    }
                 }
             });
         });
@@ -256,6 +273,24 @@ public class MasterTraceabilityFragment extends Fragment {
         super.onResume();
         if (currentFarm != null) {
             loadMasterTraceabilities();
+        }
+    }
+
+    public void refreshData() {
+        if (repository != null) loadMasterTraceabilities();
+        else loadFarmData();
+    }
+
+    private void openMaster(MasterBatchTraceabilityEntity master) {
+        if (tabletMasterDetail) {
+            adapter.setSelectedMasterId(master.getId());
+            if (getActivity() instanceof OnMasterSelectedListener) {
+                ((OnMasterSelectedListener) getActivity()).onMasterSelected(master.getId());
+            }
+        } else {
+            Intent intent = new Intent(getActivity(), MasterTraceabilityDetailActivity.class);
+            intent.putExtra(MasterTraceabilityDetailActivity.EXTRA_MASTER_ID, master.getId());
+            startActivity(intent);
         }
     }
 
