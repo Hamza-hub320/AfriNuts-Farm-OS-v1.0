@@ -533,7 +533,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="58dp"
                     android:orientation="horizontal">
 
                     <FrameLayout
@@ -550,11 +550,11 @@
                             android:textAllCaps="false"
                             android:textSize="15sp"
                             android:fontFamily="@font/manrope_extrabold"
-                            android:textColor="#1C1B1A"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
+                            android:textColor="#1C1B1A"
                             app:backgroundTint="#F3EAD8"
-                            app:cornerRadius="999dp" />
+                            style="@style/Widget.AfriNuts.Button.Secondary" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSave"
@@ -564,12 +564,12 @@
                             android:textAllCaps="false"
                             android:textSize="15sp"
                             android:fontFamily="@font/manrope_extrabold"
-                            android:textColor="#FFFFFF"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
                             android:visibility="gone"
-                            app:backgroundTint="#0E6B3C"
-                            app:cornerRadius="999dp" />
+                            android:textColor="#075C32"
+                            app:backgroundTint="#E2F1E8"
+                            style="@style/Widget.AfriNuts.Button" />
                     </FrameLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -582,17 +582,17 @@
                         android:textAllCaps="false"
                         android:textSize="15sp"
                         android:fontFamily="@font/manrope_extrabold"
-                        android:textColor="#FFFFFF"
+                        android:textColor="#075C32"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        app:backgroundTint="#0E6B3C"
-                        app:cornerRadius="999dp" />
+                        app:backgroundTint="#E2F1E8"
+                        style="@style/Widget.AfriNuts.Button" />
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="58dp"
                     android:layout_marginTop="12dp"
                     android:text="Delete"
                     android:textAllCaps="false"
@@ -601,8 +601,8 @@
                     android:textColor="#B3402A"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    app:backgroundTint="#F8E4DD"
-                    app:cornerRadius="999dp" />
+                    app:backgroundTint="#F9E4DE"
+                    style="@style/Widget.AfriNuts.Button.Danger" />
 
             </LinearLayout>
         </LinearLayout>
