@@ -19,7 +19,6 @@ import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.repository.MasterTraceabilityRepository;
 import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
-import com.afrinuts.farmos.ui.traceability.TraceabilityDetailActivity;
 import com.afrinuts.farmos.utils.QRCodeGenerator;
 import com.afrinuts.farmos.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
@@ -51,17 +50,17 @@ public class MasterTraceabilityDetailFragment extends Fragment {
     private MasterBatchTraceabilityEntity master;
     private View root;
     private TextView tvMasterBatchNumber, tvShipmentName, tvHeroSubtitle, tvBuyer,
-            tvDestination, tvExportDate, tvTotalWeight, tvTotalBatches, tvGrades,
-            tvCertifications, tvTraceabilityUrl;
+            tvDestination, tvExportDate, tvTotalWeight, tvTotalWeightUnit,
+            tvTotalBatches, tvGrades, tvCertifications, tvTraceabilityUrl, tvLinkedBatchCount;
     private LinearLayout layoutMasterBatches;
-    private MaterialButton btnDelete, btnGenerateQR, btnGenerateQRBottom, btnShare;
+    private MaterialButton btnDelete, btnGenerateQRBottom, btnShare;
     private SessionManager sessionManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.activity_master_traceability_detail, container, false);
+        root = inflater.inflate(R.layout.fragment_master_traceability_detail_tablet, container, false);
         return root;
     }
 
@@ -83,23 +82,19 @@ public class MasterTraceabilityDetailFragment extends Fragment {
         tvDestination = view.findViewById(R.id.tvDestination);
         tvExportDate = view.findViewById(R.id.tvExportDate);
         tvTotalWeight = view.findViewById(R.id.tvTotalWeight);
+        tvTotalWeightUnit = view.findViewById(R.id.tvTotalWeightUnit);
         tvTotalBatches = view.findViewById(R.id.tvTotalBatches);
         tvGrades = view.findViewById(R.id.tvGrades);
         tvCertifications = view.findViewById(R.id.tvCertifications);
         tvTraceabilityUrl = view.findViewById(R.id.tvTraceabilityUrl);
+        tvLinkedBatchCount = view.findViewById(R.id.tvLinkedBatchCount);
         layoutMasterBatches = view.findViewById(R.id.layoutMasterBatches);
         btnDelete = view.findViewById(R.id.btnDelete);
-        btnGenerateQR = view.findViewById(R.id.btnGenerateQR);
         btnGenerateQRBottom = view.findViewById(R.id.btnGenerateQRBottom);
         btnShare = view.findViewById(R.id.btnShare);
 
-        View back = view.findViewById(R.id.btnHeaderBack);
-        if (back != null) back.setVisibility(View.GONE);
-        View headerShare = view.findViewById(R.id.btnHeaderShare);
-        if (headerShare != null) headerShare.setOnClickListener(v -> shareMasterTraceability());
         btnShare.setOnClickListener(v -> shareMasterTraceability());
         btnDelete.setOnClickListener(v -> confirmDelete());
-        btnGenerateQR.setOnClickListener(v -> generateQRCode());
         btnGenerateQRBottom.setOnClickListener(v -> generateQRCode());
         if (!sessionManager.canEditData()) btnDelete.setVisibility(View.GONE);
     }
@@ -133,12 +128,15 @@ public class MasterTraceabilityDetailFragment extends Fragment {
         tvMasterBatchNumber.setText("#" + master.getMasterBatchNumber());
         tvShipmentName.setText(master.getShipmentName());
         String buyer = master.getBuyer() != null ? master.getBuyer() : "—";
-        tvHeroSubtitle.setText(buyer + " · " + master.getFormattedExportDate());
+        String destination = master.getDestination() != null ? master.getDestination() : "—";
+        tvHeroSubtitle.setText(buyer + " · " + destination + " · " + master.getFormattedExportDate());
         tvBuyer.setText(buyer);
-        tvDestination.setText(master.getDestination() != null ? master.getDestination() : "—");
+        tvDestination.setText(destination);
         tvExportDate.setText(master.getFormattedExportDate());
         tvTotalWeight.setText(String.format(Locale.getDefault(), "%,.0f", master.getTotalWeightKg()));
+        tvTotalWeightUnit.setText("kg");
         tvTotalBatches.setText(String.valueOf(master.getTotalBatches()));
+        tvLinkedBatchCount.setText(linkedBatches.size() + (linkedBatches.size() == 1 ? " batch" : " batches"));
         String grades = master.getGrades();
         tvGrades.setText(grades != null && !grades.trim().isEmpty() ? grades : "—");
         String certifications = master.getCertifications();
@@ -166,9 +164,9 @@ public class MasterTraceabilityDetailFragment extends Fragment {
             weightAndDate.setText(batch.getFormattedWeight() + " · " + batch.getFormattedProcessingDate());
             divider.setVisibility(position == linkedBatches.size() - 1 ? View.GONE : View.VISIBLE);
             row.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), TraceabilityDetailActivity.class);
-                intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, batch.getId());
-                startActivity(intent);
+                if (getActivity() instanceof AnalyticsHubActivity) {
+                    ((AnalyticsHubActivity) getActivity()).openTraceabilityBatch(batch.getId());
+                }
             });
             layoutMasterBatches.addView(row);
         }

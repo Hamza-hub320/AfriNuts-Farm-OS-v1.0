@@ -24,6 +24,7 @@ public class MasterTraceabilityAdapter extends RecyclerView.Adapter<MasterTracea
     private List<MasterBatchTraceabilityEntity> masters;
     private OnMasterClickListener listener;
     private long selectedMasterId = -1;
+    private final boolean tabletLayout;
 
     public interface OnMasterClickListener {
         void onMasterClick(MasterBatchTraceabilityEntity master);
@@ -31,22 +32,27 @@ public class MasterTraceabilityAdapter extends RecyclerView.Adapter<MasterTracea
     }
 
     public MasterTraceabilityAdapter(List<MasterBatchTraceabilityEntity> masters, OnMasterClickListener listener) {
+        this(masters, listener, false);
+    }
+
+    public MasterTraceabilityAdapter(List<MasterBatchTraceabilityEntity> masters, OnMasterClickListener listener, boolean tabletLayout) {
         this.masters = masters;
         this.listener = listener;
+        this.tabletLayout = tabletLayout;
     }
 
     @NonNull
     @Override
     public MasterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_master_traceability, parent, false);
-        return new MasterViewHolder(view);
+                .inflate(tabletLayout ? R.layout.item_master_traceability_tablet : R.layout.item_master_traceability, parent, false);
+        return new MasterViewHolder(view, tabletLayout);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MasterViewHolder holder, int position) {
         MasterBatchTraceabilityEntity master = masters.get(position);
-        holder.bind(master, listener, selectedMasterId);
+        holder.bind(master, listener, selectedMasterId, position < getItemCount() - 1);
     }
 
     @Override
@@ -73,11 +79,13 @@ public class MasterTraceabilityAdapter extends RecyclerView.Adapter<MasterTracea
         private TextView tvWeight;
         private TextView tvBatches;
         private CardView cardView;
+        private final boolean tabletLayout;
 
         private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
-        MasterViewHolder(@NonNull View itemView) {
+        MasterViewHolder(@NonNull View itemView, boolean tabletLayout) {
             super(itemView);
+            this.tabletLayout = tabletLayout;
             tvMasterBatchNumber = itemView.findViewById(R.id.tvMasterBatchNumber);
             tvShipmentName = itemView.findViewById(R.id.tvShipmentName);
             tvBuyer = itemView.findViewById(R.id.tvBuyer);
@@ -87,13 +95,16 @@ public class MasterTraceabilityAdapter extends RecyclerView.Adapter<MasterTracea
             cardView = itemView.findViewById(R.id.cardView);
         }
 
-        void bind(MasterBatchTraceabilityEntity master, OnMasterClickListener listener, long selectedMasterId) {
+        void bind(MasterBatchTraceabilityEntity master, OnMasterClickListener listener, long selectedMasterId, boolean showDivider) {
             tvMasterBatchNumber.setText("#" + master.getMasterBatchNumber());
-            tvShipmentName.setText(master.getShipmentName());
-            tvBuyer.setText(master.getBuyer() != null ? master.getBuyer() : "No buyer");
+            String buyer = master.getBuyer() != null ? master.getBuyer() : "No buyer";
+            tvShipmentName.setText(tabletLayout ? master.getShipmentName() + " · " + buyer : master.getShipmentName());
+            if (tvBuyer != null) tvBuyer.setText(buyer);
             tvDate.setText(master.getFormattedExportDate());
-            tvWeight.setText(master.getFormattedWeight());
-            tvBatches.setText(master.getTotalBatches() + " batches");
+            tvWeight.setText(tabletLayout
+                    ? master.getFormattedWeight() + " · " + master.getTotalBatches() + " batches"
+                    : master.getFormattedWeight());
+            if (tvBatches != null) tvBatches.setText(master.getTotalBatches() + " batches");
 
             LinearLayout content = itemView.findViewById(R.id.masterTraceabilityItemContent);
             if (content != null) {
@@ -103,6 +114,8 @@ public class MasterTraceabilityAdapter extends RecyclerView.Adapter<MasterTracea
                 background.setCornerRadius(radius);
                 content.setBackground(background);
             }
+            View divider = itemView.findViewById(R.id.masterDivider);
+            if (divider != null) divider.setVisibility(showDivider ? View.VISIBLE : View.GONE);
 
             cardView.setOnClickListener(v -> listener.onMasterClick(master));
             cardView.setOnLongClickListener(v -> {

@@ -63,6 +63,7 @@ public class TraceabilityFragment extends Fragment {
     private String currentFilter = "ALL"; // ALL, EXPORTED, PROCESSING
     private boolean tablet;
     private OnTraceabilitySelectedListener selectionListener;
+    private long pendingOpenTraceabilityId = -1;
 
     @Override
     public void onAttach(@NonNull android.content.Context context) {
@@ -155,6 +156,12 @@ public class TraceabilityFragment extends Fragment {
     public void refreshData() {
         if (repository != null) loadTraceabilities();
         else loadFarmData();
+    }
+
+    public void openTraceabilityById(long traceabilityId) {
+        pendingOpenTraceabilityId = traceabilityId;
+        currentFilter = "ALL";
+        if (adapter != null && !allTraceabilities.isEmpty()) applyFilter();
     }
 
     private void scanQRCode() {
@@ -295,9 +302,19 @@ public class TraceabilityFragment extends Fragment {
 
         adapter.updateTraceabilities(filteredTraceabilities);
         if (tablet) {
-            long firstId = filteredTraceabilities.isEmpty() ? -1 : filteredTraceabilities.get(0).getId();
-            adapter.setSelectedTraceabilityId(firstId);
-            if (selectionListener != null) selectionListener.onTraceabilitySelected(firstId);
+            long selectedId = -1;
+            for (BatchTraceabilityEntity traceability : filteredTraceabilities) {
+                if (traceability.getId() == pendingOpenTraceabilityId) {
+                    selectedId = pendingOpenTraceabilityId;
+                    break;
+                }
+            }
+            if (selectedId < 0 && !filteredTraceabilities.isEmpty()) {
+                selectedId = filteredTraceabilities.get(0).getId();
+            }
+            pendingOpenTraceabilityId = -1;
+            adapter.setSelectedTraceabilityId(selectedId);
+            if (selectionListener != null) selectionListener.onTraceabilitySelected(selectedId);
         }
         recyclerView.setVisibility(View.VISIBLE);
     }

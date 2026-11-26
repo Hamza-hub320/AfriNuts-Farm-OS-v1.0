@@ -177,6 +177,8 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
             });
         } else if ("BULK".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
+            fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
             fabAction.setImageResource(R.drawable.ic_add);
             fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> showCreateMasterDialog());
@@ -264,6 +266,18 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
                     if (qualityMetricsFragment != null) qualityMetricsFragment.openBatchById(id);
                     else onBatchSelected(id);
                 });
+                return;
+            }
+        }
+    }
+
+    public void openTraceabilityBatch(long traceabilityId) {
+        if (viewPager == null || pagerAdapter == null) return;
+        for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
+            if ("TRACEABILITY".equals(pagerAdapter.getTabKey(i))) {
+                traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(i);
+                viewPager.setCurrentItem(i, false);
+                viewPager.post(() -> traceabilityFragment.openTraceabilityById(traceabilityId));
                 return;
             }
         }

@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.traceability;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,16 @@ public class MasterTraceabilityFragment extends Fragment {
         database = AppDatabase.getInstance(requireContext());
         initViews(view);
         tabletMasterDetail = requireActivity().findViewById(R.id.detailContainer) != null;
-        if (tabletMasterDetail && summaryRow != null) summaryRow.setVisibility(View.GONE);
+        if (tabletMasterDetail) {
+            if (summaryRow != null) summaryRow.setVisibility(View.GONE);
+            GradientDrawable panel = new GradientDrawable();
+            panel.setColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.surface));
+            panel.setCornerRadius(28 * getResources().getDisplayMetrics().density);
+            recyclerView.setBackground(panel);
+            int inset = (int) (8 * getResources().getDisplayMetrics().density);
+            recyclerView.setPadding(inset, inset, inset, inset);
+            recyclerView.setClipToOutline(true);
+        }
         setupRecyclerView();
         setupFab();
         loadFarmData();
@@ -112,7 +122,7 @@ public class MasterTraceabilityFragment extends Fragment {
                 // Show options menu
                 showMasterOptions(master);
             }
-        });
+        }, tabletMasterDetail);
         recyclerView.setAdapter(adapter);
     }
 

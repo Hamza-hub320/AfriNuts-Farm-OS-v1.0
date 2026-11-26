@@ -507,10 +507,11 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGenerateQRBottom"
-                    android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="58dp"
                     android:layout_marginEnd="6dp"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minHeight="0dp"
@@ -523,10 +524,11 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
-                    android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="58dp"
                     android:layout_marginStart="6dp"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minHeight="0dp"
