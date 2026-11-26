@@ -22,6 +22,7 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     private List<BlockGroup> blockGroups;
     private OnBlockClickListener listener;
+    private long selectedBlockId = -1;
 
     public interface OnBlockClickListener {
         void onBlockClick(BlockEntity block);
@@ -30,6 +31,11 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public ExpandableBlockAdapter(List<BlockGroup> blockGroups, OnBlockClickListener listener) {
         this.blockGroups = blockGroups;
         this.listener = listener;
+    }
+
+    public void setSelectedBlockId(long selectedBlockId) {
+        this.selectedBlockId = selectedBlockId;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -116,7 +122,7 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 if (itemIndex >= 0 && itemIndex < group.getBlocks().size()) {
                     BlockEntity block = group.getBlocks().get(itemIndex);
-                    ((BlockViewHolder) holder).bind(block, listener);
+                    ((BlockViewHolder) holder).bind(block, listener, block.getId() == selectedBlockId);
                 }
             }
         }
@@ -158,6 +164,14 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
         void bind(BlockGroup group) {
+            if (itemView.getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+                // Tablet list rows sit directly inside one shared card; the wireframe
+                // does not show the phone layout's extra row headings.
+                itemView.setVisibility(View.GONE);
+                itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+                return;
+            }
+            itemView.setVisibility(View.VISIBLE);
             rowNameText.setText("ROW " + group.getRowName());
             rowRangeText.setText("(" + group.getRowRange() + ")");
 
@@ -199,7 +213,24 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             expandIcon = itemView.findViewById(R.id.expandIcon);
         }
 
-        void bind(BlockEntity block, OnBlockClickListener listener) {
+        void bind(BlockEntity block, OnBlockClickListener listener, boolean selected) {
+            boolean tablet = itemView.getResources().getConfiguration().smallestScreenWidthDp >= 600;
+            if (itemView instanceof com.google.android.material.card.MaterialCardView) {
+                com.google.android.material.card.MaterialCardView card = (com.google.android.material.card.MaterialCardView) itemView;
+                ViewGroup.LayoutParams rowParams = card.getLayoutParams();
+                if (tablet && rowParams instanceof ViewGroup.MarginLayoutParams) {
+                    ((ViewGroup.MarginLayoutParams) rowParams).bottomMargin = 0;
+                    card.setLayoutParams(rowParams);
+                }
+                card.setStrokeWidth(!tablet && selected ? Math.round(2 * itemView.getResources().getDisplayMetrics().density) : 0);
+                card.setStrokeColor(!tablet && selected ? 0xFF0E6B3C : android.graphics.Color.TRANSPARENT);
+                card.setRadius(Math.round((tablet && selected ? 16 : tablet ? 0 : 24)
+                        * itemView.getResources().getDisplayMetrics().density));
+                card.setCardElevation(0);
+                card.setCardBackgroundColor(selected ? 0xFFE1F0E7 : android.graphics.Color.WHITE);
+                View content = ((ViewGroup) itemView).getChildAt(0);
+                if (content != null) content.setBackgroundColor(selected ? 0xFFE1F0E7 : android.graphics.Color.WHITE);
+            }
             TextView blockNameText = itemView.findViewById(R.id.blockNameText);
             TextView statusText = itemView.findViewById(R.id.statusText);
             TextView statsText = itemView.findViewById(R.id.statsText);
@@ -249,8 +280,32 @@ public class ExpandableBlockAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 plantedDot.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFC9C2B4));
             }
 
+            if (tablet) {
+                statusText.setVisibility(View.VISIBLE);
+                statusText.setText(block.getStatus().getDisplayName().toUpperCase(java.util.Locale.ROOT));
+                boolean attentionStatus = attention;
+                int pillBg = attentionStatus ? 0xFFF8E4DD : block.isPlanted() ? 0xFFE1F0E7 : 0xFFF3EAD8;
+                int pillFg = attentionStatus ? 0xFFB3402A : block.isPlanted() ? 0xFF0E6B3C : 0xFF7A5F22;
+                statusText.setBackgroundTintList(android.content.res.ColorStateList.valueOf(pillBg));
+                statusText.setTextColor(pillFg);
+                statsText.setVisibility(View.GONE);
+                survivalContainer.setVisibility(View.GONE);
+                plantedDot.setVisibility(View.GONE);
+                dateText.setText(block.isPlanted()
+                        ? String.format(java.util.Locale.getDefault(), "%,d of 100 trees alive", block.getAliveTrees())
+                        : "100 trees planned · not planted yet");
+                dateText.setTextColor(0xFF59544C);
+                survivalLabel.setVisibility(View.VISIBLE);
+                survivalLabel.setText(block.isPlanted()
+                        ? String.format(java.util.Locale.getDefault(), "%.0f%% survival · %.1f ha", block.getSurvivalRate(), block.getHectareSize())
+                        : String.format(java.util.Locale.getDefault(), "%.1f ha", block.getHectareSize()));
+                survivalLabel.setTextColor(0xFF59544C);
+                if (expandHeader != null) expandHeader.setVisibility(View.GONE);
+                if (expandableContent != null) expandableContent.setVisibility(View.GONE);
+            }
+
             if (expandHeader != null) {
-                expandHeader.setOnClickListener(v -> itemView.performClick());
+                if (!tablet) expandHeader.setOnClickListener(v -> itemView.performClick());
             }
 
             itemView.setOnClickListener(v -> listener.onBlockClick(block));

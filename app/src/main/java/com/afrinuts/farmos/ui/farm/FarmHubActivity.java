@@ -43,7 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class FarmHubActivity extends BaseHubActivity {
+public class FarmHubActivity extends BaseHubActivity implements
+        com.afrinuts.farmos.ui.blocks.BlocksFragment.BlockSelectionListener,
+        com.afrinuts.farmos.ui.blocks.BlockDetailFragment.Listener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -53,6 +55,7 @@ public class FarmHubActivity extends BaseHubActivity {
     // Track which tabs are visible based on role
     private List<TabItem> visibleTabs = new ArrayList<>();
     private int currentPosition = 0;
+    private android.widget.FrameLayout detailContainer;
 
     @Override
     protected int getLayoutResourceId() {
@@ -83,6 +86,16 @@ public class FarmHubActivity extends BaseHubActivity {
         }
         if (profile != null) {
             profile.setOnClickListener(v -> showFarmAccountMenu(profile));
+        }
+        if (detailContainer != null && weatherChip != null) {
+            android.graphics.drawable.Drawable weatherIcon = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_wb_sunny);
+            if (weatherIcon != null) {
+                int iconSize = dp(19);
+                weatherIcon.setBounds(0, 0, iconSize, iconSize);
+                androidx.core.graphics.drawable.DrawableCompat.setTint(weatherIcon, 0xFFCC8A18);
+                weatherChip.setCompoundDrawables(weatherIcon, null, null, null);
+                weatherChip.setCompoundDrawablePadding(dp(8));
+            }
         }
         if (weatherChip == null) return;
 
@@ -193,6 +206,7 @@ public class FarmHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+        detailContainer = findViewById(R.id.detailContainer);
 
         // Initially hide FAB until we know which tab is active
         fabAdd.hide();
@@ -231,8 +245,45 @@ public class FarmHubActivity extends BaseHubActivity {
                 super.onPageSelected(position);
                 currentPosition = position;
                 updateFabForTab(position);
+                if (detailContainer != null && visibleTabs.get(position).type != TabType.BLOCKS) {
+                    showDetailPlaceholder();
+                }
             }
         });
+    }
+
+    @Override public boolean onBlockSelected(com.afrinuts.farmos.data.local.entity.BlockEntity block) {
+        if (detailContainer == null || block == null) return false;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, com.afrinuts.farmos.ui.blocks.BlockDetailFragment.newInstance(block.getId()), "tablet-block-detail")
+                .commit();
+        return true;
+    }
+
+    @Override public void onBlockDeleted(long blockId) {
+        showDetailPlaceholder();
+        Toast.makeText(this, "Block deleted", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showDetailPlaceholder() {
+        if (detailContainer == null) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, new DetailPlaceholderFragment())
+                .commit();
+    }
+
+    public static class DetailPlaceholderFragment extends Fragment {
+        @Override public View onCreateView(@NonNull android.view.LayoutInflater inflater,
+                android.view.ViewGroup container, Bundle state) {
+            TextView empty = new TextView(requireContext());
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(32), dp(32), dp(32), dp(32));
+            empty.setText("Choose a supplier, block, or task to view its details.");
+            empty.setTextColor(0xFF59544C);
+            empty.setTextSize(18);
+            return empty;
+        }
+        private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     }
 
     private void setFarmTabLabelColor(TabLayout.Tab tab, boolean selected) {

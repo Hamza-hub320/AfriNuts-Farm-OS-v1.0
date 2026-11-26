@@ -13,6 +13,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.fragment.app.Fragment;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +35,10 @@ import java.util.concurrent.Executors;
 
 public class BlocksFragment extends Fragment {
 
+    public interface BlockSelectionListener {
+        boolean onBlockSelected(BlockEntity block);
+    }
+
     private RecyclerView recyclerView;
     private ExpandableBlockAdapter expandableAdapter;
     private ProgressBar progressBar;
@@ -51,6 +56,8 @@ public class BlocksFragment extends Fragment {
     private ChipGroup blockFilterGroup;
     private String searchQuery = "";
     private String blockFilter = "ALL";
+    private long selectedBlockId = -1;
+    private BlockSelectionListener selectionListener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -59,6 +66,8 @@ public class BlocksFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_blocks, container, false);
 
         database = AppDatabase.getInstance(requireContext());
+        boolean tablet = requireActivity().findViewById(R.id.detailContainer) != null;
+        if (tablet) view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
         initViews(view);
         loadFarmData();
 
@@ -74,6 +83,15 @@ public class BlocksFragment extends Fragment {
         averageSurvivalSummary = view.findViewById(R.id.averageSurvivalSummary);
         searchInput = view.findViewById(R.id.etBlockSearch);
         blockFilterGroup = view.findViewById(R.id.blockFilterGroup);
+        if (requireActivity().findViewById(R.id.detailContainer) != null) {
+            View searchCard = view.findViewById(R.id.layoutBlockSearch);
+            if (searchCard != null) searchCard.setVisibility(View.GONE);
+            View summaryRow = totalBlocksSummary.getParent() == null ? null
+                    : (View) totalBlocksSummary.getParent().getParent();
+            if (summaryRow != null) summaryRow.setVisibility(View.GONE);
+            View filterScroller = (View) blockFilterGroup.getParent();
+            if (filterScroller != null) filterScroller.setVisibility(View.GONE);
+        }
         searchInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -86,7 +104,18 @@ public class BlocksFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
+        if (requireActivity().findViewById(R.id.detailContainer) != null) {
+            android.graphics.drawable.GradientDrawable listCard = new android.graphics.drawable.GradientDrawable();
+            listCard.setColor(android.graphics.Color.WHITE);
+            listCard.setCornerRadius(32 * getResources().getDisplayMetrics().density);
+            recyclerView.setBackground(listCard);
+            recyclerView.setOutlineProvider(android.view.ViewOutlineProvider.BACKGROUND);
+            recyclerView.setClipToOutline(true);
+            recyclerView.setPadding(dp(12), dp(12), dp(12), dp(100));
+        }
     }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     private void setupBlockFilters() {
         int[] ids = {R.id.chipBlockAll, R.id.chipBlockPlanted, R.id.chipBlockNotPlanted, R.id.chipBlockAttention};
@@ -186,14 +215,37 @@ public class BlocksFragment extends Fragment {
                 blockGroups = finalNewGroups;
 
                 expandableAdapter = new ExpandableBlockAdapter(blockGroups, block -> {
+                    if (selectionListener != null && selectionListener.onBlockSelected(block)) {
+                        selectedBlockId = block.getId();
+                        expandableAdapter.setSelectedBlockId(selectedBlockId);
+                        return;
+                    }
                     Intent intent = new Intent(getContext(), BlockDetailActivity.class);
                     intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, block.getId());
                     startActivity(intent);
                 });
+                expandableAdapter.setSelectedBlockId(selectedBlockId);
                 recyclerView.setAdapter(expandableAdapter);
+                if (selectedBlockId < 0 && !finalVisibleBlocks.isEmpty() && selectionListener != null) {
+                    BlockEntity first = blockGroups.get(0).getBlocks().get(0);
+                    if (selectionListener.onBlockSelected(first)) {
+                        selectedBlockId = first.getId();
+                        expandableAdapter.setSelectedBlockId(selectedBlockId);
+                    }
+                }
             }
             showLoading(false);
         });
+    }
+
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof BlockSelectionListener) selectionListener = (BlockSelectionListener) context;
+    }
+
+    @Override public void onDetach() {
+        selectionListener = null;
+        super.onDetach();
     }
 
     private int leadingBlockNumber(String blockName) {
