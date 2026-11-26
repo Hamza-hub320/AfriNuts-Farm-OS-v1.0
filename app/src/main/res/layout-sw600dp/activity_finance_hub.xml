@@ -9,7 +9,7 @@
 
     <!-- Main Content Container -->
     <LinearLayout
-        android:layout_width="340dp"
+        android:layout_width="482dp"
         android:layout_height="match_parent"
         android:layout_marginTop="104dp"
         android:orientation="vertical"
@@ -23,7 +23,7 @@
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="320dp"
+            android:layout_width="482dp"
             android:layout_height="64dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
@@ -41,15 +41,15 @@
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.TabCompact"
-            app:tabMinWidth="160dp"
-            app:tabMaxWidth="160dp"
+            app:tabMinWidth="120dp"
+            app:tabMaxWidth="241dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
         <!-- ViewPager2 - content will scroll under the padding -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
-            android:layout_width="320dp"
+            android:layout_width="380dp"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:paddingStart="0dp"
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="200dp"
-        android:layout_marginStart="344dp"
+        android:layout_marginStart="412dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="104dp"
         android:background="@color/background">
@@ -165,7 +165,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_marginStart="248dp"
+        android:layout_marginStart="300dp"
         android:layout_marginBottom="126dp"
         android:src="@drawable/ic_park"
         android:contentDescription="Add"

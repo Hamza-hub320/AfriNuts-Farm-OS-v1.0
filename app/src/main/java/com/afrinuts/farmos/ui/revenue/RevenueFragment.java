@@ -25,6 +25,7 @@ import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -60,10 +61,12 @@ public class RevenueFragment extends Fragment {
     private FarmEntity currentFarm;
     private RevenueRepository revenueRepository;
     private QualityBatchRepository batchRepository;
+    private SupplierRepository supplierRepository;
     private List<RevenueEntity> allRevenues = new ArrayList<>();
     private List<RevenueEntity> filteredRevenues = new ArrayList<>();
     private Map<Long, String> blockNameMap = new HashMap<>();
     private Map<Long, String> batchNumberMap = new HashMap<>();
+    private Map<Long, String> supplierNameMap = new HashMap<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL";
@@ -90,6 +93,9 @@ public class RevenueFragment extends Fragment {
 
         tabletLayout = getResources().getConfiguration().smallestScreenWidthDp >= 600;
         if (tabletLayout) {
+            view.setBackgroundResource(R.drawable.bg_finance_tablet_panel);
+            view.setClipToOutline(true);
+            view.setPadding(dp(10), dp(10), dp(10), dp(10));
             View summary = view.findViewById(R.id.revenueSummaryRow);
             if (summary != null) summary.setVisibility(View.GONE);
             View chipScroller = (View) filterChipGroup.getParent();
@@ -97,7 +103,41 @@ public class RevenueFragment extends Fragment {
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        if (tabletLayout) {
+            final android.graphics.Paint dividerPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            dividerPaint.setColor(0xFFE9E1CF);
+            dividerPaint.setStrokeWidth(Math.max(1, dp(1)));
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override public void onDraw(@NonNull android.graphics.Canvas canvas,
+                                             @NonNull RecyclerView parent,
+                                             @NonNull RecyclerView.State state) {
+                    int left = parent.getPaddingLeft() + dp(8);
+                    int right = parent.getWidth() - parent.getPaddingRight() - dp(8);
+                    for (int i = 0; i < parent.getChildCount(); i++) {
+                        View child = parent.getChildAt(i);
+                        if (parent.getChildAdapterPosition(child) < state.getItemCount() - 1) {
+                            float y = child.getBottom() + dp(2);
+                            canvas.drawLine(left, y, right, y, dividerPaint);
+                        }
+                    }
+                }
+            });
+        }
         setupFilters();
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        if (!tabletLayout || allRevenues.isEmpty()) return;
+        RevenueEntity selected = null;
+        for (RevenueEntity item : filteredRevenues) {
+            if (item.getId() == selectedRevenueId) { selected = item; break; }
+        }
+        selectRevenue(selected == null ? (filteredRevenues.isEmpty() ? allRevenues.get(0) : filteredRevenues.get(0)) : selected);
     }
 
     private void setupFilters() {
@@ -152,6 +192,7 @@ public class RevenueFragment extends Fragment {
             if (currentFarm != null) {
                 revenueRepository = new RevenueRepository(requireContext(), currentFarm.getId());
                 batchRepository = new QualityBatchRepository(requireContext(), currentFarm.getId());
+                supplierRepository = new SupplierRepository(requireContext(), currentFarm.getId());
 
                 // Load block names
                 List<BlockEntity> blocks = database.blockDao().getBlocksByFarmId(currentFarm.getId());
@@ -164,6 +205,8 @@ public class RevenueFragment extends Fragment {
                 for (QualityBatchEntity batch : batches) {
                     batchNumberMap.put(batch.getId(), batch.getBatchNumber());
                 }
+                for (com.afrinuts.farmos.data.local.entity.SupplierEntity supplier : supplierRepository.getSuppliersSync())
+                    supplierNameMap.put(supplier.getId(), supplier.getName());
 
                 requireActivity().runOnUiThread(() -> {
                     revenueRepository.getAllRevenues().observe(getViewLifecycleOwner(), new Observer<List<RevenueEntity>>() {
@@ -194,6 +237,11 @@ public class RevenueFragment extends Fragment {
                 if (batchNumber != null) {
                     revenue.setBatchNumber(batchNumber);
                 }
+            }
+            if (revenue.getSupplierId() != null &&
+                    (revenue.getSupplierName() == null || revenue.getSupplierName().trim().isEmpty())) {
+                String supplierName = supplierNameMap.get(revenue.getSupplierId());
+                if (supplierName != null) revenue.setSupplierName(supplierName);
             }
         }
 
@@ -321,6 +369,7 @@ public class RevenueFragment extends Fragment {
         if (batchRepository != null) {
             batchRepository.shutdown();
         }
+        if (supplierRepository != null) supplierRepository.shutdown();
         executor.shutdown();
     }
 }
