@@ -39,6 +39,16 @@ import java.util.concurrent.Executors;
 
 public class ExpensesFragment extends Fragment {
 
+    public interface OnExpenseSelectedListener { void onExpenseSelected(long expenseId); }
+    private OnExpenseSelectedListener selectionListener;
+    private boolean tabletLayout;
+    private long selectedExpenseId = -1;
+
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof OnExpenseSelectedListener) selectionListener = (OnExpenseSelectedListener) context;
+    }
+
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
     private ProgressBar progressBar;
@@ -89,8 +99,50 @@ public class ExpensesFragment extends Fragment {
         chipByBlock = view.findViewById(R.id.chipByBlock);
         chipProcurement = view.findViewById(R.id.chipProcurement);
 
+        tabletLayout = getResources().getConfiguration().smallestScreenWidthDp >= 600;
+        if (tabletLayout) {
+            view.setBackgroundResource(R.drawable.bg_finance_tablet_panel);
+            view.setClipToOutline(true);
+            view.setPadding(dp(10), dp(10), dp(10), dp(10));
+            View summary = view.findViewById(R.id.expensesSummaryRow);
+            if (summary != null) summary.setVisibility(View.GONE);
+            View chipScroller = (View) filterChipGroup.getParent();
+            if (chipScroller != null) chipScroller.setVisibility(View.GONE);
+        }
+
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        if (tabletLayout) {
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override public void onDraw(@NonNull android.graphics.Canvas canvas, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                    paint.setColor(0xFFE9E1CF);
+                    float density = getResources().getDisplayMetrics().density;
+                    for (int i = 0; i < parent.getChildCount(); i++) {
+                        View child = parent.getChildAt(i);
+                        int position = parent.getChildAdapterPosition(child);
+                        if (position >= 0 && position < parent.getAdapter().getItemCount() - 1) {
+                            canvas.drawRect(child.getLeft() + 8 * density, child.getBottom() - density,
+                                    child.getRight() - 8 * density, child.getBottom(), paint);
+                        }
+                    }
+                }
+            });
+        }
         setupFilters();
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        if (!tabletLayout || filteredExpenses.isEmpty()) return;
+        ExpenseEntity selected = null;
+        for (ExpenseWithBlockName item : filteredExpenses) {
+            if (item.getExpense().getId() == selectedExpenseId) { selected = item.getExpense(); break; }
+        }
+        selectExpense(selected == null ? filteredExpenses.get(0).getExpense() : selected);
     }
 
     private void setupFilters() {
@@ -232,6 +284,7 @@ public class ExpensesFragment extends Fragment {
         } else {
             showEmpty(false);
             applyFilter();
+            if (tabletLayout && !filteredExpenses.isEmpty()) selectExpense(filteredExpenses.get(0).getExpense());
         }
     }
 
@@ -265,13 +318,24 @@ public class ExpensesFragment extends Fragment {
         }
 
         adapter = new ExpenseAdapter(filteredExpenses, expense -> {
-            Intent intent = new Intent(getContext(), ExpenseDetailActivity.class);
-            intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
-            startActivity(intent);
+            if (tabletLayout && selectionListener != null) selectExpense(expense);
+            else {
+                Intent intent = new Intent(getContext(), ExpenseDetailActivity.class);
+                intent.putExtra(ExpenseDetailActivity.EXTRA_EXPENSE_ID, expense.getId());
+                startActivity(intent);
+            }
         });
+        adapter.setSelectedExpenseId(selectedExpenseId);
 
         recyclerView.setAdapter(adapter);
         updateTotal();
+    }
+
+    private void selectExpense(ExpenseEntity expense) {
+        if (expense == null) return;
+        selectedExpenseId = expense.getId();
+        if (adapter != null) adapter.setSelectedExpenseId(selectedExpenseId);
+        if (selectionListener != null) selectionListener.onExpenseSelected(selectedExpenseId);
     }
 
     private void updateTotal() {

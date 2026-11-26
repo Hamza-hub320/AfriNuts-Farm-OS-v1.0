@@ -22,6 +22,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
 
     private List<ExpenseWithBlockName> expenses = new ArrayList<>();
     private OnExpenseClickListener listener;
+    private long selectedExpenseId = -1;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
 
     public interface OnExpenseClickListener {
@@ -46,12 +47,18 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         ExpenseWithBlockName item = expenses.get(position);
         ExpenseEntity expense = item.getExpense();
         holder.bind(item);
+        if (holder.itemView instanceof androidx.cardview.widget.CardView) {
+            ((androidx.cardview.widget.CardView) holder.itemView).setCardBackgroundColor(
+                    expense.getId() == selectedExpenseId ? 0xFFE2F1E8 : 0xFFFFFFFF);
+        }
     }
 
     @Override
     public int getItemCount() {
         return expenses.size();
     }
+
+    public void setSelectedExpenseId(long id) { selectedExpenseId = id; notifyDataSetChanged(); }
 
     class ExpenseViewHolder extends RecyclerView.ViewHolder {
         private TextView tvCategory;

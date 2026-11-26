@@ -37,7 +37,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class FinanceHubActivity extends BaseHubActivity implements RevenueFragment.OnRevenueSelectedListener, RevenueDetailFragment.Listener {
+public class FinanceHubActivity extends BaseHubActivity implements RevenueFragment.OnRevenueSelectedListener, RevenueDetailFragment.Listener, ExpensesFragment.OnExpenseSelectedListener, com.afrinuts.farmos.ui.expenses.ExpenseDetailFragment.Listener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -87,6 +87,19 @@ public class FinanceHubActivity extends BaseHubActivity implements RevenueFragme
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContainer, new Fragment())
                 .commit();
+    }
+
+    @Override public void onExpenseSelected(long expenseId) {
+        if (detailContainer == null || pagerAdapter == null || viewPager == null
+                || !"EXPENSES".equals(pagerAdapter.getTabKey(viewPager.getCurrentItem()))) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, com.afrinuts.farmos.ui.expenses.ExpenseDetailFragment.newInstance(expenseId), "finance_expense_detail")
+                .commit();
+    }
+
+    @Override public void onExpenseDeleted(long expenseId) {
+        if (detailContainer == null) return;
+        getSupportFragmentManager().beginTransaction().replace(R.id.detailContainer, new Fragment()).commit();
     }
 
     private void setupViewPager() {

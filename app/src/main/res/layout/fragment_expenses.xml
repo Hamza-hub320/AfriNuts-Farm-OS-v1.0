@@ -8,6 +8,7 @@
 
     <!-- Expenses summary pair -->
     <LinearLayout
+        android:id="@+id/expensesSummaryRow"
         android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
         android:paddingStart="0dp" android:paddingEnd="0dp" android:paddingTop="10dp" android:paddingBottom="10dp">
         <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="104dp" android:layout_weight="1.15" android:layout_marginEnd="6dp" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#0E6B3C">
