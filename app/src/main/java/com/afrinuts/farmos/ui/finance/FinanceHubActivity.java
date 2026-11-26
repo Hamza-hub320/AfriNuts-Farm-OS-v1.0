@@ -27,6 +27,7 @@ import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.ui.BaseHubActivity;
 import com.afrinuts.farmos.ui.expenses.ExpensesFragment;
 import com.afrinuts.farmos.ui.revenue.RevenueFragment;
+import com.afrinuts.farmos.ui.revenue.RevenueDetailFragment;
 import com.afrinuts.farmos.ui.auth.LoginActivity;
 import com.afrinuts.farmos.ui.settings.SettingsActivity;
 import com.afrinuts.farmos.ui.users.UsersListActivity;
@@ -36,12 +37,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class FinanceHubActivity extends BaseHubActivity {
+public class FinanceHubActivity extends BaseHubActivity implements RevenueFragment.OnRevenueSelectedListener, RevenueDetailFragment.Listener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private FloatingActionButton fabAdd;
     private FinancePagerAdapter pagerAdapter;
+    private View detailContainer;
 
     @Override
     protected int getLayoutResourceId() {
@@ -64,11 +66,27 @@ public class FinanceHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+        detailContainer = findViewById(R.id.detailContainer);
         TextView date = findViewById(R.id.financeDateText);
         if (date != null) date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
         View profile = findViewById(R.id.financeProfileButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
+    }
+
+    @Override public void onRevenueSelected(long revenueId) {
+        if (detailContainer == null || pagerAdapter == null || viewPager == null
+                || !"REVENUE".equals(pagerAdapter.getTabKey(viewPager.getCurrentItem()))) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, RevenueDetailFragment.newInstance(revenueId), "finance_revenue_detail")
+                .commit();
+    }
+
+    @Override public void onRevenueDeleted(long revenueId) {
+        if (detailContainer == null) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, new Fragment())
+                .commit();
     }
 
     private void setupViewPager() {

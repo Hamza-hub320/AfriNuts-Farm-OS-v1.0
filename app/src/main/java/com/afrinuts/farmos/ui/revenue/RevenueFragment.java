@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +37,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RevenueFragment extends Fragment {
+
+    public interface OnRevenueSelectedListener { void onRevenueSelected(long revenueId); }
+    private OnRevenueSelectedListener selectionListener;
+    private boolean tabletLayout;
+    private long selectedRevenueId = -1;
+
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof OnRevenueSelectedListener) selectionListener = (OnRevenueSelectedListener) context;
+    }
 
     private RecyclerView recyclerView;
     private RevenueAdapter adapter;
@@ -76,6 +87,14 @@ public class RevenueFragment extends Fragment {
         totalRevenueValue = view.findViewById(R.id.totalRevenueValue);
         totalQuantityValue = view.findViewById(R.id.totalQuantityValue);  // Updated ID
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
+
+        tabletLayout = getResources().getConfiguration().smallestScreenWidthDp >= 600;
+        if (tabletLayout) {
+            View summary = view.findViewById(R.id.revenueSummaryRow);
+            if (summary != null) summary.setVisibility(View.GONE);
+            View chipScroller = (View) filterChipGroup.getParent();
+            if (chipScroller != null) chipScroller.setVisibility(View.GONE);
+        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         setupFilters();
@@ -186,6 +205,7 @@ public class RevenueFragment extends Fragment {
             showEmpty(false);
             applyFilter();
             updateSummary();
+            if (tabletLayout) selectRevenue(filteredRevenues.isEmpty() ? allRevenues.get(0) : filteredRevenues.get(0));
         }
     }
 
@@ -220,9 +240,13 @@ public class RevenueFragment extends Fragment {
         adapter.setOnRevenueClickListener(new RevenueAdapter.OnRevenueClickListener() {
             @Override
             public void onRevenueClick(RevenueEntity revenue) {
-                Intent intent = new Intent(getContext(), RevenueDetailActivity.class);
-                intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());  // ✅ Now gets ID from RevenueEntity
-                startActivity(intent);
+                if (tabletLayout && selectionListener != null) {
+                    selectRevenue(revenue);
+                } else {
+                    Intent intent = new Intent(getContext(), RevenueDetailActivity.class);
+                    intent.putExtra(RevenueDetailActivity.EXTRA_REVENUE_ID, revenue.getId());
+                    startActivity(intent);
+                }
             }
 
             @Override
@@ -231,9 +255,17 @@ public class RevenueFragment extends Fragment {
             }
         });
         adapter.setRevenues(filteredRevenues);
+        adapter.setSelectedRevenueId(selectedRevenueId);
         recyclerView.setAdapter(adapter);
 
         updateSummary();
+    }
+
+    private void selectRevenue(RevenueEntity revenue) {
+        if (revenue == null) return;
+        selectedRevenueId = revenue.getId();
+        if (adapter != null) adapter.setSelectedRevenueId(selectedRevenueId);
+        if (selectionListener != null) selectionListener.onRevenueSelected(selectedRevenueId);
     }
 
     private void updateSummary() {

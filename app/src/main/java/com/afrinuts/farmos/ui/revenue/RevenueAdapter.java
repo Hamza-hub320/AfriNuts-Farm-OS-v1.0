@@ -23,6 +23,7 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
 
     private List<RevenueEntity> revenues = new ArrayList<>();
     private OnRevenueClickListener listener;
+    private long selectedRevenueId = -1;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     public interface OnRevenueClickListener {
@@ -46,6 +47,10 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
     public void onBindViewHolder(@NonNull RevenueViewHolder holder, int position) {
         RevenueEntity revenue = revenues.get(position);
         holder.bind(revenue);
+        if (holder.itemView instanceof androidx.cardview.widget.CardView) {
+            ((androidx.cardview.widget.CardView) holder.itemView).setCardBackgroundColor(
+                    revenue.getId() == selectedRevenueId ? 0xFFE2F1E8 : 0xFFFFFFFF);
+        }
     }
 
     @Override
@@ -55,6 +60,11 @@ public class RevenueAdapter extends RecyclerView.Adapter<RevenueAdapter.RevenueV
 
     public void setRevenues(List<RevenueEntity> revenues) {
         this.revenues = revenues;
+        notifyDataSetChanged();
+    }
+
+    public void setSelectedRevenueId(long id) {
+        selectedRevenueId = id;
         notifyDataSetChanged();
     }
 
