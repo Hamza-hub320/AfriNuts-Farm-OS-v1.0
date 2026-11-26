@@ -22,6 +22,7 @@ public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.Suppli
     private final OnSupplierClickListener listener;
     private Map<Long, Double> trustScores = Collections.emptyMap();
     private Map<Long, Integer> batchCounts = Collections.emptyMap();
+    private long selectedSupplierId = -1;
 
     public interface OnSupplierClickListener { void onSupplierClick(SupplierEntity supplier); }
 
@@ -36,13 +37,19 @@ public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.Suppli
         notifyDataSetChanged();
     }
 
+    public void setSelectedSupplierId(long id) {
+        selectedSupplierId = id;
+        notifyDataSetChanged();
+    }
+
     @NonNull @Override public SupplierViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new SupplierViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_supplier, parent, false));
     }
 
     @Override public void onBindViewHolder(@NonNull SupplierViewHolder holder, int position) {
         SupplierEntity supplier = suppliers.get(position);
-        holder.bind(supplier, trustScores.get(supplier.getId()), batchCounts.getOrDefault(supplier.getId(), 0), position, listener);
+        holder.bind(supplier, trustScores.get(supplier.getId()), batchCounts.getOrDefault(supplier.getId(), 0), position, listener,
+                supplier.getId() == selectedSupplierId);
     }
 
     @Override public int getItemCount() { return suppliers == null ? 0 : suppliers.size(); }
@@ -59,7 +66,7 @@ public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.Suppli
             avatar = itemView.findViewById(R.id.tvSupplierAvatar);
             statusDot = itemView.findViewById(R.id.ivStatusIcon);
         }
-        void bind(SupplierEntity supplier, Double trust, int batches, int position, OnSupplierClickListener listener) {
+        void bind(SupplierEntity supplier, Double trust, int batches, int position, OnSupplierClickListener listener, boolean selected) {
             String fullName = supplier.getName() == null ? "" : supplier.getName().trim();
             name.setText(fullName);
             String[] parts = fullName.split("\\s+");
@@ -78,6 +85,10 @@ public class SupplierAdapter extends RecyclerView.Adapter<SupplierAdapter.Suppli
             int dotColor = supplier.getStatus() == SupplierEntity.SupplierStatus.ACTIVE ? 0xFF0E6B3C
                     : supplier.getStatus() == SupplierEntity.SupplierStatus.PENDING ? 0xFFC9A227 : 0xFFB3402A;
             statusDot.setImageTintList(android.content.res.ColorStateList.valueOf(dotColor));
+            android.graphics.drawable.GradientDrawable rowBackground = new android.graphics.drawable.GradientDrawable();
+            rowBackground.setColor(selected ? 0xFFE3F0E7 : android.graphics.Color.TRANSPARENT);
+            rowBackground.setCornerRadius(20 * itemView.getResources().getDisplayMetrics().density);
+            itemView.setBackground(rowBackground);
             itemView.setOnClickListener(v -> listener.onSupplierClick(supplier));
         }
     }

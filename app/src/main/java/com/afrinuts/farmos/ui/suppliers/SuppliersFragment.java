@@ -38,6 +38,11 @@ import java.util.concurrent.Executors;
 
 public class SuppliersFragment extends Fragment {
 
+    public interface SupplierSelectionListener {
+        boolean onSupplierSelected(SupplierEntity supplier);
+        void onSupplierDeleted(long supplierId);
+    }
+
     private RecyclerView recyclerView;
     private SupplierAdapter adapter;
     private ProgressBar progressBar;
@@ -63,6 +68,14 @@ public class SuppliersFragment extends Fragment {
     private final List<SupplierEntity> filteredSuppliers = new ArrayList<>();
 
     private String currentFilter = "ALL";
+    private SupplierSelectionListener selectionListener;
+    private boolean tablet;
+    private long selectedSupplierId = -1;
+
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof SupplierSelectionListener) selectionListener = (SupplierSelectionListener) context;
+    }
 
     @Nullable
     @Override
@@ -75,7 +88,16 @@ public class SuppliersFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (selectionListener == null && requireActivity() instanceof SupplierSelectionListener) {
+            selectionListener = (SupplierSelectionListener) requireActivity();
+        }
+
         database = AppDatabase.getInstance(requireContext());
+        tablet = requireActivity().findViewById(R.id.detailContainer) != null;
+        if (tablet) {
+            view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.background));
+        }
 
         initViews(view);
         setupRecyclerView();
@@ -93,6 +115,17 @@ public class SuppliersFragment extends Fragment {
         tvCertifiedSuppliers = view.findViewById(R.id.tvCertifiedSuppliers);
         tvAvgRating = view.findViewById(R.id.tvAvgRating);
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
+        if (tablet) {
+            View searchCard = view.findViewById(R.id.layoutSearch);
+            if (searchCard != null) searchCard.setVisibility(View.GONE);
+            View summaryRow = tvTotalSuppliers.getParent() == null ? null : (View) tvTotalSuppliers.getParent().getParent();
+            if (summaryRow != null) summaryRow.setVisibility(View.GONE);
+            View filterScroller = (View) filterChipGroup.getParent();
+            if (filterScroller != null) filterScroller.setVisibility(View.GONE);
+            recyclerView.setBackground(makeTabletListCard());
+            recyclerView.setClipToOutline(true);
+            recyclerView.setPadding(dp(12), dp(12), dp(12), dp(104));
+        }
 
         // 3.3: search box. Filter runs on the in-memory Room list —
         // not a server query. Never becomes one.
@@ -112,11 +145,44 @@ public class SuppliersFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SupplierAdapter(filteredSuppliers, supplier -> {
+            if (tablet) {
+                selectedSupplierId = supplier.getId();
+                adapter.setSelectedSupplierId(selectedSupplierId);
+                showTabletSupplierDetail(supplier);
+                return;
+            }
             Intent intent = new Intent(getActivity(), SupplierDetailActivity.class);
             intent.putExtra(SupplierDetailActivity.EXTRA_SUPPLIER_ID, supplier.getId());
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
+        if (tablet) recyclerView.addItemDecoration(new androidx.recyclerview.widget.DividerItemDecoration(
+                requireContext(), androidx.recyclerview.widget.DividerItemDecoration.VERTICAL));
+    }
+
+    private android.graphics.drawable.GradientDrawable makeTabletListCard() {
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setColor(android.graphics.Color.WHITE);
+        bg.setCornerRadius(dp(28));
+        return bg;
+    }
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+
+    private void showTabletSupplierDetail(SupplierEntity supplier) {
+        if (selectionListener != null && selectionListener.onSupplierSelected(supplier)) return;
+        if (isAdded() && requireActivity().findViewById(R.id.detailContainer) != null) {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.detailContainer, SupplierDetailFragment.newInstance(supplier.getId()), "tablet-supplier-detail")
+                    .commit();
+        }
+    }
+
+    public void showSelectedTabletDetail() {
+        if (!tablet || filteredSuppliers.isEmpty() || selectionListener == null) return;
+        SupplierEntity first = filteredSuppliers.get(0);
+        selectedSupplierId = first.getId();
+        if (adapter != null) adapter.setSelectedSupplierId(selectedSupplierId);
+        showTabletSupplierDetail(first);
     }
 
     private void setupFilters() {
@@ -230,6 +296,20 @@ public class SuppliersFragment extends Fragment {
         }
 
         adapter.updateSuppliers(filteredSuppliers);
+        if (tablet && !filteredSuppliers.isEmpty()) {
+            if (selectedSupplierId < 0 || filteredSuppliers.stream().noneMatch(s -> s.getId() == selectedSupplierId)) {
+                SupplierEntity preferred = filteredSuppliers.get(0);
+                for (SupplierEntity candidate : filteredSuppliers) {
+                    if (candidate.getName() != null && candidate.getName().startsWith("Coopérative Espoir d’Odienné")) {
+                        preferred = candidate;
+                        break;
+                    }
+                }
+                selectedSupplierId = preferred.getId();
+                showTabletSupplierDetail(preferred);
+            }
+            adapter.setSelectedSupplierId(selectedSupplierId);
+        }
         recyclerView.setVisibility(View.VISIBLE);
 
         // Empty state reflects the *filtered* result, not just the raw list.

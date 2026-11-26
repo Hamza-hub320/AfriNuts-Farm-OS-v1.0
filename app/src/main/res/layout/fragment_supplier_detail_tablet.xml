@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_supplier_tablet_detail_surface"
+    android:clipToOutline="true"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Supplier hero -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_supplier_tablet_hero_icon"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_people"
+                    app:tint="@android:color/white" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSupplierName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:textColor="#1C1B1A"
+                        android:textSize="25sp" />
+
+                    <TextView
+                        android:id="@+id/tvSupplierType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#514C45"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:textColor="#D99B22"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatus"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="false"
+                    android:clickable="true"
+                    android:textColor="#075C32"
+                    app:chipBackgroundColor="#E0F0E6"
+                    app:chipIcon="@drawable/ic_supplier_status_dot"
+                    app:chipIconTint="#075C32"
+                    app:chipIconVisible="true"
+                    app:chipStrokeWidth="0dp" />
+            </LinearLayout>
+
+            <!-- Summary stats -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_supplier_tablet_stat_green"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trust score" android:textColor="#D2E6DA" android:textSize="14sp" />
+                    <TextView android:id="@+id/tvPaneTrustScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/manrope_extrabold" android:text="—" android:textColor="@android:color/white" android:textSize="23sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_supplier_stat_sand"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Batches" android:textColor="#514C45" android:textSize="14sp" />
+                    <TextView android:id="@+id/tvPaneBatchCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/manrope_extrabold" android:text="—" android:textColor="#1C1B1A" android:textSize="23sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_supplier_stat_sand"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total volume" android:textColor="#514C45" android:textSize="14sp" />
+                    <TextView android:id="@+id/tvPaneVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/manrope_extrabold" android:text="— kg" android:textColor="#1C1B1A" android:textSize="23sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Contact information -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="Contact Information" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Contact person" android:textColor="#514C45" android:textSize="16sp" /><TextView android:id="@+id/tvContactPerson" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="17sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Phone" android:textColor="#514C45" android:textSize="16sp" /><TextView android:id="@+id/tvPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="17sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Email" android:textColor="#514C45" android:textSize="16sp" /><TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxWidth="520dp" android:textColor="#1C1B1A" android:textSize="17sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Location" android:textColor="#514C45" android:textSize="16sp" /><TextView android:id="@+id/tvLocation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textColor="#1C1B1A" android:textSize="17sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShowMap"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_gravity="end"
+                android:text="Map"
+                android:textAllCaps="false"
+                android:textColor="#064927"
+                app:backgroundTint="#E3F0E7"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_location"
+                app:iconTint="#064927" />
+
+            <!-- About -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="About" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/layoutFarmerProfile" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Farm size" android:textColor="#514C45" android:textSize="15sp" />
+                    <TextView android:id="@+id/tvFarmSize" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="16sp" android:textStyle="bold" />
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <TextView android:id="@+id/tvYearsFarming" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="6dp" android:textColor="#514C45" android:textSize="15sp" />
+                <TextView android:id="@+id/tvQuote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="#1C1B1A" android:textSize="17sp" android:textStyle="bold|italic" />
+                <TextView android:id="@+id/tvBio" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="#3F3C37" android:textSize="15sp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <com.google.android.material.chip.Chip android:id="@+id/layoutFirebreak" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checkable="false" android:fontFamily="@font/manrope_bold" android:text="Firebreak" android:textColor="#003B1F" android:textStyle="bold" app:chipBackgroundColor="#E3F0E7" />
+                    <com.google.android.material.chip.Chip android:id="@+id/layoutSustainable" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:checkable="false" android:fontFamily="@font/manrope_bold" android:text="Sustainable" android:textColor="#003B1F" android:textStyle="bold" app:chipBackgroundColor="#E3F0E7" />
+                    <com.google.android.material.chip.Chip android:id="@+id/layoutChildLabor" style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:checkable="false" android:fontFamily="@font/manrope_bold" android:text="No Child Labor" android:textColor="#4C3305" android:textStyle="bold" app:chipBackgroundColor="#F3EBDD" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Performance and certification -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Performance Metrics" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Annual Volume" android:textColor="#514C45" android:textSize="15sp" /><TextView android:id="@+id/tvAnnualVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="16sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Avg Quality" android:textColor="#514C45" android:textSize="15sp" /><TextView android:id="@+id/tvAvgQualityScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="16sp" android:textStyle="bold" /></LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+                <LinearLayout android:id="@+id/layoutCertification" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="12dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Certification" android:textColor="#514C45" android:textSize="15sp" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="end">
+                        <TextView android:id="@+id/tvCertification" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:id="@+id/tvCertificationExpiry" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#514C45" android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+            </LinearLayout>
+
+            <!-- Commitments, inspections and disputes -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Commitments" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnAddCommitment" style="@style/Widget.MaterialComponents.Button" android:layout_width="wrap_content" android:layout_height="44dp" android:text="Add Commitment" android:textAllCaps="false" android:textColor="@android:color/white" app:backgroundTint="#0E6B3C" app:cornerRadius="24dp" app:icon="@drawable/ic_add" app:iconTint="@android:color/white" />
+            <LinearLayout android:id="@+id/containerCommitments" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <TextView android:id="@+id/tvCommitmentsEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="8dp" android:text="No commitments yet." android:textColor="#514C45" android:textSize="15sp" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Inspections" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnAddInspection" style="@style/Widget.MaterialComponents.Button" android:layout_width="wrap_content" android:layout_height="44dp" android:text="Add Inspection" android:textAllCaps="false" android:textColor="@android:color/white" app:backgroundTint="#0E6B3C" app:cornerRadius="24dp" app:icon="@drawable/ic_add" app:iconTint="@android:color/white" />
+            <LinearLayout android:id="@+id/containerInspections" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <TextView android:id="@+id/tvInspectionsEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="8dp" android:text="No inspections yet." android:textColor="#514C45" android:textSize="15sp" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Disputes" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/containerDisputes" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <TextView android:id="@+id/tvDisputesEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="8dp" android:text="No disputes." android:textColor="#514C45" android:textSize="15sp" />
+
+            <!-- Latest trust score -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Latest Trust Score" android:textColor="#1C1B1A" android:textSize="19sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="top" android:orientation="horizontal">
+                <TextView android:id="@+id/tvOverallScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:fontFamily="@font/manrope_extrabold" android:text="—" android:textColor="#1C1B1A" android:textSize="42sp" />
+                <TextView android:id="@+id/tvScoreDenominator" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:layout_gravity="bottom" android:layout_marginBottom="6dp" android:maxLines="1" android:singleLine="true" android:text="/100" android:textColor="#514C45" android:textSize="16sp" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="18dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/tvConfidence" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" android:textColor="#075C32" android:textSize="15sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvScoreMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:singleLine="true" android:textColor="#514C45" android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/scoreRows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+
+            <!-- Actions -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnEditSupplier" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="58dp" android:letterSpacing="0" android:text="Edit Supplier" android:textAllCaps="false" android:textColor="#1C1B1A" android:textStyle="bold" app:cornerRadius="24dp" app:strokeColor="#E9E1CF" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnRecordDelivery" style="@style/Widget.MaterialComponents.Button" android:layout_width="wrap_content" android:layout_height="58dp" android:layout_marginStart="12dp" android:letterSpacing="0" android:text="Record Delivery" android:textAllCaps="false" android:textColor="@android:color/white" android:textStyle="bold" app:backgroundTint="#0E6B3C" app:cornerRadius="24dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnDelete" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="58dp" android:layout_marginStart="12dp" android:letterSpacing="0" android:text="Delete Supplier" android:textAllCaps="false" android:textColor="#B3402A" android:textStyle="bold" app:cornerRadius="24dp" app:strokeColor="#E9E1CF" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</ScrollView>

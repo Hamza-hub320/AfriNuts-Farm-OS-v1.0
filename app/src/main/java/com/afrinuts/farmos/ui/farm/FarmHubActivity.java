@@ -45,7 +45,9 @@ import java.util.Locale;
 
 public class FarmHubActivity extends BaseHubActivity implements
         com.afrinuts.farmos.ui.blocks.BlocksFragment.BlockSelectionListener,
-        com.afrinuts.farmos.ui.blocks.BlockDetailFragment.Listener {
+        com.afrinuts.farmos.ui.blocks.BlockDetailFragment.Listener,
+        com.afrinuts.farmos.ui.suppliers.SuppliersFragment.SupplierSelectionListener,
+        com.afrinuts.farmos.ui.suppliers.SupplierDetailFragment.Listener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -245,8 +247,14 @@ public class FarmHubActivity extends BaseHubActivity implements
                 super.onPageSelected(position);
                 currentPosition = position;
                 updateFabForTab(position);
-                if (detailContainer != null && visibleTabs.get(position).type != TabType.BLOCKS) {
+                if (detailContainer != null) {
                     showDetailPlaceholder();
+                    Fragment current = pagerAdapter.getFragment(position);
+                    if (visibleTabs.get(position).type == TabType.BLOCKS && current instanceof BlocksFragment) {
+                        ((BlocksFragment) current).showSelectedTabletDetail();
+                    } else if (visibleTabs.get(position).type == TabType.SUPPLIERS && current instanceof SuppliersFragment) {
+                        ((SuppliersFragment) current).showSelectedTabletDetail();
+                    }
                 }
             }
         });
@@ -265,11 +273,28 @@ public class FarmHubActivity extends BaseHubActivity implements
         Toast.makeText(this, "Block deleted", Toast.LENGTH_SHORT).show();
     }
 
+    @Override public boolean onSupplierSelected(com.afrinuts.farmos.data.local.entity.SupplierEntity supplier) {
+        if (detailContainer == null || supplier == null) return false;
+        for (int i = detailContainer.getChildCount() - 1; i >= 0; i--) {
+            View child = detailContainer.getChildAt(i);
+            if (child instanceof TextView) detailContainer.removeViewAt(i);
+        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, com.afrinuts.farmos.ui.suppliers.SupplierDetailFragment.newInstance(supplier.getId()), "tablet-supplier-detail")
+                .commitNow();
+        return true;
+    }
+
+    @Override public void onSupplierDeleted(long supplierId) {
+        showDetailPlaceholder();
+        Toast.makeText(this, "Supplier deleted", Toast.LENGTH_SHORT).show();
+    }
+
     private void showDetailPlaceholder() {
         if (detailContainer == null) return;
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContainer, new DetailPlaceholderFragment())
-                .commit();
+                .commitNow();
     }
 
     public static class DetailPlaceholderFragment extends Fragment {

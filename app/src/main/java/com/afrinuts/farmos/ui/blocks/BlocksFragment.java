@@ -251,6 +251,16 @@ public class BlocksFragment extends Fragment {
         super.onDetach();
     }
 
+    public void showSelectedTabletDetail() {
+        if (blockGroups == null || blockGroups.isEmpty() || selectionListener == null) return;
+        List<BlockEntity> firstGroup = blockGroups.get(0).getBlocks();
+        if (firstGroup == null || firstGroup.isEmpty()) return;
+        BlockEntity first = firstGroup.get(0);
+        selectedBlockId = first.getId();
+        if (expandableAdapter != null) expandableAdapter.setSelectedBlockId(selectedBlockId);
+        selectionListener.onBlockSelected(first);
+    }
+
     private int leadingBlockNumber(String blockName) {
         int index = 0;
         while (index < blockName.length() && Character.isLetter(blockName.charAt(index))) index++;
