@@ -47,7 +47,9 @@ public class FarmHubActivity extends BaseHubActivity implements
         com.afrinuts.farmos.ui.blocks.BlocksFragment.BlockSelectionListener,
         com.afrinuts.farmos.ui.blocks.BlockDetailFragment.Listener,
         com.afrinuts.farmos.ui.suppliers.SuppliersFragment.SupplierSelectionListener,
-        com.afrinuts.farmos.ui.suppliers.SupplierDetailFragment.Listener {
+        com.afrinuts.farmos.ui.suppliers.SupplierDetailFragment.Listener,
+        com.afrinuts.farmos.ui.tasks.TasksFragment.TaskSelectionListener,
+        com.afrinuts.farmos.ui.tasks.TaskDetailFragment.Listener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -254,6 +256,8 @@ public class FarmHubActivity extends BaseHubActivity implements
                         ((BlocksFragment) current).showSelectedTabletDetail();
                     } else if (visibleTabs.get(position).type == TabType.SUPPLIERS && current instanceof SuppliersFragment) {
                         ((SuppliersFragment) current).showSelectedTabletDetail();
+                    } else if (visibleTabs.get(position).type == TabType.TASKS && current instanceof TasksFragment) {
+                        ((TasksFragment) current).showSelectedTabletDetail();
                     }
                 }
             }
@@ -262,6 +266,7 @@ public class FarmHubActivity extends BaseHubActivity implements
 
     @Override public boolean onBlockSelected(com.afrinuts.farmos.data.local.entity.BlockEntity block) {
         if (detailContainer == null || block == null) return false;
+        if (!isCurrentTabletTab(TabType.BLOCKS)) return true;
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContainer, com.afrinuts.farmos.ui.blocks.BlockDetailFragment.newInstance(block.getId()), "tablet-block-detail")
                 .commit();
@@ -275,6 +280,7 @@ public class FarmHubActivity extends BaseHubActivity implements
 
     @Override public boolean onSupplierSelected(com.afrinuts.farmos.data.local.entity.SupplierEntity supplier) {
         if (detailContainer == null || supplier == null) return false;
+        if (!isCurrentTabletTab(TabType.SUPPLIERS)) return true;
         for (int i = detailContainer.getChildCount() - 1; i >= 0; i--) {
             View child = detailContainer.getChildAt(i);
             if (child instanceof TextView) detailContainer.removeViewAt(i);
@@ -288,6 +294,25 @@ public class FarmHubActivity extends BaseHubActivity implements
     @Override public void onSupplierDeleted(long supplierId) {
         showDetailPlaceholder();
         Toast.makeText(this, "Supplier deleted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override public boolean onTaskSelected(com.afrinuts.farmos.data.local.entity.TaskEntity task) {
+        if (detailContainer == null || task == null) return false;
+        if (!isCurrentTabletTab(TabType.TASKS)) return true;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, com.afrinuts.farmos.ui.tasks.TaskDetailFragment.newInstance(task.getId()), "tablet-task-detail")
+                .commitNow();
+        return true;
+    }
+
+    private boolean isCurrentTabletTab(TabType expected) {
+        return detailContainer != null && currentPosition >= 0 && currentPosition < visibleTabs.size()
+                && visibleTabs.get(currentPosition).type == expected;
+    }
+
+    @Override public void onTaskDeleted(long taskId) {
+        showDetailPlaceholder();
+        Toast.makeText(this, "Task deleted", Toast.LENGTH_SHORT).show();
     }
 
     private void showDetailPlaceholder() {

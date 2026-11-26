@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_supplier_tablet_detail_surface"
+    android:clipToOutline="true"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingBottom="4dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                <FrameLayout android:layout_width="62dp" android:layout_height="62dp" android:layout_marginEnd="16dp" android:background="@drawable/bg_task_tablet_icon">
+                    <ImageView android:id="@+id/taskTypeIcon" android:layout_width="30dp" android:layout_height="30dp" android:layout_gravity="center" android:contentDescription="Task type" android:src="@drawable/ic_clipboard_check" app:tint="#FFFFFF" />
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/taskTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/manrope_extrabold" android:textColor="#1C1B1A" android:textSize="27sp" android:maxLines="2" android:ellipsize="end" />
+                    <TextView android:id="@+id/taskType" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:fontFamily="@font/manrope_medium" android:textColor="#514C45" android:textSize="17sp" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/taskStatusChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:background="@drawable/bg_task_tablet_status" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="14dp" android:paddingTop="9dp" android:paddingEnd="14dp" android:paddingBottom="9dp">
+                    <View android:id="@+id/taskStatusChipDot" android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_task_tablet_dot" />
+                    <TextView android:id="@+id/taskHeroStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:fontFamily="@font/manrope_extrabold" android:textColor="#075C32" android:textSize="15sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:background="@drawable/bg_task_tablet_stat_primary" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status" android:textColor="#D8FFFFFF" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                    <TextView android:id="@+id/statStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#FFFFFF" android:textSize="22sp" android:fontFamily="@font/manrope_extrabold" android:maxLines="1" android:ellipsize="end" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:layout_marginStart="12dp" android:background="@drawable/bg_task_tablet_stat_sand" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Due date" android:textColor="#6B675F" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                    <TextView android:id="@+id/statDueDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" android:maxLines="1" android:ellipsize="end" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="96dp" android:layout_weight="1" android:layout_marginStart="12dp" android:background="@drawable/bg_task_tablet_stat_sand" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Assigned worker" android:textColor="#6B675F" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                    <TextView android:id="@+id/statAssignee" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Unassigned" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" android:maxLines="1" android:ellipsize="end" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="26dp" android:text="Current Status" android:textColor="#1C1B1A" android:textSize="19sp" android:fontFamily="@font/manrope_extrabold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <View android:id="@+id/currentStatusDot" android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/bg_task_tablet_dot" />
+                <TextView android:id="@+id/currentStatus" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:textColor="#1C1B1A" android:textSize="21sp" android:fontFamily="@font/manrope_extrabold" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnStatusUpdate" android:layout_width="wrap_content" android:layout_height="58dp" android:letterSpacing="0" android:text="Update" android:textAllCaps="false" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" app:backgroundTint="#0E6B3C" app:cornerRadius="28dp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical">
+                    <TextView android:id="@+id/stepPending" android:layout_width="36dp" android:layout_height="36dp" android:gravity="center" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:id="@+id/labelPending" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Pending" android:textColor="#514C45" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                </LinearLayout>
+                <View android:id="@+id/stepLine1" android:layout_width="0dp" android:layout_height="2dp" android:layout_weight="1" android:layout_marginHorizontal="12dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical">
+                    <TextView android:id="@+id/stepProgress" android:layout_width="36dp" android:layout_height="36dp" android:gravity="center" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:id="@+id/labelProgress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="In Prog." android:textColor="#514C45" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                </LinearLayout>
+                <View android:id="@+id/stepLine2" android:layout_width="0dp" android:layout_height="2dp" android:layout_weight="1" android:layout_marginHorizontal="12dp" android:background="#E9E1CF" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical">
+                    <TextView android:id="@+id/stepDone" android:layout_width="36dp" android:layout_height="36dp" android:gravity="center" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:id="@+id/labelDone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Done" android:textColor="#514C45" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Task Details" android:textColor="#1C1B1A" android:textSize="19sp" android:fontFamily="@font/manrope_extrabold" />
+            <LinearLayout android:id="@+id/taskDetailsRows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Description" android:textColor="#514C45" android:textSize="16sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/taskDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="#3D3A35" android:textSize="17sp" android:lineSpacingExtra="3dp" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Photos" android:textColor="#1C1B1A" android:textSize="19sp" android:fontFamily="@font/manrope_extrabold" />
+                <TextView android:id="@+id/taskPhotoCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 photos" android:textColor="#514C45" android:textSize="16sp" android:fontFamily="@font/manrope_bold" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddTaskPhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="12dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:letterSpacing="0"
+                    android:text="Add photo"
+                    android:textAllCaps="false"
+                    android:textColor="#1C1B1A"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/manrope_bold"
+                    app:backgroundTint="#F3EAD8"
+                    app:cornerRadius="21dp"
+                    app:icon="@drawable/ic_add"
+                    app:iconTint="#1C1B1A"
+                    app:iconPadding="8dp" />
+            </LinearLayout>
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:scrollbars="none">
+                <LinearLayout android:id="@+id/taskPhotoStrip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Assignment" android:textColor="#1C1B1A" android:textSize="19sp" android:fontFamily="@font/manrope_extrabold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Currently Assigned To:" android:textColor="#514C45" android:textSize="16sp" android:fontFamily="@font/manrope_bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/workerInitials" android:layout_width="54dp" android:layout_height="54dp" android:background="@drawable/bg_supplier_avatar_sand" android:gravity="center" android:textColor="#735A20" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/workerName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Unassigned" android:textColor="#1C1B1A" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:id="@+id/assignedDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="#514C45" android:textSize="16sp" android:fontFamily="@font/manrope_medium" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnAssignWorker" android:layout_width="wrap_content" android:layout_height="58dp" android:letterSpacing="0" android:text="Assign Worker" android:textAllCaps="false" android:textColor="#1C1B1A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" app:cornerRadius="28dp" app:strokeColor="#E9E1CF" style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnUpdateStatusBottom" android:layout_width="wrap_content" android:layout_height="58dp" android:layout_marginStart="12dp" android:letterSpacing="0" android:text="Update Status" android:textAllCaps="false" android:textColor="#FFFFFF" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" app:backgroundTint="#0E6B3C" app:cornerRadius="28dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteTask" android:layout_width="wrap_content" android:layout_height="58dp" android:layout_marginStart="12dp" android:letterSpacing="0" android:text="Delete" android:textAllCaps="false" android:textColor="#B3402A" android:textSize="16sp" android:fontFamily="@font/manrope_extrabold" app:cornerRadius="28dp" app:strokeColor="#E9E1CF" style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</ScrollView>

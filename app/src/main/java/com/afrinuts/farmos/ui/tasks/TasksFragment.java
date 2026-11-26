@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.Nullable;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -35,6 +36,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TasksFragment extends Fragment {
+
+    public interface TaskSelectionListener {
+        boolean onTaskSelected(TaskEntity task);
+        void onTaskDeleted(long taskId);
+    }
 
     private static final String TAG = "TasksFragment";
 
@@ -59,6 +65,9 @@ public class TasksFragment extends Fragment {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String currentFilter = "ALL"; // ALL, PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+    private boolean tablet;
+    private long selectedTaskId = -1;
+    private TaskSelectionListener selectionListener;
 
     // ✅ Flag to track if observer is already registered
     private boolean isObserverRegistered = false;
@@ -69,10 +78,25 @@ public class TasksFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tasks, container, false);
 
         database = AppDatabase.getInstance(requireContext());
+        tablet = requireActivity().findViewById(R.id.detailContainer) != null;
+        if (tablet) {
+            view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.background));
+        }
         initViews(view);
         loadFarmData();
 
         return view;
+    }
+
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof TaskSelectionListener) selectionListener = (TaskSelectionListener) context;
+    }
+
+    @Override public void onDetach() {
+        selectionListener = null;
+        super.onDetach();
     }
 
     private String getDisplayedAssigneeName(long taskId) {
@@ -97,6 +121,22 @@ public class TasksFragment extends Fragment {
 
         filterChipGroup = view.findViewById(R.id.filterChipGroup);
         searchInput = view.findViewById(R.id.etTaskSearch);
+        if (tablet) {
+            View searchLayout = view.findViewById(R.id.layoutTaskSearch);
+            if (searchLayout != null) searchLayout.setVisibility(View.GONE);
+            View summaryRow = pendingTasksValue.getParent() == null ? null : (View) pendingTasksValue.getParent().getParent();
+            if (summaryRow != null) summaryRow.setVisibility(View.GONE);
+            View filterScroller = (View) filterChipGroup.getParent();
+            if (filterScroller != null) filterScroller.setVisibility(View.GONE);
+            android.graphics.drawable.GradientDrawable listCard = new android.graphics.drawable.GradientDrawable();
+            listCard.setColor(android.graphics.Color.WHITE);
+            listCard.setCornerRadius(dp(28));
+            recyclerView.setBackground(listCard);
+            recyclerView.setClipToOutline(true);
+            recyclerView.setPadding(dp(12), dp(12), dp(12), dp(100));
+            recyclerView.addItemDecoration(new androidx.recyclerview.widget.DividerItemDecoration(
+                    requireContext(), androidx.recyclerview.widget.DividerItemDecoration.VERTICAL));
+        }
         searchInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -109,6 +149,8 @@ public class TasksFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         setupFilters();
     }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     private void setupFilters() {
         // Get chips from the ChipGroup
@@ -326,12 +368,33 @@ public class TasksFragment extends Fragment {
         filteredTasks.sort((a, b) -> Boolean.compare(!a.isOverdue(), !b.isOverdue()));
 
         adapter = new TaskAdapter(filteredTasks, task -> {
+            if (tablet) {
+                selectedTaskId = task.getId();
+                adapter.setTabletSelection(selectedTaskId);
+                if (selectionListener != null && selectionListener.onTaskSelected(task)) return;
+            }
             Intent intent = new Intent(getContext(), TaskDetailActivity.class);
             intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, task.getId());
             startActivity(intent);
         });
-
+        if (tablet) {
+            adapter.setTabletSelection(selectedTaskId);
+            if (!filteredTasks.isEmpty() && (selectedTaskId < 0 || filteredTasks.stream().noneMatch(t -> t.getTask().getId() == selectedTaskId))) {
+                TaskEntity first = filteredTasks.get(0).getTask();
+                selectedTaskId = first.getId();
+                adapter.setTabletSelection(selectedTaskId);
+                if (selectionListener != null) selectionListener.onTaskSelected(first);
+            }
+        }
         recyclerView.setAdapter(adapter);
+    }
+
+    public void showSelectedTabletDetail() {
+        if (!tablet || filteredTasks == null || filteredTasks.isEmpty() || selectionListener == null) return;
+        TaskEntity first = filteredTasks.get(0).getTask();
+        selectedTaskId = first.getId();
+        if (adapter != null) adapter.setTabletSelection(selectedTaskId);
+        selectionListener.onTaskSelected(first);
     }
 
     public void showAddTaskDialog() {
