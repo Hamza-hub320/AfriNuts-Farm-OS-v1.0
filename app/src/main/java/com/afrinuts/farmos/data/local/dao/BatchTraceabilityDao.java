@@ -108,4 +108,10 @@ public interface BatchTraceabilityDao {
     @Query("SELECT * FROM batch_traceability WHERE masterBatchId = :masterBatchId " +
             "ORDER BY createdAt ASC")
     List<BatchTraceabilityEntity> getChildrenOfMaster(String masterBatchId);
+
+    @Query("SELECT * FROM batch_traceability WHERE masterBatchId IS NULL " +
+            "AND buyer = :buyer AND destination = :destination " +
+            "AND exportDate BETWEEN :startDate AND :endDate ORDER BY id ASC")
+    List<BatchTraceabilityEntity> getUnlinkedForMasterRecovery(String buyer, String destination,
+                                                               long startDate, long endDate);
 }

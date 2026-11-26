@@ -1597,6 +1597,7 @@ public class EntityMapper {
         map.put("totalAmount", traceability.getTotalAmount());
         map.put("documents", traceability.getDocuments());
         map.put("traceabilityUrl", traceability.getTraceabilityUrl());
+        map.put("masterBatchId", traceability.getMasterBatchId());
         map.put("createdAt", traceability.getCreatedAt());
         map.put("updatedAt", traceability.getUpdatedAt());
         map.put("isSynced", traceability.isSynced());
@@ -1694,6 +1695,7 @@ public class EntityMapper {
             traceability.setShellingMethod(shellingMethod);
             traceability.setGradingMethod(gradingMethod);
             traceability.setDocuments(documents);
+            traceability.setMasterBatchId(doc.getString("masterBatchId"));
             traceability.setTraceabilityUrl(traceabilityUrl != null ? traceabilityUrl :
                     traceability.generateTraceabilityUrl(batchNumber));
             traceability.setCreatedAt(createdAt);

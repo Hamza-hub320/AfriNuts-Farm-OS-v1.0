@@ -15,6 +15,8 @@ import com.afrinuts.farmos.data.sync.FirestoreSyncManager;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class MasterTraceabilityRepository extends BaseRepository {
@@ -111,6 +113,7 @@ public class MasterTraceabilityRepository extends BaseRepository {
                         continue;
                     }
                     child.setMasterBatchId(masterBatchNumber);
+                    child.setUpdatedAt(System.currentTimeMillis());
                     database.batchTraceabilityDao().update(child);
 
                     if (!firestoreSyncManager.isRemoteUpdate()) {
@@ -151,6 +154,7 @@ public class MasterTraceabilityRepository extends BaseRepository {
                     // this master.
                     if (masterBatchNumber.equals(child.getMasterBatchId())) {
                         child.setMasterBatchId(null);
+                        child.setUpdatedAt(System.currentTimeMillis());
                         database.batchTraceabilityDao().update(child);
 
                         if (!firestoreSyncManager.isRemoteUpdate()) {
@@ -201,6 +205,7 @@ public class MasterTraceabilityRepository extends BaseRepository {
                     continue;
                 }
                 child.setMasterBatchId(masterBatchNumber);
+                child.setUpdatedAt(System.currentTimeMillis());
                 database.batchTraceabilityDao().update(child);
 
                 if (!firestoreSyncManager.isRemoteUpdate()) {
@@ -243,6 +248,7 @@ public class MasterTraceabilityRepository extends BaseRepository {
 
         master.setBatchNumbersJson(new Gson().toJson(batchNumbers));
         master.setBatchTraceabilityIdsJson(new Gson().toJson(traceabilityIds));
+        master.setUpdatedAt(System.currentTimeMillis());
 
         database.masterTraceabilityDao().update(master);
 
@@ -285,6 +291,120 @@ public class MasterTraceabilityRepository extends BaseRepository {
 
     public List<BatchTraceabilityEntity> getChildrenOfMaster(String masterBatchNumber) {
         return database.batchTraceabilityDao().getChildrenOfMaster(masterBatchNumber);
+    }
+
+    /**
+     * Repairs missing child links from the master's stored child IDs/numbers. If those derived
+     * lists are empty as well, only recover children when export-day, buyer, destination, count,
+     * and total weight identify one unique set of currently unlinked batches.
+     */
+    public List<BatchTraceabilityEntity> repairMissingChildrenSync(MasterBatchTraceabilityEntity master) {
+        if (master == null) return new ArrayList<>();
+        String masterNumber = master.getMasterBatchNumber();
+        List<BatchTraceabilityEntity> children = database.batchTraceabilityDao().getChildrenOfMaster(masterNumber);
+        if (children == null) children = new ArrayList<>();
+        if (children.size() >= master.getTotalBatches()) return children;
+
+        List<Long> storedIds = master.getBatchTraceabilityIds();
+        List<String> storedNumbers = master.getBatchNumbers();
+        int storedIdCount = storedIds == null ? 0 : storedIds.size();
+        int storedNumberCount = storedNumbers == null ? 0 : storedNumbers.size();
+        Log.i(TAG, "Master children before repair: linked=" + children.size()
+                + ", JSON ids=" + storedIdCount + ", JSON numbers=" + storedNumberCount
+                + ", totalBatches=" + master.getTotalBatches());
+
+        LinkedHashSet<Long> recoveryIds = new LinkedHashSet<>();
+        for (BatchTraceabilityEntity child : children) recoveryIds.add(child.getId());
+        if (storedIds != null) {
+            for (Long id : storedIds) {
+                if (id != null && database.batchTraceabilityDao().getById(id) != null) recoveryIds.add(id);
+            }
+        }
+        if (storedNumbers != null) {
+            for (String number : storedNumbers) {
+                if (number == null || number.trim().isEmpty()) continue;
+                BatchTraceabilityEntity child = database.batchTraceabilityDao().getByBatchNumber(number);
+                if (child != null) recoveryIds.add(child.getId());
+            }
+        }
+
+        int recoveryCandidateCount = Math.max(0, recoveryIds.size() - children.size());
+        if (recoveryIds.size() < master.getTotalBatches()) {
+            double linkedWeight = 0;
+            for (BatchTraceabilityEntity child : children) linkedWeight += child.getWeightKg();
+            int missingCount = master.getTotalBatches() - children.size();
+            double missingWeight = master.getTotalWeightKg() - linkedWeight;
+            List<Long> exactUniqueSet = findUniqueUnlinkedChildren(master, missingCount, missingWeight);
+            if (exactUniqueSet != null) {
+                recoveryIds.addAll(exactUniqueSet);
+                recoveryCandidateCount = Math.max(0, recoveryIds.size() - children.size());
+            }
+        }
+
+        if (recoveryIds.size() > children.size()) {
+            addChildrenToMasterSync(masterNumber, new ArrayList<>(recoveryIds));
+            children = database.batchTraceabilityDao().getChildrenOfMaster(masterNumber);
+            if (children == null) children = new ArrayList<>();
+        }
+        Log.i(TAG, "Master children after repair: linked=" + children.size()
+                + ", JSON ids=" + storedIdCount + ", JSON numbers=" + storedNumberCount
+                + ", totalBatches=" + master.getTotalBatches()
+                + ", recovery candidates=" + recoveryCandidateCount);
+        return children;
+    }
+
+    private List<Long> findUniqueUnlinkedChildren(MasterBatchTraceabilityEntity master,
+                                                   int expectedCount, double expectedWeight) {
+        if (expectedCount <= 0 || expectedCount > 12 || expectedWeight <= 0
+                || master.getExportDate() <= 0 || isBlank(master.getBuyer())
+                || isBlank(master.getDestination())) return null;
+
+        Calendar day = Calendar.getInstance();
+        day.setTimeInMillis(master.getExportDate());
+        day.set(Calendar.HOUR_OF_DAY, 0);
+        day.set(Calendar.MINUTE, 0);
+        day.set(Calendar.SECOND, 0);
+        day.set(Calendar.MILLISECOND, 0);
+        long start = day.getTimeInMillis();
+        day.add(Calendar.DAY_OF_MONTH, 1);
+        long end = day.getTimeInMillis() - 1;
+        List<BatchTraceabilityEntity> candidates = database.batchTraceabilityDao()
+                .getUnlinkedForMasterRecovery(master.getBuyer(), master.getDestination(), start, end);
+        if (candidates == null || candidates.size() < expectedCount || candidates.size() > 24) return null;
+
+        MatchingSet match = new MatchingSet();
+        matchChildren(candidates, 0, expectedCount, expectedWeight, 0,
+                new ArrayList<>(), match);
+        return match.matches == 1 ? match.ids : null;
+    }
+
+    private void matchChildren(List<BatchTraceabilityEntity> candidates, int start, int remainingCount,
+                               double targetWeight, double currentWeight, List<Long> selected,
+                               MatchingSet result) {
+        if (result.matches > 1) return;
+        if (remainingCount == 0) {
+            if (Math.abs(currentWeight - targetWeight) <= 0.5) {
+                result.matches++;
+                if (result.matches == 1) result.ids = new ArrayList<>(selected);
+            }
+            return;
+        }
+        for (int i = start; i <= candidates.size() - remainingCount && result.matches <= 1; i++) {
+            BatchTraceabilityEntity candidate = candidates.get(i);
+            selected.add(candidate.getId());
+            matchChildren(candidates, i + 1, remainingCount - 1, targetWeight,
+                    currentWeight + candidate.getWeightKg(), selected, result);
+            selected.remove(selected.size() - 1);
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private static class MatchingSet {
+        int matches;
+        List<Long> ids;
     }
 
     // ========================================
