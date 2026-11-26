@@ -23,7 +23,7 @@
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="432dp"
+            android:layout_width="482dp"
             android:layout_height="64dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
@@ -41,8 +41,8 @@
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.TabCompact"
-            app:tabMinWidth="108dp"
-            app:tabMaxWidth="108dp"
+            app:tabMinWidth="120.5dp"
+            app:tabMaxWidth="120.5dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 

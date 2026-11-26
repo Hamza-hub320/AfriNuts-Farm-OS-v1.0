@@ -67,7 +67,10 @@ public class BlocksFragment extends Fragment {
 
         database = AppDatabase.getInstance(requireContext());
         boolean tablet = requireActivity().findViewById(R.id.detailContainer) != null;
-        if (tablet) view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
+        if (tablet) {
+            view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.background));
+        }
         initViews(view);
         loadFarmData();
 
