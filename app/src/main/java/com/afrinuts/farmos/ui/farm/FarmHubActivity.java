@@ -49,7 +49,8 @@ public class FarmHubActivity extends BaseHubActivity implements
         com.afrinuts.farmos.ui.suppliers.SuppliersFragment.SupplierSelectionListener,
         com.afrinuts.farmos.ui.suppliers.SupplierDetailFragment.Listener,
         com.afrinuts.farmos.ui.tasks.TasksFragment.TaskSelectionListener,
-        com.afrinuts.farmos.ui.tasks.TaskDetailFragment.Listener {
+        com.afrinuts.farmos.ui.tasks.TaskDetailFragment.Listener,
+        com.afrinuts.farmos.ui.workers.WorkerDashboardFragment.WorkerSelectionListener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -258,6 +259,8 @@ public class FarmHubActivity extends BaseHubActivity implements
                         ((SuppliersFragment) current).showSelectedTabletDetail();
                     } else if (visibleTabs.get(position).type == TabType.TASKS && current instanceof TasksFragment) {
                         ((TasksFragment) current).showSelectedTabletDetail();
+                    } else if (visibleTabs.get(position).type == TabType.WORKERS && current instanceof WorkerDashboardFragment) {
+                        ((WorkerDashboardFragment) current).showSelectedTabletDetail();
                     }
                 }
             }
@@ -313,6 +316,15 @@ public class FarmHubActivity extends BaseHubActivity implements
     @Override public void onTaskDeleted(long taskId) {
         showDetailPlaceholder();
         Toast.makeText(this, "Task deleted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override public boolean onWorkerSelected(String workerName) {
+        if (detailContainer == null || workerName == null) return false;
+        if (!isCurrentTabletTab(TabType.WORKERS)) return true;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, com.afrinuts.farmos.ui.workers.WorkerDetailFragment.newInstance(workerName), "tablet-worker-detail")
+                .commitNow();
+        return true;
     }
 
     private void showDetailPlaceholder() {

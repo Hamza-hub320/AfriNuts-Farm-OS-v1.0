@@ -43,6 +43,8 @@ import java.util.concurrent.Executors;
 
 public class WorkerDashboardFragment extends Fragment {
 
+    public interface WorkerSelectionListener { boolean onWorkerSelected(String workerName); }
+
     private AppDatabase database;
     private TaskAssignmentRepository assignmentRepository;
     private TaskRepository taskRepository;
@@ -62,6 +64,9 @@ public class WorkerDashboardFragment extends Fragment {
     private TextInputEditText searchInput;
     private String workerSearchQuery = "";
     private String workerFilter = "ALL";
+    private boolean tablet;
+    private String selectedWorkerName;
+    private WorkerSelectionListener selectionListener;
 
     private List<WorkerPerformance> workerPerformances = new ArrayList<>();
 
@@ -71,11 +76,21 @@ public class WorkerDashboardFragment extends Fragment {
         database = AppDatabase.getInstance(requireContext());
     }
 
+    @Override public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof WorkerSelectionListener) selectionListener = (WorkerSelectionListener) context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_worker_dashboard, container, false);
+        tablet = requireActivity().findViewById(R.id.detailContainer) != null;
+        if (tablet) {
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.background));
+            view.setPadding(view.getPaddingLeft(), 0, view.getPaddingRight(), view.getPaddingBottom());
+        }
         initViews(view);
         setupSwipeRefresh();
         loadFarmData();
@@ -89,6 +104,20 @@ public class WorkerDashboardFragment extends Fragment {
         completionRateValue = view.findViewById(R.id.completionRateValue);
         avgTaskTimeValue = view.findViewById(R.id.avgTaskTimeValue);
         workerCardsContainer = view.findViewById(R.id.workerCardsContainer);
+        if (tablet) {
+            View search = view.findViewById(R.id.layoutWorkerSearch);
+            if (search != null) search.setVisibility(View.GONE);
+            View summaryRow = totalWorkersValue.getParent() == null ? null : (View) totalWorkersValue.getParent().getParent();
+            if (summaryRow != null) summaryRow.setVisibility(View.GONE);
+            View filterScroller = (View) view.findViewById(R.id.workerFilterGroup).getParent();
+            if (filterScroller != null) filterScroller.setVisibility(View.GONE);
+            android.graphics.drawable.GradientDrawable listBackground = new android.graphics.drawable.GradientDrawable();
+            listBackground.setColor(android.graphics.Color.WHITE);
+            listBackground.setCornerRadius(dp(32));
+            workerCardsContainer.setBackground(listBackground);
+            workerCardsContainer.setClipToOutline(true);
+            workerCardsContainer.setPadding(dp(12), dp(12), dp(12), dp(100));
+        }
         progressBar = view.findViewById(R.id.progressBar);
         emptyLayout = view.findViewById(R.id.emptyView);
         searchInput = view.findViewById(R.id.etWorkerSearch);
@@ -290,6 +319,15 @@ public class WorkerDashboardFragment extends Fragment {
             if ("NO_ACTIVE".equals(workerFilter) && worker.getInProgressTasks() > 0) continue;
             View cardView = getLayoutInflater().inflate(
                     R.layout.item_farm_worker_row, workerCardsContainer, false);
+            if (tablet) {
+                android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
+                background.setColor(worker.getWorkerName().equals(selectedWorkerName) ? 0xFFE3F0E7 : android.graphics.Color.TRANSPARENT);
+                background.setCornerRadius(dp(22));
+                cardView.setBackground(background);
+                LinearLayout.LayoutParams rowParams = (LinearLayout.LayoutParams) cardView.getLayoutParams();
+                rowParams.setMargins(0, 0, 0, dp(4));
+                cardView.setLayoutParams(rowParams);
+            }
 
             TextView tvWorkerName = cardView.findViewById(R.id.tvWorkerName);
             TextView tvWorkerStats = cardView.findViewById(R.id.tvWorkerStats);
@@ -304,7 +342,8 @@ public class WorkerDashboardFragment extends Fragment {
 
             // Set worker info
             String workerName = worker.getWorkerName() == null ? "" : worker.getWorkerName().trim();
-            tvWorkerName.setText(workerName.isEmpty() ? "Unnamed worker" : workerName);
+            tvWorkerName.setText(workerName.isEmpty() ? "Unnamed worker" : (tablet ? titleCase(workerName) : workerName));
+            if (tablet) tvWorkerAvatar.setVisibility(View.GONE);
             String[] initials = workerName.split("\\s+");
             tvWorkerAvatar.setText((initials.length > 1 ? initials[0].substring(0, 1) + initials[1].substring(0, 1)
                     : (workerName.isEmpty() ? "?" : workerName.substring(0, 1))).toUpperCase(Locale.ROOT));
@@ -327,6 +366,28 @@ public class WorkerDashboardFragment extends Fragment {
             tvTotalTime.setText(worker.getFormattedTotalTime());
             tvAvgTime.setText(worker.getFormattedAverageTime());
 
+            if (tablet) {
+                long joinedAt = Long.MAX_VALUE;
+                for (TaskAssignmentHistoryEntity assignment : worker.getAssignments()) joinedAt = Math.min(joinedAt, assignment.getAssignedAt());
+                String joined = joinedAt == Long.MAX_VALUE ? "—" : new java.text.SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(new java.util.Date(joinedAt));
+                tvWorkerStats.setText("Field Worker · Joined " + joined);
+                tvWorkerStats.setTextSize(14);
+                tvWorkerStats.setTextColor(0xFF514C45);
+                tvWorkerStats.setMaxLines(2);
+                tvCompletionRate.setText("ON SITE");
+                tvCompletionRate.setTextSize(12);
+                tvCompletionRate.setTextColor(0xFF075C32);
+                tvCompletionRate.setPadding(dp(10), dp(4), dp(10), dp(4));
+                android.graphics.drawable.GradientDrawable statusBg = new android.graphics.drawable.GradientDrawable();
+                statusBg.setColor(0xFFE3F0E7);
+                statusBg.setCornerRadius(dp(99));
+                tvCompletionRate.setBackground(statusBg);
+                int completedCount = worker.getCompletedTasks();
+                tvActiveTasksLabel.setText(completedCount + (completedCount == 1 ? " task completed" : " tasks completed"));
+                tvActiveTasksLabel.setTextSize(12);
+                tvActiveTasksLabel.setTextColor(0xFF514C45);
+            }
+
             // Add task type chips
             taskTypeContainer.removeAllViews();
             for (String taskType : worker.getTaskTypes()) {
@@ -342,13 +403,46 @@ public class WorkerDashboardFragment extends Fragment {
 
             // Navigate to worker detail screen
             cardView.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), WorkerDetailActivity.class);
-                intent.putExtra(WorkerDetailActivity.EXTRA_WORKER_NAME, worker.getWorkerName());
-                startActivity(intent);
+                if (tablet) selectWorker(worker.getWorkerName());
+                else {
+                    Intent intent = new Intent(requireContext(), WorkerDetailActivity.class);
+                    intent.putExtra(WorkerDetailActivity.EXTRA_WORKER_NAME, worker.getWorkerName());
+                    startActivity(intent);
+                }
             });
 
             workerCardsContainer.addView(cardView);
         }
+        if (tablet && selectedWorkerName == null && !workerPerformances.isEmpty()) {
+            selectedWorkerName = workerPerformances.get(0).getWorkerName();
+            displayWorkerCards();
+            showSelectedTabletDetail();
+        }
+    }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+
+    private String titleCase(String value) {
+        StringBuilder result = new StringBuilder();
+        for (String part : value.toLowerCase(Locale.ROOT).split("\\s+")) {
+            if (result.length() > 0) result.append(' ');
+            if (!part.isEmpty()) result.append(part.substring(0, 1).toUpperCase(Locale.ROOT)).append(part.substring(1));
+        }
+        return result.toString();
+    }
+
+    private void selectWorker(String name) {
+        if (name == null) return;
+        selectedWorkerName = name;
+        displayWorkerCards();
+        if (selectionListener != null) selectionListener.onWorkerSelected(name);
+    }
+
+    public void showSelectedTabletDetail() {
+        if (!tablet || workerPerformances.isEmpty() || selectionListener == null) return;
+        if (selectedWorkerName == null) selectedWorkerName = workerPerformances.get(0).getWorkerName();
+        displayWorkerCards();
+        selectionListener.onWorkerSelected(selectedWorkerName);
     }
 
     private void forceRefreshWorkerData() {
@@ -443,5 +537,10 @@ public class WorkerDashboardFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         executor.shutdown();
+    }
+
+    @Override public void onDetach() {
+        selectionListener = null;
+        super.onDetach();
     }
 }

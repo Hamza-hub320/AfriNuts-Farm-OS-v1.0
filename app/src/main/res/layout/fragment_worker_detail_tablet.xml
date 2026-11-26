@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_supplier_tablet_detail_surface"
+    android:clipToOutline="true"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/workerPaneAvatar"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_supplier_avatar_sand"
+                android:gravity="center"
+                android:textColor="#7A5F22"
+                android:textSize="19sp"
+                android:fontFamily="@font/manrope_extrabold" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView android:id="@+id/workerPaneName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="27sp" android:fontFamily="@font/manrope_extrabold" />
+                <TextView android:id="@+id/workerPaneJoined" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="#514C45" android:textSize="17sp" android:fontFamily="@font/manrope_medium" />
+            </LinearLayout>
+            <TextView android:id="@+id/workerPaneCompletion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:background="@drawable/bg_worker_completion_badge" android:paddingHorizontal="14dp" android:paddingVertical="10dp" android:textColor="#075C32" android:textSize="15sp" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginEnd="12dp" android:background="@drawable/bg_task_stat_primary" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Tasks" android:textColor="#D2E6DA" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:id="@+id/workerPaneTotalTasks" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginEnd="12dp" android:background="@drawable/bg_supplier_stat_sand" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Completed" android:textColor="#514C45" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:id="@+id/workerPaneCompleted" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:background="@drawable/bg_supplier_stat_sand" android:gravity="center_vertical" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Success Rate" android:textColor="#514C45" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:id="@+id/workerPaneRate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="30sp" android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="Time Analysis" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Total Time Worked" android:textColor="#514C45" android:textSize="17sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/workerPaneTotalTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Average Time per Task" android:textColor="#514C45" android:textSize="17sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/workerPaneAverageTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#1C1B1A" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center_vertical" android:orientation="horizontal">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Efficiency" android:textColor="#514C45" android:textSize="17sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/workerPaneEfficiency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#075C32" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+        <ProgressBar android:id="@+id/workerPaneEfficiencyBar" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="12dp" android:layout_marginTop="8dp" android:max="100" android:progress="0" android:progressTint="#0E6B3C" android:progressBackgroundTint="#F3EAD8" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="Task Types" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+        <LinearLayout android:id="@+id/workerPaneTaskTypes" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="Recent Tasks" android:textColor="#1C1B1A" android:textSize="20sp" android:fontFamily="@font/manrope_extrabold" />
+        <LinearLayout android:id="@+id/workerPaneRecentTasks" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>
