@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='utf-8'?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:fillViewport="true" android:paddingBottom="92dp" android:scrollbars="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="8dp" android:paddingBottom="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="2dp" android:gravity="center_vertical" android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/overviewDateText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="Fri, Nov 20 · Odienné" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_medium" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:includeFontPadding="false" android:letterSpacing="-0.02" android:text="Overview" android:textColor="#1C1B1A" android:textSize="28sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+            </LinearLayout>
+            <ImageButton android:id="@+id/homeNotificationButton" android:layout_width="44dp" android:layout_height="44dp" android:layout_marginEnd="9dp" android:background="@drawable/bg_home_bell_button" android:contentDescription="Notifications" android:clickable="false" android:focusable="false" android:padding="12dp" android:src="@drawable/ic_notification" app:tint="#1C1B1A" />
+            <TextView android:id="@+id/btnProfile" android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/bg_home_account_button" android:clickable="true" android:contentDescription="Account menu" android:focusable="true" android:gravity="center" android:includeFontPadding="false" android:text="HS" android:textColor="@android:color/white" android:textSize="15sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="210dp" android:layout_marginBottom="4dp" android:orientation="horizontal">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginBottom="0dp" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="28dp" app:cardElevation="0dp" app:strokeWidth="0dp" android:layout_weight="1" android:layout_marginEnd="4dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp" android:layout_marginTop="2dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="RCN received this season" android:textColor="#3D3A35" android:textSize="15sp" android:textStyle="bold" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/homeRcnNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0" android:textColor="#1C1B1A" android:textSize="40sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:id="@+id/homeRcnUnit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp" android:includeFontPadding="false" android:text="kg" android:textColor="#3D3A35" android:textSize="20sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:includeFontPadding="false" android:text="Season = calendar year · Jan – Dec 2026" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_medium" />
+                    <com.afrinuts.farmos.ui.theme.HomeChartView android:id="@+id/homeRcnChart" android:layout_width="match_parent" android:layout_height="42dp" android:layout_marginTop="6dp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:text="Jan" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Mar" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="May" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Jul" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Sep" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="Dec" android:textColor="#59544C" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_gravity="top" android:layout_marginBottom="0dp" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp" android:layout_weight="1" android:layout_marginStart="4dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="Suppliers onboarded" android:textColor="#3D3A35" android:textSize="15sp" android:textStyle="bold" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/homeSupplierOnboarded" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0" android:textColor="#1C1B1A" android:textSize="28sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="of" android:textColor="#59544C" android:textSize="15sp" android:textStyle="bold" />
+                        <TextView android:id="@+id/homeSupplierTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:includeFontPadding="false" android:text="0" android:textColor="#1C1B1A" android:textSize="28sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="suppliers" android:textColor="#59544C" android:textSize="15sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/homeSupplierProgress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="10dp" android:layout_marginTop="8dp" android:max="100" android:progress="0" android:progressDrawable="@drawable/bg_home_supplier_progress" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/homeSupplierRemaining" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:includeFontPadding="false" android:text="0 to go" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_medium" />
+                        <TextView android:id="@+id/homeSupplierProgressText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0%" android:textColor="#0A5530" android:textSize="14sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="176dp" android:layout_marginBottom="4dp" android:orientation="horizontal">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="#E9E1CF" app:strokeWidth="1dp" android:layout_marginStart="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_horizontal" android:orientation="vertical" android:padding="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="Premium share" android:textColor="#3D3A35" android:textSize="15sp" android:textStyle="bold" android:layout_marginBottom="4dp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+                        <com.afrinuts.farmos.ui.theme.HomeChartView android:id="@+id/homeGradePie" android:layout_width="112dp" android:layout_height="match_parent" android:layout_marginTop="0dp" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:orientation="vertical" android:layout_weight="1" android:layout_marginStart="8dp">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="20dp" android:gravity="center_vertical" android:orientation="horizontal">
+                                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:backgroundTint="#0E6B3C" />
+                                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="Premium" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_medium" />
+                                <TextView android:id="@+id/homePremiumGradePercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0%" android:textColor="#1C1B1A" android:textSize="11sp" android:fontFamily="@font/manrope_bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="20dp" android:gravity="center_vertical" android:orientation="horizontal">
+                                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:backgroundTint="#C9A86A" />
+                                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="Standard" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_medium" />
+                                <TextView android:id="@+id/homeStandardGradePercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0%" android:textColor="#1C1B1A" android:textSize="11sp" android:fontFamily="@font/manrope_bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="20dp" android:gravity="center_vertical" android:orientation="horizontal">
+                                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:backgroundTint="#B3402A" />
+                                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="Reject" android:textColor="#59544C" android:textSize="11sp" android:fontFamily="@font/manrope_medium" />
+                                <TextView android:id="@+id/homeRejectGradePercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0%" android:textColor="#1C1B1A" android:textSize="11sp" android:fontFamily="@font/manrope_bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="4dp" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp" android:layout_marginEnd="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="Batches graded" android:textColor="#3D3A35" android:textSize="15sp" android:textStyle="bold" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:id="@+id/homeGradedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="0" android:textColor="#1C1B1A" android:textSize="28sp" android:textStyle="bold" android:fontFamily="@font/manrope_extrabold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:includeFontPadding="false" android:text="batches" android:textColor="#59544C" android:textSize="15sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:includeFontPadding="false" android:text="Graded this season" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_medium" />
+                    <com.afrinuts.farmos.ui.theme.HomeChartView android:id="@+id/homeGradeBars" android:layout_width="match_parent" android:layout_height="68dp" android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="336dp" android:layout_marginBottom="0dp" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="24dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:includeFontPadding="false" android:text="Block Status &amp; Survival" android:textColor="#3D3A35" android:textSize="15sp" android:fontFamily="@font/manrope_bold" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:gravity="end" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="Average survival" android:textColor="#59544C" android:textSize="11.5sp" android:fontFamily="@font/manrope_bold" />
+                        <TextView android:id="@+id/homeAverageBlockSurvival" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:includeFontPadding="false" android:text="—%" android:textColor="#0A5530" android:textSize="22sp" android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+                    <LinearLayout android:id="@+id/homeBlockHeatmapGrid" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginTop="0dp" android:gravity="center" android:orientation="vertical" android:layout_weight="0.66" android:scaleX="1.35" />
+                    <LinearLayout android:id="@+id/homeBlockHeatmapLegend" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginTop="0dp" android:orientation="vertical" android:layout_weight="0.34" android:layout_marginStart="10dp" android:gravity="center_vertical" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <LinearLayout android:id="@+id/offlineBanner" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" android:background="?attr/colorSurfaceVariant" android:padding="8dp" android:visibility="gone" android:layout_marginBottom="0dp" app:cornerRadius="8dp">
+            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_warning" app:tint="?attr/colorOnSurface" android:layout_marginEnd="8dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Offline mode. Changes will sync when online." android:textColor="?attr/colorOnSurface" android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
+    <com.google.android.material.card.MaterialCardView android:id="@+id/bottomNavCard" android:layout_width="520dp" android:layout_height="60dp" android:layout_gravity="bottom|center_horizontal" android:layout_marginStart="0dp" android:layout_marginEnd="0dp" android:layout_marginBottom="8dp" app:cardBackgroundColor="@color/nav_pill_bg" app:cardCornerRadius="999dp" app:cardElevation="2dp" android:elevation="2dp" app:cardPreventCornerOverlap="false" app:cardUseCompatPadding="false">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center_vertical" android:padding="6dp" android:weightSum="5" android:background="@color/nav_pill_bg">
+            <LinearLayout android:id="@+id/navHome" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?android:attr/selectableItemBackgroundBorderless">
+                <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:id="@+id/navHomeIcon" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_nav_home" android:textStyle="bold" app:tint="?attr/navbarIconColor" />
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:layout_gravity="top|end" android:layout_marginTop="-2dp" android:layout_marginEnd="-4dp" android:visibility="gone" />
+                </FrameLayout>
+                <TextView android:id="@+id/navHomeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Home" android:textSize="11sp" android:textStyle="bold" android:textColor="?attr/navbarTextColor" android:layout_marginTop="4dp" android:alpha="0.8" android:fontFamily="@font/manrope_medium" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/navFarm" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?android:attr/selectableItemBackgroundBorderless">
+                <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:id="@+id/navFarmIcon" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_nav_sprout" android:textStyle="bold" app:tint="?attr/navbarIconColor" />
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:layout_gravity="top|end" android:layout_marginTop="-2dp" android:layout_marginEnd="-4dp" android:visibility="gone" />
+                </FrameLayout>
+                <TextView android:id="@+id/navFarmText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Farm" android:textSize="11sp" android:textColor="?attr/navbarTextColor" android:layout_marginTop="4dp" android:textStyle="bold" android:alpha="0.8" android:fontFamily="@font/manrope_medium" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/navFinance" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?android:attr/selectableItemBackgroundBorderless">
+                <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:id="@+id/navFinanceIcon" android:layout_width="24dp" android:layout_height="24dp" android:textStyle="bold" android:src="@drawable/ic_nav_wallet" app:tint="?attr/navbarIconColor" />
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:layout_gravity="top|end" android:layout_marginTop="-2dp" android:layout_marginEnd="-4dp" android:visibility="gone" />
+                </FrameLayout>
+                <TextView android:id="@+id/navFinanceText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Finance" android:textSize="11sp" android:textColor="?attr/navbarTextColor" android:textStyle="bold" android:layout_marginTop="4dp" android:alpha="0.8" android:fontFamily="@font/manrope_medium" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/navAnalytics" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?android:attr/selectableItemBackgroundBorderless">
+                <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <ImageView android:id="@+id/navAnalyticsIcon" android:layout_width="24dp" android:layout_height="24dp" android:textStyle="bold" android:src="@drawable/ic_nav_analytics" app:tint="?attr/navbarIconColor" />
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/circle_green" android:layout_gravity="top|end" android:layout_marginTop="-2dp" android:layout_marginEnd="-4dp" android:visibility="gone" />
+                </FrameLayout>
+                <TextView android:id="@+id/navAnalyticsText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Analytics" android:textSize="11sp" android:textStyle="bold" android:textColor="?attr/navbarTextColor" android:layout_marginTop="4dp" android:alpha="0.8" android:fontFamily="@font/manrope_medium" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/navCompliance" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:padding="4dp">
+                <ImageView android:id="@+id/navComplianceIcon" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_nav_shield_check" app:tint="?attr/navbarIconColor" />
+                <TextView android:id="@+id/navComplianceText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Certs" android:textSize="10sp" android:textColor="?attr/navbarIconColor" android:layout_marginTop="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

@@ -937,15 +937,28 @@ public class MainActivity extends AppCompatActivity {
         }
 
         legend.removeAllViews();
-        addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
-                BlockEntity.BlockStatus.PLANTED,
-                BlockEntity.BlockStatus.NOT_CLEARED,
-                BlockEntity.BlockStatus.CLEARED
-        }, density);
-        addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
-                BlockEntity.BlockStatus.PLOWED,
-                BlockEntity.BlockStatus.HARVESTED
-        }, density);
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            BlockEntity.BlockStatus[] tabletLegendOrder = {
+                    BlockEntity.BlockStatus.PLANTED,
+                    BlockEntity.BlockStatus.NOT_CLEARED,
+                    BlockEntity.BlockStatus.CLEARED,
+                    BlockEntity.BlockStatus.PLOWED,
+                    BlockEntity.BlockStatus.HARVESTED
+            };
+            for (BlockEntity.BlockStatus status : tabletLegendOrder) {
+                addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{status}, density);
+            }
+        } else {
+            addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
+                    BlockEntity.BlockStatus.PLANTED,
+                    BlockEntity.BlockStatus.NOT_CLEARED,
+                    BlockEntity.BlockStatus.CLEARED
+            }, density);
+            addHeatmapLegendRow(legend, new BlockEntity.BlockStatus[]{
+                    BlockEntity.BlockStatus.PLOWED,
+                    BlockEntity.BlockStatus.HARVESTED
+            }, density);
+        }
     }
 
     private android.graphics.drawable.GradientDrawable createHeatmapCellBackground(
@@ -1093,7 +1106,11 @@ public class MainActivity extends AppCompatActivity {
                         supplierOnboarded.setText(String.valueOf(finalOnboarded));
                         supplierTotal.setText(String.format(Locale.getDefault(), "%,d", finalSupplierTotal));
                         int toGo = Math.max(finalSupplierTotal - finalOnboarded, 0);
-                        supplierRemaining.setText(toGo + " to go");
+                        if (getResources().getConfiguration().screenWidthDp >= 600) {
+                            supplierRemaining.setText(toGo + " still to onboard");
+                        } else {
+                            supplierRemaining.setText(toGo + " to go");
+                        }
                         int percent = finalSupplierTotal == 0 ? 0 : Math.round(finalOnboarded * 100f / finalSupplierTotal);
                         supplierProgress.setProgress(percent);
                         supplierProgressText.setText(percent + "%");
