@@ -37,6 +37,10 @@ import java.util.concurrent.Executors;
 
 public class TraceabilityFragment extends Fragment {
 
+    public interface OnTraceabilitySelectedListener {
+        void onTraceabilitySelected(long traceabilityId);
+    }
+
     private RecyclerView recyclerView;
     private TraceabilityAdapter adapter;
     private ProgressBar progressBar;
@@ -57,6 +61,14 @@ public class TraceabilityFragment extends Fragment {
     private List<BatchTraceabilityEntity> filteredTraceabilities = new ArrayList<>();
 
     private String currentFilter = "ALL"; // ALL, EXPORTED, PROCESSING
+    private boolean tablet;
+    private OnTraceabilitySelectedListener selectionListener;
+
+    @Override
+    public void onAttach(@NonNull android.content.Context context) {
+        super.onAttach(context);
+        if (context instanceof OnTraceabilitySelectedListener) selectionListener = (OnTraceabilitySelectedListener) context;
+    }
 
     @Nullable
     @Override
@@ -71,6 +83,19 @@ public class TraceabilityFragment extends Fragment {
 
         database = AppDatabase.getInstance(requireContext());
         initViews(view);
+        tablet = getResources().getConfiguration().screenWidthDp >= 600;
+        if (tablet) {
+            ViewGroup root = (ViewGroup) view;
+            if (root.getChildCount() > 0) root.getChildAt(0).setVisibility(View.GONE);
+            if (filterChipGroup != null) filterChipGroup.setVisibility(View.GONE);
+            if (fabAdd != null) fabAdd.setVisibility(View.GONE);
+            android.graphics.drawable.GradientDrawable surface = new android.graphics.drawable.GradientDrawable();
+            surface.setColor(android.graphics.Color.WHITE);
+            surface.setCornerRadius(getResources().getDisplayMetrics().density * 26f);
+            recyclerView.setBackground(surface);
+            recyclerView.setClipToOutline(true);
+            recyclerView.setPadding(dp(8), dp(8), dp(8), dp(20));
+        }
         setupRecyclerView();
         setupFilters();
         setupFab();
@@ -127,6 +152,11 @@ public class TraceabilityFragment extends Fragment {
         dialog.show();
     }
 
+    public void refreshData() {
+        if (repository != null) loadTraceabilities();
+        else loadFarmData();
+    }
+
     private void scanQRCode() {
         Intent intent = new Intent(getActivity(), QRScannerActivity.class);
         startActivity(intent);
@@ -154,10 +184,16 @@ public class TraceabilityFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new TraceabilityAdapter(filteredTraceabilities, traceability -> {
-            Intent intent = new Intent(getActivity(), TraceabilityDetailActivity.class);
-            intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, traceability.getId());
-            startActivity(intent);
+            if (tablet && selectionListener != null) {
+                adapter.setSelectedTraceabilityId(traceability.getId());
+                selectionListener.onTraceabilitySelected(traceability.getId());
+            } else {
+                Intent intent = new Intent(getActivity(), TraceabilityDetailActivity.class);
+                intent.putExtra(TraceabilityDetailActivity.EXTRA_TRACEABILITY_ID, traceability.getId());
+                startActivity(intent);
+            }
         });
+        adapter.setTabletMode(tablet);
         recyclerView.setAdapter(adapter);
     }
 
@@ -258,7 +294,16 @@ public class TraceabilityFragment extends Fragment {
         }
 
         adapter.updateTraceabilities(filteredTraceabilities);
+        if (tablet) {
+            long firstId = filteredTraceabilities.isEmpty() ? -1 : filteredTraceabilities.get(0).getId();
+            adapter.setSelectedTraceabilityId(firstId);
+            if (selectionListener != null) selectionListener.onTraceabilitySelected(firstId);
+        }
         recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void updateSummaryStats() {

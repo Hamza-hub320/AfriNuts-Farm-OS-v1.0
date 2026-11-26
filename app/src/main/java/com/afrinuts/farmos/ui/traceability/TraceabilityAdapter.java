@@ -22,6 +22,8 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
 
     private List<BatchTraceabilityEntity> traceabilities;
     private OnTraceabilityClickListener listener;
+    private long selectedTraceabilityId = -1;
+    private boolean tabletMode;
 
     public interface OnTraceabilityClickListener {
         void onTraceabilityClick(BatchTraceabilityEntity traceability);
@@ -43,7 +45,7 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
     @Override
     public void onBindViewHolder(@NonNull TraceabilityViewHolder holder, int position) {
         BatchTraceabilityEntity traceability = traceabilities.get(position);
-        holder.bind(traceability, listener);
+        holder.bind(traceability, listener, traceability.getId() == selectedTraceabilityId, tabletMode);
     }
 
     @Override
@@ -66,6 +68,16 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
     // ✅ Set data method (alternative)
     public void setData(List<BatchTraceabilityEntity> newTraceabilities) {
         this.traceabilities = newTraceabilities != null ? newTraceabilities : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    public void setSelectedTraceabilityId(long id) {
+        selectedTraceabilityId = id;
+        notifyDataSetChanged();
+    }
+
+    public void setTabletMode(boolean tabletMode) {
+        this.tabletMode = tabletMode;
         notifyDataSetChanged();
     }
 
@@ -92,8 +104,8 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
             cardView = itemView.findViewById(R.id.cardView);
         }
 
-        void bind(BatchTraceabilityEntity traceability, OnTraceabilityClickListener listener) {
-            tvBatchNumber.setText("#" + traceability.getBatchNumber());
+        void bind(BatchTraceabilityEntity traceability, OnTraceabilityClickListener listener, boolean selected, boolean tabletMode) {
+            tvBatchNumber.setText((tabletMode ? "" : "#") + traceability.getBatchNumber());
             tvGrade.setText(traceability.getQualityGrade() != null ?
                     traceability.getQualityGrade() : "—");
             tvDate.setText(traceability.getFormattedProcessingDate());
@@ -113,6 +125,8 @@ public class TraceabilityAdapter extends RecyclerView.Adapter<TraceabilityAdapte
                 tvStatus.setBackgroundResource(R.drawable.bg_traceability_status_processing);
             }
 
+            cardView.setCardBackgroundColor(selected ? 0xFFE1F0E7 : android.graphics.Color.WHITE);
+            if (cardView.getChildAt(0) != null) cardView.getChildAt(0).setBackgroundColor(selected ? 0xFFE1F0E7 : android.graphics.Color.WHITE);
             cardView.setOnClickListener(v -> listener.onTraceabilityClick(traceability));
         }
     }

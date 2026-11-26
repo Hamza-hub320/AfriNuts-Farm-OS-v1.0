@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener {
+public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener, TraceabilityFragment.OnTraceabilitySelectedListener {
 
     public static final String EXTRA_OPEN_BATCH_ID = "analytics_open_quality_batch_id";
 
@@ -111,7 +111,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
             String key = pagerAdapter.getTabKey(position);
             switch (key) {
                 case "QUALITY": tab.setText("Quality"); break;
-                case "TRACEABILITY": tab.setText("Trace"); break;
+                case "TRACEABILITY": tab.setText(getResources().getConfiguration().smallestScreenWidthDp >= 600 ? "Traceability" : "Trace"); break;
                 case "BULK": tab.setText("Bulk"); break;
                 case "REPORTS": tab.setText("Reports"); break;
             }
@@ -208,6 +208,45 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContainer, detail, "quality_batch_detail_" + batchId)
                 .commit();
+    }
+
+    @Override
+    public void onTraceabilitySelected(long traceabilityId) {
+        View detailPane = findViewById(R.id.detailContainer);
+        if (detailPane == null) return;
+        if (traceabilityId < 0) {
+            Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+            if (current != null) getSupportFragmentManager().beginTransaction().remove(current).commit();
+            return;
+        }
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+        if (current instanceof com.afrinuts.farmos.ui.traceability.TraceabilityDetailFragment
+                && current.getArguments() != null
+                && current.getArguments().getLong("traceability_id", -1) == traceabilityId) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer,
+                        com.afrinuts.farmos.ui.traceability.TraceabilityDetailFragment.newInstance(traceabilityId),
+                        "traceability_detail_" + traceabilityId)
+                .commit();
+    }
+
+    public void openQualityBatch(long batchId) {
+        if (viewPager == null || pagerAdapter == null) return;
+        for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
+            if ("QUALITY".equals(pagerAdapter.getTabKey(i))) {
+                viewPager.setCurrentItem(i, false);
+                long id = batchId;
+                viewPager.post(() -> {
+                    if (qualityMetricsFragment != null) qualityMetricsFragment.openBatchById(id);
+                    else onBatchSelected(id);
+                });
+                return;
+            }
+        }
+    }
+
+    public void refreshTraceabilityList() {
+        if (traceabilityFragment != null) traceabilityFragment.refreshData();
     }
 
     private void showAccountMenu(View anchor) {
