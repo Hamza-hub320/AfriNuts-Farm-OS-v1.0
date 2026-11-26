@@ -129,17 +129,14 @@ public class FarmHubActivity extends BaseHubActivity {
         View divider = new View(this);
         divider.setBackgroundColor(0xFFE9E1CF);
         menu.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));
-        addMenuRow(menu, popup, "Logout", R.drawable.ic_logout, () -> new MaterialAlertDialogBuilder(this)
-                .setTitle("Logout").setMessage("Are you sure you want to logout?")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Logout", (dialog, which) -> {
+        addMenuRow(menu, popup, "Logout", R.drawable.ic_logout, () -> com.afrinuts.farmos.ui.LogoutConfirmationDialog.show(this, () -> {
                     sessionManager.logout();
                     FirebaseAuth.getInstance().signOut();
                     Intent intent = new Intent(this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
-                }).show());
+                }));
         popup.setContentView(menu);
         popup.setWidth(dp(196));
         popup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);

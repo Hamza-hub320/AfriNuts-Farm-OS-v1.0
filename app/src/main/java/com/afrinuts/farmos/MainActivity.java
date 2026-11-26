@@ -1772,10 +1772,7 @@ public class MainActivity extends AppCompatActivity {
     // ========================================
 
     private void showLogoutDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Logout", (dialog, which) -> {
+        com.afrinuts.farmos.ui.LogoutConfirmationDialog.show(this, () -> {
                     // Clear everything before logout
                     sessionManager.logout();
 
@@ -1788,9 +1785,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     redirectToLogin();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                });
     }
 
     private int getTaskIcon(TaskEntity.TaskType type) {

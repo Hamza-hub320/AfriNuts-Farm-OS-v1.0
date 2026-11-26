@@ -3,11 +3,16 @@ package com.afrinuts.farmos.ui.auth;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -20,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.afrinuts.farmos.MainActivity;
 import com.afrinuts.farmos.R;
@@ -28,7 +34,6 @@ import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.AuthUtils;
 import com.afrinuts.farmos.utils.SessionManager;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,13 +64,14 @@ public class LoginActivity extends AppCompatActivity {
     private CardView loginCard;
     private TextInputLayout layoutEmailPin;
     private TextInputEditText etEmailPin;
-    private TextInputLayout layoutPassword;
     private TextInputEditText etPassword;
+    private View passwordFieldGroup;
     private Button btnLogin;
     private TextView tvSelectUser;
-    private View userSelectorDivider;
+    private TextView tvEmailLabel;
     private HorizontalScrollView userScrollView;
     private LinearLayout userChipsContainer;
+    private View selectedUserChip;
 
     private List<UserEntity> users;
     private UserEntity selectedUser;
@@ -80,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         database = AppDatabase.getInstance(this);
         firebaseManager = FirebaseManager.getInstance();
         initViews();
+        setContentColumnWidth();
 
         // ✅ Check if already logged in via SessionManager
         SessionManager sessionManager = new SessionManager(this);
@@ -114,11 +121,11 @@ public class LoginActivity extends AppCompatActivity {
         loginCard = findViewById(R.id.loginCard);
         layoutEmailPin = findViewById(R.id.layoutEmailPin);
         etEmailPin = findViewById(R.id.etEmailPin);
-        layoutPassword = findViewById(R.id.layoutPassword);
+        passwordFieldGroup = findViewById(R.id.passwordFieldGroup);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvSelectUser = findViewById(R.id.tvSelectUser);
-        userSelectorDivider = findViewById(R.id.userSelectorDivider);
+        tvEmailLabel = findViewById(R.id.tvEmailLabel);
         userScrollView = findViewById(R.id.userScrollView);
         userChipsContainer = findViewById(R.id.userChipsContainer);
 
@@ -210,11 +217,11 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "First-time login mode - hiding user selector");
 
         tvSelectUser.setVisibility(View.GONE);
-        userSelectorDivider.setVisibility(View.GONE);
         userScrollView.setVisibility(View.GONE);
 
-        layoutPassword.setVisibility(View.VISIBLE);
-        layoutEmailPin.setHint("Email Address");
+        passwordFieldGroup.setVisibility(View.VISIBLE);
+        tvEmailLabel.setText("Email");
+        etEmailPin.setHint("Email");
         etEmailPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 
         etEmailPin.setText("");
@@ -230,7 +237,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void showLoginFieldsForReturningUser() {
         Log.d(TAG, "Returning user mode - showing user selector");
-        layoutPassword.setVisibility(View.GONE);
+        passwordFieldGroup.setVisibility(View.GONE);
+        tvEmailLabel.setText("Email");
+        etEmailPin.setHint("Email");
     }
 
     // ========================================
@@ -244,43 +253,55 @@ public class LoginActivity extends AppCompatActivity {
 
         for (UserEntity user : users) {
             if (!user.isActive()) continue;
-
-            if (!user.isActive()) continue;
             if (user.getRole() == UserEntity.UserRole.WORKER) continue;   // §9.3 — not a sign-in role
 
-            Chip chip = new Chip(this);
-            chip.setText(user.getName());
+            LinearLayout chip = new LinearLayout(this);
+            chip.setOrientation(LinearLayout.HORIZONTAL);
+            chip.setGravity(Gravity.CENTER_VERTICAL);
+            chip.setPadding(dp(8), dp(6), dp(14), dp(6));
+            chip.setBackground(userChipBackground(false));
+            chip.setClickable(true);
+            chip.setFocusable(true);
+            chip.setContentDescription(user.getName() + ", " + user.getRole().name());
+
+            TextView initials = new TextView(this);
+            initials.setGravity(Gravity.CENTER);
+            initials.setText(user.getInitials());
+            initials.setTextColor(Color.rgb(10, 85, 48));
+            initials.setTextSize(13);
+            initials.setTypeface(font(R.font.manrope_extrabold));
+            initials.setBackground(avatarBackground(false));
+            chip.addView(initials, new LinearLayout.LayoutParams(dp(36), dp(36)));
 
             int iconResId = getRoleIcon(user.getRole());
-            chip.setChipIconResource(iconResId);
-            chip.setChipIconTint(ContextCompat.getColorStateList(this, R.color.primary));
-            chip.setChipIconVisible(true);
+            ImageView roleIcon = new ImageView(this);
+            roleIcon.setImageResource(iconResId);
+            roleIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary));
+            LinearLayout.LayoutParams roleIconParams = new LinearLayout.LayoutParams(dp(18), dp(18));
+            roleIconParams.setMargins(dp(8), 0, dp(7), 0);
+            chip.addView(roleIcon, roleIconParams);
 
-            chip.setChipBackgroundColorResource(R.color.warm_grey);
-            chip.setTextColor(getColor(R.color.text_dark));
-            chip.setChipStrokeColorResource(R.color.primary);
-            chip.setChipStrokeWidth(1.0f);
-            chip.setClickable(true);
-            chip.setCheckable(true);
-            chip.setChecked(false);
+            TextView name = new TextView(this);
+            name.setText(user.getName());
+            name.setTextColor(Color.rgb(28, 27, 26));
+            name.setTextSize(16);
+            name.setTypeface(font(R.font.manrope_bold));
+            name.setMaxLines(1);
+            chip.addView(name, new LinearLayout.LayoutParams(-2, -2));
 
-            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    buttonView.animate().scaleX(1.02f).scaleY(1.02f).setDuration(150).start();
-
-                    for (int i = 0; i < userChipsContainer.getChildCount(); i++) {
-                        Chip otherChip = (Chip) userChipsContainer.getChildAt(i);
-                        if (otherChip != buttonView) {
-                            otherChip.setChecked(false);
-                            otherChip.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
-                        }
-                    }
-                    selectedUser = user;
-                    updateLoginFieldsForUser(user);
+            chip.setOnClickListener(view -> {
+                if (selectedUserChip != null && selectedUserChip != view) {
+                    setUserChipSelected(selectedUserChip, false);
                 }
+                selectedUserChip = view;
+                setUserChipSelected(view, true);
+                selectedUser = user;
+                updateLoginFieldsForUser(user);
             });
 
-            userChipsContainer.addView(chip);
+            LinearLayout.LayoutParams chipParams = new LinearLayout.LayoutParams(-2, dp(58));
+            chipParams.setMargins(0, dp(2), dp(8), dp(2));
+            userChipsContainer.addView(chip, chipParams);
         }
 
         for (int i = 0; i < userChipsContainer.getChildCount(); i++) {
@@ -296,8 +317,55 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         tvSelectUser.setVisibility(View.VISIBLE);
-        userSelectorDivider.setVisibility(View.VISIBLE);
         userScrollView.setVisibility(View.VISIBLE);
+    }
+
+    private GradientDrawable userChipBackground(boolean selected) {
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(selected ? Color.rgb(227, 240, 231) : Color.rgb(246, 241, 231));
+        background.setCornerRadius(dp(999));
+        background.setStroke(dp(1), selected ? Color.rgb(14, 107, 60) : Color.rgb(233, 225, 207));
+        return background;
+    }
+
+    private void setUserChipSelected(View chipView, boolean selected) {
+        if (!(chipView instanceof LinearLayout)) return;
+        LinearLayout chip = (LinearLayout) chipView;
+        chip.setBackground(userChipBackground(selected));
+        if (chip.getChildCount() > 0 && chip.getChildAt(0) instanceof TextView) {
+            TextView initials = (TextView) chip.getChildAt(0);
+            initials.setTextColor(selected ? Color.WHITE : Color.rgb(10, 85, 48));
+            initials.setBackground(avatarBackground(selected));
+        }
+        for (int i = 0; i < chip.getChildCount(); i++) {
+            if (chip.getChildAt(i) instanceof TextView && i > 0) {
+                ((TextView) chip.getChildAt(i)).setTextColor(Color.rgb(28, 27, 26));
+            }
+        }
+    }
+
+    private GradientDrawable avatarBackground(boolean selected) {
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(selected ? Color.rgb(14, 107, 60) : Color.rgb(227, 240, 231));
+        background.setShape(GradientDrawable.OVAL);
+        return background;
+    }
+
+    private Typeface font(int fontId) {
+        Typeface typeface = ResourcesCompat.getFont(this, fontId);
+        return typeface == null ? Typeface.DEFAULT_BOLD : typeface;
+    }
+
+    private int dp(float value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private void setContentColumnWidth() {
+        View contentColumn = findViewById(R.id.contentColumn);
+        int availableWidth = getResources().getDisplayMetrics().widthPixels - dp(48);
+        ViewGroup.LayoutParams params = contentColumn.getLayoutParams();
+        params.width = Math.min(availableWidth, dp(480));
+        contentColumn.setLayoutParams(params);
     }
 
     private int getRoleIcon(UserEntity.UserRole role) {
@@ -315,15 +383,17 @@ public class LoginActivity extends AppCompatActivity {
 
         layoutEmailPin.animate().alpha(0f).setDuration(150).withEndAction(() -> {
             if (user.getAuthMethod() == UserEntity.AuthMethod.PIN) {
-                layoutEmailPin.setHint("Enter PIN");
+                tvEmailLabel.setText("Enter PIN");
+                etEmailPin.setHint("Enter PIN");
                 etEmailPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-                layoutPassword.setVisibility(View.GONE);
+                passwordFieldGroup.setVisibility(View.GONE);
                 isPinMode = true;
                 etEmailPin.setText("");
             } else {
-                layoutEmailPin.setHint("Email");
+                tvEmailLabel.setText("Email");
+                etEmailPin.setHint("Email");
                 etEmailPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                layoutPassword.setVisibility(View.VISIBLE);
+                passwordFieldGroup.setVisibility(View.VISIBLE);
                 isPinMode = false;
                 if (user.getEmail() != null) {
                     etEmailPin.setText(user.getEmail());
