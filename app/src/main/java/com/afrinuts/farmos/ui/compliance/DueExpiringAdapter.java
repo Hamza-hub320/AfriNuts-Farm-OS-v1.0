@@ -68,6 +68,8 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final Context context;
     private final OnItemClickListener listener;
     private final List<Row> rows = new ArrayList<>();
+    private String selectedRecordType;
+    private String selectedRecordId;
 
     public DueExpiringAdapter(Context context, OnItemClickListener listener) {
         this.context = context;
@@ -78,6 +80,36 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         rows.clear();
         if (updatedRows != null) rows.addAll(updatedRows);
         notifyDataSetChanged();
+    }
+
+    public void setSelectedDue(String recordType, String recordId) {
+        selectedRecordType = recordType;
+        selectedRecordId = recordId;
+        notifyDataSetChanged();
+    }
+
+    public String getSelectedRecordType() {
+        return selectedRecordType;
+    }
+
+    public String getSelectedRecordId() {
+        return selectedRecordId;
+    }
+
+    public Row findItem(String recordType, String recordId) {
+        if (recordType == null || recordId == null) return null;
+        for (Row row : rows) {
+            if (row.viewType == TYPE_ITEM && recordType.equals(row.recordType)
+                    && recordId.equals(row.recordId)) return row;
+        }
+        return null;
+    }
+
+    public Row firstItem() {
+        for (Row row : rows) {
+            if (row.viewType == TYPE_ITEM) return row;
+        }
+        return null;
     }
 
     @Override
@@ -159,6 +191,10 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             pill.setColor(row.overdue ? 0xFFF8E4DD : 0xFFF6ECD2);
             pill.setCornerRadius(dp(999));
             item.days.setBackground(pill);
+            boolean tablet = context.getResources().getConfiguration().screenWidthDp >= 600;
+            boolean selected = tablet && row.recordType.equals(selectedRecordType)
+                    && row.recordId.equals(selectedRecordId);
+            item.card.setCardBackgroundColor(selected ? 0xFFE3F0E7 : 0xFFFFFFFF);
             item.card.setOnClickListener(view -> {
                 if (listener != null) listener.onItemClick(row);
             });

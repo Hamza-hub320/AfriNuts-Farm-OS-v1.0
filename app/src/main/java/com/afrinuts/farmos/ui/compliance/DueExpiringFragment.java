@@ -1,6 +1,8 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -46,6 +48,10 @@ import java.util.concurrent.Executors;
 public class DueExpiringFragment extends Fragment {
     private static final long DAY_MS = 24L * 60L * 60L * 1000L;
 
+    public interface OnDueSelectedListener {
+        void onDueSelected(String recordType, String recordId);
+    }
+
     private ExecutorService executor;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private long farmId;
@@ -83,7 +89,23 @@ public class DueExpiringFragment extends Fragment {
         emptyView = view.findViewById(R.id.emptyDueExpiring);
         recyclerView = view.findViewById(R.id.recyclerDueExpiring);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new DueExpiringAdapter(requireContext(), this::openRecord);
+        if (isTablet()) {
+            GradientDrawable pane = new GradientDrawable();
+            pane.setColor(Color.WHITE);
+            pane.setCornerRadius(dp(24));
+            view.setBackground(pane);
+            view.setClipToOutline(true);
+            int inset = dp(16);
+            recyclerView.setPadding(inset, dp(12), inset, dp(16));
+        }
+        adapter = new DueExpiringAdapter(requireContext(), row -> {
+            if (isTablet()) {
+                adapter.setSelectedDue(row.recordType, row.recordId);
+                notifyDueSelected(row.recordType, row.recordId);
+            } else {
+                openRecord(row);
+            }
+        });
         recyclerView.setAdapter(adapter);
 
         view.findViewById(R.id.btnCheckNow).setOnClickListener(v -> {
@@ -182,6 +204,18 @@ public class DueExpiringFragment extends Fragment {
         else rows.addAll(dueSoon);
 
         adapter.submitRows(rows);
+        if (isTablet()) {
+            DueExpiringAdapter.Row selected = adapter.findItem(
+                    adapter.getSelectedRecordType(), adapter.getSelectedRecordId());
+            if (selected == null) selected = adapter.firstItem();
+            if (selected == null) {
+                adapter.setSelectedDue(null, null);
+                notifyDueSelected(null, null);
+            } else {
+                adapter.setSelectedDue(selected.recordType, selected.recordId);
+                notifyDueSelected(selected.recordType, selected.recordId);
+            }
+        }
         emptyView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
@@ -302,6 +336,21 @@ public class DueExpiringFragment extends Fragment {
                 break;
         }
         startActivity(intent);
+    }
+
+    private void notifyDueSelected(String recordType, String recordId) {
+        if (!isTablet() || getActivity() == null) return;
+        if (getActivity() instanceof OnDueSelectedListener) {
+            ((OnDueSelectedListener) getActivity()).onDueSelected(recordType, recordId);
+        }
+    }
+
+    private boolean isTablet() {
+        return getResources().getConfiguration().screenWidthDp >= 600;
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showLoadError(String message) {

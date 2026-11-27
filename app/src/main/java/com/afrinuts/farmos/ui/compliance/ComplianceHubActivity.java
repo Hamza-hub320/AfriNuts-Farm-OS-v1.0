@@ -45,7 +45,8 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ComplianceHubActivity extends BaseHubActivity
         implements CertificationListFragment.OnCertificationSelectedListener,
         ChecksFragment.OnCheckSelectedListener,
-        DocumentListFragment.OnDocumentSelectedListener {
+        DocumentListFragment.OnDocumentSelectedListener,
+        DueExpiringFragment.OnDueSelectedListener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -59,6 +60,8 @@ public class ComplianceHubActivity extends BaseHubActivity
     private int selectedCheckType = ChecksFragment.TYPE_NONE;
     private String selectedCheckId;
     private String selectedDocumentId;
+    private String selectedDueType;
+    private String selectedDueId;
 
     // Navigation items
     private LinearLayout navHome;
@@ -248,6 +251,12 @@ public class ComplianceHubActivity extends BaseHubActivity
                     } else if (tabs.get(position).type == TabType.DOCUMENTS) {
                         if (selectedDocumentId != null) showDocumentDetail(selectedDocumentId);
                         else showDetailEmptyState("Choose a document to view its details.");
+                    } else if (tabs.get(position).type == TabType.DUE_EXPIRING) {
+                        if (selectedDueType != null && selectedDueId != null) {
+                            showDueRecordDetail(selectedDueType, selectedDueId);
+                        } else {
+                            showDetailEmptyState("Choose a due item to view its details.");
+                        }
                     } else {
                         showDetailEmptyState("Choose a programme or check to view its details.");
                     }
@@ -314,6 +323,32 @@ public class ComplianceHubActivity extends BaseHubActivity
             return;
         }
         showDocumentDetail(documentId);
+    }
+
+    @Override
+    public void onDueSelected(String recordType, String recordId) {
+        selectedDueType = recordType;
+        selectedDueId = recordId;
+        if (detailContainer == null || currentPosition >= tabs.size()
+                || tabs.get(currentPosition).type != TabType.DUE_EXPIRING
+                || recordType == null || recordType.isEmpty()
+                || recordId == null || recordId.isEmpty()) {
+            if (currentPosition < tabs.size() && tabs.get(currentPosition).type == TabType.DUE_EXPIRING) {
+                showDetailEmptyState("Choose a due item to view its details.");
+            }
+            return;
+        }
+        showDueRecordDetail(recordType, recordId);
+    }
+
+    private void showDueRecordDetail(String recordType, String recordId) {
+        switch (recordType) {
+            case "certification": showCertificationDetail(recordId); break;
+            case "document": showDocumentDetail(recordId); break;
+            case "audit": showAuditDetail(recordId); break;
+            case "inspection": showInspectionDetail(recordId); break;
+            default: showDetailEmptyState("Choose a due item to view its details."); break;
+        }
     }
 
     public void onDocumentDeleted(String documentId) {
