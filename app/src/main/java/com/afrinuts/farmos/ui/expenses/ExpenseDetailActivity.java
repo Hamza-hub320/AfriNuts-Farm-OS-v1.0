@@ -500,9 +500,7 @@ public class ExpenseDetailActivity extends BaseActivity {
             Glide.with(this).load(path).placeholder(R.drawable.ic_photo_placeholder)
                     .error(R.drawable.ic_photo_placeholder).centerCrop().into(thumbnail);
             thumbnail.setOnClickListener(v -> {
-                Intent intent = new Intent(this, PhotoDetailActivity.class);
-                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
-                startActivity(intent);
+                com.afrinuts.farmos.ui.photos.PhotoNavigation.openPhoto(this, photo.getId(), -1, -1, expenseId);
             });
             photoThumbnailStrip.addView(thumbnail);
         }

@@ -134,9 +134,7 @@ public class ExpenseDetailFragment extends Fragment {
                 imageParams.setMargins(0, dp(10), dp(10), 0);
                 strip.addView(image, imageParams);
                 image.setOnClickListener(v -> {
-                    Intent i = new Intent(requireContext(), PhotoDetailActivity.class);
-                    i.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
-                    startActivity(i);
+                    com.afrinuts.farmos.ui.photos.PhotoNavigation.openPhoto(requireContext(), photo.getId(), -1, -1, expense.getId());
                 });
             }
             photoScroll.addView(strip);

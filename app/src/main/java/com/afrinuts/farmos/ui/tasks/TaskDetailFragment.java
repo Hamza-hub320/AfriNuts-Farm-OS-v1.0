@@ -258,7 +258,7 @@ public class TaskDetailFragment extends Fragment {
             image.setScaleType(ImageView.ScaleType.CENTER_CROP); image.setBackground(makePhotoBackground()); image.setClipToOutline(true);
             String path = photo.getThumbnailPath() == null || photo.getThumbnailPath().trim().isEmpty() ? photo.getFilePath() : photo.getThumbnailPath();
             Glide.with(this).load(path).placeholder(R.drawable.ic_photo_placeholder).error(R.drawable.ic_photo_placeholder).centerCrop().into(image);
-            image.setOnClickListener(v -> { android.content.Intent intent = new android.content.Intent(requireContext(), com.afrinuts.farmos.ui.photos.PhotoDetailActivity.class); intent.putExtra(com.afrinuts.farmos.ui.photos.PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId()); startActivity(intent); });
+            image.setOnClickListener(v -> com.afrinuts.farmos.ui.photos.PhotoNavigation.openPhoto(requireContext(), photo.getId(), -1, task.getId(), -1));
             photoStrip.addView(image);
         }
     }

@@ -29,6 +29,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private List<PhotoEntity> photos = new ArrayList<>();
     private OnPhotoClickListener listener;
+    private long selectedPhotoId = -1;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     public interface OnPhotoClickListener {
@@ -44,6 +45,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         notifyDataSetChanged();
     }
 
+    public void setSelectedPhotoId(long photoId) {
+        selectedPhotoId = photoId;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -55,7 +61,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         PhotoEntity photo = photos.get(position);
-        holder.bind(photo, listener);
+        holder.bind(photo, listener, photo.getId() == selectedPhotoId);
     }
 
     @Override
@@ -80,7 +86,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             cardView = itemView.findViewById(R.id.cardView); // Now this will find the CardView!
         }
 
-        void bind(PhotoEntity photo, OnPhotoClickListener listener) {
+        void bind(PhotoEntity photo, OnPhotoClickListener listener, boolean selected) {
             String imagePath = photo.getFilePath();
 
             // Check if it's a cloud URL or local file
@@ -120,6 +126,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
             // Set type icon color
             ivTypeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+            cardView.setCardBackgroundColor(selected ? 0xFFE3F0E7 : 0xFFFFFFFF);
 
             // Set caption (or placeholder)
             if (photo.getCaption() != null && !photo.getCaption().isEmpty()) {

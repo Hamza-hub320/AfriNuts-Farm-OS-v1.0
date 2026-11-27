@@ -373,6 +373,40 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@drawable/status_background</item>
     </style>
+
+    <style name="PhotoDetailRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">11dp</item>
+    </style>
+
+    <style name="PhotoDetailLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:textColor">#59544C</item>
+    </style>
+
+    <style name="PhotoDetailValue">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">end</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:fontFamily">@font/manrope_bold</item>
+        <item name="android:textColor">#1C1B1A</item>
+    </style>
+
+    <style name="PhotoDetailDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">#E9E1CF</item>
+    </style>
     <!-- ======================================== -->
     <!-- GRADIENTS -->
     <!-- ======================================== -->

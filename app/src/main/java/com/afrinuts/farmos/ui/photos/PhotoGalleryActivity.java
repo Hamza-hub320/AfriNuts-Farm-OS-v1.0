@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -52,6 +53,9 @@ import java.util.Locale;
 public class PhotoGalleryActivity extends BaseActivity {
 
     private static final String TAG = "PhotoGallery";
+    public static final String EXTRA_SELECTED_PHOTO_ID = "selected_photo_id";
+    public static final String RESULT_PHOTO_DELETED = "photo_deleted";
+    public static final String RESULT_DELETED_PHOTO_ID = "deleted_photo_id";
     private static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final int REQUEST_IMAGE_PICK = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -60,6 +64,7 @@ public class PhotoGalleryActivity extends BaseActivity {
     private PhotoAdapter adapter;
     private LinearLayout emptyView;
     private FloatingActionButton fabAddPhoto;
+    private android.widget.FrameLayout photoDetailContainer;
 
     private AppDatabase database;
     private PhotoRepository photoRepository;
@@ -70,6 +75,7 @@ public class PhotoGalleryActivity extends BaseActivity {
     private long taskId = -1;
     private long expenseId = -1;
     private String currentPhotoPath;
+    private long requestedPhotoId = -1;
 
     @Override
     protected boolean checkRoleAccess() {
@@ -87,6 +93,21 @@ public class PhotoGalleryActivity extends BaseActivity {
         blockId = getIntent().getLongExtra("block_id", -1);
         taskId = getIntent().getLongExtra("task_id", -1);
         expenseId = getIntent().getLongExtra("expense_id", -1);
+        requestedPhotoId = getIntent().getLongExtra(EXTRA_SELECTED_PHOTO_ID, -1);
+        getSupportFragmentManager().setFragmentResultListener(RESULT_PHOTO_DELETED, this, (requestKey, result) -> {
+            long deletedId = result.getLong(RESULT_DELETED_PHOTO_ID, -1);
+            photos.removeIf(photo -> photo.getId() == deletedId);
+            adapter.updatePhotos(photos);
+            if (photos.isEmpty()) {
+                emptyView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                showPhotoDetailPlaceholder("No photos yet");
+            } else {
+                emptyView.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+                openPhotoDetail(photos.get(0));
+            }
+        });
 
         database = AppDatabase.getInstance(this);
 
@@ -109,6 +130,7 @@ public class PhotoGalleryActivity extends BaseActivity {
         recyclerView = findViewById(R.id.recyclerView);
         emptyView = findViewById(R.id.emptyView);
         fabAddPhoto = findViewById(R.id.fabAddPhoto);
+        photoDetailContainer = findViewById(R.id.photoDetailContainer);
         Log.d(TAG, "Views initialized");
     }
 
@@ -127,11 +149,16 @@ public class PhotoGalleryActivity extends BaseActivity {
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        boolean tablet = photoDetailContainer != null;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, tablet ? 1 : 2));
         adapter = new PhotoAdapter(photo -> {
-            Intent intent = new Intent(this, PhotoDetailActivity.class);
-            intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
-            startActivity(intent);
+            if (tablet) {
+                openPhotoDetail(photo);
+            } else {
+                Intent intent = new Intent(this, PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
+                startActivity(intent);
+            }
         });
         recyclerView.setAdapter(adapter);
     }
@@ -491,10 +518,44 @@ public class PhotoGalleryActivity extends BaseActivity {
         if (photos.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
+            showPhotoDetailPlaceholder("No photos yet");
         } else {
             emptyView.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
+            if (photoDetailContainer != null) {
+                PhotoEntity initial = null;
+                if (requestedPhotoId >= 0) {
+                    for (PhotoEntity photo : photos) {
+                        if (photo.getId() == requestedPhotoId) {
+                            initial = photo;
+                            break;
+                        }
+                    }
+                }
+                if (initial == null) initial = photos.get(0);
+                requestedPhotoId = -1;
+                openPhotoDetail(initial);
+            }
         }
+    }
+
+    private void openPhotoDetail(PhotoEntity photo) {
+        if (photo == null || photoDetailContainer == null) return;
+        adapter.setSelectedPhotoId(photo.getId());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.photoDetailContainer, PhotoDetailFragment.newInstance(photo.getId()), "tablet-photo-detail")
+                .commit();
+    }
+
+    private void showPhotoDetailPlaceholder(String message) {
+        if (photoDetailContainer == null) return;
+        TextView placeholder = new TextView(this);
+        placeholder.setText(message);
+        placeholder.setGravity(android.view.Gravity.CENTER);
+        placeholder.setTextColor(0xFF59544C);
+        placeholder.setTextSize(18);
+        photoDetailContainer.removeAllViews();
+        photoDetailContainer.addView(placeholder, new android.widget.FrameLayout.LayoutParams(-1, -1));
     }
 
     @Override

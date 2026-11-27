@@ -497,9 +497,7 @@ public class InspectionDetailFragment extends Fragment {
             Glide.with(this).load(photo.getFilePath()).placeholder(R.drawable.ic_photo_placeholder)
                     .error(R.drawable.ic_photo_error).centerCrop().into(thumbnail);
             thumbnail.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), PhotoDetailActivity.class);
-                intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_ID, photo.getId());
-                startActivity(intent);
+                com.afrinuts.farmos.ui.photos.PhotoNavigation.openPhoto(requireContext(), photo.getId());
             });
             photosContainer.addView(thumbnail);
         }

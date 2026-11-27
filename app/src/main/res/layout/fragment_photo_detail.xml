@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="20dp"
+        android:paddingBottom="32dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            style="@style/Widget.AfriNuts.CardView">
+            <ImageView
+                android:id="@+id/ivFullPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_photo_placeholder"
+                android:contentDescription="Full photo" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            style="@style/Widget.AfriNuts.CardView">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:background="@color/surface">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Details"
+                    android:textColor="#1C1B1A"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/manrope_extrabold" />
+
+                <LinearLayout style="@style/PhotoDetailRow">
+                    <TextView style="@style/PhotoDetailLabel" android:text="Caption" />
+                    <TextView android:id="@+id/tvCaption" style="@style/PhotoDetailValue" android:text="No caption" />
+                </LinearLayout>
+                <View style="@style/PhotoDetailDivider" />
+                <LinearLayout style="@style/PhotoDetailRow">
+                    <TextView style="@style/PhotoDetailLabel" android:text="Date Taken" />
+                    <TextView android:id="@+id/tvDate" style="@style/PhotoDetailValue" android:text="Mar 15, 2024" />
+                </LinearLayout>
+                <View style="@style/PhotoDetailDivider" />
+                <LinearLayout style="@style/PhotoDetailRow">
+                    <TextView style="@style/PhotoDetailLabel" android:text="Location" />
+                    <TextView android:id="@+id/tvLocation" style="@style/PhotoDetailValue" android:text="Location not available" />
+                </LinearLayout>
+                <View style="@style/PhotoDetailDivider" />
+                <LinearLayout style="@style/PhotoDetailRow">
+                    <TextView style="@style/PhotoDetailLabel" android:text="Type" />
+                    <TextView android:id="@+id/tvType" style="@style/PhotoDetailValue" android:text="Block Photo" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditCaption"
+                android:layout_width="0dp"
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:text="Edit Caption"
+                android:gravity="center"
+                android:textColor="#1C1B1A"
+                style="@style/Widget.AfriNuts.Button.Secondary"
+                app:backgroundTint="#F3EAD8" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShare"
+                android:layout_width="0dp"
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:text="Share"
+                android:gravity="center"
+                style="@style/Widget.AfriNuts.Button" />
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="0dp"
+            android:text="Delete Photo"
+            android:gravity="center"
+            android:textColor="#B3402A"
+            style="@style/Widget.AfriNuts.Button"
+            app:backgroundTint="#F8E4DD" />
+    </LinearLayout>
+</ScrollView>
