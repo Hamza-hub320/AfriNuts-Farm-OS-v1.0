@@ -54,7 +54,7 @@
 
         <!-- ViewPager2 - content will scroll under the padding -->
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
+            android:id="@+id/viewPager" android:background="@drawable/bg_card_primary"
             android:layout_width="380dp"
             android:layout_height="0dp"
             android:layout_weight="1"
