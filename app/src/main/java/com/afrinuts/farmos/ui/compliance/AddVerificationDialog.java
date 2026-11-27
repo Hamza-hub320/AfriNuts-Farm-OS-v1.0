@@ -2,6 +2,8 @@ package com.afrinuts.farmos.ui.compliance;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,6 +15,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -28,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.io.File;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,9 +60,13 @@ public class AddVerificationDialog extends FarmDialogFragment {
     private MaterialAutoCompleteTextView etStatus;
     private LinearLayout evidenceContainer;
     private Button btnAddEvidence;
+    private Button btnUploadEvidence;
     private Button btnCancel;
     private Button btnSave;
     private TextInputEditText etComment;
+
+    private final ActivityResultLauncher<String> pickEvidence = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), this::uploadPickedEvidence);
 
     private Calendar selectedDate = Calendar.getInstance();
 
@@ -125,6 +136,7 @@ public class AddVerificationDialog extends FarmDialogFragment {
         btnCancel.setOnClickListener(v -> dismiss());
         btnSave.setText("Save");
         btnSave.setOnClickListener(v -> saveVerification());
+        if (correctionOfId != null) prefillFromOriginal(correctionOfId);
 
         return new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -169,6 +181,7 @@ public class AddVerificationDialog extends FarmDialogFragment {
         etStatus = view.findViewById(R.id.etStatus);
         evidenceContainer = view.findViewById(R.id.evidenceContainer);
         btnAddEvidence = view.findViewById(R.id.btnAddEvidence);
+        btnUploadEvidence = view.findViewById(R.id.btnUploadEvidence);
         etComment = view.findViewById(R.id.etComment);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
@@ -265,6 +278,83 @@ public class AddVerificationDialog extends FarmDialogFragment {
 
     private void setupEvidence() {
         btnAddEvidence.setOnClickListener(v -> addEvidenceItem(null));
+        btnUploadEvidence.setOnClickListener(v -> pickEvidence.launch("*/*"));
+    }
+
+    private void uploadPickedEvidence(Uri uri) {
+        if (uri == null) return;
+        if (!DocumentUploadHelper.isSupported(requireContext(), uri)) {
+            Toast.makeText(getContext(), "Choose a PDF or image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnUploadEvidence.setEnabled(false);
+        btnUploadEvidence.setText("Uploading…");
+        executor.execute(() -> {
+            File file = null;
+            try {
+                file = DocumentUploadHelper.copyToCache(requireContext(), uri);
+                String filename = UUID.randomUUID().toString().substring(0, 8)
+                        + "_" + DocumentUploadHelper.fileName(requireContext(), uri);
+                String path;
+                if (correctionOfId != null && !correctionOfId.isEmpty()) {
+                    path = "farms/" + farmId + "/compliance_verifications/" + correctionOfId
+                            + "/evidence/" + filename;
+                } else {
+                    path = "farms/" + farmId + "/compliance_verifications/pending/"
+                            + System.currentTimeMillis() + "_" + filename;
+                }
+                File uploadedFile = file;
+                FirebaseManager.getInstance().uploadDocumentFile(file, path,
+                        new FirebaseManager.EvidenceUploadCallback() {
+                            @Override public void onSuccess(String downloadUrl) {
+                                Activity activity = getActivity();
+                                if (activity == null) {
+                                    uploadedFile.delete();
+                                    return;
+                                }
+                                activity.runOnUiThread(() -> {
+                                    if (!isAdded()) {
+                                        uploadedFile.delete();
+                                        return;
+                                    }
+                                    addEvidenceItem(downloadUrl);
+                                    btnUploadEvidence.setEnabled(true);
+                                    btnUploadEvidence.setText("Upload file");
+                                    uploadedFile.delete();
+                                });
+                            }
+
+                            @Override public void onError(String error) {
+                                Activity activity = getActivity();
+                                if (activity == null) {
+                                    uploadedFile.delete();
+                                    return;
+                                }
+                                activity.runOnUiThread(() -> {
+                                    if (!isAdded()) {
+                                        uploadedFile.delete();
+                                        return;
+                                    }
+                                    btnUploadEvidence.setEnabled(true);
+                                    btnUploadEvidence.setText("Upload file");
+                                    Toast.makeText(getContext(), "Evidence upload failed", Toast.LENGTH_LONG).show();
+                                    uploadedFile.delete();
+                                });
+                            }
+                        });
+            } catch (Exception error) {
+                if (file != null) file.delete();
+                Activity activity = getActivity();
+                if (activity == null) return;
+                activity.runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    btnUploadEvidence.setEnabled(true);
+                    btnUploadEvidence.setText("Upload file");
+                    Toast.makeText(getContext(), "Could not prepare evidence file", Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void addEvidenceItem(String url) {
