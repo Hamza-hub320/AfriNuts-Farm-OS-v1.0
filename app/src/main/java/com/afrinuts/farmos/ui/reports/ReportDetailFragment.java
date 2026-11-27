@@ -248,17 +248,11 @@ public class ReportDetailFragment extends Fragment {
             addPreviewRow("Batches graded",String.valueOf(list.size())); addPreviewRow("Average KOR",format(list.isEmpty()?0:kor/list.size()," g/kg"));
             addPreviewRow("Average moisture",format(list.isEmpty()?0:moisture/list.size(),"%")); addPreviewRow("Average defective",format(list.isEmpty()?0:defective/list.size(),"%"));
             addPreviewRow("Premium · Standard · Reject",p+" · "+s+" · "+r);
-            addPreviewRow("Batch results", "Batch · Supplier · KOR · Grade · Moisture · Defective · Nut count");
-            for(int i=0;i<Math.min(8,list.size());i++){QualityBatchEntity b=list.get(i);addPreviewRow(value(b.getBatchNumber()),value(b.getSupplierName())+" · "+format(b.getKorGPerKg()," g/kg")+" · "+(b.getQualityGrade()==null?"—":b.getQualityGrade().getDisplayName())+" · "+format(b.getMoistureContent(),"%")+" · "+format(b.getDefectiveRate(),"%")+" · "+b.getNutCountPerKg()+" / kg");}
         } else if ("TRACEABILITY".equals(reportType)) {
             List<BatchTraceabilityEntity> list=filteredTraces(); int exported=0;double weight=0;for(BatchTraceabilityEntity b:list){if(b.getExportDate()!=null&&b.getExportDate()>0)exported++;weight+=b.getWeightKg();}
             addKpiCards(new String[]{"Traced lots", "Exported lots", "Total weight"}, new String[]{
                     String.valueOf(list.size()), String.valueOf(exported), String.format(Locale.getDefault(),"%,.0f kg",weight)});
             addPreviewRow("Traced lots",String.valueOf(list.size()));addPreviewRow("Exported lots",String.valueOf(exported));addPreviewRow("Total weight",String.format(Locale.getDefault(),"%,.0f kg",weight));
-            addPreviewRow("Lot results","Lot · Buyer · Destination · Export date · Grade · Weight");
-            for(int i=0;i<Math.min(8,list.size());i++){BatchTraceabilityEntity b=list.get(i);addPreviewRow(value(b.getBatchNumber()),value(b.getBuyer())+" · "+value(b.getDestination())+" · "+(b.getExportDate()==null||b.getExportDate()<=0?"—":dateFormat.format(new Date(b.getExportDate())))+" · "+value(b.getGrade())+" · "+String.format(Locale.getDefault(),"%,.0f kg",b.getWeightKg()));}
-            addPreviewRow("Master shipments",String.valueOf(filteredMasters().size()));
-            for(MasterBatchTraceabilityEntity m:filteredMasters())addPreviewRow(value(m.getMasterBatchNumber()),value(m.getBuyer())+" · "+value(m.getDestination())+" · "+m.getTotalBatches()+" batches · "+String.format(Locale.getDefault(),"%,.0f kg",m.getTotalWeightKg()));
         } else if ("FINANCIAL".equals(reportType)) {
             double income=0,out=0;for(RevenueEntity e:revenues)if(inRange(e.getCreatedAt()))income+=e.getTotalAmount();for(ExpenseEntity e:expenses)if(inRange(e.getDate()))out+=e.getAmount();
             addKpiCards(new String[]{"Revenue", "Expenses", "Net profit"}, new String[]{

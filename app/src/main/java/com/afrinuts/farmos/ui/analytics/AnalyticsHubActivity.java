@@ -171,6 +171,8 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         if ("QUALITY".equals(pagerAdapter.getTabKey(position))) {
             // Quality tab — kernel batch on tap, RCN intake on long-press
             fabAction.show();
+            fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
             fabAction.setImageResource(R.drawable.ic_add);
 
             fabAction.setOnClickListener(v -> {
@@ -198,7 +200,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         } else if ("TRACEABILITY".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
             fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.primary)));
+                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
             fabAction.setImageResource(R.drawable.ic_qr_code);
             fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> {
