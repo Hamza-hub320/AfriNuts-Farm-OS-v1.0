@@ -9,12 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,13 +33,18 @@ import android.graphics.drawable.GradientDrawable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not BaseHubActivity
+public class UsersListActivity extends BaseActivity implements UserDetailFragment.Listener {   // ← BaseActivity, not BaseHubActivity
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<?> adapter;
     private ProgressBar progressBar;
     private LinearLayout emptyView;
     private ChipGroup filterChipGroup;
+    private FrameLayout detailContentContainer;
+    private TextView detailEmptyState;
+    private boolean tablet;
+    private boolean keepDetailEmptyAfterDelete;
+    private long selectedUserId = -1;
 
     private AppDatabase database;
     private long farmId = 1L;
@@ -85,6 +92,9 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         progressBar = findViewById(R.id.progressBar);
         emptyView = findViewById(R.id.emptyView);
         filterChipGroup = findViewById(R.id.filterChipGroup);
+        detailContentContainer = findViewById(R.id.detailContentContainer);
+        detailEmptyState = findViewById(R.id.detailEmptyState);
+        tablet = getResources().getConfiguration().screenWidthDp >= 600;
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -99,6 +109,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         chipAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "ALL";
+                keepDetailEmptyAfterDelete = false;
                 applyFilter();
             }
         });
@@ -106,6 +117,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         chipOwners.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "OWNERS";
+                keepDetailEmptyAfterDelete = false;
                 applyFilter();
             }
         });
@@ -113,6 +125,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         chipManagers.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "MANAGERS";
+                keepDetailEmptyAfterDelete = false;
                 applyFilter();
             }
         });
@@ -120,6 +133,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         chipWorkers.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "WORKERS";
+                keepDetailEmptyAfterDelete = false;
                 applyFilter();
             }
         });
@@ -127,6 +141,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
         chipInvestors.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 currentFilter = "INVESTORS";
+                keepDetailEmptyAfterDelete = false;
                 applyFilter();
             }
         });
@@ -148,6 +163,7 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
 
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.fabAddUser);
+        if (fab == null) return;
         fab.setOnClickListener(v -> {
             AddUserDialog dialog = AddUserDialog.newInstance();
             dialog.setOnUserAddedListener(() -> {
@@ -168,6 +184,10 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
 
                 if (allUsers.isEmpty()) {
                     showEmpty(true);
+                    if (tablet) {
+                        selectedUserId = -1;
+                        showDetailEmptyState();
+                    }
                 } else {
                     showEmpty(false);
                     applyFilter();
@@ -207,22 +227,83 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
             }
         }
 
+        boolean selectionVisible = false;
+        for (UserEntity user : filteredUsers) {
+            if (user.getLocalId() == selectedUserId) {
+                selectionVisible = true;
+                break;
+            }
+        }
+        if (tablet && !selectionVisible) {
+            selectedUserId = keepDetailEmptyAfterDelete || filteredUsers.isEmpty()
+                    ? -1 : filteredUsers.get(0).getLocalId();
+        }
+
         adapter = new UserRowAdapter(filteredUsers, user -> {
-            Intent intent = new Intent(UsersListActivity.this, UserDetailActivity.class);
-            intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getLocalId());
-            startActivity(intent);
+            if (tablet) {
+                selectUser(user);
+            } else {
+                Intent intent = new Intent(UsersListActivity.this, UserDetailActivity.class);
+                intent.putExtra(UserDetailActivity.EXTRA_USER_ID, user.getLocalId());
+                startActivity(intent);
+            }
         });
+        ((UserRowAdapter) adapter).setSelectedUserId(tablet ? selectedUserId : -1);
 
         recyclerView.setAdapter(adapter);
+        if (tablet) {
+            UserEntity selected = findUser(selectedUserId);
+            if (selected == null) showDetailEmptyState();
+            else showUserDetail(selected);
+        }
+    }
+
+    private UserEntity findUser(long id) {
+        for (UserEntity user : filteredUsers) {
+            if (user.getLocalId() == id) return user;
+        }
+        return null;
+    }
+
+    private void selectUser(UserEntity user) {
+        keepDetailEmptyAfterDelete = false;
+        selectedUserId = user.getLocalId();
+        ((UserRowAdapter) adapter).setSelectedUserId(selectedUserId);
+        showUserDetail(user);
+    }
+
+    private void showUserDetail(UserEntity user) {
+        if (detailContentContainer == null || detailEmptyState == null) return;
+        detailEmptyState.setVisibility(View.GONE);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof UserDetailFragment
+                && ((UserDetailFragment) current).getUserId() == user.getLocalId()) return;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer, UserDetailFragment.newInstance(user.getLocalId()), "user-detail")
+                .commit();
+    }
+
+    private void showDetailEmptyState() {
+        if (detailContentContainer == null || detailEmptyState == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current != null) getSupportFragmentManager().beginTransaction().remove(current).commit();
+        detailEmptyState.setText("Choose a user to view their details.");
+        detailEmptyState.setVisibility(View.VISIBLE);
     }
 
     private static class UserRowAdapter extends RecyclerView.Adapter<UserRowAdapter.UserRowHolder> {
         private final List<UserEntity> users;
         private final UserAdapter.OnUserClickListener listener;
+        private long selectedUserId = -1;
 
         UserRowAdapter(List<UserEntity> users, UserAdapter.OnUserClickListener listener) {
             this.users = users;
             this.listener = listener;
+        }
+
+        void setSelectedUserId(long userId) {
+            selectedUserId = userId;
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -253,6 +334,9 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
             holder.status.setColorFilter(user.isActive() ? 0xFF0E6B3C : 0xFFB9B2A2);
             holder.status.setContentDescription(user.isActive() ? "Active" : "Inactive");
             holder.card.setOnClickListener(v -> listener.onUserClick(user));
+            boolean tablet = holder.itemView.getResources().getConfiguration().screenWidthDp >= 600;
+            holder.card.setCardBackgroundColor(tablet && user.getLocalId() == selectedUserId
+                    ? 0xFFE3F0E7 : 0xFFFFFFFF);
         }
 
         private static int roleIcon(UserEntity.UserRole role) {
@@ -307,5 +391,16 @@ public class UsersListActivity extends BaseActivity {   // ← BaseActivity, not
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override public void onUserChanged(long userId) {
+        selectedUserId = userId;
+        loadData();
+    }
+
+    @Override public void onUserDeleted(long userId) {
+        selectedUserId = -1;
+        keepDetailEmptyAfterDelete = true;
+        loadData();
     }
 }
