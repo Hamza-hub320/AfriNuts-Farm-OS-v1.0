@@ -7,7 +7,7 @@
 
     <!-- Main Content Container -->
     <LinearLayout
-        android:layout_width="494dp"
+        android:layout_width="612dp"
         android:layout_height="match_parent"
         android:layout_marginTop="104dp"
         android:orientation="vertical"
@@ -18,7 +18,7 @@
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="482dp"
+            android:layout_width="600dp"
             android:layout_height="64dp"
             android:layout_marginTop="0dp"
             android:background="@drawable/bg_tabs_container"
@@ -37,8 +37,6 @@
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.FinanceTab"
-            app:tabMinWidth="120.5dp"
-            app:tabMaxWidth="120.5dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
