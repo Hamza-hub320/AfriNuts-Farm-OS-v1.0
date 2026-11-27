@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <resources>
-<item name="tag_action_status" type="id" />
-<item name="tag_finding_status" type="id" />
-<item name="tag_finding_due_date" type="id" />
-<item name="tag_action_due_date" type="id" />
+    <item name="btnToolbarSync" type="id" />
+    <item name="toolbarSyncStatus" type="id" />
+    <item name="syncStatusDot" type="id" />
+    <item name="tag_finding_status" type="id" />
+    <item name="tag_finding_due_date" type="id" />
+    <item name="tag_action_status" type="id" />
+    <item name="tag_action_due_date" type="id" />
 </resources>
