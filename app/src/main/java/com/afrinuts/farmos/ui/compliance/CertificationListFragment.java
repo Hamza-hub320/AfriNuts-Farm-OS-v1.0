@@ -1,6 +1,8 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,11 +25,16 @@ import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CertificationListFragment extends Fragment {
+
+    public interface OnCertificationSelectedListener {
+        void onCertificationSelected(String certificationId);
+    }
 
     private RecyclerView recyclerView;
     private CertificationAdapter adapter;
@@ -54,6 +61,18 @@ public class CertificationListFragment extends Fragment {
 
         initViews(view);
         setupRecyclerView();
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            GradientDrawable listPanel = new GradientDrawable();
+            listPanel.setColor(Color.WHITE);
+            listPanel.setCornerRadius(36 * getResources().getDisplayMetrics().density);
+            view.setBackground(listPanel);
+            view.setClipToOutline(true);
+            int inset = Math.round(10 * getResources().getDisplayMetrics().density);
+            view.setPadding(inset, inset, inset, inset);
+            int listBottomPadding = Math.round(12 * getResources().getDisplayMetrics().density);
+            recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerView.getPaddingTop(),
+                    recyclerView.getPaddingRight(), listBottomPadding);
+        }
 
         // ✅ Get farm ID on background thread
         executor.execute(() -> {
@@ -87,10 +106,16 @@ public class CertificationListFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CertificationAdapter(certifications, certification -> {
-            // ✅ Navigate to CertificationDetailActivity
-            Intent intent = new Intent(requireContext(), CertificationDetailActivity.class);
-            intent.putExtra(CertificationDetailActivity.EXTRA_CERTIFICATION_ID, certification.getCertificationId());
-            startActivity(intent);
+            String certificationId = certification.getCertificationId();
+            if (getResources().getConfiguration().screenWidthDp >= 600
+                    && getActivity() instanceof OnCertificationSelectedListener) {
+                adapter.setSelectedCertificationId(certificationId);
+                ((OnCertificationSelectedListener) getActivity()).onCertificationSelected(certificationId);
+            } else {
+                Intent intent = new Intent(requireContext(), CertificationDetailActivity.class);
+                intent.putExtra(CertificationDetailActivity.EXTRA_CERTIFICATION_ID, certificationId);
+                startActivity(intent);
+            }
         });
         recyclerView.setAdapter(adapter);
     }
@@ -106,6 +131,14 @@ public class CertificationListFragment extends Fragment {
                 if (certs != null) {
                     certifications.addAll(certs);
                 }
+                boolean tablet = getResources().getConfiguration().screenWidthDp >= 600;
+                if (tablet) {
+                    certifications.sort(Comparator
+                            .comparingInt(CertificationListFragment::wireframeOrder)
+                            .thenComparing(certification -> certification.getCertificationName() == null
+                                    ? "" : certification.getCertificationName(),
+                                    String.CASE_INSENSITIVE_ORDER));
+                }
 
                 showLoading(false);
 
@@ -114,9 +147,49 @@ public class CertificationListFragment extends Fragment {
                 } else {
                     showEmpty(false);
                     adapter.updateCertifications(certifications);
+                    if (tablet
+                            && getActivity() instanceof OnCertificationSelectedListener) {
+                        String selectedId = adapter.getSelectedCertificationId();
+                        CertificationEntity selected = findCertification(selectedId);
+                        if (selected == null) selected = preferredCertification();
+                        adapter.setSelectedCertificationId(selected.getCertificationId());
+                        ((OnCertificationSelectedListener) getActivity())
+                                .onCertificationSelected(selected.getCertificationId());
+                    }
                 }
             }
         });
+    }
+
+    private CertificationEntity findCertification(String certificationId) {
+        if (certificationId == null) return null;
+        for (CertificationEntity certification : certifications) {
+            if (certificationId.equals(certification.getCertificationId())) return certification;
+        }
+        return null;
+    }
+
+    private CertificationEntity preferredCertification() {
+        for (CertificationEntity certification : certifications) {
+            if (isOrganic(certification)) return certification;
+        }
+        return certifications.get(0);
+    }
+
+    private boolean isOrganic(CertificationEntity certification) {
+        return certification.getCertificationName() != null
+                && certification.getCertificationName().toLowerCase(java.util.Locale.ROOT).contains("organic");
+    }
+
+    private static int wireframeOrder(CertificationEntity certification) {
+        String name = certification.getCertificationName();
+        String normalized = name == null ? "" : name.toLowerCase(java.util.Locale.ROOT);
+        if (normalized.contains("organic")) return 0;
+        if (normalized.contains("fair trade")) return 1;
+        if (normalized.contains("rainforest")) return 2;
+        if (normalized.contains("halal")) return 3;
+        if (normalized.contains("iso 22000")) return 4;
+        return 5;
     }
 
     /**

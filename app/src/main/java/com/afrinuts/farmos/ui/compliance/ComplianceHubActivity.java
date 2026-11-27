@@ -42,12 +42,17 @@ import java.util.List;
 import java.util.Locale;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class ComplianceHubActivity extends BaseHubActivity {
+public class ComplianceHubActivity extends BaseHubActivity
+        implements CertificationListFragment.OnCertificationSelectedListener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private FloatingActionButton fabAdd;
     private CompliancePagerAdapter pagerAdapter;
+    private View detailContainer;
+    private View detailContentContainer;
+    private TextView detailEmptyState;
+    private String selectedCertificationId;
 
     // Navigation items
     private LinearLayout navHome;
@@ -106,6 +111,9 @@ public class ComplianceHubActivity extends BaseHubActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         fabAdd = findViewById(R.id.fabAdd);
+        detailContainer = findViewById(R.id.detailContainer);
+        detailContentContainer = findViewById(R.id.detailContentContainer);
+        detailEmptyState = findViewById(R.id.detailEmptyState);
         View profile = findViewById(R.id.complianceProfileButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
@@ -212,8 +220,54 @@ public class ComplianceHubActivity extends BaseHubActivity {
                 super.onPageSelected(position);
                 currentPosition = position;
                 updateFabForTab(position);
+                if (detailContainer != null) {
+                    if (tabs.get(position).type == TabType.PROGRAMMES) {
+                        if (selectedCertificationId != null) {
+                            showCertificationDetail(selectedCertificationId);
+                        } else {
+                            showDetailEmptyState("Choose a programme to view its details.");
+                        }
+                    } else {
+                        showDetailEmptyState("Choose a programme or check to view its details.");
+                    }
+                }
             }
         });
+    }
+
+    @Override
+    public void onCertificationSelected(String certificationId) {
+        if (detailContainer == null || certificationId == null || certificationId.isEmpty()) return;
+        selectedCertificationId = certificationId;
+        if (currentPosition < tabs.size() && tabs.get(currentPosition).type == TabType.PROGRAMMES) {
+            showCertificationDetail(certificationId);
+        }
+    }
+
+    private void showCertificationDetail(String certificationId) {
+        if (detailContentContainer == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof CertificationDetailFragment
+                && certificationId.equals(current.getArguments().getString("certification_id"))) {
+            detailEmptyState.setVisibility(View.GONE);
+            return;
+        }
+        detailEmptyState.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer,
+                        CertificationDetailFragment.newInstance(certificationId),
+                        "compliance_certification_detail")
+                .commit();
+    }
+
+    private void showDetailEmptyState(String message) {
+        if (detailContentContainer == null || detailEmptyState == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current != null) {
+            getSupportFragmentManager().beginTransaction().remove(current).commit();
+        }
+        detailEmptyState.setText(message);
+        detailEmptyState.setVisibility(View.VISIBLE);
     }
 
     private void updateFabForTab(int position) {
@@ -240,6 +294,9 @@ public class ComplianceHubActivity extends BaseHubActivity {
         // Set click listener based on tab type
         switch (tabItem.type) {
             case PROGRAMMES:
+                // The tablet programme list is a master-detail panel; the wireframe leaves it clear
+                // so the last programme row remains unobstructed. Phone keeps its add FAB.
+                if (detailContainer != null) { fabAdd.hide(); break; }
                 if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_CERTIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()

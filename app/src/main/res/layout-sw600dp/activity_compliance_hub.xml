@@ -7,71 +7,20 @@
 
     <!-- Main Content Container -->
     <LinearLayout
-        android:layout_width="380dp"
+        android:layout_width="494dp"
         android:layout_height="match_parent"
+        android:layout_marginTop="104dp"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:paddingStart="12dp"
+        android:paddingTop="12dp"
         android:paddingBottom="72dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/complianceDateText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#59544C"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/manrope_semibold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Certs"
-                    android:textColor="#1C1B1A"
-                    android:textSize="28sp"
-                    android:letterSpacing="-0.02"
-                    android:fontFamily="@font/manrope_extrabold" />
-            </LinearLayout>
-
-            <ImageButton
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="9dp"
-                android:background="@drawable/bg_home_bell_button"
-                android:contentDescription="Notifications"
-                android:clickable="false"
-                android:focusable="false"
-                android:padding="12dp"
-                android:src="@drawable/ic_notification"
-                app:tint="#1C1B1A" />
-
-            <TextView
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@drawable/bg_home_account_button"
-                android:contentDescription="Account"
-                android:gravity="center"
-                android:text="HS"
-                android:textColor="@android:color/white"
-                android:textSize="15sp"
-                android:fontFamily="@font/manrope_extrabold" />
-        </LinearLayout>
 
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="482dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="0dp"
             android:background="@drawable/bg_tabs_container"
             app:tabIndicatorColor="@android:color/transparent"
             app:tabIndicatorHeight="0dp"
@@ -84,18 +33,19 @@
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             android:elevation="1dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="20dp"
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.FinanceTab"
-            app:tabMinWidth="60dp"
+            app:tabMinWidth="120.5dp"
+            app:tabMaxWidth="120.5dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
         <!-- ViewPager2 -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
-            android:layout_width="match_parent"
+            android:layout_width="380dp"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="0dp"
@@ -111,13 +61,79 @@
     </LinearLayout>
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="24dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="24dp">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/complianceDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#59544C"
+                android:textSize="14sp"
+                android:fontFamily="@font/manrope_semibold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Certs"
+                android:textColor="#1C1B1A"
+                android:textSize="28sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+        <ImageButton
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_home_bell_button"
+            android:contentDescription="Notifications"
+            android:clickable="false"
+            android:focusable="false"
+            android:padding="14dp"
+            android:src="@drawable/ic_notification"
+            app:tint="#1C1B1A" />
+        <TextView
+            android:id="@+id/complianceProfileButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_home_account_button"
+            android:clickable="true"
+            android:contentDescription="Account menu"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="HS"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:fontFamily="@font/manrope_extrabold" />
+    </LinearLayout>
+
+
     <FrameLayout
+        android:id="@+id/detailContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="380dp"
+        android:layout_marginStart="408dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="104dp"
         android:background="@color/background">
+        <FrameLayout
+            android:id="@+id/detailContentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
         <TextView
+            android:id="@+id/detailEmptyState"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
