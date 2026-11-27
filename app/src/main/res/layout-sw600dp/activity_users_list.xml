@@ -41,6 +41,7 @@
             android:id="@+id/toolbarMore"
             android:layout_width="44dp"
             android:layout_height="44dp"
+            android:visibility="gone"
             android:background="@drawable/bg_farm_action_circle"
             android:contentDescription="More actions"
             android:padding="11dp"
@@ -156,10 +157,11 @@
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
                         android:paddingStart="8dp"
                         android:paddingTop="8dp"
                         android:paddingEnd="8dp"
-                        android:paddingBottom="96dp" />
+                        android:paddingBottom="88dp" />
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
@@ -197,12 +199,12 @@
                         android:id="@+id/detailContentContainer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="144dp" />
+                        android:layout_marginBottom="0dp" />
                     <TextView
                         android:id="@+id/detailEmptyState"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="144dp"
+                        android:layout_marginBottom="0dp"
                         android:gravity="center"
                         android:padding="24dp"
                         android:text="Choose a user to view their details."

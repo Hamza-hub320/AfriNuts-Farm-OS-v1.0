@@ -92,17 +92,17 @@ public class UserDetailFragment extends Fragment {
         bindViews(view);
 
         boolean isTablet = getResources().getConfiguration().screenWidthDp >= 600;
-        if (isTablet) arrangeTabletHeader();
+        if (isTablet) {
+            arrangeTabletHeader();
+            tightenTabletFieldRows();
+        }
 
         tabletActions = requireActivity().findViewById(R.id.tabletUserActions);
         tabletBtnEdit = requireActivity().findViewById(R.id.tabletBtnEdit);
         tabletBtnDelete = requireActivity().findViewById(R.id.tabletBtnDelete);
         if (isTablet && tabletActions != null) {
-            tabletActions.setVisibility(View.VISIBLE);
-            tabletBtnEdit.setOnClickListener(v -> showEditUserDialog());
-            tabletBtnDelete.setOnClickListener(v -> confirmDelete());
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
+            // Keep the actions in the detail's ScrollView, directly after About/Bio.
+            tabletActions.setVisibility(View.GONE);
         }
 
         View toolbar = view.findViewById(R.id.toolbar);
@@ -148,6 +148,50 @@ public class UserDetailFragment extends Fragment {
         statusRow.setLayoutParams(params);
         ((LinearLayout) statusRow).setGravity(android.view.Gravity.CENTER_VERTICAL);
         headerRow.addView(statusRow);
+    }
+
+    private void tightenTabletFieldRows() {
+        View phoneRow = tvUserPhone.getParent() instanceof View
+                ? (View) tvUserPhone.getParent() : null;
+        View titleRow = tvUserTitleDetail.getParent() instanceof View
+                ? (View) tvUserTitleDetail.getParent() : null;
+        if (phoneRow != null) {
+            phoneRow.setPadding(phoneRow.getPaddingLeft(), phoneRow.getPaddingTop(),
+                    phoneRow.getPaddingRight(), 0);
+            addTabletDividerAfter(phoneRow);
+        }
+        if (titleRow != null) {
+            titleRow.setPadding(titleRow.getPaddingLeft(), titleRow.getPaddingTop(),
+                    titleRow.getPaddingRight(), 0);
+            addTabletDividerAfter(titleRow);
+        }
+        if (phoneRow != null && phoneRow.getParent() instanceof View) {
+            View contactContent = (View) phoneRow.getParent();
+            contactContent.setPadding(contactContent.getPaddingLeft(), contactContent.getPaddingTop(),
+                    contactContent.getPaddingRight(), 0);
+        }
+        layoutBio.setPadding(layoutBio.getPaddingLeft(), 0,
+                layoutBio.getPaddingRight(), layoutBio.getPaddingBottom());
+        if (layoutContactCard.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) layoutContactCard.getLayoutParams();
+            params.bottomMargin = 0;
+            layoutContactCard.setLayoutParams(params);
+        }
+    }
+
+    private void addTabletDividerAfter(View row) {
+        if (!(row.getParent() instanceof ViewGroup)) return;
+        ViewGroup parent = (ViewGroup) row.getParent();
+        int index = parent.indexOfChild(row);
+        if (index + 1 < parent.getChildCount()) {
+            Object tag = parent.getChildAt(index + 1).getTag();
+            if ("tablet-user-row-divider".equals(tag)) return;
+        }
+        View divider = new View(requireContext());
+        divider.setTag("tablet-user-row-divider");
+        divider.setBackgroundColor(0xFFE9E1CF);
+        parent.addView(divider, index + 1,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
     }
 
     public long getUserId() { return userId; }
@@ -246,9 +290,8 @@ public class UserDetailFragment extends Fragment {
             if (tabletBtnDelete != null) tabletBtnDelete.setVisibility(deleteVisibility);
         }
         if (getResources().getConfiguration().screenWidthDp >= 600) {
-            // The tablet footer owns these actions; keep the copies in the scroll content hidden.
-            btnEdit.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.GONE);
+            // Actions remain in the scroll content beneath the profile details.
+            btnEdit.setVisibility(View.VISIBLE);
         }
 
         tvAccessRole.setText(user.getDisplayRole());
