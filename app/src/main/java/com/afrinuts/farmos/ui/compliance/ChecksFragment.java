@@ -214,16 +214,6 @@ public class ChecksFragment extends Fragment {
             return;
         }
         Entry first = visibleEntries.get(0);
-        // The Checks tab opens on the audit workflow; when All is selected, show
-        // the newest audit by default while keeping the combined list date-sorted.
-        if (selectedFilter == ALL) {
-            for (Entry entry : visibleEntries) {
-                if (entry.type == TYPE_AUDIT) {
-                    first = entry;
-                    break;
-                }
-            }
-        }
         selectedCheckType = first.type;
         selectedCheckId = first.id;
         adapter.setSelectedCheck(selectedCheckType, selectedCheckId);

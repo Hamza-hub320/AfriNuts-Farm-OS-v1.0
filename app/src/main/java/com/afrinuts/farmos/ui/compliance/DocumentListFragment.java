@@ -1,6 +1,8 @@
 package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,6 +58,15 @@ public class DocumentListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
+        if (isTablet()) {
+            GradientDrawable pane = new GradientDrawable();
+            pane.setColor(Color.WHITE);
+            pane.setCornerRadius(dp(24));
+            view.setBackground(pane);
+            view.setClipToOutline(true);
+            int inset = dp(16);
+            recyclerView.setPadding(inset, dp(12), inset, dp(16));
+        }
         setupRecyclerView();
 
         executor.execute(() -> {
@@ -127,6 +138,10 @@ public class DocumentListFragment extends Fragment {
 
     private boolean isTablet() {
         return getResources().getConfiguration().screenWidthDp >= 600;
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     public void showAddDocumentDialog() {
