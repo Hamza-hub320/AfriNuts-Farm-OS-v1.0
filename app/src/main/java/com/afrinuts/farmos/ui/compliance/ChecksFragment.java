@@ -2,6 +2,8 @@ package com.afrinuts.farmos.ui.compliance;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +45,12 @@ import java.util.concurrent.Executors;
 /** Combined, newest-first list for audits, compliance inspections, and verifications. */
 public class ChecksFragment extends Fragment {
     private static final int ALL = 0, AUDITS = 1, INSPECTIONS = 2, VERIFICATIONS = 3;
+    public static final int TYPE_NONE = 0, TYPE_AUDIT = 1, TYPE_INSPECTION = 2, TYPE_VERIFICATION = 3;
+
+    public interface OnCheckSelectedListener {
+        void onCheckSelected(int type, String id);
+    }
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final List<AuditEntity> audits = new ArrayList<>();
     private final List<InspectionEntity> inspections = new ArrayList<>();
@@ -55,6 +63,11 @@ public class ChecksFragment extends Fragment {
     private AuditRepository auditRepository;
     private InspectionRepository inspectionRepository;
     private VerificationRepository verificationRepository;
+    private boolean auditsLoaded, inspectionsLoaded, verificationsLoaded;
+    private boolean initialSelectionApplied;
+    private boolean filterSelectionPending;
+    private int selectedCheckType = TYPE_NONE;
+    private String selectedCheckId;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -62,6 +75,13 @@ public class ChecksFragment extends Fragment {
         LinearLayout root = new LinearLayout(requireContext());
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(12), dp(10), dp(12), dp(8));
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            GradientDrawable paneBackground = new GradientDrawable();
+            paneBackground.setColor(Color.WHITE);
+            paneBackground.setCornerRadius(dp(28));
+            root.setBackground(paneBackground);
+            root.setClipToOutline(true);
+        }
         filters = new ChipGroup(requireContext());
         filters.setSingleSelection(true);
         filters.setSelectionRequired(true);
@@ -85,6 +105,14 @@ public class ChecksFragment extends Fragment {
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            ViewGroup host = requireActivity().findViewById(R.id.checkFiltersHost);
+            if (host != null && filters.getParent() instanceof ViewGroup) {
+                ((ViewGroup) filters.getParent()).removeView(filters);
+                filters.setSingleLine(true);
+                host.addView(filters, new LinearLayout.LayoutParams(-1, -2));
+            }
+        }
         executor.execute(() -> {
             try {
                 farmId = AppDatabase.getInstance(requireContext()).farmDao().getFirstFarm().getId();
@@ -102,13 +130,13 @@ public class ChecksFragment extends Fragment {
 
     private void observeLists() {
         auditRepository.getAllAudits().observe(getViewLifecycleOwner(), data -> {
-            audits.clear(); if (data != null) audits.addAll(data); refreshRows();
+            audits.clear(); if (data != null) audits.addAll(data); auditsLoaded = true; refreshRows();
         });
         inspectionRepository.getAllInspections().observe(getViewLifecycleOwner(), data -> {
-            inspections.clear(); if (data != null) inspections.addAll(data); refreshRows();
+            inspections.clear(); if (data != null) inspections.addAll(data); inspectionsLoaded = true; refreshRows();
         });
         verificationRepository.getAllVerifications().observe(getViewLifecycleOwner(), data -> {
-            verifications.clear(); if (data != null) verifications.addAll(data); refreshRows();
+            verifications.clear(); if (data != null) verifications.addAll(data); verificationsLoaded = true; refreshRows();
         });
     }
 
@@ -135,7 +163,7 @@ public class ChecksFragment extends Fragment {
                 new int[]{ContextCompat.getColor(requireContext(), android.R.color.white),
                         ContextCompat.getColor(requireContext(), R.color.text_secondary)}));
         chip.setTag(filter);
-        chip.setOnClickListener(v -> { selectedFilter = filter; refreshRows(); });
+        chip.setOnClickListener(v -> { selectedFilter = filter; filterSelectionPending = true; refreshRows(); });
         filters.addView(chip);
         if (filter == ALL) chip.setChecked(true);
     }
@@ -159,6 +187,54 @@ public class ChecksFragment extends Fragment {
         }
         Collections.sort(visibleEntries, Comparator.comparingLong((Entry e) -> e.date).reversed());
         adapter.notifyDataSetChanged();
+        adapter.setSelectedCheck(selectedCheckType, selectedCheckId);
+        if (auditsLoaded && inspectionsLoaded && verificationsLoaded
+                && (!initialSelectionApplied || filterSelectionPending
+                || !containsSelectedCheck())) {
+            initialSelectionApplied = true;
+            filterSelectionPending = false;
+            selectFirstVisibleCheck();
+        }
+    }
+
+    private boolean containsSelectedCheck() {
+        if (selectedCheckType == TYPE_NONE || selectedCheckId == null) return false;
+        for (Entry entry : visibleEntries) {
+            if (entry.type == selectedCheckType && selectedCheckId.equals(entry.id)) return true;
+        }
+        return false;
+    }
+
+    private void selectFirstVisibleCheck() {
+        if (visibleEntries.isEmpty()) {
+            selectedCheckType = TYPE_NONE;
+            selectedCheckId = null;
+            adapter.setSelectedCheck(TYPE_NONE, null);
+            notifyTabletSelection(TYPE_NONE, null);
+            return;
+        }
+        Entry first = visibleEntries.get(0);
+        // The Checks tab opens on the audit workflow; when All is selected, show
+        // the newest audit by default while keeping the combined list date-sorted.
+        if (selectedFilter == ALL) {
+            for (Entry entry : visibleEntries) {
+                if (entry.type == TYPE_AUDIT) {
+                    first = entry;
+                    break;
+                }
+            }
+        }
+        selectedCheckType = first.type;
+        selectedCheckId = first.id;
+        adapter.setSelectedCheck(selectedCheckType, selectedCheckId);
+        notifyTabletSelection(selectedCheckType, selectedCheckId);
+    }
+
+    private void notifyTabletSelection(int type, String id) {
+        if (getResources().getConfiguration().screenWidthDp >= 600
+                && getActivity() instanceof OnCheckSelectedListener) {
+            ((OnCheckSelectedListener) getActivity()).onCheckSelected(type, id);
+        }
     }
 
     private void updateChip(int filter, String text) {
@@ -196,19 +272,19 @@ public class ChecksFragment extends Fragment {
     }
 
     private static class Entry {
-        int type; long id; String title, subtitle; long date; Object model;
+        int type; String id; String title, subtitle; long date; Object model;
         static Entry audit(AuditEntity a) {
-            Entry e = new Entry(); e.type = AUDITS; e.id = 0; e.date = a.getAuditDate(); e.model = a;
+            Entry e = new Entry(); e.type = TYPE_AUDIT; e.id = a.getAuditId(); e.date = a.getAuditDate(); e.model = a;
             e.title = "Audit · " + a.getAuditId();
             e.subtitle = join(safeAuditType(a), a.getAuditorBody(), a.getScope(), safeAuditStatus(a)); return e;
         }
         static Entry inspection(InspectionEntity i) {
-            Entry e = new Entry(); e.type = INSPECTIONS; e.id = 0; e.date = i.getInspectionDate(); e.model = i;
+            Entry e = new Entry(); e.type = TYPE_INSPECTION; e.id = i.getInspectionId(); e.date = i.getInspectionDate(); e.model = i;
             e.title = "Compliance inspection · " + i.getInspectionId();
             e.subtitle = join(i.getCertificationName(), safeInspectionCategory(i), safeInspectionStatus(i)); return e;
         }
         static Entry verification(VerificationEntity v) {
-            Entry e = new Entry(); e.type = VERIFICATIONS; e.id = 0; e.date = v.getVerificationDate(); e.model = v;
+            Entry e = new Entry(); e.type = TYPE_VERIFICATION; e.id = v.getVerificationId(); e.date = v.getVerificationDate(); e.model = v;
             e.title = "Verification · " + v.getVerificationId();
             e.subtitle = join(safeVerificationType(v), v.getVerifiedBy(), safeVerificationStatus(v)); return e;
         }
@@ -229,14 +305,21 @@ public class ChecksFragment extends Fragment {
 
     private class CheckAdapter extends RecyclerView.Adapter<CheckAdapter.Holder> {
         private final List<Entry> entries;
+        private int selectedType = TYPE_NONE;
+        private String selectedId;
         CheckAdapter(List<Entry> entries) { this.entries = entries; }
+        void setSelectedCheck(int type, String id) {
+            selectedType = type;
+            selectedId = id;
+            notifyDataSetChanged();
+        }
         @NonNull @Override public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LinearLayout card = new LinearLayout(parent.getContext()); card.setOrientation(LinearLayout.VERTICAL);
             card.setPadding(dp(16), dp(14), dp(16), dp(14));
-            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+            GradientDrawable bg = new GradientDrawable();
             bg.setColor(ContextCompat.getColor(parent.getContext(), R.color.surface)); bg.setCornerRadius(dp(24));
             card.setBackground(bg); RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, -2);
-            params.bottomMargin = dp(8); card.setLayoutParams(params);
+            card.setLayoutParams(params);
             LinearLayout heading = new LinearLayout(parent.getContext());
             heading.setOrientation(LinearLayout.HORIZONTAL);
             heading.setGravity(Gravity.TOP);
@@ -252,12 +335,33 @@ public class ChecksFragment extends Fragment {
             heading.addView(date, dateParams);
             TextView subtitle = new TextView(parent.getContext()); subtitle.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_secondary));
             subtitle.setTextSize(13); LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(-1, -2); subParams.topMargin = dp(6); card.addView(subtitle, subParams);
-            return new Holder(card, title, subtitle, date);
+            View divider = new View(parent.getContext());
+            divider.setBackgroundColor(0xFFE9E1CF);
+            LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(-1, dp(1));
+            dividerParams.topMargin = dp(12);
+            dividerParams.leftMargin = dp(4);
+            dividerParams.rightMargin = dp(4);
+            card.addView(divider, dividerParams);
+            return new Holder(card, title, subtitle, date, divider);
         }
         @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
             Entry e = entries.get(position); holder.title.setText(e.title); holder.subtitle.setText(e.subtitle);
             holder.date.setText(e.date > 0 ? new SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(new Date(e.date)) : "Date not set");
+            boolean selected = e.type == selectedType && selectedId != null && selectedId.equals(e.id);
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(selected ? 0xFFE3F0E7 : Color.TRANSPARENT);
+            background.setCornerRadius(dp(24));
+            holder.itemView.setBackground(background);
+            holder.divider.setVisibility(!selected && position < entries.size() - 1 ? View.VISIBLE : View.GONE);
             holder.itemView.setOnClickListener(v -> {
+                if (getResources().getConfiguration().screenWidthDp >= 600
+                        && getActivity() instanceof OnCheckSelectedListener) {
+                    selectedType = e.type;
+                    selectedId = e.id;
+                    notifyDataSetChanged();
+                    ((OnCheckSelectedListener) getActivity()).onCheckSelected(e.type, e.id);
+                    return;
+                }
                 Intent intent;
                 if (e.type == AUDITS) { intent = new Intent(requireContext(), AuditDetailActivity.class); intent.putExtra(AuditDetailActivity.EXTRA_AUDIT_ID, ((AuditEntity)e.model).getAuditId()); }
                 else if (e.type == INSPECTIONS) { intent = new Intent(requireContext(), InspectionDetailActivity.class); intent.putExtra(InspectionDetailActivity.EXTRA_INSPECTION_ID, ((InspectionEntity)e.model).getInspectionId()); }
@@ -268,7 +372,8 @@ public class ChecksFragment extends Fragment {
         @Override public int getItemCount() { return entries.size(); }
         class Holder extends RecyclerView.ViewHolder {
             TextView title, subtitle, date;
-            Holder(@NonNull View item, TextView title, TextView subtitle, TextView date) { super(item); this.title=title; this.subtitle=subtitle; this.date=date; }
+            View divider;
+            Holder(@NonNull View item, TextView title, TextView subtitle, TextView date, View divider) { super(item); this.title=title; this.subtitle=subtitle; this.date=date; this.divider=divider; }
         }
     }
 }

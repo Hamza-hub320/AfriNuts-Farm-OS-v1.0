@@ -43,7 +43,8 @@ import java.util.Locale;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ComplianceHubActivity extends BaseHubActivity
-        implements CertificationListFragment.OnCertificationSelectedListener {
+        implements CertificationListFragment.OnCertificationSelectedListener,
+        ChecksFragment.OnCheckSelectedListener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -51,8 +52,11 @@ public class ComplianceHubActivity extends BaseHubActivity
     private CompliancePagerAdapter pagerAdapter;
     private View detailContainer;
     private View detailContentContainer;
+    private View checkFiltersHost;
     private TextView detailEmptyState;
     private String selectedCertificationId;
+    private int selectedCheckType = ChecksFragment.TYPE_NONE;
+    private String selectedCheckId;
 
     // Navigation items
     private LinearLayout navHome;
@@ -113,6 +117,7 @@ public class ComplianceHubActivity extends BaseHubActivity
         fabAdd = findViewById(R.id.fabAdd);
         detailContainer = findViewById(R.id.detailContainer);
         detailContentContainer = findViewById(R.id.detailContentContainer);
+        checkFiltersHost = findViewById(R.id.checkFiltersHost);
         detailEmptyState = findViewById(R.id.detailEmptyState);
         View profile = findViewById(R.id.complianceProfileButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
@@ -220,12 +225,19 @@ public class ComplianceHubActivity extends BaseHubActivity
                 super.onPageSelected(position);
                 currentPosition = position;
                 updateFabForTab(position);
+                updateCheckFiltersLayout(position);
                 if (detailContainer != null) {
                     if (tabs.get(position).type == TabType.PROGRAMMES) {
                         if (selectedCertificationId != null) {
                             showCertificationDetail(selectedCertificationId);
                         } else {
                             showDetailEmptyState("Choose a programme to view its details.");
+                        }
+                    } else if (tabs.get(position).type == TabType.CHECKS) {
+                        if (selectedCheckType == ChecksFragment.TYPE_AUDIT && selectedCheckId != null) {
+                            showAuditDetail(selectedCheckId);
+                        } else {
+                            showDetailEmptyState("Choose an audit to view its details.");
                         }
                     } else {
                         showDetailEmptyState("Choose a programme or check to view its details.");
@@ -235,6 +247,27 @@ public class ComplianceHubActivity extends BaseHubActivity
         });
     }
 
+    private void updateCheckFiltersLayout(int position) {
+        if (checkFiltersHost == null || position >= tabs.size()) return;
+        boolean checksSelected = tabs.get(position).type == TabType.CHECKS;
+        checkFiltersHost.setVisibility(checksSelected ? View.VISIBLE : View.GONE);
+
+        ViewGroup.LayoutParams pagerRawParams = viewPager.getLayoutParams();
+        if (pagerRawParams instanceof android.widget.LinearLayout.LayoutParams) {
+            android.widget.LinearLayout.LayoutParams pagerParams =
+                    (android.widget.LinearLayout.LayoutParams) pagerRawParams;
+            pagerParams.topMargin = dp(checksSelected ? 56 : 0);
+            viewPager.setLayoutParams(pagerParams);
+        }
+        ViewGroup.LayoutParams detailRawParams = detailContainer.getLayoutParams();
+        if (detailRawParams instanceof android.widget.FrameLayout.LayoutParams) {
+            android.widget.FrameLayout.LayoutParams detailParams =
+                    (android.widget.FrameLayout.LayoutParams) detailRawParams;
+            detailParams.topMargin = dp(checksSelected ? 256 : 200);
+            detailContainer.setLayoutParams(detailParams);
+        }
+    }
+
     @Override
     public void onCertificationSelected(String certificationId) {
         if (detailContainer == null || certificationId == null || certificationId.isEmpty()) return;
@@ -242,6 +275,34 @@ public class ComplianceHubActivity extends BaseHubActivity
         if (currentPosition < tabs.size() && tabs.get(currentPosition).type == TabType.PROGRAMMES) {
             showCertificationDetail(certificationId);
         }
+    }
+
+    @Override
+    public void onCheckSelected(int type, String checkId) {
+        selectedCheckType = type;
+        selectedCheckId = checkId;
+        if (detailContainer == null || currentPosition >= tabs.size()
+                || tabs.get(currentPosition).type != TabType.CHECKS) return;
+        if (type == ChecksFragment.TYPE_AUDIT && checkId != null && !checkId.isEmpty()) {
+            showAuditDetail(checkId);
+        } else {
+            showDetailEmptyState("Choose an audit to view its details.");
+        }
+    }
+
+    private void showAuditDetail(String auditId) {
+        if (detailContentContainer == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof AuditDetailFragment && current.getArguments() != null
+                && auditId.equals(current.getArguments().getString("audit_id"))) {
+            detailEmptyState.setVisibility(View.GONE);
+            return;
+        }
+        detailEmptyState.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer, AuditDetailFragment.newInstance(auditId),
+                        "compliance_audit_detail")
+                .commit();
     }
 
     private void showCertificationDetail(String certificationId) {
