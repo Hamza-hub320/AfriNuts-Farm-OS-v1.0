@@ -236,8 +236,10 @@ public class ComplianceHubActivity extends BaseHubActivity
                     } else if (tabs.get(position).type == TabType.CHECKS) {
                         if (selectedCheckType == ChecksFragment.TYPE_AUDIT && selectedCheckId != null) {
                             showAuditDetail(selectedCheckId);
+                        } else if (selectedCheckType == ChecksFragment.TYPE_INSPECTION && selectedCheckId != null) {
+                            showInspectionDetail(selectedCheckId);
                         } else {
-                            showDetailEmptyState("Choose an audit to view its details.");
+                            showDetailEmptyState("Choose a check to view its details.");
                         }
                     } else {
                         showDetailEmptyState("Choose a programme or check to view its details.");
@@ -285,8 +287,10 @@ public class ComplianceHubActivity extends BaseHubActivity
                 || tabs.get(currentPosition).type != TabType.CHECKS) return;
         if (type == ChecksFragment.TYPE_AUDIT && checkId != null && !checkId.isEmpty()) {
             showAuditDetail(checkId);
+        } else if (type == ChecksFragment.TYPE_INSPECTION && checkId != null && !checkId.isEmpty()) {
+            showInspectionDetail(checkId);
         } else {
-            showDetailEmptyState("Choose an audit to view its details.");
+            showDetailEmptyState("Choose a check to view its details.");
         }
     }
 
@@ -302,6 +306,21 @@ public class ComplianceHubActivity extends BaseHubActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContentContainer, AuditDetailFragment.newInstance(auditId),
                         "compliance_audit_detail")
+                .commit();
+    }
+
+    private void showInspectionDetail(String inspectionId) {
+        if (detailContentContainer == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof InspectionDetailFragment && current.getArguments() != null
+                && inspectionId.equals(current.getArguments().getString("inspection_id"))) {
+            detailEmptyState.setVisibility(View.GONE);
+            return;
+        }
+        detailEmptyState.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer, InspectionDetailFragment.newInstance(inspectionId),
+                        "compliance_inspection_detail")
                 .commit();
     }
 
