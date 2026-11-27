@@ -230,7 +230,7 @@
     </style>
 
     <style name="TextAppearance.TabCompact" parent="TextAppearance.MaterialComponents.Button">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0.01</item>

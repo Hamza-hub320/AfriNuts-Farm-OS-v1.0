@@ -36,7 +36,7 @@
             android:layout_marginBottom="20dp"
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
-            app:tabTextAppearance="@style/TextAppearance.FinanceTab"
+            app:tabTextAppearance="@style/TextAppearance.TabCompact"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
