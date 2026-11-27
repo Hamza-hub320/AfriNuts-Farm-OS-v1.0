@@ -25,6 +25,7 @@ import com.afrinuts.farmos.ui.quality.QualityMetricsFragment;
 import com.afrinuts.farmos.ui.quality.QualityBatchDetailFragment;
 import com.afrinuts.farmos.ui.quality.QualityBatchDialog;
 import com.afrinuts.farmos.ui.reports.ReportsFragment;
+import com.afrinuts.farmos.ui.reports.ReportDetailFragment;
 import com.afrinuts.farmos.ui.traceability.CreateMasterTraceabilityDialog;
 import com.afrinuts.farmos.ui.traceability.MasterTraceabilityFragment;
 import com.afrinuts.farmos.ui.traceability.QRScannerActivity;
@@ -39,7 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener, TraceabilityFragment.OnTraceabilitySelectedListener, MasterTraceabilityFragment.OnMasterSelectedListener {
+public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetricsFragment.OnBatchSelectedListener, TraceabilityFragment.OnTraceabilitySelectedListener, MasterTraceabilityFragment.OnMasterSelectedListener, ReportsFragment.OnReportSelectedListener {
 
     public static final String EXTRA_OPEN_BATCH_ID = "analytics_open_quality_batch_id";
 
@@ -50,6 +51,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
     private QualityMetricsFragment qualityMetricsFragment;
     private TraceabilityFragment traceabilityFragment;
     private MasterTraceabilityFragment masterTraceabilityFragment;
+    private ReportsFragment reportsFragment;
 
     @Override
     protected int getLayoutResourceId() {
@@ -122,12 +124,41 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 updateFabForTab(position);
+                // Other Analytics tabs can restore their last detail while
+                // becoming active. Reapply the Reports selection after that
+                // lifecycle work so the right pane always matches its list.
+                if ("REPORTS".equals(pagerAdapter.getTabKey(position))) {
+                    viewPager.postDelayed(() -> {
+                        if (reportsFragment != null) {
+                            onReportSelected(reportsFragment.getSelectedReportType());
+                        }
+                    }, 350);
+                }
             }
         });
 
-        qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(0);
-        traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(1);
-        masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(2);
+        for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
+            switch (pagerAdapter.getTabKey(i)) {
+                case "QUALITY": qualityMetricsFragment = (QualityMetricsFragment) pagerAdapter.getFragment(i); break;
+                case "TRACEABILITY": traceabilityFragment = (TraceabilityFragment) pagerAdapter.getFragment(i); break;
+                case "BULK": masterTraceabilityFragment = (MasterTraceabilityFragment) pagerAdapter.getFragment(i); break;
+                case "REPORTS": reportsFragment = (ReportsFragment) pagerAdapter.getFragment(i); break;
+            }
+        }
+    }
+
+    @Override
+    public void onReportSelected(String reportType) {
+        View detailPane = findViewById(R.id.detailContainer);
+        if (detailPane == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContainer);
+        if (current instanceof ReportDetailFragment) {
+            ((ReportDetailFragment) current).setReportType(reportType);
+            return;
+        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContainer, ReportDetailFragment.newInstance(reportType), "analytics_report_detail")
+                .commit();
     }
 
     private void updateFabForTab(int position) {

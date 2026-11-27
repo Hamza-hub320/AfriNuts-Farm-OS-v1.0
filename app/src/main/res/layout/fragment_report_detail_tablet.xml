@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/bg_report_detail_pane" android:clipToOutline="true" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <TextView android:id="@+id/tvReportTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Farm Summary" android:textColor="#1C1B1A" android:textSize="28sp" android:fontFamily="@font/manrope_extrabold" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:layout_marginTop="4dp">
+            <TextView android:id="@+id/tvReportSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Generated report · Jan 1, 2026 – Nov 20, 2026" android:textColor="#68635B" android:textSize="14sp" android:fontFamily="@font/manrope_medium" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp"
+                android:paddingHorizontal="12dp" android:paddingVertical="5dp" android:background="@drawable/bg_report_farm_icon"
+                android:text="PDF" android:textColor="#0A5530" android:textSize="12sp" android:fontFamily="@font/manrope_extrabold" />
+        </LinearLayout>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp"
+            android:text="Report parameters" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+        <LinearLayout android:id="@+id/toggleDateRange" android:layout_width="match_parent" android:layout_height="54dp"
+            android:layout_marginTop="8dp" android:background="@drawable/bg_report_range_track" android:padding="4dp" android:orientation="horizontal">
+            <TextView android:id="@+id/btnAllTime" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
+                android:gravity="center" android:text="All Time" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/btnThisYear" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
+                android:gravity="center" android:text="This Year" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+            <TextView android:id="@+id/btnThisMonth" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
+                android:gravity="center" android:text="This Month" android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="8dp" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start date" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:id="@+id/etStartDate" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="6dp" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:background="@drawable/bg_report_date_field" android:textColor="#1C1B1A" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="End date" android:textColor="#59544C" android:textSize="13sp" android:fontFamily="@font/manrope_bold" />
+                <TextView android:id="@+id/etEndDate" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="6dp" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:background="@drawable/bg_report_date_field" android:textColor="#1C1B1A" android:textSize="14sp" android:fontFamily="@font/manrope_bold" />
+            </LinearLayout>
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnGenerateReportPdf" android:layout_width="match_parent" android:layout_height="58dp"
+            android:layout_marginTop="16dp" android:text="Generate PDF" android:textSize="15sp" android:textColor="@android:color/white" android:fontFamily="@font/manrope_extrabold"
+            android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" app:backgroundTint="@color/primary" app:cornerRadius="29dp" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:layout_marginBottom="8dp"
+            android:text="Generated report" android:textColor="#1C1B1A" android:textSize="17sp" android:fontFamily="@font/manrope_extrabold" />
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/report_preview_background" app:cardCornerRadius="18dp" app:cardElevation="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/tvPreviewTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Farm Summary" android:textColor="#1C1B1A" android:textSize="18sp" android:fontFamily="@font/manrope_extrabold" />
+                    <TextView android:id="@+id/tvPreviewMeta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PDF" android:textColor="#59544C" android:textSize="12sp" android:fontFamily="@font/manrope_bold" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/reportPreviewContent" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnDownloadReportPdf" android:layout_width="wrap_content" android:layout_height="52dp" android:text="Download PDF" android:textColor="@android:color/white" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" app:backgroundTint="@color/primary" app:cornerRadius="26dp" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnShareReportPdf" android:layout_width="wrap_content" android:layout_height="52dp" android:layout_marginStart="12dp" android:text="Share" android:textColor="#1C1B1A" android:textSize="14sp" android:fontFamily="@font/manrope_extrabold" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" app:backgroundTint="@color/primary_light" app:cornerRadius="26dp" />
+        </LinearLayout>
+        <Space android:layout_width="match_parent" android:layout_height="20dp" />
+    </LinearLayout>
+</ScrollView>

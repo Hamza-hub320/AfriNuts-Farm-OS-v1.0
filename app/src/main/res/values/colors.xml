@@ -31,6 +31,7 @@
 
     <!-- Background Colors -->
     <color name="background">#F6F1E7</color>
+    <color name="report_preview_background">#FCF8EF</color>
 
     <!-- Light background gradients -->
     <color name="gradient_bg_soft_start">#F6F1E7</color>

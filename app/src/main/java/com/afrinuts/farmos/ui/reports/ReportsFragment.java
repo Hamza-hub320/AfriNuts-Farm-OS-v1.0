@@ -1,6 +1,7 @@
 package com.afrinuts.farmos.ui.reports;
 
 import android.content.Intent;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -47,6 +48,10 @@ import java.util.concurrent.Executors;
 
 public class ReportsFragment extends Fragment {
 
+    public interface OnReportSelectedListener { void onReportSelected(String reportType); }
+    private OnReportSelectedListener reportSelectedListener;
+    private boolean tabletMode;
+
     private AppDatabase database;
     private FarmEntity currentFarm;
     private List<BlockEntity> allBlocks;
@@ -81,16 +86,54 @@ public class ReportsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        tabletMode = getResources().getConfiguration().smallestScreenWidthDp >= 600;
         View view = inflater.inflate(R.layout.fragment_reports, container, false);
 
         database = AppDatabase.getInstance(requireContext());
         initViews(view);
+        if (tabletMode) {
+            setupTabletReportList();
+            return view;
+        }
         setupDateDefaults();
         setupClickListeners();
         loadData();
         updateReportCardsState();
 
         return view;
+    }
+
+    @Override public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnReportSelectedListener) reportSelectedListener = (OnReportSelectedListener) context;
+    }
+
+    @Override public void onDetach() {
+        reportSelectedListener = null;
+        super.onDetach();
+    }
+
+    private void setupTabletReportList() {
+        isDateRangeValid = true;
+        CardView[] tabletCards = {cardFarmSummary, cardFinancialStatement, cardQualityReport, cardTraceabilityReport};
+        for (CardView card : tabletCards) { card.setEnabled(true); card.setAlpha(1f); }
+        cardFarmSummary.setOnClickListener(v -> selectTabletReport("SUMMARY", cardFarmSummary));
+        cardFinancialStatement.setOnClickListener(v -> selectTabletReport("FINANCIAL", cardFinancialStatement));
+        cardQualityReport.setOnClickListener(v -> selectTabletReport("QUALITY", cardQualityReport));
+        cardTraceabilityReport.setOnClickListener(v -> selectTabletReport("TRACEABILITY", cardTraceabilityReport));
+        selectTabletReport("SUMMARY", cardFarmSummary);
+    }
+
+    private void selectTabletReport(String type, CardView selected) {
+        CardView[] cards = {cardFarmSummary, cardFinancialStatement, cardQualityReport, cardTraceabilityReport};
+        for (CardView card : cards) card.setCardBackgroundColor(card == selected
+                ? Color.parseColor("#E1F0E8") : Color.WHITE);
+        selectedReportType = type;
+        if (reportSelectedListener != null) reportSelectedListener.onReportSelected(type);
+    }
+
+    public String getSelectedReportType() {
+        return selectedReportType;
     }
 
     private void initViews(View view) {
