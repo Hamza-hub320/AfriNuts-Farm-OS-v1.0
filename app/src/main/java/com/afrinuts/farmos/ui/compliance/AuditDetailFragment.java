@@ -85,6 +85,12 @@ public class AuditDetailFragment extends Fragment {
         auditId = getArguments() == null ? null : getArguments().getString(ARG_AUDIT_ID);
         database = AppDatabase.getInstance(requireContext());
         bindViews(view);
+        View scroll = ((ViewGroup) view).getChildAt(1);
+        if (scroll instanceof android.widget.ScrollView) {
+            android.widget.ScrollView scrollView = (android.widget.ScrollView) scroll;
+            scrollView.setPadding(scrollView.getPaddingLeft(), dp(2),
+                    scrollView.getPaddingRight(), scrollView.getPaddingBottom());
+        }
         loadAuditData();
     }
 
@@ -117,6 +123,7 @@ public class AuditDetailFragment extends Fragment {
         phoneHeader.setVisibility(View.GONE);
         moveHeaderIntoHero((ImageButton) btnEdit);
         styleTabletKpis(tvStatDate);
+        styleTabletText(view);
         styleTabletActions(btnCorrect);
         btnEdit.setOnClickListener(v -> openCorrectionDialog());
         btnCorrect.setOnClickListener(v -> openCorrectionDialog());
@@ -148,9 +155,10 @@ public class AuditDetailFragment extends Fragment {
         LinearLayout.LayoutParams statusParams = new LinearLayout.LayoutParams(-2, -2);
         statusParams.setMarginStart(dp(8));
         tvStatus.setLayoutParams(statusParams);
+        tvStatus.setSingleLine(true);
         metadataRow.addView(tvStatus);
         LinearLayout.LayoutParams metadataParams = new LinearLayout.LayoutParams(-1, -2);
-        metadataParams.topMargin = dp(4);
+        metadataParams.topMargin = dp(2);
         textStack.addView(metadataRow, metadataParams);
 
         editButton.setImageResource(R.drawable.ic_farm_edit);
@@ -162,11 +170,37 @@ public class AuditDetailFragment extends Fragment {
         editButton.setBackground(buttonBackground);
         FrameLayout.LayoutParams editParams = new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END);
         header.addView(editButton, editParams);
-        heroContent.addView(header, 0, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(-1, -2);
+        headerParams.bottomMargin = 0;
+        heroContent.addView(header, 0, headerParams);
+        heroContent.setPadding(heroContent.getPaddingLeft(), heroContent.getPaddingTop(),
+                heroContent.getPaddingRight(), dp(4));
+        ViewGroup.LayoutParams cardParams = ((View) heroContent.getParent()).getLayoutParams();
+        if (cardParams instanceof LinearLayout.LayoutParams) {
+            ((LinearLayout.LayoutParams) cardParams).bottomMargin = dp(4);
+            ((View) heroContent.getParent()).setLayoutParams(cardParams);
+        }
     }
 
     private void styleTabletKpis(TextView firstStat) {
         ViewGroup kpiRow = (ViewGroup) firstStat.getParent().getParent().getParent();
+        if (kpiRow instanceof LinearLayout) ((LinearLayout) kpiRow).setGravity(Gravity.START);
+        kpiRow.post(() -> {
+            int gap = dp(12);
+            int maxCardWidth = dp(280);
+            int availableCardWidth = Math.max(dp(240), (kpiRow.getWidth() - gap) / 2);
+            int cardWidth = Math.min(maxCardWidth, availableCardWidth);
+            for (int i = 0; i < kpiRow.getChildCount(); i++) {
+                View child = kpiRow.getChildAt(i);
+                if (!(child instanceof CardView)) continue;
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
+                params.width = cardWidth;
+                params.weight = 0;
+                params.setMarginStart(i == 0 ? 0 : gap);
+                params.setMarginEnd(0);
+                child.setLayoutParams(params);
+            }
+        });
         for (int i = 0; i < kpiRow.getChildCount(); i++) {
             View child = kpiRow.getChildAt(i);
             if (child instanceof CardView) {
@@ -181,6 +215,24 @@ public class AuditDetailFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private void styleTabletText(View view) {
+        if (view instanceof TextView) {
+            TextView text = (TextView) view;
+            if (text.getCurrentTextColor() == 0xFF6B675F) text.setTextColor(0xFF59544C);
+            else if (view.getId() != R.id.tvAuditId && text.getCurrentTextColor() == 0xFF0E6B3C) {
+                text.setTextColor(0xFF151413);
+            } else if (view.getId() != R.id.tvAuditId && text.getCurrentTextColor() == 0xFF1C1B1A) {
+                text.setTextColor(0xFF151413);
+            }
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) styleTabletText(group.getChildAt(i));
+        }
+        if (view.getId() == R.id.tvCreatedAt || view.getId() == R.id.tvValidated
+                || view.getId() == R.id.tvUpdatedAt) view.setAlpha(1f);
     }
 
     private void styleTabletActions(MaterialButton correctButton) {
@@ -291,7 +343,7 @@ public class AuditDetailFragment extends Fragment {
         tvAuditType.setText("Certification audit");
         String statusLabel = audit.getValidatedAt() != null && audit.getStatus() == AuditEntity.AuditStatus.PASS
                 ? "Validated" : audit.getStatusDisplay();
-        tvStatus.setText(statusLabel);
+        tvStatus.setText(statusLabel.toUpperCase(Locale.ROOT));
         updateStatusStyle();
 
         if (certification != null) {

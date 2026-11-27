@@ -314,6 +314,9 @@ public class ChecksFragment extends Fragment {
             notifyDataSetChanged();
         }
         @NonNull @Override public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            int secondaryTextColor = getResources().getConfiguration().screenWidthDp >= 600
+                    ? 0xFF59544C
+                    : ContextCompat.getColor(parent.getContext(), R.color.text_secondary);
             LinearLayout card = new LinearLayout(parent.getContext()); card.setOrientation(LinearLayout.VERTICAL);
             card.setPadding(dp(16), dp(14), dp(16), dp(14));
             GradientDrawable bg = new GradientDrawable();
@@ -324,16 +327,19 @@ public class ChecksFragment extends Fragment {
             heading.setOrientation(LinearLayout.HORIZONTAL);
             heading.setGravity(Gravity.TOP);
             card.addView(heading, new LinearLayout.LayoutParams(-1, -2));
-            TextView title = new TextView(parent.getContext()); title.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_primary));
+            TextView title = new TextView(parent.getContext());
+            title.setTextColor(getResources().getConfiguration().screenWidthDp >= 600
+                    ? 0xFF151413
+                    : ContextCompat.getColor(parent.getContext(), R.color.text_primary));
             title.setTextSize(15); title.setTypeface(null, android.graphics.Typeface.BOLD);
             LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, -2, 1f);
             heading.addView(title, titleParams);
-            TextView date = new TextView(parent.getContext()); date.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_secondary));
+            TextView date = new TextView(parent.getContext()); date.setTextColor(secondaryTextColor);
             date.setTextSize(11); date.setGravity(Gravity.END | Gravity.TOP);
             LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(-2, -2);
             dateParams.leftMargin = dp(8);
             heading.addView(date, dateParams);
-            TextView subtitle = new TextView(parent.getContext()); subtitle.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.text_secondary));
+            TextView subtitle = new TextView(parent.getContext()); subtitle.setTextColor(secondaryTextColor);
             subtitle.setTextSize(13); LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(-1, -2); subParams.topMargin = dp(6); card.addView(subtitle, subParams);
             View divider = new View(parent.getContext());
             divider.setBackgroundColor(0xFFE9E1CF);

@@ -344,7 +344,11 @@ public class ComplianceHubActivity extends BaseHubActivity
         if (rawParams instanceof android.widget.FrameLayout.LayoutParams) {
             android.widget.FrameLayout.LayoutParams fabParams =
                     (android.widget.FrameLayout.LayoutParams) rawParams;
-            fabParams.bottomMargin = dp(tabItem.type == TabType.DOCUMENTS ? 92 : 126);
+            int bottomMargin = tabItem.type == TabType.DOCUMENTS ? 92 : 126;
+            // Keep the tablet Checks FAB below the list card so it cannot cover an audit row.
+            if (detailContainer != null && (tabItem.type == TabType.CHECKS
+                    || tabItem.type == TabType.PROGRAMMES)) bottomMargin = 92;
+            fabParams.bottomMargin = dp(bottomMargin);
             fabAdd.setLayoutParams(fabParams);
         }
 
@@ -355,9 +359,6 @@ public class ComplianceHubActivity extends BaseHubActivity
         // Set click listener based on tab type
         switch (tabItem.type) {
             case PROGRAMMES:
-                // The tablet programme list is a master-detail panel; the wireframe leaves it clear
-                // so the last programme row remains unobstructed. Phone keeps its add FAB.
-                if (detailContainer != null) { fabAdd.hide(); break; }
                 if (!com.afrinuts.farmos.utils.AccessMap.canUseFab("ADD_CERTIFICATION", sessionManager.getUserRole())) { fabAdd.hide(); break; }
                 fabAdd.setOnClickListener(v -> {
                     Fragment fragment = getSupportFragmentManager()

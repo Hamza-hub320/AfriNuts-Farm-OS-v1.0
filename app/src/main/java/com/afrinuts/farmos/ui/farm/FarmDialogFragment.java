@@ -47,9 +47,8 @@ public abstract class FarmDialogFragment extends DialogFragment {
             removeGlassDecor(content, density);
             styleCardSurfaces(content, density);
             styleInputs(content, density);
-            addFieldLabels(content, density);
             styleText(content);
-            if (content instanceof ViewGroup) ((ViewGroup) content).setBackgroundColor(Color.TRANSPARENT);
+            if (content instanceof ViewGroup) content.setBackgroundColor(Color.TRANSPARENT);
             removeLeadingHeaderIcon(content);
             styleDialogTitle(content, true);
             styleButtons(content, density);
@@ -59,6 +58,8 @@ public abstract class FarmDialogFragment extends DialogFragment {
             }
             wrapAsSheet(dialog, customSlot, content, density);
             customSlot.bringToFront();
+            customSlot.requestLayout();
+            window.getDecorView().requestLayout();
         }
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
@@ -90,6 +91,7 @@ public abstract class FarmDialogFragment extends DialogFragment {
 
         android.widget.LinearLayout body = new android.widget.LinearLayout(requireContext());
         body.setOrientation(android.widget.LinearLayout.VERTICAL);
+        body.setGravity(Gravity.TOP);
         FrameLayout.LayoutParams bodyParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         sheet.addView(body, bodyParams);
@@ -97,13 +99,11 @@ public abstract class FarmDialogFragment extends DialogFragment {
             int screenHeight = requireContext().getResources().getDisplayMetrics().heightPixels;
             int maxScrollHeight = Math.max(Math.round(300 * density),
                     Math.min(Math.round(440 * density), screenHeight - Math.round(280 * density)));
-            int availableWidth = Math.max(1, screenHeight > 0
-                    ? requireContext().getResources().getDisplayMetrics().widthPixels - Math.round(80 * density) : 1);
-            content.measure(View.MeasureSpec.makeMeasureSpec(availableWidth, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            int scrollHeight = Math.min(content.getMeasuredHeight(), maxScrollHeight);
+            int scrollHeight = maxScrollHeight;
             body.addView(content, new android.widget.LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, scrollHeight));
+            ((android.widget.ScrollView) content).setFillViewport(false);
+            content.setScrollY(0);
         } else {
             body.addView(content, new android.widget.LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -180,43 +180,6 @@ public abstract class FarmDialogFragment extends DialogFragment {
             }
         }
         for (int i = 0; i < group.getChildCount(); i++) removeLeadingHeaderIcon(group.getChildAt(i));
-    }
-
-    private void addFieldLabels(View view, float density) {
-        if (!(view instanceof ViewGroup)) return;
-        ViewGroup group = (ViewGroup) view;
-        for (int i = 0; i < group.getChildCount(); i++) {
-            View child = group.getChildAt(i);
-            if (child instanceof TextInputLayout) {
-                TextInputLayout input = (TextInputLayout) child;
-                CharSequence label = input.getHint();
-                EditText edit = input.getEditText();
-                if ((label == null || label.length() == 0) && edit != null) label = edit.getHint();
-                if (label != null && label.length() > 0 && group instanceof android.widget.LinearLayout) {
-                    String text = label.toString().replace(" *", "").trim();
-                    if (!Boolean.TRUE.equals(input.getTag())) {
-                        boolean existingLabel = i > 0 && group.getChildAt(i - 1) instanceof TextView
-                                && text.contentEquals(((TextView) group.getChildAt(i - 1)).getText());
-                        if (!existingLabel) {
-                            TextView fieldLabel = new TextView(requireContext());
-                            fieldLabel.setText(text);
-                            fieldLabel.setTextSize(13.5f);
-                            fieldLabel.setTextColor(0xFF3D3A35);
-                            fieldLabel.setTypeface(android.graphics.Typeface.create(ResourcesCompat.getFont(requireContext(), R.font.manrope), android.graphics.Typeface.BOLD));
-                            android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            lp.bottomMargin = Math.round(8 * density);
-                            group.addView(fieldLabel, i);
-                            i++;
-                        }
-                        input.setTag(Boolean.TRUE);
-                    }
-                    input.setHint(null);
-                    if (edit != null) edit.setHint(null);
-                }
-            }
-            if (child instanceof ViewGroup) addFieldLabels(child, density);
-        }
     }
 
     private GradientDrawable circleBackground(float density) {
@@ -357,20 +320,20 @@ public abstract class FarmDialogFragment extends DialogFragment {
                             row.removeView(cancel);
                             row.addView(cancel, 0);
                         }
-                    }
-                    row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-                    row.setGravity(Gravity.CENTER_VERTICAL);
-                    for (int i = 0; i < actions.size(); i++) {
-                        Button action = actions.get(i);
-                        ViewGroup.LayoutParams raw = action.getLayoutParams();
-                        android.widget.LinearLayout.LayoutParams lp = raw instanceof android.widget.LinearLayout.LayoutParams
-                                ? (android.widget.LinearLayout.LayoutParams) raw
-                                : new android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        lp.width = 0;
-                        lp.weight = 1f;
-                        lp.height = Math.round(60 * density);
-                        lp.setMargins(i == 0 ? 0 : Math.round(12 * density), 0, 0, 0);
-                        action.setLayoutParams(lp);
+                        row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                        row.setGravity(Gravity.CENTER_VERTICAL);
+                        for (int i = 0; i < actions.size(); i++) {
+                            Button action = actions.get(i);
+                            ViewGroup.LayoutParams raw = action.getLayoutParams();
+                            android.widget.LinearLayout.LayoutParams lp = raw instanceof android.widget.LinearLayout.LayoutParams
+                                    ? (android.widget.LinearLayout.LayoutParams) raw
+                                    : new android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            lp.width = 0;
+                            lp.weight = 1f;
+                            lp.height = Math.round(60 * density);
+                            lp.setMargins(i == 0 ? 0 : Math.round(12 * density), 0, 0, 0);
+                            action.setLayoutParams(lp);
+                        }
                     }
                 }
             }
