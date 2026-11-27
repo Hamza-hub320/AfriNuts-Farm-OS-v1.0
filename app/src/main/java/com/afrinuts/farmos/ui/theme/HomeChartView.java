@@ -152,9 +152,10 @@ public class HomeChartView extends View {
 
         float edgeInset = dp(4);
         float cellWidth = (width - 2 * edgeInset) / 3f;
-        float barWidth = Math.min(dp(22), cellWidth * .46f);
-        float valueSize = sp(13);
-        float gradeSize = sp(11);
+        boolean tablet = getResources().getConfiguration().screenWidthDp >= 600;
+        float barWidth = Math.min(dp(tablet ? 30 : 22), cellWidth * .46f);
+        float valueSize = sp(tablet ? 16 : 13);
+        float gradeSize = sp(tablet ? 14 : 11);
         float baseline = height - gradeSize - dp(8);
         float chartTop = valueSize + dp(8);
         float maxBarHeight = Math.max(0, baseline - chartTop);

@@ -868,10 +868,11 @@ public class MainActivity extends AppCompatActivity {
 
         float density = getResources().getDisplayMetrics().density;
         int configuredWidthDp = getResources().getConfiguration().screenWidthDp;
-        int gridWidthDp = Math.min(344, Math.max(36, configuredWidthDp - 80));
-        int cellSize = Math.max(1, Math.min(Math.round(42 * density),
+        boolean tablet = configuredWidthDp >= 600;
+        int gridWidthDp = Math.min(tablet ? 420 : 344, Math.max(36, configuredWidthDp - 80));
+        int cellSize = Math.max(1, Math.min(Math.round((tablet ? 52 : 42) * density),
                 (int) ((gridWidthDp - 36f) * density / 7f)));
-        int gap = Math.round(6 * density);
+        int gap = Math.round((tablet ? 8 : 6) * density);
         grid.removeAllViews();
 
         BlockEntity[] blocksByGridPosition = new BlockEntity[35];
@@ -912,7 +913,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView cell = new TextView(this);
                 cell.setText(blockName);
                 cell.setTextColor(Color.WHITE);
-                cell.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                cell.setTextSize(TypedValue.COMPLEX_UNIT_SP, tablet ? 13 : 11);
                 cell.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_extrabold));
                 cell.setGravity(android.view.Gravity.CENTER);
                 cell.setIncludeFontPadding(false);
@@ -987,6 +988,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void addHeatmapLegendRow(LinearLayout legend, BlockEntity.BlockStatus[] statuses,
                                     float density) {
+        boolean tablet = getResources().getConfiguration().screenWidthDp >= 600;
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(android.view.Gravity.CENTER_VERTICAL);
@@ -1012,12 +1014,13 @@ public class MainActivity extends AppCompatActivity {
             swatchBackground.setCornerRadius(3 * density);
             swatch.setBackground(swatchBackground);
             item.addView(swatch, new LinearLayout.LayoutParams(
-                    Math.round(10 * density), Math.round(10 * density)));
+                    Math.round((tablet ? 12 : 10) * density),
+                    Math.round((tablet ? 12 : 10) * density)));
 
             TextView label = new TextView(this);
             label.setText(status.getDisplayName());
             label.setTextColor(Color.parseColor("#3D3A35"));
-            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, tablet ? 14 : 12);
             label.setTypeface(ResourcesCompat.getFont(this, R.font.manrope_bold));
             label.setIncludeFontPadding(false);
             LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
