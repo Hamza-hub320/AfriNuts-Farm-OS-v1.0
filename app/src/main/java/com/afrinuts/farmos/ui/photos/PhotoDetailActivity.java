@@ -102,6 +102,20 @@ public class PhotoDetailActivity extends BaseActivity {
         btnShare = findViewById(R.id.btnShare);
         btnDelete = findViewById(R.id.btnDelete);
 
+        boolean canEdit = sessionManager.canEditData();
+        btnEditCaption.setVisibility(canEdit ? View.VISIBLE : View.GONE);
+        btnDelete.setVisibility(canEdit ? View.VISIBLE : View.GONE);
+        if (!canEdit) {
+            ViewGroup.LayoutParams shareParams = btnShare.getLayoutParams();
+            if (shareParams instanceof android.widget.LinearLayout.LayoutParams) {
+                android.widget.LinearLayout.LayoutParams layoutParams =
+                        (android.widget.LinearLayout.LayoutParams) shareParams;
+                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                layoutParams.weight = 0;
+                btnShare.setLayoutParams(layoutParams);
+            }
+        }
+
         btnEditCaption.setOnClickListener(v -> showEditCaptionDialog());
         btnShare.setOnClickListener(v -> sharePhoto());
         btnDelete.setOnClickListener(v -> confirmDelete());

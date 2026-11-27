@@ -190,33 +190,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_horizontal"
-                android:layout_marginBottom="16dp">
+                android:gravity="center_horizontal">
 
                 <!-- Edit Caption Button - Accent Liquid Glass -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditCaption"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="58dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="12dp"
                     android:text="Edit Caption"
+                    android:gravity="center"
                     style="@style/Widget.AfriNuts.Button.Secondary"
-                    android:textColor="#1C1B1A"
-                    app:icon="@drawable/ic_edit"
-                    app:iconTint="#1C1B1A"
-                    app:iconGravity="textStart"/>
+                    app:backgroundTint="#F3EAD8"
+                    android:textColor="#1C1B1A" />
 
                 <!-- Share Button - Primary Liquid Glass -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
+                    android:layout_height="58dp"
                     android:layout_weight="1"
                     android:text="Share"
-                    style="@style/Widget.AfriNuts.Button"
-                    app:icon="@drawable/ic_share"
-                    app:iconGravity="textStart"/>
+                    android:gravity="center"
+                    style="@style/Widget.AfriNuts.Button" />
 
             </LinearLayout>
 
@@ -224,15 +221,13 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="58dp"
                 android:text="Delete Photo"
+                android:gravity="center"
                 style="@style/Widget.AfriNuts.Button"
                 android:textColor="#B3402A"
                 app:backgroundTint="#F8E4DD"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconTint="#B3402A"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="0dp" />
         </LinearLayout>
     </ScrollView>
 

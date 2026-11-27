@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+    <include layout="@layout/view_farm_detail_header" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="32dp">
+
+            <!-- Full Photo Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                android:background="@color/surface"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <ImageView
+                    android:id="@+id/ivFullPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_photo_placeholder"
+                    android:contentDescription="Full photo"
+                    android:background="@color/surface"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Photo Info Card - Glass Morphism -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                android:background="@color/surface"
+                style="@style/Widget.AfriNuts.CardView">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@color/surface">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Details"
+                        android:textColor="#1C1B1A"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/manrope_extrabold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Caption"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvCaption"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="No caption"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Date Taken"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Mar 15, 2024"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Location"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Location not available"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E9E1CF" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="11dp"
+                        android:paddingBottom="11dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Type"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#59544C" />
+                        <TextView
+                            android:id="@+id/tvType"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Block Photo"
+                            android:textSize="14.5sp"
+                            android:fontFamily="@font/manrope_bold"
+                            android:textColor="#1C1B1A" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons - Liquid Glass Style -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal">
+
+                <!-- Edit Caption Button - Accent Liquid Glass -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditCaption"
+                    android:layout_width="0dp"
+                    android:layout_height="58dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="12dp"
+                    android:text="Edit Caption"
+                    android:gravity="center"
+                    style="@style/Widget.AfriNuts.Button.Secondary"
+                    app:backgroundTint="#F3EAD8"
+                    android:textColor="#1C1B1A" />
+
+                <!-- Share Button - Primary Liquid Glass -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShare"
+                    android:layout_width="0dp"
+                    android:layout_height="58dp"
+                    android:layout_weight="1"
+                    android:text="Share"
+                    android:gravity="center"
+                    style="@style/Widget.AfriNuts.Button" />
+
+            </LinearLayout>
+
+            <!-- Delete Button - Danger Liquid Glass (Full Width) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="Delete Photo"
+                android:gravity="center"
+                style="@style/Widget.AfriNuts.Button"
+                android:textColor="#B3402A"
+                app:backgroundTint="#F8E4DD"
+                android:layout_marginTop="0dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    </LinearLayout>
+</FrameLayout>
