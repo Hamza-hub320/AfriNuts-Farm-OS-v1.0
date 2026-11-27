@@ -5,6 +5,9 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,6 +20,9 @@ public class ReportData {
     private List<ExpenseEntity> expenses;
     private List<RevenueEntity> revenues;
     private List<TaskEntity> tasks;
+    private List<QualityBatchEntity> qualityBatches = java.util.Collections.emptyList();
+    private List<BatchTraceabilityEntity> traceabilities = java.util.Collections.emptyList();
+    private List<MasterBatchTraceabilityEntity> masters = java.util.Collections.emptyList();
 
     private Date startDate;
     private Date endDate;
@@ -43,6 +49,17 @@ public class ReportData {
         this.endDate = endDate;
 
         calculateStatistics();
+    }
+
+    public ReportData(FarmEntity farm, List<BlockEntity> blocks,
+                      List<ExpenseEntity> expenses, List<RevenueEntity> revenues,
+                      List<TaskEntity> tasks, List<QualityBatchEntity> qualityBatches,
+                      List<BatchTraceabilityEntity> traceabilities,
+                      List<MasterBatchTraceabilityEntity> masters, Date startDate, Date endDate) {
+        this(farm, blocks, expenses, revenues, tasks, startDate, endDate);
+        this.qualityBatches = qualityBatches == null ? java.util.Collections.emptyList() : qualityBatches;
+        this.traceabilities = traceabilities == null ? java.util.Collections.emptyList() : traceabilities;
+        this.masters = masters == null ? java.util.Collections.emptyList() : masters;
     }
 
     private void calculateStatistics() {
@@ -85,6 +102,9 @@ public class ReportData {
     public List<ExpenseEntity> getExpenses() { return expenses; }
     public List<RevenueEntity> getRevenues() { return revenues; }
     public List<TaskEntity> getTasks() { return tasks; }
+    public List<QualityBatchEntity> getQualityBatches() { return qualityBatches; }
+    public List<BatchTraceabilityEntity> getTraceabilities() { return traceabilities; }
+    public List<MasterBatchTraceabilityEntity> getMasters() { return masters; }
     public Date getStartDate() { return startDate; }
     public Date getEndDate() { return endDate; }
 

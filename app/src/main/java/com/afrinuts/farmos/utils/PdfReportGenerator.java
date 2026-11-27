@@ -7,6 +7,9 @@ import com.afrinuts.farmos.data.local.entity.BlockEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.ui.reports.ReportData;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -121,6 +124,99 @@ public class PdfReportGenerator {
         addFooter(document);
         document.close();
         return pdfFile;
+    }
+
+    public File generateQualityReport() throws Exception {
+        loadFonts();
+        File pdfFile = new File(context.getExternalFilesDir(null),
+                "Quality_Report_" + fileDateFormat.format(new Date()) + ".pdf");
+        Document document = new Document(new PdfDocument(new PdfWriter(new FileOutputStream(pdfFile))), PageSize.A4);
+        document.setMargins(36, 36, 36, 36);
+        document.setFont(regularFont);
+        addHeader(document, "Quality Report");
+        addDateRange(document);
+        List<QualityBatchEntity> batches = reportData.getQualityBatches();
+        double kor = 0, moisture = 0, defective = 0;
+        int premium = 0, standard = 0, reject = 0;
+        for (QualityBatchEntity batch : batches) {
+            kor += batch.getKorGPerKg(); moisture += batch.getMoistureContent(); defective += batch.getDefectiveRate();
+            if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.PREMIUM) premium++;
+            else if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.REJECT) reject++;
+            else standard++;
+        }
+        int count = batches.size();
+        addSectionHeader(document, "Summary Statistics");
+        Table summary = new Table(UnitValue.createPercentArray(new float[]{55, 45})).setWidth(UnitValue.createPercentValue(100)).setMarginBottom(18);
+        summary.addHeaderCell(headerCell("Metric")); summary.addHeaderCell(headerCell("Value"));
+        addStatRow(summary, "Batches graded", String.valueOf(count));
+        addStatRow(summary, "Average KOR", String.format(Locale.getDefault(), "%.1f g/kg", count == 0 ? 0 : kor / count));
+        addStatRow(summary, "Average moisture", String.format(Locale.getDefault(), "%.1f%%", count == 0 ? 0 : moisture / count));
+        addStatRow(summary, "Average defective", String.format(Locale.getDefault(), "%.1f%%", count == 0 ? 0 : defective / count));
+        addStatRow(summary, "Premium / Standard / Reject", premium + " / " + standard + " / " + reject);
+        addStatRow(summary, "Grade shares", gradeShare(premium,count) + " / " + gradeShare(standard,count) + " / " + gradeShare(reject,count));
+        document.add(summary);
+        addSectionHeader(document, "Batch Results");
+        Table table = new Table(UnitValue.createPercentArray(new float[]{18, 20, 11, 13, 11, 13, 14})).setWidth(UnitValue.createPercentValue(100));
+        String[] headers = {"Batch", "Supplier", "KOR g/kg", "Grade", "Moisture", "Defective", "Nut count/kg"};
+        for (String header : headers) table.addHeaderCell(headerCell(header));
+        for (QualityBatchEntity batch : batches) {
+            table.addCell(bodyCell(valueOrDash(batch.getBatchNumber())));
+            table.addCell(bodyCell(valueOrDash(batch.getSupplierName())));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f", batch.getKorGPerKg())));
+            table.addCell(bodyCell(batch.getQualityGrade() == null ? "—" : batch.getQualityGrade().getDisplayName()));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f%%", batch.getMoistureContent())));
+            table.addCell(bodyCell(String.format(Locale.getDefault(), "%.1f%%", batch.getDefectiveRate())));
+            table.addCell(bodyCell(String.valueOf(batch.getNutCountPerKg())));
+        }
+        document.add(table);
+        addFooter(document); document.close(); return pdfFile;
+    }
+
+    public File generateTraceabilityReport() throws Exception {
+        loadFonts();
+        File pdfFile = new File(context.getExternalFilesDir(null),
+                "Traceability_Report_" + fileDateFormat.format(new Date()) + ".pdf");
+        Document document = new Document(new PdfDocument(new PdfWriter(new FileOutputStream(pdfFile))), PageSize.A4);
+        document.setMargins(36, 36, 36, 36);
+        document.setFont(regularFont);
+        addHeader(document, "Traceability Report");
+        addDateRange(document);
+        List<BatchTraceabilityEntity> lots = reportData.getTraceabilities();
+        List<MasterBatchTraceabilityEntity> masters = reportData.getMasters();
+        int exported = 0; double weight = 0;
+        for (BatchTraceabilityEntity lot : lots) { if (lot.getExportDate() != null && lot.getExportDate() > 0) exported++; weight += lot.getWeightKg(); }
+        addSectionHeader(document, "Summary Statistics");
+        Table summary = new Table(UnitValue.createPercentArray(new float[]{55,45})).setWidth(UnitValue.createPercentValue(100)).setMarginBottom(18);
+        summary.addHeaderCell(headerCell("Metric")); summary.addHeaderCell(headerCell("Value"));
+        addStatRow(summary,"Traced lots",String.valueOf(lots.size())); addStatRow(summary,"Exported lots",String.valueOf(exported));
+        addStatRow(summary,"Total weight",String.format(Locale.getDefault(),"%,.0f kg",weight)); document.add(summary);
+        addSectionHeader(document,"Traceability Lots");
+        Table table = new Table(UnitValue.createPercentArray(new float[]{18,18,17,15,14,18})).setWidth(UnitValue.createPercentValue(100));
+        String[] headers={"Lot / batch","Buyer","Destination","Export date","Grade","Weight"};
+        for(String header:headers)table.addHeaderCell(headerCell(header));
+        for(BatchTraceabilityEntity lot:lots){
+            table.addCell(bodyCell(valueOrDash(lot.getBatchNumber()))); table.addCell(bodyCell(valueOrDash(lot.getBuyer())));
+            table.addCell(bodyCell(valueOrDash(lot.getDestination())));
+            table.addCell(bodyCell(lot.getExportDate()==null||lot.getExportDate()<=0?"—":dateFormat.format(new Date(lot.getExportDate()))));
+            table.addCell(bodyCell(valueOrDash(lot.getGrade()))); table.addCell(bodyCell(String.format(Locale.getDefault(),"%,.0f kg",lot.getWeightKg())));
+        }
+        document.add(table);
+        addSectionHeader(document,"Master Shipments");
+        Table masterTable = new Table(UnitValue.createPercentArray(new float[]{18,18,17,15,12,20})).setWidth(UnitValue.createPercentValue(100));
+        String[] masterHeaders={"Master number","Buyer","Destination","Export date","Batches","Weight"};
+        for(String header:masterHeaders)masterTable.addHeaderCell(headerCell(header));
+        for(MasterBatchTraceabilityEntity master:masters){
+            masterTable.addCell(bodyCell(valueOrDash(master.getMasterBatchNumber()))); masterTable.addCell(bodyCell(valueOrDash(master.getBuyer())));
+            masterTable.addCell(bodyCell(valueOrDash(master.getDestination())));
+            masterTable.addCell(bodyCell(master.getExportDate()<=0?"—":dateFormat.format(new Date(master.getExportDate()))));
+            masterTable.addCell(bodyCell(String.valueOf(master.getTotalBatches())));
+            masterTable.addCell(bodyCell(String.format(Locale.getDefault(),"%,.0f kg",master.getTotalWeightKg())));
+        }
+        document.add(masterTable); addFooter(document); document.close(); return pdfFile;
+    }
+
+    private String gradeShare(int value, int total) {
+        return String.format(Locale.getDefault(), "%.1f%%", total == 0 ? 0 : value * 100.0 / total);
     }
 
     private void loadFonts() throws Exception {

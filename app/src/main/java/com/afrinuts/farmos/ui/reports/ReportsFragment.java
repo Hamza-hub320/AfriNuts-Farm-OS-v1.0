@@ -27,6 +27,9 @@ import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
 import com.afrinuts.farmos.data.local.entity.TaskEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
+import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.utils.PdfReportGenerator;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -50,11 +53,16 @@ public class ReportsFragment extends Fragment {
     private List<ExpenseEntity> allExpenses;
     private List<RevenueEntity> allRevenues;
     private List<TaskEntity> allTasks;
+    private List<QualityBatchEntity> allQualityBatches;
+    private List<BatchTraceabilityEntity> allTraceabilities;
+    private List<MasterBatchTraceabilityEntity> allMasters;
     private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     // UI Elements - Changed from MaterialCardView to CardView
     private CardView cardFarmSummary;
     private CardView cardFinancialStatement;
+    private CardView cardQualityReport;
+    private CardView cardTraceabilityReport;
     private LinearLayout toggleDateRange;
     private TextInputEditText etStartDate;
     private TextInputEditText etEndDate;
@@ -89,6 +97,8 @@ public class ReportsFragment extends Fragment {
         // Now casting to CardView (matches layout)
         cardFarmSummary = view.findViewById(R.id.cardFarmSummary);
         cardFinancialStatement = view.findViewById(R.id.cardFinancialStatement);
+        cardQualityReport = view.findViewById(R.id.cardQualityReport);
+        cardTraceabilityReport = view.findViewById(R.id.cardTraceabilityReport);
         toggleDateRange = view.findViewById(R.id.toggleDateRange);
         etStartDate = view.findViewById(R.id.etStartDate);
         etEndDate = view.findViewById(R.id.etEndDate);
@@ -189,8 +199,12 @@ public class ReportsFragment extends Fragment {
 
         cardFarmSummary.setEnabled(enabled);
         cardFinancialStatement.setEnabled(enabled);
+        if (cardQualityReport != null) cardQualityReport.setEnabled(enabled);
+        if (cardTraceabilityReport != null) cardTraceabilityReport.setEnabled(enabled);
         cardFarmSummary.setAlpha(enabled ? 1.0f : 0.5f);
         cardFinancialStatement.setAlpha(enabled ? 1.0f : 0.5f);
+        if (cardQualityReport != null) cardQualityReport.setAlpha(enabled ? 1.0f : 0.5f);
+        if (cardTraceabilityReport != null) cardTraceabilityReport.setAlpha(enabled ? 1.0f : 0.5f);
     }
 
     private void setupClickListeners() {
@@ -207,6 +221,12 @@ public class ReportsFragment extends Fragment {
                 generateReport();
             }
         });
+        if (cardQualityReport != null) cardQualityReport.setOnClickListener(v -> {
+            if (isDateRangeValid) { selectedReportType = "QUALITY"; generateReport(); }
+        });
+        if (cardTraceabilityReport != null) cardTraceabilityReport.setOnClickListener(v -> {
+            if (isDateRangeValid) { selectedReportType = "TRACEABILITY"; generateReport(); }
+        });
     }
 
     private void loadData() {
@@ -217,6 +237,19 @@ public class ReportsFragment extends Fragment {
                 List<ExpenseEntity> expenses = database.expenseDao().getExpensesByFarmId(farm.getId());
                 List<RevenueEntity> revenues = database.revenueDao().getRevenuesByFarmId(farm.getId());
                 List<TaskEntity> tasks = database.taskDao().getTasksByFarmId(farm.getId());
+                List<QualityBatchEntity> qualityBatches = database.qualityBatchDao().getBatchesByFarmId(farm.getId());
+                for (QualityBatchEntity batch : qualityBatches) {
+                    if (batch.getSupplierId() != null) {
+                        com.afrinuts.farmos.data.local.entity.SupplierEntity supplier =
+                                database.supplierDao().getSupplierById(batch.getSupplierId());
+                        if (supplier != null) batch.setSupplierName(supplier.getName());
+                    }
+                }
+                List<BatchTraceabilityEntity> traceabilities = database.batchTraceabilityDao().getByFarmId(farm.getId());
+                List<MasterBatchTraceabilityEntity> masters = new java.util.ArrayList<>();
+                for (MasterBatchTraceabilityEntity master : database.masterTraceabilityDao().getAll()) {
+                    if (master.getFarmId() == farm.getId()) masters.add(master);
+                }
 
                 requireActivity().runOnUiThread(() -> {
                     currentFarm = farm;
@@ -224,6 +257,9 @@ public class ReportsFragment extends Fragment {
                     allExpenses = expenses;
                     allRevenues = revenues;
                     allTasks = tasks;
+                    allQualityBatches = qualityBatches;
+                    allTraceabilities = traceabilities;
+                    allMasters = masters;
                     updateReportCardsState();
                 });
             }
@@ -245,6 +281,9 @@ public class ReportsFragment extends Fragment {
                 List<ExpenseEntity> filteredExpenses = filterExpensesByDate();
                 List<RevenueEntity> filteredRevenues = filterRevenuesByDate();
                 List<TaskEntity> filteredTasks = filterTasksByDate();
+                List<QualityBatchEntity> filteredQuality = filterQualityByDate();
+                List<BatchTraceabilityEntity> filteredTraceability = filterTraceabilityByDate();
+                List<MasterBatchTraceabilityEntity> filteredMasters = filterMastersByDate();
 
                 ReportData reportData = new ReportData(
                         currentFarm,
@@ -252,6 +291,9 @@ public class ReportsFragment extends Fragment {
                         filteredExpenses,
                         filteredRevenues,
                         filteredTasks,
+                        filteredQuality,
+                        filteredTraceability,
+                        filteredMasters,
                         startCalendar.getTime(),
                         endCalendar.getTime()
                 );
@@ -261,8 +303,12 @@ public class ReportsFragment extends Fragment {
 
                 if (selectedReportType.equals("SUMMARY")) {
                     pdfFile = generator.generateFarmSummaryReport();
-                } else {
+                } else if (selectedReportType.equals("FINANCIAL")) {
                     pdfFile = generator.generateFinancialStatement();
+                } else if (selectedReportType.equals("QUALITY")) {
+                    pdfFile = generator.generateQualityReport();
+                } else {
+                    pdfFile = generator.generateTraceabilityReport();
                 }
 
                 requireActivity().runOnUiThread(() -> {
@@ -294,12 +340,47 @@ public class ReportsFragment extends Fragment {
     private void setViewsEnabled(boolean enabled) {
         cardFarmSummary.setEnabled(enabled);
         cardFinancialStatement.setEnabled(enabled);
+        if (cardQualityReport != null) cardQualityReport.setEnabled(enabled);
+        if (cardTraceabilityReport != null) cardTraceabilityReport.setEnabled(enabled);
         toggleDateRange.setEnabled(enabled);
         for (int index = 0; index < toggleDateRange.getChildCount(); index++) {
             toggleDateRange.getChildAt(index).setEnabled(enabled);
         }
         etStartDate.setEnabled(enabled);
         etEndDate.setEnabled(enabled);
+    }
+
+    private List<QualityBatchEntity> filterQualityByDate() {
+        List<QualityBatchEntity> filtered = new java.util.ArrayList<>();
+        if (allQualityBatches == null) return filtered;
+        long start = startCalendar.getTimeInMillis(), end = endCalendar.getTimeInMillis();
+        for (QualityBatchEntity batch : allQualityBatches) {
+            long date = batch.getRelevantDate();
+            if (date >= start && date <= end) filtered.add(batch);
+        }
+        return filtered;
+    }
+
+    private List<BatchTraceabilityEntity> filterTraceabilityByDate() {
+        List<BatchTraceabilityEntity> filtered = new java.util.ArrayList<>();
+        if (allTraceabilities == null) return filtered;
+        long start = startCalendar.getTimeInMillis(), end = endCalendar.getTimeInMillis();
+        for (BatchTraceabilityEntity batch : allTraceabilities) {
+            long date = batch.getExportDate() != null && batch.getExportDate() > 0
+                    ? batch.getExportDate() : batch.getProcessingDate();
+            if (date >= start && date <= end) filtered.add(batch);
+        }
+        return filtered;
+    }
+
+    private List<MasterBatchTraceabilityEntity> filterMastersByDate() {
+        List<MasterBatchTraceabilityEntity> filtered = new java.util.ArrayList<>();
+        if (allMasters == null) return filtered;
+        long start = startCalendar.getTimeInMillis(), end = endCalendar.getTimeInMillis();
+        for (MasterBatchTraceabilityEntity master : allMasters) {
+            if (master.getExportDate() >= start && master.getExportDate() <= end) filtered.add(master);
+        }
+        return filtered;
     }
 
     private List<ExpenseEntity> filterExpensesByDate() {
