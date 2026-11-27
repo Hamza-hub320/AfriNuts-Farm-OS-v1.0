@@ -551,24 +551,14 @@ public class ExpenseChartsFragment extends Fragment {
      * Get the appropriate text color based on current theme
      */
     private int getThemeTextColor() {
-        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
-            return ContextCompat.getColor(requireContext(), R.color.text_primary);
-        } else {
-            return ContextCompat.getColor(requireContext(), R.color.text_dark);
-        }
+        return ContextCompat.getColor(requireContext(), R.color.text_dark);
     }
 
     /**
      * Get the appropriate axis color based on current theme
      */
     private int getThemeAxisColor() {
-        int nightModeFlags = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
-            return ContextCompat.getColor(requireContext(), R.color.text_secondary);
-        } else {
-            return ContextCompat.getColor(requireContext(), R.color.navy);
-        }
+        return ContextCompat.getColor(requireContext(), R.color.navy);
     }
 
     private void showLoading(boolean show) {
