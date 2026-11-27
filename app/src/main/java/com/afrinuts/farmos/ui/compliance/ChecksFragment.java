@@ -322,6 +322,9 @@ public class ChecksFragment extends Fragment {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(ContextCompat.getColor(parent.getContext(), R.color.surface)); bg.setCornerRadius(dp(24));
             card.setBackground(bg); RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, -2);
+            if (getResources().getConfiguration().screenWidthDp < 600) {
+                params.bottomMargin = dp(8);
+            }
             card.setLayoutParams(params);
             LinearLayout heading = new LinearLayout(parent.getContext());
             heading.setOrientation(LinearLayout.HORIZONTAL);
@@ -353,15 +356,19 @@ public class ChecksFragment extends Fragment {
         @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
             Entry e = entries.get(position); holder.title.setText(e.title); holder.subtitle.setText(e.subtitle);
             holder.date.setText(e.date > 0 ? new SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(new Date(e.date)) : "Date not set");
-            boolean selected = e.type == selectedType && selectedId != null && selectedId.equals(e.id);
-            GradientDrawable background = new GradientDrawable();
-            background.setColor(selected ? 0xFFE3F0E7 : Color.TRANSPARENT);
-            background.setCornerRadius(dp(24));
-            holder.itemView.setBackground(background);
-            holder.divider.setVisibility(!selected && position < entries.size() - 1 ? View.VISIBLE : View.GONE);
+            boolean isTablet = getResources().getConfiguration().screenWidthDp >= 600;
+            if (isTablet) {
+                boolean selected = e.type == selectedType && selectedId != null && selectedId.equals(e.id);
+                GradientDrawable background = new GradientDrawable();
+                background.setColor(selected ? 0xFFE3F0E7 : Color.TRANSPARENT);
+                background.setCornerRadius(dp(24));
+                holder.itemView.setBackground(background);
+                holder.divider.setVisibility(!selected && position < entries.size() - 1 ? View.VISIBLE : View.GONE);
+            } else {
+                holder.divider.setVisibility(View.GONE);
+            }
             holder.itemView.setOnClickListener(v -> {
-                if (getResources().getConfiguration().screenWidthDp >= 600
-                        && getActivity() instanceof OnCheckSelectedListener) {
+                if (isTablet && getActivity() instanceof OnCheckSelectedListener) {
                     selectedType = e.type;
                     selectedId = e.id;
                     notifyDataSetChanged();
