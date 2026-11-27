@@ -44,7 +44,7 @@
             android:contentDescription="Edit document"
             android:padding="12dp"
             android:scaleType="center"
-            android:src="@drawable/ic_edit"
+            android:src="@drawable/ic_farm_edit"
             app:tint="#1C1B1A" />
 
         <ImageButton
