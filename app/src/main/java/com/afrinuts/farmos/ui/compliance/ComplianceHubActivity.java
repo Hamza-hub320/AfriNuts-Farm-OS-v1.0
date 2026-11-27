@@ -451,17 +451,17 @@ public class ComplianceHubActivity extends BaseHubActivity
 
         TabItem tabItem = tabs.get(position);
 
-        // Phone keeps its tab-specific spacing. On tablets the FAB is anchored inside the
-        // list pane, whose XML margins keep it clear of the bottom navigation.
-        if (detailContainer == null) {
-            android.view.ViewGroup.LayoutParams rawParams = fabAdd.getLayoutParams();
-            if (rawParams instanceof android.widget.FrameLayout.LayoutParams) {
-                android.widget.FrameLayout.LayoutParams fabParams =
-                        (android.widget.FrameLayout.LayoutParams) rawParams;
-                int bottomMargin = tabItem.type == TabType.DOCUMENTS ? 92 : 126;
-                fabParams.bottomMargin = dp(bottomMargin);
-                fabAdd.setLayoutParams(fabParams);
-            }
+        // Keep the Docs FAB 16dp above the bottom navigation pill.
+        android.view.ViewGroup.LayoutParams rawParams = fabAdd.getLayoutParams();
+        if (rawParams instanceof android.widget.FrameLayout.LayoutParams) {
+            android.widget.FrameLayout.LayoutParams fabParams =
+                    (android.widget.FrameLayout.LayoutParams) rawParams;
+            int bottomMargin = tabItem.type == TabType.DOCUMENTS ? 92 : 126;
+            // Keep the tablet Checks FAB below the list card so it cannot cover an audit row.
+            if (detailContainer != null && (tabItem.type == TabType.CHECKS
+                    || tabItem.type == TabType.PROGRAMMES)) bottomMargin = 92;
+            fabParams.bottomMargin = dp(bottomMargin);
+            fabAdd.setLayoutParams(fabParams);
         }
 
         // Clear any existing listeners to prevent duplicates
