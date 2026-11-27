@@ -327,16 +327,34 @@ public class UsersListActivity extends BaseActivity implements UserDetailFragmen
             holder.initials.setTextColor(inks[tintIndex]);
 
             holder.name.setText(user.getName());
-            holder.role.setText(user.getDisplayRole());
+            boolean tablet = holder.itemView.getResources().getConfiguration().screenWidthDp >= 600;
+            String subtitle = user.getDisplayRole();
+            String title = user.getTitle();
+            if (tablet && title != null && !title.trim().isEmpty()
+                    && !title.trim().equalsIgnoreCase(subtitle)) {
+                subtitle += (user.getRole() == UserEntity.UserRole.OWNER ? " / " : " · ") + title.trim();
+            }
+            holder.role.setText(subtitle);
             holder.roleIcon.setImageResource(roleIcon(user.getRole()));
             holder.roleIcon.setColorFilter(0xFF8A857B);
             holder.status.setImageResource(user.isActive() ? R.drawable.ic_check_circle : R.drawable.ic_cancel);
             holder.status.setColorFilter(user.isActive() ? 0xFF0E6B3C : 0xFFB9B2A2);
             holder.status.setContentDescription(user.isActive() ? "Active" : "Inactive");
             holder.card.setOnClickListener(v -> listener.onUserClick(user));
-            boolean tablet = holder.itemView.getResources().getConfiguration().screenWidthDp >= 600;
-            holder.card.setCardBackgroundColor(tablet && user.getLocalId() == selectedUserId
-                    ? 0xFFE3F0E7 : 0xFFFFFFFF);
+            boolean selected = tablet && user.getLocalId() == selectedUserId;
+            holder.card.setCardBackgroundColor(tablet
+                    ? selected ? 0xFFE3F0E7 : android.graphics.Color.TRANSPARENT
+                    : android.graphics.Color.WHITE);
+            if (holder.activeLabel != null) {
+                holder.activeLabel.setText(user.isActive() ? "Active" : "Inactive");
+                holder.activeLabel.setVisibility(View.VISIBLE);
+                holder.status.setVisibility(View.GONE);
+                holder.initials.setVisibility(View.GONE);
+                holder.roleIcon.setVisibility(View.GONE);
+            }
+            if (holder.divider != null) {
+                holder.divider.setVisibility(!selected && position < users.size() - 1 ? View.VISIBLE : View.GONE);
+            }
         }
 
         private static int roleIcon(UserEntity.UserRole role) {
@@ -363,6 +381,8 @@ public class UsersListActivity extends BaseActivity implements UserDetailFragmen
             final TextView role;
             final ImageView roleIcon;
             final ImageView status;
+            final TextView activeLabel;
+            final View divider;
 
             UserRowHolder(@NonNull View itemView) {
                 super(itemView);
@@ -372,6 +392,8 @@ public class UsersListActivity extends BaseActivity implements UserDetailFragmen
                 role = itemView.findViewById(R.id.userRole);
                 roleIcon = itemView.findViewById(R.id.roleIcon);
                 status = itemView.findViewById(R.id.userStatus);
+                activeLabel = itemView.findViewById(R.id.userActiveLabel);
+                divider = itemView.findViewById(R.id.userRowDivider);
             }
         }
     }
