@@ -238,6 +238,8 @@ public class ComplianceHubActivity extends BaseHubActivity
                             showAuditDetail(selectedCheckId);
                         } else if (selectedCheckType == ChecksFragment.TYPE_INSPECTION && selectedCheckId != null) {
                             showInspectionDetail(selectedCheckId);
+                        } else if (selectedCheckType == ChecksFragment.TYPE_VERIFICATION && selectedCheckId != null) {
+                            showVerificationDetail(selectedCheckId);
                         } else {
                             showDetailEmptyState("Choose a check to view its details.");
                         }
@@ -289,6 +291,8 @@ public class ComplianceHubActivity extends BaseHubActivity
             showAuditDetail(checkId);
         } else if (type == ChecksFragment.TYPE_INSPECTION && checkId != null && !checkId.isEmpty()) {
             showInspectionDetail(checkId);
+        } else if (type == ChecksFragment.TYPE_VERIFICATION && checkId != null && !checkId.isEmpty()) {
+            showVerificationDetail(checkId);
         } else {
             showDetailEmptyState("Choose a check to view its details.");
         }
@@ -321,6 +325,21 @@ public class ComplianceHubActivity extends BaseHubActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContentContainer, InspectionDetailFragment.newInstance(inspectionId),
                         "compliance_inspection_detail")
+                .commit();
+    }
+
+    private void showVerificationDetail(String verificationId) {
+        if (detailContentContainer == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof VerificationDetailFragment && current.getArguments() != null
+                && verificationId.equals(current.getArguments().getString("verification_id"))) {
+            detailEmptyState.setVisibility(View.GONE);
+            return;
+        }
+        detailEmptyState.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer, VerificationDetailFragment.newInstance(verificationId),
+                        "compliance_verification_detail")
                 .commit();
     }
 
