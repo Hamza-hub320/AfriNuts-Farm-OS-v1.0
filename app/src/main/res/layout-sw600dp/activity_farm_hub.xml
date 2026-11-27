@@ -8,17 +8,23 @@
     android:background="@color/background">
 
     <!-- Main Content Container -->
-    <LinearLayout
+
+    <FrameLayout
         android:layout_width="482dp"
         android:layout_height="match_parent"
         android:layout_marginTop="104dp"
+        android:layout_marginBottom="104dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:paddingStart="12dp"
         android:paddingTop="12dp"
-        android:paddingEnd="0dp"
-        android:paddingBottom="72dp">
+        android:paddingEnd="0dp" android:paddingBottom="0dp">
 
         <!-- Tab Layout - Compact -->
         <com.google.android.material.tabs.TabLayout
@@ -55,16 +61,26 @@
             android:paddingStart="0dp"
             android:paddingTop="0dp"
             android:paddingEnd="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="40dp"
+            android:clipToPadding="true"
+            android:paddingBottom="88dp"
             android:visibility="visible" />
 
         <!-- Spacer for bottom navigation -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="80dp" />
 
     </LinearLayout>
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_park"
+        android:contentDescription="Add"
+        app:backgroundTint="#F3EAD8"
+        app:tint="#1C1B1A"
+        app:elevation="0dp" />
+    </FrameLayout>
 
 
     <FrameLayout
@@ -159,20 +175,7 @@
             android:fontFamily="@font/manrope_extrabold" />
     </LinearLayout>
     <!-- Green primary action -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_marginStart="300dp"
-        android:layout_marginBottom="126dp"
-        android:src="@drawable/ic_park"
-        android:contentDescription="Add"
-        app:backgroundTint="@color/accent"
-        app:tint="@android:color/white"
-        app:rippleColor="@color/primary_light"
-        app:elevation="4dp"
-        app:fabSize="normal" />
+
 
     <!-- Compact dark pill navigation -->
     <com.google.android.material.card.MaterialCardView
