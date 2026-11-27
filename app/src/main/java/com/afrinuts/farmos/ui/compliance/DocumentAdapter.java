@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,7 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
 
     private List<DocumentEntity> documents;
     private final OnDocumentClickListener listener;
+    private String selectedDocumentId;
 
     public interface OnDocumentClickListener {
         void onDocumentClick(DocumentEntity document);
@@ -54,6 +56,13 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
         notifyDataSetChanged();
     }
 
+    public String getSelectedDocumentId() { return selectedDocumentId; }
+
+    public void setSelectedDocumentId(String documentId) {
+        selectedDocumentId = documentId;
+        notifyDataSetChanged();
+    }
+
     class DocumentViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView type;
@@ -63,6 +72,9 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
         private final TextView status;
         private final ImageView typeIcon;
         private final FrameLayout typeTile;
+        private final View tabletDivider;
+        private final LinearLayout content;
+        private final LinearLayout metadata;
 
         DocumentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +86,14 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
             status = itemView.findViewById(R.id.tvStatus);
             typeIcon = itemView.findViewById(R.id.ivDocumentTypeIcon);
             typeTile = itemView.findViewById(R.id.documentTypeTile);
+            content = (LinearLayout) ((androidx.cardview.widget.CardView) itemView).getChildAt(0);
+            metadata = (LinearLayout) content.getChildAt(1);
+            tabletDivider = new View(itemView.getContext());
+            tabletDivider.setBackgroundColor(0xFFE9E1CF);
+            itemView.setClipToOutline(true);
+            ((androidx.cardview.widget.CardView) itemView).addView(tabletDivider,
+                    new FrameLayout.LayoutParams(-1, Math.round(1 * itemView.getResources().getDisplayMetrics().density),
+                            android.view.Gravity.BOTTOM));
         }
 
         void bind(DocumentEntity document) {
@@ -108,9 +128,68 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
             typeIcon.setColorFilter(iconColor);
 
             bindStatus(document);
+            boolean tablet = itemView.getResources().getConfiguration().screenWidthDp >= 600;
+            if (tablet) {
+                boolean selected = document.getDocumentId() != null
+                        && document.getDocumentId().equals(selectedDocumentId);
+                androidx.cardview.widget.CardView card = (androidx.cardview.widget.CardView) itemView;
+                card.setCardBackgroundColor(selected ? 0xFFE3F0E7 : Color.TRANSPARENT);
+                card.setRadius(selected ? itemView.getResources().getDisplayMetrics().density * 18 : 0);
+                content.setPadding(dp(12), dp(10), dp(12), dp(10));
+                LinearLayout header = (LinearLayout) content.getChildAt(0);
+                if (header.getChildCount() > 1) header.removeViewAt(1);
+                if (status.getParent() instanceof ViewGroup)
+                    ((ViewGroup) status.getParent()).removeView(status);
+                LinearLayout statusColumn = new LinearLayout(itemView.getContext());
+                statusColumn.setOrientation(LinearLayout.VERTICAL);
+                statusColumn.setGravity(android.view.Gravity.END | android.view.Gravity.CENTER_VERTICAL);
+                statusColumn.addView(status, new LinearLayout.LayoutParams(-2, -2));
+                TextView expires = new TextView(itemView.getContext());
+                boolean expired = document.getStatus() == DocumentEntity.DocumentStatus.APPROVED && document.isExpired();
+                expires.setText((expired ? "Expired " : "Expires ") + document.getFormattedExpiryDate());
+                expires.setTextColor(0xFF59544C);
+                expires.setTextSize(13.5f);
+                expires.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(itemView.getContext(), R.font.manrope_semibold));
+                LinearLayout.LayoutParams expiresParams = new LinearLayout.LayoutParams(-2, -2);
+                expiresParams.topMargin = dp(4);
+                statusColumn.addView(expires, expiresParams);
+                header.addView(statusColumn, new LinearLayout.LayoutParams(-2, -2));
+                name.setTextSize(16);
+                name.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(itemView.getContext(), R.font.manrope_extrabold));
+                typeTile.setVisibility(View.GONE);
+                id.setVisibility(View.GONE);
+                type.setText(document.getDocumentTypeDisplay() + " · " + document.getDocumentId());
+                type.setTextColor(0xFF59544C);
+                type.setTextSize(13.5f);
+                type.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(itemView.getContext(), R.font.manrope_medium));
+                metadata.setPadding(0, dp(4), 0, 0);
+                View internalDivider = content.getChildAt(2);
+                if (internalDivider != tabletDivider && internalDivider != null) internalDivider.setVisibility(View.GONE);
+                View dates = content.getChildAt(3);
+                if (dates != null) dates.setVisibility(View.GONE);
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) card.getLayoutParams();
+                params.bottomMargin = 0;
+                card.setLayoutParams(params);
+                FrameLayout.LayoutParams dividerParams = (FrameLayout.LayoutParams) tabletDivider.getLayoutParams();
+                dividerParams.leftMargin = dp(12);
+                dividerParams.rightMargin = dp(12);
+                tabletDivider.setLayoutParams(dividerParams);
+                tabletDivider.setVisibility(!selected && getAdapterPosition() < documents.size() - 1
+                        ? View.VISIBLE : View.GONE);
+            } else {
+                tabletDivider.setVisibility(View.GONE);
+            }
             itemView.setOnClickListener(v -> {
+                if (tablet) {
+                    selectedDocumentId = document.getDocumentId();
+                    notifyDataSetChanged();
+                }
                 if (listener != null) listener.onDocumentClick(document);
             });
+        }
+
+        private int dp(int value) {
+            return Math.round(value * itemView.getResources().getDisplayMetrics().density);
         }
 
         private void bindStatus(DocumentEntity document) {

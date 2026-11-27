@@ -28,6 +28,10 @@ import java.util.concurrent.Executors;
 
 public class DocumentListFragment extends Fragment {
 
+    public interface OnDocumentSelectedListener {
+        void onDocumentSelected(String documentId);
+    }
+
     private RecyclerView recyclerView;
     private DocumentAdapter adapter;
     private ProgressBar progressBar;
@@ -83,9 +87,14 @@ public class DocumentListFragment extends Fragment {
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new DocumentAdapter(documents, document -> {
-            Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
-            intent.putExtra(DocumentDetailActivity.EXTRA_DOCUMENT_ID, document.getDocumentId());
-            startActivity(intent);
+            if (isTablet()) {
+                if (getActivity() instanceof OnDocumentSelectedListener)
+                    ((OnDocumentSelectedListener) getActivity()).onDocumentSelected(document.getDocumentId());
+            } else {
+                Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
+                intent.putExtra(DocumentDetailActivity.EXTRA_DOCUMENT_ID, document.getDocumentId());
+                startActivity(intent);
+            }
         });
         recyclerView.setAdapter(adapter);
     }
@@ -106,8 +115,18 @@ public class DocumentListFragment extends Fragment {
             } else {
                 showEmpty(false);
                 adapter.updateDocuments(documents);
+                if (isTablet() && adapter.getSelectedDocumentId() == null) {
+                    String selectedId = documents.get(0).getDocumentId();
+                    adapter.setSelectedDocumentId(selectedId);
+                    if (getActivity() instanceof OnDocumentSelectedListener)
+                        ((OnDocumentSelectedListener) getActivity()).onDocumentSelected(selectedId);
+                }
             }
         });
+    }
+
+    private boolean isTablet() {
+        return getResources().getConfiguration().screenWidthDp >= 600;
     }
 
     public void showAddDocumentDialog() {

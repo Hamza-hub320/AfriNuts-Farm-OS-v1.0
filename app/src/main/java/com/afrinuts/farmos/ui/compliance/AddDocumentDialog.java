@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.compliance;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
@@ -20,6 +23,8 @@ import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.repository.CertificationRepository;
 import com.afrinuts.farmos.data.repository.DocumentRepository;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.io.File;
 
 public class AddDocumentDialog extends FarmDialogFragment {
 
@@ -55,6 +61,9 @@ public class AddDocumentDialog extends FarmDialogFragment {
     private MaterialAutoCompleteTextView etStatus;
     private Button btnCancel;
     private Button btnSave;
+    private MaterialButton btnUploadFile;
+    private final ActivityResultLauncher<String> pickDocument = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), this::uploadPickedDocument);
 
     private Calendar issueCalendar = null;
     private Calendar expiryCalendar = null;
@@ -109,6 +118,7 @@ public class AddDocumentDialog extends FarmDialogFragment {
 
         btnCancel.setOnClickListener(v -> dismiss());
         btnSave.setOnClickListener(v -> saveDocument());
+        btnUploadFile.setOnClickListener(v -> pickDocument.launch("*/*"));
 
         return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -126,6 +136,52 @@ public class AddDocumentDialog extends FarmDialogFragment {
         etStatus = view.findViewById(R.id.etStatus);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
+        btnUploadFile = view.findViewById(R.id.btnUploadFile);
+    }
+
+    private void uploadPickedDocument(Uri uri) {
+        if (uri == null) return;
+        if (!DocumentUploadHelper.isSupported(requireContext(), uri)) {
+            Toast.makeText(getContext(), "Choose a PDF or image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        btnUploadFile.setEnabled(false);
+        btnUploadFile.setText("Uploading…");
+        executor.execute(() -> {
+            try {
+                File file = DocumentUploadHelper.copyToCache(requireContext(), uri);
+                String filename = System.currentTimeMillis() + "_" + DocumentUploadHelper.fileName(requireContext(), uri);
+                String path = "farms/" + farmId + "/certification_documents/pending/" + filename;
+                FirebaseManager.getInstance().uploadDocumentFile(file, path,
+                        new FirebaseManager.EvidenceUploadCallback() {
+                            @Override public void onSuccess(String downloadUrl) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    etFileUrl.setText(downloadUrl);
+                                    btnUploadFile.setEnabled(true);
+                                    btnUploadFile.setText("Upload file");
+                                    file.delete();
+                                });
+                            }
+                            @Override public void onError(String error) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    btnUploadFile.setEnabled(true);
+                                    btnUploadFile.setText("Upload file");
+                                    Toast.makeText(getContext(), "File upload failed", Toast.LENGTH_LONG).show();
+                                    file.delete();
+                                });
+                            }
+                        });
+            } catch (Exception error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    btnUploadFile.setEnabled(true);
+                    btnUploadFile.setText("Upload file");
+                    Toast.makeText(getContext(), "Could not prepare file", Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void loadCertifications() {

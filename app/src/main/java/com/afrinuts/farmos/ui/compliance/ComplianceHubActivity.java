@@ -44,7 +44,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ComplianceHubActivity extends BaseHubActivity
         implements CertificationListFragment.OnCertificationSelectedListener,
-        ChecksFragment.OnCheckSelectedListener {
+        ChecksFragment.OnCheckSelectedListener,
+        DocumentListFragment.OnDocumentSelectedListener {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -57,6 +58,7 @@ public class ComplianceHubActivity extends BaseHubActivity
     private String selectedCertificationId;
     private int selectedCheckType = ChecksFragment.TYPE_NONE;
     private String selectedCheckId;
+    private String selectedDocumentId;
 
     // Navigation items
     private LinearLayout navHome;
@@ -243,6 +245,9 @@ public class ComplianceHubActivity extends BaseHubActivity
                         } else {
                             showDetailEmptyState("Choose a check to view its details.");
                         }
+                    } else if (tabs.get(position).type == TabType.DOCUMENTS) {
+                        if (selectedDocumentId != null) showDocumentDetail(selectedDocumentId);
+                        else showDetailEmptyState("Choose a document to view its details.");
                     } else {
                         showDetailEmptyState("Choose a programme or check to view its details.");
                     }
@@ -298,6 +303,25 @@ public class ComplianceHubActivity extends BaseHubActivity
         }
     }
 
+    @Override
+    public void onDocumentSelected(String documentId) {
+        selectedDocumentId = documentId;
+        if (detailContentContainer == null || currentPosition >= tabs.size()
+                || tabs.get(currentPosition).type != TabType.DOCUMENTS
+                || documentId == null || documentId.isEmpty()) {
+            if (currentPosition < tabs.size() && tabs.get(currentPosition).type == TabType.DOCUMENTS)
+                showDetailEmptyState("Choose a document to view its details.");
+            return;
+        }
+        showDocumentDetail(documentId);
+    }
+
+    public void onDocumentDeleted(String documentId) {
+        if (documentId != null && documentId.equals(selectedDocumentId)) selectedDocumentId = null;
+        if (currentPosition < tabs.size() && tabs.get(currentPosition).type == TabType.DOCUMENTS)
+            showDetailEmptyState("Choose a document to view its details.");
+    }
+
     private void showAuditDetail(String auditId) {
         if (detailContentContainer == null) return;
         Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
@@ -340,6 +364,21 @@ public class ComplianceHubActivity extends BaseHubActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detailContentContainer, VerificationDetailFragment.newInstance(verificationId),
                         "compliance_verification_detail")
+                .commit();
+    }
+
+    private void showDocumentDetail(String documentId) {
+        if (detailContentContainer == null) return;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.detailContentContainer);
+        if (current instanceof DocumentDetailFragment && current.getArguments() != null
+                && documentId.equals(current.getArguments().getString("document_id"))) {
+            detailEmptyState.setVisibility(View.GONE);
+            return;
+        }
+        detailEmptyState.setVisibility(View.GONE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detailContentContainer, DocumentDetailFragment.newInstance(documentId),
+                        "compliance_document_detail")
                 .commit();
     }
 

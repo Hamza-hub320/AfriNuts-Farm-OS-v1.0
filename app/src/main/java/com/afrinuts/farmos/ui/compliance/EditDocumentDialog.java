@@ -2,6 +2,7 @@ package com.afrinuts.farmos.ui.compliance;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -12,11 +13,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import com.afrinuts.farmos.ui.farm.FarmDialogFragment;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.repository.DocumentRepository;
+import com.afrinuts.farmos.data.remote.FirebaseManager;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -26,6 +31,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.io.File;
 
 public class EditDocumentDialog extends FarmDialogFragment {
 
@@ -45,6 +51,9 @@ public class EditDocumentDialog extends FarmDialogFragment {
     private MaterialAutoCompleteTextView etStatus;
     private Button btnCancel;
     private Button btnSave;
+    private MaterialButton btnUploadFile;
+    private final ActivityResultLauncher<String> pickDocument = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), this::uploadPickedDocument);
 
     // ✅ Initialize calendars to NULL (not with current date)
     private Calendar issueCalendar = null;
@@ -105,6 +114,7 @@ public class EditDocumentDialog extends FarmDialogFragment {
 
         btnCancel.setOnClickListener(v -> dismiss());
         btnSave.setOnClickListener(v -> saveDocument());
+        btnUploadFile.setOnClickListener(v -> pickDocument.launch("*/*"));
 
         return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
@@ -121,6 +131,57 @@ public class EditDocumentDialog extends FarmDialogFragment {
         etStatus = view.findViewById(R.id.etStatus);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSave = view.findViewById(R.id.btnSave);
+        btnUploadFile = view.findViewById(R.id.btnUploadFile);
+    }
+
+    private void uploadPickedDocument(Uri uri) {
+        if (uri == null) return;
+        if (document == null) {
+            Toast.makeText(getContext(), "Document is still loading", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!DocumentUploadHelper.isSupported(requireContext(), uri)) {
+            Toast.makeText(getContext(), "Choose a PDF or image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        btnUploadFile.setEnabled(false);
+        btnUploadFile.setText("Uploading…");
+        executor.execute(() -> {
+            try {
+                File file = DocumentUploadHelper.copyToCache(requireContext(), uri);
+                String filename = DocumentUploadHelper.fileName(requireContext(), uri);
+                String path = "farms/" + document.getFarmId() + "/certification_documents/"
+                        + documentId + "/" + filename;
+                FirebaseManager.getInstance().uploadDocumentFile(file, path,
+                        new FirebaseManager.EvidenceUploadCallback() {
+                            @Override public void onSuccess(String downloadUrl) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    etFileUrl.setText(downloadUrl);
+                                    btnUploadFile.setEnabled(true);
+                                    btnUploadFile.setText("Upload file");
+                                    file.delete();
+                                });
+                            }
+                            @Override public void onError(String error) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    btnUploadFile.setEnabled(true);
+                                    btnUploadFile.setText("Upload file");
+                                    Toast.makeText(getContext(), "File upload failed", Toast.LENGTH_LONG).show();
+                                    file.delete();
+                                });
+                            }
+                        });
+            } catch (Exception error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    btnUploadFile.setEnabled(true);
+                    btnUploadFile.setText("Upload file");
+                    Toast.makeText(getContext(), "Could not prepare file", Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void setupDropdowns() {

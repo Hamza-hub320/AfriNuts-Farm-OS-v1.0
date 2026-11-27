@@ -850,6 +850,16 @@ public class FirebaseManager {
                 });
     }
 
+    /** Uploads a document file to an explicit Storage path and returns its download URL. */
+    public void uploadDocumentFile(File file, String storagePath, EvidenceUploadCallback callback) {
+        StorageReference ref = storage.getReference().child(storagePath);
+        ref.putFile(Uri.fromFile(file))
+                .addOnSuccessListener(snapshot -> ref.getDownloadUrl()
+                        .addOnSuccessListener(uri -> callback.onSuccess(uri.toString()))
+                        .addOnFailureListener(e -> callback.onError(e.getMessage())))
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
 // ========================================
 // MASTER TRACEABILITY OPERATIONS
 // ========================================

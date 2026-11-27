@@ -174,12 +174,17 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- File URL -->
+        <!-- File URL and upload control -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.AfriNuts.EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
             app:boxBackgroundColor="?attr/colorSurface"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -197,6 +202,17 @@
                 android:textColorHint="?attr/colorOnSurface" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUploadFile"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:text="Upload file"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart" />
+        </LinearLayout>
 
         <!-- Status -->
         <com.google.android.material.textfield.TextInputLayout
