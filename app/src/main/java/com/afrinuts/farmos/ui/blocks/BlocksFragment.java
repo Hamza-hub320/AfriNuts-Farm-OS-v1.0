@@ -57,6 +57,7 @@ public class BlocksFragment extends Fragment {
     private String searchQuery = "";
     private String blockFilter = "ALL";
     private long selectedBlockId = -1;
+    private long requestedBlockId = -1;
     private BlockSelectionListener selectionListener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -229,7 +230,9 @@ public class BlocksFragment extends Fragment {
                 });
                 expandableAdapter.setSelectedBlockId(selectedBlockId);
                 recyclerView.setAdapter(expandableAdapter);
-                if (selectedBlockId < 0 && !finalVisibleBlocks.isEmpty() && selectionListener != null) {
+                if (requestedBlockId >= 0) {
+                    openRequestedBlock();
+                } else if (selectedBlockId < 0 && !finalVisibleBlocks.isEmpty() && selectionListener != null) {
                     BlockEntity first = blockGroups.get(0).getBlocks().get(0);
                     if (selectionListener.onBlockSelected(first)) {
                         selectedBlockId = first.getId();
@@ -259,6 +262,33 @@ public class BlocksFragment extends Fragment {
         selectedBlockId = first.getId();
         if (expandableAdapter != null) expandableAdapter.setSelectedBlockId(selectedBlockId);
         selectionListener.onBlockSelected(first);
+    }
+
+    public void openBlockById(long blockId) {
+        requestedBlockId = blockId;
+        openRequestedBlock();
+    }
+
+    private void openRequestedBlock() {
+        if (requestedBlockId < 0 || allBlocksList == null || expandableAdapter == null) return;
+        BlockEntity requested = null;
+        for (BlockEntity block : allBlocksList) {
+            if (block != null && block.getId() == requestedBlockId) {
+                requested = block;
+                break;
+            }
+        }
+        if (requested == null) return;
+
+        selectedBlockId = requested.getId();
+        expandableAdapter.setSelectedBlockId(selectedBlockId);
+        expandableAdapter.notifyDataSetChanged();
+        requestedBlockId = -1;
+        if (selectionListener != null && selectionListener.onBlockSelected(requested)) return;
+
+        Intent intent = new Intent(requireContext(), BlockDetailActivity.class);
+        intent.putExtra(BlockDetailActivity.EXTRA_BLOCK_ID, requested.getId());
+        startActivity(intent);
     }
 
     private int leadingBlockNumber(String blockName) {

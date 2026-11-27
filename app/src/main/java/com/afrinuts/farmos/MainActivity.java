@@ -922,8 +922,8 @@ public class MainActivity extends AppCompatActivity {
                 if (block != null) {
                     cell.setOnClickListener(v -> {
                         Intent intent = new Intent(MainActivity.this,
-                                com.afrinuts.farmos.ui.blocks.BlockDetailActivity.class);
-                        intent.putExtra(com.afrinuts.farmos.ui.blocks.BlockDetailActivity.EXTRA_BLOCK_ID,
+                                com.afrinuts.farmos.ui.farm.FarmHubActivity.class);
+                        intent.putExtra(com.afrinuts.farmos.ui.farm.FarmHubActivity.EXTRA_OPEN_BLOCK_ID,
                                 block.getId());
                         startActivity(intent);
                     });
