@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.afrinuts.farmos.R;
@@ -67,6 +68,7 @@ public class UserDetailFragment extends Fragment {
     private View layoutContactCard, layoutEmail, layoutPin, layoutProfileDetails;
     private TextView tvUserEmail, tvUserPhone, tvUserCompany, tvUserTitleDetail, tvUserBio;
     private View layoutCompany, layoutTitle, layoutBio, btnResetPin;
+    private View tabletActions, tabletBtnEdit, tabletBtnDelete;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -89,6 +91,20 @@ public class UserDetailFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         bindViews(view);
 
+        boolean isTablet = getResources().getConfiguration().screenWidthDp >= 600;
+        if (isTablet) arrangeTabletHeader();
+
+        tabletActions = requireActivity().findViewById(R.id.tabletUserActions);
+        tabletBtnEdit = requireActivity().findViewById(R.id.tabletBtnEdit);
+        tabletBtnDelete = requireActivity().findViewById(R.id.tabletBtnDelete);
+        if (isTablet && tabletActions != null) {
+            tabletActions.setVisibility(View.VISIBLE);
+            tabletBtnEdit.setOnClickListener(v -> showEditUserDialog());
+            tabletBtnDelete.setOnClickListener(v -> confirmDelete());
+            btnEdit.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+        }
+
         View toolbar = view.findViewById(R.id.toolbar);
         if (toolbar != null) toolbar.setVisibility(View.GONE);
         ViewGroup root = (ViewGroup) view;
@@ -99,6 +115,39 @@ public class UserDetailFragment extends Fragment {
                     scrollView.getPaddingBottom());
         }
         loadUserData();
+    }
+
+    private void arrangeTabletHeader() {
+        if (!(chipUserStatus.getParent() instanceof ViewGroup)) return;
+        ViewGroup statusRow = (ViewGroup) chipUserStatus.getParent();
+        if (!(statusRow.getParent() instanceof ViewGroup)) return;
+        ViewGroup headerColumn = (ViewGroup) statusRow.getParent();
+        if (headerColumn.getChildCount() == 0 || !(headerColumn.getChildAt(0) instanceof ViewGroup)) return;
+        ViewGroup headerRow = (ViewGroup) headerColumn.getChildAt(0);
+
+        headerColumn.setPadding(headerColumn.getPaddingLeft(), headerColumn.getPaddingTop(),
+                headerColumn.getPaddingRight(), dp(8));
+        if (headerColumn.getParent() instanceof View) {
+            View headerCard = (View) headerColumn.getParent();
+            if (headerCard.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams cardParams = (ViewGroup.MarginLayoutParams) headerCard.getLayoutParams();
+                cardParams.bottomMargin = dp(8);
+                headerCard.setLayoutParams(cardParams);
+            }
+        }
+        GradientDrawable initialsBackground = new GradientDrawable();
+        initialsBackground.setColor(0xFFE3F0E7);
+        initialsBackground.setCornerRadius(dp(27));
+        tvUserInitials.setBackground(initialsBackground);
+        tvUserInitials.setTextColor(0xFF0A5530);
+
+        headerColumn.removeView(statusRow);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = dp(14);
+        statusRow.setLayoutParams(params);
+        ((LinearLayout) statusRow).setGravity(android.view.Gravity.CENTER_VERTICAL);
+        headerRow.addView(statusRow);
     }
 
     public long getUserId() { return userId; }
@@ -189,13 +238,27 @@ public class UserDetailFragment extends Fragment {
         if (user.getRole() == UserEntity.UserRole.OWNER && isCurrentUser) {
             btnDeactivate.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
+            if (tabletBtnDelete != null) tabletBtnDelete.setVisibility(View.GONE);
         } else {
             btnDeactivate.setVisibility(View.VISIBLE);
-            btnDelete.setVisibility(sessionManager.isOwner() ? View.VISIBLE : View.GONE);
+            int deleteVisibility = sessionManager.isOwner() ? View.VISIBLE : View.GONE;
+            btnDelete.setVisibility(deleteVisibility);
+            if (tabletBtnDelete != null) tabletBtnDelete.setVisibility(deleteVisibility);
+        }
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            // The tablet footer owns these actions; keep the copies in the scroll content hidden.
+            btnEdit.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
         }
 
         tvAccessRole.setText(user.getDisplayRole());
         tvAccessLevel.setText(user.isActive() ? "Active" : "Inactive");
+        // The reused phone layout uses white backgrounds for the secondary KPI cards.
+        // Give them the warm sand fill from the tablet master-detail wireframe.
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            setKpiCardColor(tvAccessLevel, 0xFFF5F1E8);
+            setKpiCardColor(tvLastLogin, 0xFFF5F1E8);
+        }
         if (user.getRole() != null) {
             accessProgress.setProgress(user.getRole().getAccessLevel());
             tvAccessDescription.setText(user.getRole().getDescription());
@@ -204,6 +267,14 @@ public class UserDetailFragment extends Fragment {
         tvLastLogin.setText(user.getLastLoginAt() > 0
                 ? dateFormat.format(new Date(user.getLastLoginAt())) : "Never");
         tvAuthMethod.setText(user.getAuthMethod() == null ? "—" : user.getAuthMethod().getDisplayName());
+    }
+
+    private void setKpiCardColor(View valueView, int color) {
+        if (valueView == null || !(valueView.getParent() instanceof View)) return;
+        View content = (View) valueView.getParent();
+        if (content.getParent() instanceof CardView) {
+            ((CardView) content.getParent()).setCardBackgroundColor(color);
+        }
     }
 
     private String nonEmpty(String value, String fallback) {
