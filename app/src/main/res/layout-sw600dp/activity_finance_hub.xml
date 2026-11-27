@@ -41,6 +41,8 @@
             app:tabRippleColor="#1A5A7411"
             app:tabBackground="@drawable/tab_selector_pill"
             app:tabTextAppearance="@style/TextAppearance.TabCompact"
+            app:tabMinWidth="300dp"
+            app:tabMaxWidth="300dp"
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp" />
 
