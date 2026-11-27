@@ -168,11 +168,12 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
             fabAction.setOnLongClickListener(null);
             return;
         }
+        int fabTint = findViewById(R.id.detailContainer) == null ? R.color.primary : R.color.accent;
         if ("QUALITY".equals(pagerAdapter.getTabKey(position))) {
             // Quality tab — kernel batch on tap, RCN intake on long-press
             fabAction.show();
             fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
+                    androidx.core.content.ContextCompat.getColor(this, fabTint)));
             fabAction.setImageResource(R.drawable.ic_add);
 
             fabAction.setOnClickListener(v -> {
@@ -200,7 +201,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         } else if ("TRACEABILITY".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
             fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
+                    androidx.core.content.ContextCompat.getColor(this, fabTint)));
             fabAction.setImageResource(R.drawable.ic_qr_code);
             fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> {
@@ -211,7 +212,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
         } else if ("BULK".equals(pagerAdapter.getTabKey(position))) {
             fabAction.show();
             fabAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.accent)));
+                    androidx.core.content.ContextCompat.getColor(this, fabTint)));
             fabAction.setImageResource(R.drawable.ic_add);
             fabAction.setOnLongClickListener(null);
             fabAction.setOnClickListener(v -> showCreateMasterDialog());
