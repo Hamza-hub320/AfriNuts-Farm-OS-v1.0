@@ -881,14 +881,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void runSupplierActivationRepairBeforeListening(long farmId, Runnable onComplete) {
         databaseExecutor.execute(() -> {
-            android.content.SharedPreferences repairs =
-                    getSharedPreferences("farm_os_repairs", MODE_PRIVATE);
-            String doneKey = "supplier_activation_repair_v1_done";
-            if (repairs.getBoolean(doneKey, false)) {
-                runOnUiThread(onComplete);
-                return;
-            }
-
             syncManager.setSyncCenterContext(farmId, null);
             SupplierRepository supplierRepository = new SupplierRepository(this, farmId);
             QualityBatchRepository batchRepository = new QualityBatchRepository(this, farmId);
@@ -909,21 +901,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Activation repair: failed while checking suppliers", e);
-                repairs.edit().putBoolean(doneKey, true).apply();
                 runOnUiThread(onComplete);
                 return;
             }
 
             activateNextPendingSupplier(supplierRepository, suppliersToActivate, 0,
-                    repairs, doneKey, onComplete);
+                    onComplete);
         });
     }
 
     private void activateNextPendingSupplier(SupplierRepository supplierRepository,
-            List<SupplierEntity> suppliers, int index,
-            android.content.SharedPreferences repairs, String doneKey, Runnable onComplete) {
+            List<SupplierEntity> suppliers, int index, Runnable onComplete) {
         if (index >= suppliers.size()) {
-            repairs.edit().putBoolean(doneKey, true).apply();
             runOnUiThread(onComplete);
             return;
         }
@@ -936,16 +925,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Boolean result) {
                 Log.i(TAG, "Activation repair: " + supplier.getName() + " set Active");
-                activateNextPendingSupplier(supplierRepository, suppliers, index + 1,
-                        repairs, doneKey, onComplete);
+                activateNextPendingSupplier(supplierRepository, suppliers, index + 1, onComplete);
             }
 
             @Override
             public void onError(String error) {
                 Log.e(TAG, "Activation repair: failed for " + supplier.getName()
                         + " (" + supplier.getId() + "): " + error);
-                activateNextPendingSupplier(supplierRepository, suppliers, index + 1,
-                        repairs, doneKey, onComplete);
+                activateNextPendingSupplier(supplierRepository, suppliers, index + 1, onComplete);
             }
         });
     }
