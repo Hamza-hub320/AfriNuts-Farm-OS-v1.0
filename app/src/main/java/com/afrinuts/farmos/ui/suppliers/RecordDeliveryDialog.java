@@ -377,6 +377,7 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
                     notes
             );
             batch.setHarvestDate(selectedHarvestDate.getTimeInMillis());
+            batch.setProductType("RCN");
 
             // ✅ Generate verification code using the batch type code
             String verificationCode = BatchNumberGenerator.generateVerificationCode(
