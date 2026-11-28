@@ -10,6 +10,8 @@ import com.afrinuts.farmos.data.repository.BlockRepository;
 import com.afrinuts.farmos.data.repository.ExpenseRepository;
 import com.afrinuts.farmos.data.repository.RevenueRepository;
 import com.afrinuts.farmos.data.repository.TaskRepository;
+import com.afrinuts.farmos.data.repository.SupplierRepository;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -804,19 +806,20 @@ public class MainActivity extends AppCompatActivity {
                 taskRepository = new TaskRepository(MainActivity.this, farmId);
 
                 firestoreSyncManager = FirestoreSyncManager.getInstance(MainActivity.this);
-                runProductTypeBackfillBeforeListening(farmId, () -> {
-                    firestoreSyncManager.startListening(String.valueOf(farmId), sessionManager.isOwner());
+                runProductTypeBackfillBeforeListening(farmId, () ->
+                        runSupplierActivationRepairBeforeListening(farmId, () -> {
+                            firestoreSyncManager.startListening(String.valueOf(farmId), sessionManager.isOwner());
 
-                    loadFarmData();
+                            loadFarmData();
 
-                    if (currentUser != null) {
-                        initializeSyncListener();
-                    }
+                            if (currentUser != null) {
+                                initializeSyncListener();
+                            }
 
-                    if (sessionManager.isOwner()) {
-                        loadUsersFromFirestore();
-                    }
-                });
+                            if (sessionManager.isOwner()) {
+                                loadUsersFromFirestore();
+                            }
+                        }));
 
             });
         });
@@ -872,6 +875,77 @@ public class MainActivity extends AppCompatActivity {
                 repairs.edit().putBoolean(doneKey, true).apply();
                 syncManager.triggerAutoSync();
                 runOnUiThread(onComplete);
+            }
+        });
+    }
+
+    private void runSupplierActivationRepairBeforeListening(long farmId, Runnable onComplete) {
+        databaseExecutor.execute(() -> {
+            android.content.SharedPreferences repairs =
+                    getSharedPreferences("farm_os_repairs", MODE_PRIVATE);
+            String doneKey = "supplier_activation_repair_v1_done";
+            if (repairs.getBoolean(doneKey, false)) {
+                runOnUiThread(onComplete);
+                return;
+            }
+
+            syncManager.setSyncCenterContext(farmId, null);
+            SupplierRepository supplierRepository = new SupplierRepository(this, farmId);
+            QualityBatchRepository batchRepository = new QualityBatchRepository(this, farmId);
+            List<SupplierEntity> suppliersToActivate = new ArrayList<>();
+            try {
+                for (SupplierEntity supplier : supplierRepository.getSuppliersSync()) {
+                    if (supplier == null || supplier.getStatus() != SupplierEntity.SupplierStatus.PENDING) {
+                        continue;
+                    }
+                    List<QualityBatchEntity> batches =
+                            batchRepository.getBatchesBySupplierIdSync(supplier.getId());
+                    if (batches != null && !batches.isEmpty()) {
+                        suppliersToActivate.add(supplier);
+                    } else {
+                        Log.i(TAG, "Activation repair: " + supplier.getName() + " ("
+                                + supplier.getId() + ") left Pending — no deliveries");
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Activation repair: failed while checking suppliers", e);
+                repairs.edit().putBoolean(doneKey, true).apply();
+                runOnUiThread(onComplete);
+                return;
+            }
+
+            activateNextPendingSupplier(supplierRepository, suppliersToActivate, 0,
+                    repairs, doneKey, onComplete);
+        });
+    }
+
+    private void activateNextPendingSupplier(SupplierRepository supplierRepository,
+            List<SupplierEntity> suppliers, int index,
+            android.content.SharedPreferences repairs, String doneKey, Runnable onComplete) {
+        if (index >= suppliers.size()) {
+            repairs.edit().putBoolean(doneKey, true).apply();
+            runOnUiThread(onComplete);
+            return;
+        }
+
+        SupplierEntity supplier = suppliers.get(index);
+        supplier.setStatus(SupplierEntity.SupplierStatus.ACTIVE);
+        supplier.setActive(true);
+        supplier.setUpdatedAt(System.currentTimeMillis());
+        supplierRepository.updateSupplier(supplier, new SupplierRepository.RepositoryCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                Log.i(TAG, "Activation repair: " + supplier.getName() + " set Active");
+                activateNextPendingSupplier(supplierRepository, suppliers, index + 1,
+                        repairs, doneKey, onComplete);
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Activation repair: failed for " + supplier.getName()
+                        + " (" + supplier.getId() + "): " + error);
+                activateNextPendingSupplier(supplierRepository, suppliers, index + 1,
+                        repairs, doneKey, onComplete);
             }
         });
     }
