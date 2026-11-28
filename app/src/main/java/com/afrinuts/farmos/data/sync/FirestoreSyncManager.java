@@ -825,6 +825,7 @@ public class FirestoreSyncManager {
     }
 
     private void retryPendingSupplierRecords(long supplierId) {
+        processPendingBatches(supplierId);
         drainPendingSupplierRecords(pendingExpenseIds, pendingExpenseSuppliers, supplierId,
                 "expenses", EntityMapper::fromFirestoreExpense, ExpenseEntity::getSupplierId, remote -> {
                     if (remote.getBatchId() != null && remote.getBatchId() > 0
