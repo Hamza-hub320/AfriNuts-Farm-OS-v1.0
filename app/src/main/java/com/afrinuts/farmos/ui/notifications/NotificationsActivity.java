@@ -6,8 +6,11 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.ImageButton;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -31,6 +34,7 @@ import com.afrinuts.farmos.ui.compliance.DueAlertRules;
 import com.afrinuts.farmos.ui.compliance.DueExpiringAdapter;
 import com.afrinuts.farmos.ui.compliance.InspectionDetailActivity;
 import com.afrinuts.farmos.ui.sync.SyncCenterActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,17 +138,38 @@ public class NotificationsActivity extends BaseActivity {
         }
         emptyView.setVisibility(visibleAlerts.isEmpty() ? View.VISIBLE : View.GONE);
         markAllRead.setVisibility(visibleAlerts.isEmpty() ? View.GONE : View.VISIBLE);
+        boolean allRead = !visibleAlerts.isEmpty();
+        android.content.SharedPreferences preferences = getSharedPreferences(PREFS, MODE_PRIVATE);
+        for (Alert alert : visibleAlerts) {
+            if (!preferences.getBoolean(NotificationBell.readKey(alert.key), false)) {
+                allRead = false;
+                break;
+            }
+        }
+        markAllRead.setText(allRead ? "Mark all unread" : "Mark all read");
     }
 
     private View makeAlertCard(Alert alert) {
+        FrameLayout revealRow = new FrameLayout(this);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2);
+        rowParams.bottomMargin = dp(8);
+        revealRow.setLayoutParams(rowParams);
+
+        TextView unreadAction = text("Unread", 13, Color.WHITE, true);
+        unreadAction.setGravity(Gravity.CENTER);
+        unreadAction.setPadding(dp(6), 0, dp(6), 0);
+        unreadAction.setBackground(shape(GREEN));
+        FrameLayout.LayoutParams actionParams = new FrameLayout.LayoutParams(dp(64), dp(44), Gravity.START | Gravity.CENTER_VERTICAL);
+        revealRow.addView(unreadAction, actionParams);
+
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(Color.WHITE); bg.setCornerRadius(dp(20)); bg.setStroke(dp(1), 0xFFE9E1CF);
         card.setBackground(bg);
-        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
-        cp.bottomMargin = dp(8); card.setLayoutParams(cp);
+        FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(-1, -2, Gravity.TOP);
+        revealRow.addView(card, cp);
         boolean read = getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(NotificationBell.readKey(alert.key), false);
         LinearLayout header = new LinearLayout(this); header.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = text(alert.title, 14.5f, INK, true);
@@ -159,16 +184,64 @@ public class NotificationsActivity extends BaseActivity {
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, -2); bp.topMargin = dp(5);
         card.addView(body, bp);
         card.setOnClickListener(v -> openAlert(alert));
-        return card;
+        unreadAction.setOnClickListener(v -> {
+            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                    .remove(NotificationBell.readKey(alert.key)).commit();
+            render();
+        });
+
+        int revealWidth = dp(64);
+        int touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+        float[] down = new float[2];
+        float[] startTranslation = new float[1];
+        boolean[] swiping = new boolean[1];
+        card.setOnTouchListener((view, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    down[0] = event.getRawX();
+                    down[1] = event.getRawY();
+                    startTranslation[0] = view.getTranslationX();
+                    swiping[0] = false;
+                    return true;
+                case MotionEvent.ACTION_MOVE: {
+                    float dx = event.getRawX() - down[0];
+                    float dy = event.getRawY() - down[1];
+                    if (!swiping[0] && Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy)) {
+                        swiping[0] = true;
+                        if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                    if (swiping[0]) {
+                        view.setTranslationX(Math.max(0, Math.min(revealWidth, startTranslation[0] + dx)));
+                        return true;
+                    }
+                    return Math.abs(dy) <= touchSlop || Math.abs(dy) <= Math.abs(dx);
+                }
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    if (swiping[0]) {
+                        float target = view.getTranslationX() >= revealWidth / 2f ? revealWidth : 0;
+                        view.animate().translationX(target).setDuration(140).start();
+                        if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(false);
+                        swiping[0] = false;
+                        return true;
+                    }
+                    if (event.getActionMasked() == MotionEvent.ACTION_UP) view.performClick();
+                    return true;
+                default:
+                    return swiping[0];
+            }
+        });
+        return revealRow;
     }
 
     private void openAlert(Alert alert) {
         getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(NotificationBell.readKey(alert.key), true).commit();
+        render();
         Intent intent;
         if (alert.sync == null && getResources().getConfiguration().screenWidthDp >= 600) {
             intent = new Intent(this, ComplianceHubActivity.class);
-            intent.putExtra(ComplianceHubActivity.EXTRA_OPEN_DUE_TYPE, alert.due.recordType);
-            intent.putExtra(ComplianceHubActivity.EXTRA_OPEN_DUE_ID, alert.due.recordId);
+            intent.putExtra(ComplianceHubActivity.EXTRA_OPEN_RECORD_TYPE, alert.due.recordType);
+            intent.putExtra(ComplianceHubActivity.EXTRA_OPEN_RECORD_ID, alert.due.recordId);
         } else if (alert.sync != null) {
             intent = new Intent(this, SyncCenterActivity.class);
             intent.putExtra(SyncCenterActivity.EXTRA_SYNC_QUEUE_ID, alert.sync.getId());
@@ -184,10 +257,42 @@ public class NotificationsActivity extends BaseActivity {
     }
 
     private void markVisibleRead() {
+        android.content.SharedPreferences preferences = getSharedPreferences(PREFS, MODE_PRIVATE);
+        boolean allRead = true;
+        for (Alert alert : visibleAlerts) {
+            if (!preferences.getBoolean(NotificationBell.readKey(alert.key), false)) {
+                allRead = false;
+                break;
+            }
+        }
+        if (allRead) {
+            android.content.SharedPreferences.Editor unread = preferences.edit();
+            for (Alert alert : visibleAlerts) unread.remove(NotificationBell.readKey(alert.key));
+            unread.commit();
+            render();
+            return;
+        }
+        Set<String> newlyReadKeys = new HashSet<>();
+        for (Alert alert : visibleAlerts) {
+            if (!preferences.getBoolean(NotificationBell.readKey(alert.key), false)) {
+                newlyReadKeys.add(alert.key);
+            }
+        }
         android.content.SharedPreferences.Editor edit = getSharedPreferences(PREFS, MODE_PRIVATE).edit();
         for (Alert alert : visibleAlerts) edit.putBoolean(NotificationBell.readKey(alert.key), true);
         edit.commit();
         render();
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
+                "All marked as read", Snackbar.LENGTH_LONG);
+        snackbar.setAction("Undo", view -> {
+            android.content.SharedPreferences.Editor undo = getSharedPreferences(PREFS, MODE_PRIVATE).edit();
+            for (String key : newlyReadKeys) undo.remove(NotificationBell.readKey(key));
+            undo.commit();
+            render();
+        });
+        TextView undoAction = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_action);
+        if (undoAction != null) undoAction.setAllCaps(false);
+        snackbar.show();
     }
 
     private TextView text(String value, float size, int color, boolean bold) {

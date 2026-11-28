@@ -46,6 +46,8 @@ import java.util.concurrent.Executors;
 public class ChecksFragment extends Fragment {
     private static final int ALL = 0, AUDITS = 1, INSPECTIONS = 2, VERIFICATIONS = 3;
     public static final int TYPE_NONE = 0, TYPE_AUDIT = 1, TYPE_INSPECTION = 2, TYPE_VERIFICATION = 3;
+    public static final String ARG_SELECTED_CHECK_TYPE = "selected_check_type";
+    public static final String ARG_SELECTED_CHECK_ID = "selected_check_id";
 
     public interface OnCheckSelectedListener {
         void onCheckSelected(int type, String id);
@@ -105,6 +107,11 @@ public class ChecksFragment extends Fragment {
 
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle args = getArguments();
+        if (args != null) {
+            selectedCheckType = args.getInt(ARG_SELECTED_CHECK_TYPE, TYPE_NONE);
+            selectedCheckId = args.getString(ARG_SELECTED_CHECK_ID);
+        }
         if (getResources().getConfiguration().screenWidthDp >= 600) {
             ViewGroup host = requireActivity().findViewById(R.id.checkFiltersHost);
             if (host != null && filters.getParent() instanceof ViewGroup) {
@@ -193,7 +200,12 @@ public class ChecksFragment extends Fragment {
                 || !containsSelectedCheck())) {
             initialSelectionApplied = true;
             filterSelectionPending = false;
-            selectFirstVisibleCheck();
+            if (containsSelectedCheck()) {
+                adapter.setSelectedCheck(selectedCheckType, selectedCheckId);
+                notifyTabletSelection(selectedCheckType, selectedCheckId);
+            } else {
+                selectFirstVisibleCheck();
+            }
         }
     }
 

@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CertificationListFragment extends Fragment {
+    public static final String ARG_SELECTED_CERTIFICATION_ID = "selected_certification_id";
 
     public interface OnCertificationSelectedListener {
         void onCertificationSelected(String certificationId);
@@ -117,6 +118,9 @@ public class CertificationListFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        Bundle args = getArguments();
+        if (args != null) adapter.setSelectedCertificationId(
+                args.getString(ARG_SELECTED_CERTIFICATION_ID));
         recyclerView.setAdapter(adapter);
     }
 

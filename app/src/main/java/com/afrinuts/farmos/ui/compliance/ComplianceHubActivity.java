@@ -48,8 +48,8 @@ public class ComplianceHubActivity extends BaseHubActivity
         DocumentListFragment.OnDocumentSelectedListener,
         DueExpiringFragment.OnDueSelectedListener {
 
-    public static final String EXTRA_OPEN_DUE_TYPE = "compliance_open_due_type";
-    public static final String EXTRA_OPEN_DUE_ID = "compliance_open_due_id";
+    public static final String EXTRA_OPEN_RECORD_TYPE = "compliance_open_record_type";
+    public static final String EXTRA_OPEN_RECORD_ID = "compliance_open_record_id";
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -65,6 +65,7 @@ public class ComplianceHubActivity extends BaseHubActivity
     private String selectedDocumentId;
     private String selectedDueType;
     private String selectedDueId;
+    private TabType initialOpenTab;
 
     // Navigation items
     private LinearLayout navHome;
@@ -99,14 +100,36 @@ public class ComplianceHubActivity extends BaseHubActivity
 
     @Override
     protected void onHubCreate(Bundle savedInstanceState) {
-        selectedDueType = getIntent().getStringExtra(EXTRA_OPEN_DUE_TYPE);
-        selectedDueId = getIntent().getStringExtra(EXTRA_OPEN_DUE_ID);
+        String initialRecordType = getIntent().getStringExtra(EXTRA_OPEN_RECORD_TYPE);
+        String initialRecordId = getIntent().getStringExtra(EXTRA_OPEN_RECORD_ID);
+        if (getResources().getConfiguration().screenWidthDp >= 600 && initialRecordId != null) {
+            switch (initialRecordType == null ? "" : initialRecordType) {
+                case "certification":
+                    selectedCertificationId = initialRecordId;
+                    initialOpenTab = TabType.PROGRAMMES;
+                    break;
+                case "document":
+                    selectedDocumentId = initialRecordId;
+                    initialOpenTab = TabType.DOCUMENTS;
+                    break;
+                case "audit":
+                    selectedCheckType = ChecksFragment.TYPE_AUDIT;
+                    selectedCheckId = initialRecordId;
+                    initialOpenTab = TabType.CHECKS;
+                    break;
+                case "inspection":
+                    selectedCheckType = ChecksFragment.TYPE_INSPECTION;
+                    selectedCheckId = initialRecordId;
+                    initialOpenTab = TabType.CHECKS;
+                    break;
+            }
+        }
         setupTabs();
         initViews();
         setupViewPager();
-        if (detailContainer != null && selectedDueType != null && selectedDueId != null) {
+        if (detailContainer != null && initialOpenTab != null) {
             for (int i = 0; i < tabs.size(); i++) {
-                if (tabs.get(i).type == TabType.DUE_EXPIRING) {
+                if (tabs.get(i).type == initialOpenTab) {
                     viewPager.setCurrentItem(i, false);
                     break;
                 }
@@ -667,12 +690,35 @@ public class ComplianceHubActivity extends BaseHubActivity
         public Fragment createFragment(int position) {
             TabItem tab = tabs.get(position);
             switch (tab.type) {
-                case PROGRAMMES:
-                    return new CertificationListFragment();
-                case CHECKS:
-                    return new ChecksFragment();
-                case DOCUMENTS:
-                    return new DocumentListFragment();
+                case PROGRAMMES: {
+                    CertificationListFragment fragment = new CertificationListFragment();
+                    if (selectedCertificationId != null) {
+                        Bundle args = new Bundle();
+                        args.putString(CertificationListFragment.ARG_SELECTED_CERTIFICATION_ID,
+                                selectedCertificationId);
+                        fragment.setArguments(args);
+                    }
+                    return fragment;
+                }
+                case CHECKS: {
+                    ChecksFragment fragment = new ChecksFragment();
+                    if (selectedCheckId != null) {
+                        Bundle args = new Bundle();
+                        args.putInt(ChecksFragment.ARG_SELECTED_CHECK_TYPE, selectedCheckType);
+                        args.putString(ChecksFragment.ARG_SELECTED_CHECK_ID, selectedCheckId);
+                        fragment.setArguments(args);
+                    }
+                    return fragment;
+                }
+                case DOCUMENTS: {
+                    DocumentListFragment fragment = new DocumentListFragment();
+                    if (selectedDocumentId != null) {
+                        Bundle args = new Bundle();
+                        args.putString(DocumentListFragment.ARG_SELECTED_DOCUMENT_ID, selectedDocumentId);
+                        fragment.setArguments(args);
+                    }
+                    return fragment;
+                }
                 case DUE_EXPIRING:
                     DueExpiringFragment dueFragment = new DueExpiringFragment();
                     if (selectedDueType != null && selectedDueId != null) {

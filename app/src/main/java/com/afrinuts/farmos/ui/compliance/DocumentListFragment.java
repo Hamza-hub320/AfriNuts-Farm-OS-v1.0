@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class DocumentListFragment extends Fragment {
+    public static final String ARG_SELECTED_DOCUMENT_ID = "selected_document_id";
 
     public interface OnDocumentSelectedListener {
         void onDocumentSelected(String documentId);
@@ -68,6 +69,8 @@ public class DocumentListFragment extends Fragment {
             recyclerView.setPadding(inset, dp(12), inset, dp(16));
         }
         setupRecyclerView();
+        Bundle args = getArguments();
+        if (args != null) adapter.setSelectedDocumentId(args.getString(ARG_SELECTED_DOCUMENT_ID));
 
         executor.execute(() -> {
             try {
