@@ -122,6 +122,7 @@ public class FarmHubActivity extends BaseHubActivity implements
         TextView date = findViewById(R.id.farmDate);
         TextView weatherChip = findViewById(R.id.farmWeatherChip);
         View profile = findViewById(R.id.farmProfileButton);
+        wireNotificationBell(R.id.farmNotificationButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (date != null) {
             date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()) + " · Odienné");

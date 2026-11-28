@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SyncCenterActivity extends BaseActivity {
+    public static final String EXTRA_SYNC_QUEUE_ID = "sync_center_queue_id";
     private static final int INK = 0xFF1C1B1A;
     private static final int MUTED = 0xFF59544C;
     private static final int GREEN = 0xFF0E6B3C;
@@ -55,6 +56,7 @@ public class SyncCenterActivity extends BaseActivity {
     private View connectionDot;
     private TextView lastSyncValue;
     private long farmId;
+    private long filterQueueId;
 
     @Override protected boolean checkRoleAccess() {
         com.afrinuts.farmos.data.local.entity.UserEntity.UserRole role = sessionManager.getUserRole();
@@ -69,6 +71,7 @@ public class SyncCenterActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         if (!sessionManager.isLoggedIn() || !checkRoleAccess()) return;
         setContentView(R.layout.activity_sync_center);
+        filterQueueId = getIntent().getLongExtra(EXTRA_SYNC_QUEUE_ID, 0L);
         database = AppDatabase.getInstance(this);
         pendingRows = findViewById(R.id.pendingRows);
         recentRows = findViewById(R.id.recentRows);
@@ -156,6 +159,9 @@ public class SyncCenterActivity extends BaseActivity {
     private void renderPending(List<SyncEntity> items) {
         if (items == null) return;
         List<SyncEntity> visible = new ArrayList<>(items);
+        if (filterQueueId > 0) {
+            visible.removeIf(item -> item.getId() != filterQueueId);
+        }
         int failed = 0;
         for (SyncEntity item : visible) if (item.getStatus() == SyncEntity.SyncStatus.FAILED) failed++;
         final int failedItems = failed;
@@ -178,7 +184,9 @@ public class SyncCenterActivity extends BaseActivity {
     private View makeQueueCard(SyncEntity item, String label) {
         MaterialCardView card = new MaterialCardView(this);
         card.setRadius(dp(24)); card.setCardElevation(0); card.setCardBackgroundColor(Color.WHITE);
-        card.setUseCompatPadding(false); card.setStrokeColor(0xB3E9E1CF); card.setStrokeWidth(dp(1));
+        card.setUseCompatPadding(false);
+        boolean filteredTarget = filterQueueId > 0 && item.getId() == filterQueueId;
+        card.setStrokeColor(filteredTarget ? GREEN : 0xB3E9E1CF); card.setStrokeWidth(dp(filteredTarget ? 2 : 1));
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2); cp.bottomMargin = dp(8); card.setLayoutParams(cp);
         LinearLayout row = new LinearLayout(this); row.setOrientation(LinearLayout.HORIZONTAL); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout textCol = new LinearLayout(this); textCol.setOrientation(LinearLayout.VERTICAL);
@@ -228,6 +236,10 @@ public class SyncCenterActivity extends BaseActivity {
     }
 
     private String resolveLabel(SyncEntity item) {
+        return resolveLabel(database, item);
+    }
+
+    public static String resolveLabel(AppDatabase database, SyncEntity item) {
         String raw = item.getEntityType() == null ? "record" : item.getEntityType().trim().toLowerCase(Locale.ROOT);
         long id = item.getEntityId();
         try {
@@ -242,7 +254,9 @@ public class SyncCenterActivity extends BaseActivity {
             }
         } catch (Exception ignored) { }
         String identifier = item.getEntityStringId() != null ? item.getEntityStringId() : String.valueOf(id);
-        return capitalize(raw.replace('_', ' ')) + " " + identifier;
+        String type = raw.replace('_', ' ');
+        String capitalized = type.isEmpty() ? "Record" : type.substring(0, 1).toUpperCase(Locale.ROOT) + type.substring(1);
+        return capitalized + " " + identifier;
     }
 
     private String displayType(String raw) {

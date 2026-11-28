@@ -37,9 +37,10 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public final String recordType;
         public final long sortDate;
         public final boolean overdue;
+        public final String alertKey;
 
         private Row(int viewType, String title, String subtitle, String dateText, String daysText,
-                    String recordId, String recordType, long sortDate, boolean overdue) {
+                    String recordId, String recordType, long sortDate, boolean overdue, String alertKey) {
             this.viewType = viewType;
             this.title = title;
             this.subtitle = subtitle;
@@ -49,19 +50,20 @@ public class DueExpiringAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.recordType = recordType;
             this.sortDate = sortDate;
             this.overdue = overdue;
+            this.alertKey = alertKey;
         }
 
         public static Row section(String title) {
-            return new Row(TYPE_SECTION, title, null, null, null, null, null, 0, false);
+            return new Row(TYPE_SECTION, title, null, null, null, null, null, 0, false, null);
         }
 
         public static Row empty(String message) {
-            return new Row(TYPE_EMPTY, message, null, null, null, null, null, 0, false);
+            return new Row(TYPE_EMPTY, message, null, null, null, null, null, 0, false, null);
         }
 
         public static Row item(String title, String subtitle, String dateText, String daysText,
-                               String recordId, String recordType, long sortDate, boolean overdue) {
-            return new Row(TYPE_ITEM, title, subtitle, dateText, daysText, recordId, recordType, sortDate, overdue);
+                               String recordId, String recordType, long sortDate, boolean overdue, String alertKey) {
+            return new Row(TYPE_ITEM, title, subtitle, dateText, daysText, recordId, recordType, sortDate, overdue, alertKey);
         }
     }
 

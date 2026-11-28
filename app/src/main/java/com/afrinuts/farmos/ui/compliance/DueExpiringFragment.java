@@ -47,6 +47,8 @@ import java.util.concurrent.Executors;
 
 public class DueExpiringFragment extends Fragment {
     private static final long DAY_MS = 24L * 60L * 60L * 1000L;
+    public static final String ARG_SELECTED_RECORD_TYPE = "selected_record_type";
+    public static final String ARG_SELECTED_RECORD_ID = "selected_record_id";
 
     public interface OnDueSelectedListener {
         void onDueSelected(String recordType, String recordId);
@@ -106,6 +108,11 @@ public class DueExpiringFragment extends Fragment {
                 openRecord(row);
             }
         });
+        Bundle args = getArguments();
+        if (args != null) {
+            adapter.setSelectedDue(args.getString(ARG_SELECTED_RECORD_TYPE),
+                    args.getString(ARG_SELECTED_RECORD_ID));
+        }
         recyclerView.setAdapter(adapter);
 
         view.findViewById(R.id.btnCheckNow).setOnClickListener(v -> {
@@ -180,28 +187,8 @@ public class DueExpiringFragment extends Fragment {
     private void renderIfLoaded() {
         if (!certificationsLoaded || !documentsLoaded || !auditsLoaded || !inspectionsLoaded) return;
         progressBar.setVisibility(View.GONE);
-        List<DueExpiringAdapter.Row> overdue = new ArrayList<>();
-        List<DueExpiringAdapter.Row> dueSoon = new ArrayList<>();
-        long now = System.currentTimeMillis();
-        Map<String, CertificationEntity> certificationsById = new HashMap<>();
-        for (CertificationEntity certification : certifications) {
-            certificationsById.put(certification.getCertificationId(), certification);
-            addCertificationRows(certification, now, overdue, dueSoon);
-        }
-        addDocumentRows(certificationsById, now, overdue, dueSoon);
-        addAuditFindingRows(now, overdue);
-        addInspectionActionRows(now, overdue);
-
-        Comparator<DueExpiringAdapter.Row> byDate = Comparator.comparingLong(row -> row.sortDate);
-        Collections.sort(overdue, byDate);
-        Collections.sort(dueSoon, byDate);
-        List<DueExpiringAdapter.Row> rows = new ArrayList<>();
-        rows.add(DueExpiringAdapter.Row.section("Overdue"));
-        if (overdue.isEmpty()) rows.add(DueExpiringAdapter.Row.empty("No overdue items."));
-        else rows.addAll(overdue);
-        rows.add(DueExpiringAdapter.Row.section("Due soon"));
-        if (dueSoon.isEmpty()) rows.add(DueExpiringAdapter.Row.empty("No due-soon items."));
-        else rows.addAll(dueSoon);
+        List<DueExpiringAdapter.Row> rows = DueAlertRules.buildRows(
+                certifications, documents, audits, inspections, System.currentTimeMillis());
 
         adapter.submitRows(rows);
         if (isTablet()) {
@@ -218,100 +205,6 @@ public class DueExpiringFragment extends Fragment {
         }
         emptyView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
-    }
-
-    private void addCertificationRows(CertificationEntity certification, long now,
-                                      List<DueExpiringAdapter.Row> overdue,
-                                      List<DueExpiringAdapter.Row> dueSoon) {
-        long targetDate = certification.getTargetDate();
-        String status = certification.getEffectiveStatus().name();
-        if (targetDate > 0 && "IN_PROGRESS".equals(status)) {
-            addDueRow(overdue, dueSoon, certification.getCertificationName(),
-                    "Programme target · " + certification.getEffectiveStatusDisplay(), targetDate,
-                    certification.getCertificationId(), "certification", now, true);
-        } else if (targetDate > now && "NOT_STARTED".equals(status)) {
-            addDueRow(overdue, dueSoon, certification.getCertificationName(),
-                    "Programme target · " + certification.getEffectiveStatusDisplay(), targetDate,
-                    certification.getCertificationId(), "certification", now, false);
-        }
-
-        if (certification.getStatus() == CertificationEntity.CertificationStatus.CERTIFIED
-                && certification.getExpiryDate() > 0) {
-            addDueRow(overdue, dueSoon, certification.getCertificationName(),
-                    "Certification expiry · " + certification.getEffectiveStatusDisplay(), certification.getExpiryDate(),
-                    certification.getCertificationId(), "certification", now, true);
-        }
-    }
-
-    private void addDocumentRows(Map<String, CertificationEntity> certificationsById, long now,
-                                 List<DueExpiringAdapter.Row> overdue,
-                                 List<DueExpiringAdapter.Row> dueSoon) {
-        for (DocumentEntity document : documents) {
-            if (document.getExpiryDate() <= 0) continue;
-            CertificationEntity parent = certificationsById.get(document.getCertificationId());
-            String parentStatus = parent == null ? "" : " · Programme " + parent.getEffectiveStatusDisplay();
-            String type = document.getDocumentType() == DocumentEntity.DocumentType.CERTIFICATE
-                    ? "Certificate expiry" : "Document expiry";
-            addDueRow(overdue, dueSoon, document.getDocumentName(),
-                    type + parentStatus, document.getExpiryDate(), document.getDocumentId(),
-                    "document", now, true);
-        }
-    }
-
-    private void addAuditFindingRows(long now, List<DueExpiringAdapter.Row> overdue) {
-        for (AuditEntity audit : audits) {
-            for (AuditEntity.Finding finding : audit.getFindings()) {
-                if (finding.dueDate <= 0 || finding.dueDate >= now || isClosed(finding.status)) continue;
-                String title = hasText(finding.finding) ? finding.finding : "Audit finding";
-                String subtitle = audit.getAuditTypeDisplay() + " · " + audit.getAuditId();
-                overdue.add(createRow(title, subtitle, finding.dueDate, audit.getAuditId(), "audit", now, true));
-            }
-        }
-    }
-
-    private void addInspectionActionRows(long now, List<DueExpiringAdapter.Row> overdue) {
-        for (InspectionEntity inspection : inspections) {
-            for (InspectionEntity.CorrectiveAction action : inspection.getCorrectiveActions()) {
-                if (action.dueDate <= 0 || action.dueDate >= now || isClosed(action.status)) continue;
-                String title = hasText(action.description) ? action.description : "Inspection corrective action";
-                String subtitle = inspection.getCertificationName() + " · " + inspection.getInspectionId();
-                overdue.add(createRow(title, subtitle, action.dueDate, inspection.getInspectionId(), "inspection", now, true));
-            }
-        }
-    }
-
-    private void addDueRow(List<DueExpiringAdapter.Row> overdue, List<DueExpiringAdapter.Row> dueSoon,
-                           String title, String subtitle, long date, String recordId, String recordType,
-                           long now, boolean includeOverdue) {
-        if (date <= 0) return;
-        if (date < now) {
-            if (includeOverdue) overdue.add(createRow(title, subtitle, date, recordId, recordType, now, true));
-        } else {
-            dueSoon.add(createRow(title, subtitle, date, recordId, recordType, now, false));
-        }
-    }
-
-    private DueExpiringAdapter.Row createRow(String title, String subtitle, long date,
-                                              String recordId, String recordType, long now,
-                                              boolean isOverdue) {
-        long days = isOverdue
-                ? Math.max(1, (long) Math.ceil((now - date) / (double) DAY_MS))
-                : Math.max(1, (long) Math.ceil((date - now) / (double) DAY_MS));
-        String dayCount = NumberFormat.getIntegerInstance(Locale.US).format(days);
-        String daysText = isOverdue ? dayCount + (days == 1 ? " day overdue" : " days overdue")
-                : "Due in " + dayCount + (days == 1 ? " day" : " days");
-        return DueExpiringAdapter.Row.item(
-                hasText(title) ? title : "Compliance item", subtitle,
-                new SimpleDateFormat("d MMM yyyy", Locale.US).format(new Date(date)),
-                daysText, recordId, recordType, date, isOverdue);
-    }
-
-    private boolean isClosed(String status) {
-        return status != null && "CLOSED".equalsIgnoreCase(status.trim());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 
     private void openRecord(DueExpiringAdapter.Row row) {
@@ -343,6 +236,10 @@ public class DueExpiringFragment extends Fragment {
         if (getActivity() instanceof OnDueSelectedListener) {
             ((OnDueSelectedListener) getActivity()).onDueSelected(recordType, recordId);
         }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private boolean isTablet() {

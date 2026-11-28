@@ -70,6 +70,7 @@ public class FinanceHubActivity extends BaseHubActivity implements RevenueFragme
         TextView date = findViewById(R.id.financeDateText);
         if (date != null) date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
         View profile = findViewById(R.id.financeProfileButton);
+        wireNotificationBell(R.id.financeNotificationButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
     }

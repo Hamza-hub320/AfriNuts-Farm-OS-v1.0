@@ -48,6 +48,9 @@ public class ComplianceHubActivity extends BaseHubActivity
         DocumentListFragment.OnDocumentSelectedListener,
         DueExpiringFragment.OnDueSelectedListener {
 
+    public static final String EXTRA_OPEN_DUE_TYPE = "compliance_open_due_type";
+    public static final String EXTRA_OPEN_DUE_ID = "compliance_open_due_id";
+
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private FloatingActionButton fabAdd;
@@ -96,9 +99,19 @@ public class ComplianceHubActivity extends BaseHubActivity
 
     @Override
     protected void onHubCreate(Bundle savedInstanceState) {
+        selectedDueType = getIntent().getStringExtra(EXTRA_OPEN_DUE_TYPE);
+        selectedDueId = getIntent().getStringExtra(EXTRA_OPEN_DUE_ID);
         setupTabs();
         initViews();
         setupViewPager();
+        if (detailContainer != null && selectedDueType != null && selectedDueId != null) {
+            for (int i = 0; i < tabs.size(); i++) {
+                if (tabs.get(i).type == TabType.DUE_EXPIRING) {
+                    viewPager.setCurrentItem(i, false);
+                    break;
+                }
+            }
+        }
         setupFab();
         setupBottomNavigation();
     }
@@ -125,6 +138,7 @@ public class ComplianceHubActivity extends BaseHubActivity
         checkFiltersHost = findViewById(R.id.checkFiltersHost);
         detailEmptyState = findViewById(R.id.detailEmptyState);
         View profile = findViewById(R.id.complianceProfileButton);
+        wireNotificationBell(R.id.complianceNotificationButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
         TextView complianceDate = findViewById(R.id.complianceDateText);
@@ -660,7 +674,14 @@ public class ComplianceHubActivity extends BaseHubActivity
                 case DOCUMENTS:
                     return new DocumentListFragment();
                 case DUE_EXPIRING:
-                    return new DueExpiringFragment();
+                    DueExpiringFragment dueFragment = new DueExpiringFragment();
+                    if (selectedDueType != null && selectedDueId != null) {
+                        Bundle args = new Bundle();
+                        args.putString(DueExpiringFragment.ARG_SELECTED_RECORD_TYPE, selectedDueType);
+                        args.putString(DueExpiringFragment.ARG_SELECTED_RECORD_ID, selectedDueId);
+                        dueFragment.setArguments(args);
+                    }
+                    return dueFragment;
                 default:
                     return new CertificationListFragment();
             }

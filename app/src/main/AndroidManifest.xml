@@ -109,6 +109,9 @@
         <activity
             android:name=".ui.sync.SyncCenterActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.notifications.NotificationsActivity"
+            android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.finance.FinanceHubActivity"

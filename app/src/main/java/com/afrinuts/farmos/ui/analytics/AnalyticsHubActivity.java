@@ -100,6 +100,7 @@ public class AnalyticsHubActivity extends BaseHubActivity implements QualityMetr
             date.setText(new SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(new Date()));
         }
         View profile = findViewById(R.id.analyticsProfileButton);
+        wireNotificationBell(R.id.analyticsNotificationButton);
         if (profile instanceof TextView) ((TextView) profile).setText(new com.afrinuts.farmos.data.local.entity.UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         if (profile != null) profile.setOnClickListener(v -> showAccountMenu(profile));
     }

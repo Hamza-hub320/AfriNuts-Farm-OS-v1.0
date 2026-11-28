@@ -25,8 +25,21 @@ import com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity;
 import com.afrinuts.farmos.ui.compliance.ComplianceHubActivity;
 import com.afrinuts.farmos.ui.farm.FarmHubActivity;
 import com.afrinuts.farmos.ui.finance.FinanceHubActivity;
+import com.afrinuts.farmos.ui.notifications.NotificationBell;
 
 public abstract class BaseHubActivity extends BaseActivity {
+    private android.widget.TextView notificationBadge;
+
+    protected void wireNotificationBell(int viewId) {
+        android.widget.ImageButton bell = findViewById(viewId);
+        notificationBadge = NotificationBell.wire(this, bell);
+        NotificationBell.refresh(this, notificationBadge);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        NotificationBell.refresh(this, notificationBadge);
+    }
 
     // Bottom Navigation Views
     private LinearLayout navHome;

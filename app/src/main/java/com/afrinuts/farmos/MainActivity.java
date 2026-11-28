@@ -65,6 +65,7 @@ import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.ui.theme.HomeChartView;
 import com.afrinuts.farmos.data.local.entity.UserEntity;
 import com.afrinuts.farmos.utils.SessionManager;
+import com.afrinuts.farmos.ui.notifications.NotificationBell;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -119,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView toolbarUserName;
     private View syncStatusDot;
     private ImageButton btnToolbarSync;
+    private ImageButton homeNotificationButton;
+    private TextView homeNotificationBadge;
 
     // Financial Snapshot
     private TextView monthlyRevenueText;
@@ -214,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn()) {
             loadCurrentUser();
         }
+        NotificationBell.refresh(this, homeNotificationBadge);
     }
 
     @Override
@@ -270,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Toolbar
         btnToolbarSync = findViewById(R.id.btnToolbarSync);
+        homeNotificationButton = findViewById(R.id.homeNotificationButton);
         btnProfile = findViewById(R.id.btnProfile);
         if (btnProfile instanceof TextView) ((TextView) btnProfile).setText(new UserEntity(sessionManager.getUserName(), null, null, null, null).getInitials());
         toolbarSyncStatus = findViewById(R.id.toolbarSyncStatus);
@@ -415,6 +420,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
+        homeNotificationBadge = NotificationBell.wire(this, homeNotificationButton);
+        NotificationBell.refresh(this, homeNotificationBadge);
         if (btnToolbarSync != null) {
             btnToolbarSync.setOnClickListener(v -> {
                 if (currentFarm != null && syncManager != null) {
