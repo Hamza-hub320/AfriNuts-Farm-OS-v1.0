@@ -34,6 +34,12 @@ public interface SyncDao {
     @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityId = :entityId")
     SyncEntity getSyncItem(String entityType, long entityId);
 
+    @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityId = :entityId")
+    List<SyncEntity> getByEntity(String entityType, long entityId);
+
+    @Query("SELECT * FROM sync_queue WHERE entityType = :entityType AND entityStringId = :entityStringId")
+    List<SyncEntity> getByStringEntity(String entityType, String entityStringId);
+
     @Query("DELETE FROM sync_queue WHERE status = 'COMPLETED' AND lastAttemptAt < :cutoffTime")
     int deleteOldCompleted(long cutoffTime);
 

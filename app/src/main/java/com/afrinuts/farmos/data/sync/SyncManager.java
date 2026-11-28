@@ -20,6 +20,7 @@ import androidx.work.WorkManager;
 
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
+import com.afrinuts.farmos.data.integrity.IntegrityScanWorker;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.afrinuts.farmos.utils.SessionManager;
 
@@ -388,6 +389,20 @@ public class SyncManager {
                 ExistingPeriodicWorkPolicy.KEEP,
                 dueCheckWork);
         Log.d(TAG, "Certification due check scheduled every 24 hours");
+
+        Data integrityInput = new Data.Builder()
+                .putLong(IntegrityScanWorker.KEY_FARM_ID, currentFarmId)
+                .putString(IntegrityScanWorker.KEY_TRIGGER, "scheduled")
+                .build();
+        PeriodicWorkRequest integrityWork = new PeriodicWorkRequest.Builder(
+                IntegrityScanWorker.class, 24, TimeUnit.HOURS)
+                .setInputData(integrityInput)
+                .build();
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                IntegrityScanWorker.PERIODIC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                integrityWork);
+        Log.d(TAG, "Integrity scan scheduled every 24 hours");
     }
 
     public void forceSyncNow() {

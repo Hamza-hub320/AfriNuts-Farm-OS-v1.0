@@ -11,6 +11,7 @@ import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.IntegrityFindingEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -2398,5 +2399,46 @@ public class EntityMapper {
 
     public static TaskAssignmentHistoryEntity fromFirestoreAssignment(DocumentSnapshot doc) {
         return mapToAssignment(doc);
+    }
+
+    public static Map<String, Object> integrityFindingToMap(IntegrityFindingEntity f) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", f.getId()); map.put("scanId", f.getScanId()); map.put("farmId", f.getFarmId());
+        map.put("entityType", f.getEntityType()); map.put("entityId", f.getEntityId()); map.put("ruleCode", f.getRuleCode());
+        map.put("severity", f.getSeverity()); map.put("description", f.getDescription());
+        map.put("expectedValue", f.getExpectedValue()); map.put("actualValue", f.getActualValue());
+        map.put("expectedNumeric", f.getExpectedNumeric()); map.put("actualNumeric", f.getActualNumeric());
+        map.put("status", f.getStatus()); map.put("detectedAt", f.getDetectedAt()); map.put("resolvedAt", f.getResolvedAt());
+        map.put("resolvedBy", f.getResolvedBy()); map.put("resolutionNotes", f.getResolutionNotes());
+        map.put("isSynced", true); map.put("updatedAt", f.getUpdatedAt()); map.put("historyJson", f.getHistoryJson());
+        return map;
+    }
+
+    public static IntegrityFindingEntity mapToIntegrityFinding(DocumentSnapshot doc) {
+        if (doc == null || !doc.exists()) return null;
+        try {
+            IntegrityFindingEntity f = new IntegrityFindingEntity();
+            Long id = getLongSafe(doc, "id");
+            if (id == null) id = Long.parseLong(doc.getId());
+            f.setId(id); f.setScanId(getLongSafe(doc, "scanId") == null ? 0 : getLongSafe(doc, "scanId"));
+            Long farmId = getLongSafe(doc, "farmId"); f.setFarmId(farmId == null ? 0 : farmId);
+            f.setEntityType(getStringSafe(doc, "entityType")); f.setEntityId(getStringSafe(doc, "entityId"));
+            f.setRuleCode(getStringSafe(doc, "ruleCode")); f.setSeverity(getStringSafe(doc, "severity"));
+            f.setDescription(getStringSafe(doc, "description")); f.setExpectedValue(getStringSafe(doc, "expectedValue"));
+            f.setActualValue(getStringSafe(doc, "actualValue"));
+            Object expected = doc.get("expectedNumeric"), actual = doc.get("actualNumeric");
+            f.setExpectedNumeric(expected instanceof Number ? ((Number) expected).doubleValue() : null);
+            f.setActualNumeric(actual instanceof Number ? ((Number) actual).doubleValue() : null);
+            f.setStatus(getStringSafe(doc, "status"));
+            Long detected = getLongSafe(doc, "detectedAt"); f.setDetectedAt(detected == null ? 0 : detected);
+            f.setResolvedAt(getNullableLong(doc, "resolvedAt")); f.setResolvedBy(getStringSafe(doc, "resolvedBy"));
+            f.setResolutionNotes(getStringSafe(doc, "resolutionNotes")); f.setSynced(true);
+            Long updated = getLongSafe(doc, "updatedAt"); f.setUpdatedAt(updated == null ? f.getDetectedAt() : updated);
+            f.setHistoryJson(getStringSafe(doc, "historyJson"));
+            return f;
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to map integrity finding " + doc.getId(), e);
+            return null;
+        }
     }
 }

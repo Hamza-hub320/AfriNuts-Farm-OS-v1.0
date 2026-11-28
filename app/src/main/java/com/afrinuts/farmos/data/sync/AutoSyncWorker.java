@@ -19,6 +19,7 @@ import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.IntegrityFindingEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 import com.afrinuts.farmos.data.local.entity.RevenueEntity;
@@ -36,6 +37,8 @@ import com.afrinuts.farmos.data.remote.FirebaseManager;
 import com.afrinuts.farmos.utils.NetworkUtils;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 
 import java.io.File;
@@ -212,6 +215,9 @@ public class AutoSyncWorker extends Worker {
                         break;
                     case "supplier_disputes":
                         syncSupplierDispute(syncItem);
+                        break;
+                    case "integrity_finding":
+                        syncIntegrityFinding(syncItem);
                         break;
                 default:
                     Log.e(TAG, "Unknown entity type: " + syncItem.getEntityType());
@@ -780,6 +786,34 @@ public class AutoSyncWorker extends Worker {
             case DELETE:
                 firebaseManager.deleteSupplierDispute(farmId, syncItem.getEntityId());
                 break;
+        }
+    }
+
+    private void syncIntegrityFinding(SyncEntity syncItem) throws Exception {
+        Log.d(TAG, "syncIntegrityFinding id=" + syncItem.getEntityId()
+                + " action=" + syncItem.getAction());
+        switch (syncItem.getAction()) {
+            case CREATE:
+            case UPDATE:
+                IntegrityFindingEntity finding = database.integrityFindingDao()
+                        .getById(syncItem.getEntityId());
+                if (finding == null) {
+                    throw new IllegalStateException("Integrity finding not found in local DB");
+                }
+                Tasks.await(FirebaseFirestore.getInstance()
+                        .collection(COLLECTION_FARMS).document(farmId)
+                        .collection("integrity_findings").document(String.valueOf(finding.getId()))
+                        .set(EntityMapper.integrityFindingToMap(finding), SetOptions.merge()),
+                        60, TimeUnit.SECONDS);
+                database.integrityFindingDao().markSynced(finding.getId());
+                break;
+            case DELETE:
+                Log.e(TAG, "Refusing DELETE for append-only integrity finding "
+                        + syncItem.getEntityId());
+                throw new IllegalStateException("DELETE refused for append-only integrity findings");
+            default:
+                throw new IllegalStateException("Unsupported integrity finding action: "
+                        + syncItem.getAction());
         }
     }
 

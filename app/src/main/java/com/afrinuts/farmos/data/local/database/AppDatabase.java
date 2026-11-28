@@ -16,6 +16,8 @@ import com.afrinuts.farmos.data.local.dao.DocumentDao;
 import com.afrinuts.farmos.data.local.dao.ExpenseDao;
 import com.afrinuts.farmos.data.local.dao.FarmDao;
 import com.afrinuts.farmos.data.local.dao.InspectionDao;
+import com.afrinuts.farmos.data.local.dao.IntegrityFindingDao;
+import com.afrinuts.farmos.data.local.dao.IntegrityScanRunDao;
 import com.afrinuts.farmos.data.local.dao.MasterTraceabilityDao;
 import com.afrinuts.farmos.data.local.dao.PhotoDao;
 import com.afrinuts.farmos.data.local.dao.QualityBatchDao;
@@ -39,6 +41,8 @@ import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.ExpenseEntity;
 import com.afrinuts.farmos.data.local.entity.FarmEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.IntegrityFindingEntity;
+import com.afrinuts.farmos.data.local.entity.IntegrityScanRunEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.PhotoEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
@@ -90,9 +94,11 @@ import com.afrinuts.farmos.data.local.entity.WeatherCacheEntity;
                 SupplierInspectionEntity.class,
                 SupplierDisputeEntity.class,
                 SupplierScoreSnapshotEntity.class,
+                IntegrityScanRunEntity.class,
+                IntegrityFindingEntity.class,
 
         },
-        version = 49,
+        version = 50,
         exportSchema = true
 )
 @TypeConverters({Converters.class})
@@ -133,6 +139,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SupplierInspectionDao supplierInspectionDao();
     public abstract SupplierDisputeDao supplierDisputeDao();
     public abstract SupplierScoreSnapshotDao supplierScoreSnapshotDao();
+    public abstract IntegrityScanRunDao integrityScanRunDao();
+    public abstract IntegrityFindingDao integrityFindingDao();
 
     private static volatile AppDatabase INSTANCE;
 
@@ -193,7 +201,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     new Migration45To46(),
                                     new Migration46To47(),
                                     new Migration47To48(),
-                                    new Migration48To49()
+                                    new Migration48To49(),
+                                    new Migration49To50()
 
                             )
                             .build();

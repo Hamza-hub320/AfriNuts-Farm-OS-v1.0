@@ -14,6 +14,7 @@ import com.afrinuts.farmos.data.local.entity.BatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.CertificationEntity;
 import com.afrinuts.farmos.data.local.entity.DocumentEntity;
 import com.afrinuts.farmos.data.local.entity.InspectionEntity;
+import com.afrinuts.farmos.data.local.entity.IntegrityFindingEntity;
 import com.afrinuts.farmos.data.local.entity.MasterBatchTraceabilityEntity;
 import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
 
@@ -83,6 +84,7 @@ public class FirestoreSyncManager {
     private ListenerRegistration supplierInspectionsListener;
     private ListenerRegistration supplierDisputesListener;
     private ListenerRegistration scoreHistoryListener;
+    private ListenerRegistration integrityFindingsListener;
     private List<QualityBatchEntity> pendingBatches = new ArrayList<>();
     // Stage 1, step 6: children skipped because the parent certification wasn't
     // local yet. Drained when the certification lands. In-memory only — a restart
@@ -147,6 +149,7 @@ public class FirestoreSyncManager {
         listenToSupplierInspections();
         listenToSupplierDisputes();
         listenToScoreHistory();
+        listenToIntegrityFindings();
     }
 
     /**
@@ -173,6 +176,7 @@ public class FirestoreSyncManager {
         if (supplierInspectionsListener != null) supplierInspectionsListener.remove();
         if (supplierDisputesListener != null)     supplierDisputesListener.remove();
         if (scoreHistoryListener != null)         scoreHistoryListener.remove();
+        if (integrityFindingsListener != null)    integrityFindingsListener.remove();
 
 
         Log.d(TAG, "All Firestore listeners stopped");
@@ -1158,6 +1162,32 @@ public class FirestoreSyncManager {
                     });
                 });
         Log.d(TAG, "👂 Score history listener registered");
+    }
+
+    private void listenToIntegrityFindings() {
+        integrityFindingsListener = db.collection(COLLECTION_FARMS).document(farmId)
+                .collection("integrity_findings")
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Integrity findings listener failed", error);
+                        return;
+                    }
+                    if (snapshots == null) return;
+                    executor.execute(() -> {
+                        for (DocumentChange change : snapshots.getDocumentChanges()) {
+                            if (change.getType() == DocumentChange.Type.REMOVED) continue;
+                            IntegrityFindingEntity remote = EntityMapper.mapToIntegrityFinding(change.getDocument());
+                            if (remote == null) continue;
+                            IntegrityFindingEntity local = database.integrityFindingDao().getById(remote.getId());
+                            if (local == null) {
+                                database.integrityFindingDao().insert(remote);
+                            } else if (remote.getUpdatedAt() > local.getUpdatedAt()) {
+                                database.integrityFindingDao().update(remote);
+                            }
+                        }
+                    });
+                });
+        Log.d(TAG, "Integrity findings listener registered");
     }
 
     // ========================================
