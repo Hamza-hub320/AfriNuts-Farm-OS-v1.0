@@ -473,6 +473,9 @@ public class MainActivity extends AppCompatActivity {
         if (sessionManager.isOwner() || sessionManager.isCEO() || sessionManager.isManager())
             addAccountMenuItem(menu, popup, "Sync Center", R.drawable.ic_sync, 0xFF1C1B1A, false,
                     () -> startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.sync.SyncCenterActivity.class)));
+        if (com.afrinuts.farmos.utils.AccessMap.canOpenScreen("IntegrityCenterActivity", sessionManager.getUserRole()))
+            addAccountMenuItem(menu, popup, "Integrity Center", R.drawable.ic_security, 0xFF1C1B1A, false,
+                    () -> startActivity(new Intent(MainActivity.this, com.afrinuts.farmos.ui.integrity.IntegrityCenterActivity.class)));
         View divider = new View(this);
         divider.setBackgroundColor(0xFFE9E1CF);
         menu.addView(divider, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
@@ -480,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
                 this::showLogoutDialog);
 
         popup.setContentView(menu);
-        popup.setWidth(dp(196));
+        popup.setWidth(dp(220));
         popup.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popup.setOutsideTouchable(true);

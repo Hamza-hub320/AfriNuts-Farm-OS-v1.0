@@ -13,6 +13,12 @@ public final class AccessMap {
             case "WeatherActivity":
             case "ReportsActivity":
                 return true;
+            case "IntegrityCenterActivity":
+                return role == UserRole.OWNER || role == UserRole.CEO || role == UserRole.MANAGER
+                        || role == UserRole.COMPLIANCE_OFFICER || role == UserRole.FIELD_OFFICER;
+            case "IntegrityFindingDetailActivity":
+                return role == UserRole.OWNER || role == UserRole.CEO || role == UserRole.MANAGER
+                        || role == UserRole.COMPLIANCE_OFFICER;
             case "ComplianceHubActivity":
             case "FinanceHubActivity":
                 return role == UserRole.OWNER || role == UserRole.MANAGER || role == UserRole.CEO;
@@ -63,6 +69,10 @@ public final class AccessMap {
     }
     public static boolean canChangeCertificationStatus(UserRole role) {
         return role == UserRole.OWNER || role == UserRole.CEO || role == UserRole.COMPLIANCE_OFFICER;
+    }
+    public static boolean canResolveIntegrityFinding(UserRole role) {
+        return role == UserRole.OWNER || role == UserRole.MANAGER || role == UserRole.CEO
+                || role == UserRole.COMPLIANCE_OFFICER;
     }
     public static boolean canViewAnalytics(UserRole role) { return role != null && role != UserRole.FIELD_OFFICER; }
 

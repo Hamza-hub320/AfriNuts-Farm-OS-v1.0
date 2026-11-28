@@ -110,6 +110,12 @@
             android:name=".ui.sync.SyncCenterActivity"
             android:parentActivityName=".MainActivity" />
         <activity
+            android:name=".ui.integrity.IntegrityCenterActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ui.integrity.IntegrityFindingDetailActivity"
+            android:parentActivityName=".ui.integrity.IntegrityCenterActivity" />
+        <activity
             android:name=".ui.notifications.NotificationsActivity"
             android:parentActivityName=".MainActivity" />
 
