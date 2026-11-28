@@ -352,8 +352,8 @@ public class NotificationsActivity extends BaseActivity {
             Paint.FontMetrics metrics = paint.getFontMetrics();
             // After rotation, the view's height is the label's horizontal axis.
             // Center the word on that axis and center its glyphs across the 32dp spine.
-            float baseline = (getWidth() - metrics.ascent - metrics.descent) / 2f;
-            float x = (getHeight() - textWidth) / 2f;
+            float baseline = (getHeight() - metrics.ascent - metrics.descent) / 2f;
+            float x = (getWidth() - textWidth) / 2f;
             canvas.save();
             canvas.rotate(-90f, getWidth() / 2f, getHeight() / 2f);
             float cursor = x;
