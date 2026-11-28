@@ -1051,63 +1051,115 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Batches Section -->
-            <TextView
-                android:id="@+id/tvBatchesHeading"
-                android:layout_width="wrap_content"
+            <!-- Bounded supplier batch summary -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSupplierBatches"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Batches"
-                style="@style/Text.H5"
-                android:textColor="?attr/colorPrimary"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Batch Stats -->
-            <LinearLayout
-                android:id="@+id/layoutBatchStats"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginBottom="12dp"
-                android:weightSum="2">
-
-                <TextView
-                    android:id="@+id/tvTotalBatches"
-                    android:layout_width="0dp"
+                style="@style/Widget.AfriNuts.CardView"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total: 0 batches"
-                    style="@style/Text.Body.Small" />
+                    android:orientation="vertical"
+                    android:padding="18dp"
+                    android:background="#FFFFFF">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="14dp">
+                        <TextView
+                            android:id="@+id/tvBatchesHeading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Batches"
+                            android:textColor="#1C1B1A"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/manrope_extrabold" />
+                        <TextView
+                            android:id="@+id/tvTotalBatches"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_supplier_batch_count"
+                            android:text="0 total"
+                            android:textColor="#7A5F22"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/manrope_extrabold" />
+                    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvTotalBatchVolume"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total: 0 kg"
-                    style="@style/Text.Body.Small"
-                    android:gravity="end" />
+                    <LinearLayout
+                        android:id="@+id/layoutBatchSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="12dp"
+                        android:background="@drawable/bg_supplier_batch_summary">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VOLUME" android:textColor="#6B675F" android:textSize="11sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:id="@+id/tvTotalBatchVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="0 kg" android:textColor="#1C1B1A" android:textSize="15sp" android:fontFamily="@font/manrope_extrabold" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVG KOR" android:textColor="#6B675F" android:textSize="11sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:id="@+id/tvBatchAverageKor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="—" android:textColor="#1C1B1A" android:textSize="15sp" android:fontFamily="@font/manrope_extrabold" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PREMIUM" android:textColor="#6B675F" android:textSize="11sp" android:fontFamily="@font/manrope_extrabold" />
+                            <TextView android:id="@+id/tvBatchPremiumCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="0 of 0" android:textColor="#1C1B1A" android:textSize="15sp" android:fontFamily="@font/manrope_extrabold" />
+                        </LinearLayout>
+                    </LinearLayout>
 
-            </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/layoutBatchGradeSplit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+                        <LinearLayout android:id="@+id/batchGradeBar" android:layout_width="match_parent" android:layout_height="6dp" android:orientation="horizontal" android:background="@drawable/bg_supplier_batch_count" android:clipToOutline="true">
+                            <View android:id="@+id/viewPremiumBar" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="#0E6B3C" />
+                            <View android:id="@+id/viewOtherGradeBar" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="#F3EAD8" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+                            <TextView android:id="@+id/tvBatchGradeLegendPremium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Premium · 0 batches" android:textColor="#0E6B3C" android:textSize="11.5sp" android:fontFamily="@font/manrope_bold" />
+                            <TextView android:id="@+id/tvBatchGradeLegendStandard" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="Standard · 0 batches" android:textColor="#6B675F" android:textSize="11.5sp" android:fontFamily="@font/manrope_bold" />
+                        </LinearLayout>
+                    </LinearLayout>
 
-            <!-- Batches RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/batchesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:padding="4dp" />
-
-            <TextView
-                android:id="@+id/tvShowAllBatches"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="10dp"
-                android:gravity="center"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/batchesRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false" />
+                    <TextView android:id="@+id/tvBatchShowing" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:textColor="#6B675F" android:textSize="12sp" android:fontFamily="@font/manrope_bold" android:visibility="gone" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/tvShowAllBatches"
+                        style="@style/Widget.AfriNuts.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Show all batches"
+                        android:textColor="#0A5530"
+                        android:textSize="13.5sp"
+                        android:fontFamily="@font/manrope_extrabold"
+                        android:textAllCaps="false"
+                        android:visibility="gone"
+                        app:backgroundTint="#E3F0E7"
+                        app:icon="@drawable/ic_expand_more"
+                        app:iconTint="#0A5530"
+                        app:iconGravity="textEnd"
+                        app:cornerRadius="999dp" />
+                    <TextView android:id="@+id/tvBatchEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="6dp" android:text="No batches recorded yet." android:textColor="#59544C" android:textSize="14sp" android:fontFamily="@font/manrope_semibold" android:visibility="gone" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <!-- Action Buttons - Liquid Glass Style -->
             <LinearLayout

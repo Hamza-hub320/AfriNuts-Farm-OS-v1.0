@@ -83,7 +83,17 @@ public class SupplierDetailActivity extends BaseActivity {
     private TextView tvCertificationExpiry;
     private TextView tvTotalBatches;
     private TextView tvTotalBatchVolume;
-    private TextView tvShowAllBatches;
+    private TextView tvBatchAverageKor;
+    private TextView tvBatchPremiumCount;
+    private TextView tvBatchGradeLegendPremium;
+    private TextView tvBatchGradeLegendStandard;
+    private TextView tvBatchShowing;
+    private MaterialButton tvShowAllBatches;
+    private View layoutBatchSummary;
+    private View layoutBatchGradeSplit;
+    private View viewPremiumBar;
+    private View viewOtherGradeBar;
+    private View tvBatchEmpty;
     private RecyclerView batchesRecyclerView;
     private SupplierBatchAdapter batchAdapter;
     private MaterialButton btnRecordDelivery;
@@ -159,7 +169,17 @@ public class SupplierDetailActivity extends BaseActivity {
         tvCertificationExpiry = findViewById(R.id.tvCertificationExpiry);
         tvTotalBatches = findViewById(R.id.tvTotalBatches);
         tvTotalBatchVolume = findViewById(R.id.tvTotalBatchVolume);
+        tvBatchAverageKor = findViewById(R.id.tvBatchAverageKor);
+        tvBatchPremiumCount = findViewById(R.id.tvBatchPremiumCount);
+        tvBatchGradeLegendPremium = findViewById(R.id.tvBatchGradeLegendPremium);
+        tvBatchGradeLegendStandard = findViewById(R.id.tvBatchGradeLegendStandard);
+        tvBatchShowing = findViewById(R.id.tvBatchShowing);
         tvShowAllBatches = findViewById(R.id.tvShowAllBatches);
+        layoutBatchSummary = findViewById(R.id.layoutBatchSummary);
+        layoutBatchGradeSplit = findViewById(R.id.layoutBatchGradeSplit);
+        viewPremiumBar = findViewById(R.id.viewPremiumBar);
+        viewOtherGradeBar = findViewById(R.id.viewOtherGradeBar);
+        tvBatchEmpty = findViewById(R.id.tvBatchEmpty);
         batchesRecyclerView = findViewById(R.id.batchesRecyclerView);
         btnRecordDelivery = findViewById(R.id.btnRecordDelivery);
         btnEditSupplier = findViewById(R.id.btnEditSupplier);
@@ -172,7 +192,7 @@ public class SupplierDetailActivity extends BaseActivity {
 
         // Setup RecyclerView for batches
         batchesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        batchAdapter = new SupplierBatchAdapter(batches);
+        batchAdapter = new SupplierBatchAdapter(batches, true);
         batchAdapter.setOnBatchUpdatedListener(() -> {
             loadSupplierBatches();
             loadSupplierData();
@@ -590,34 +610,74 @@ public class SupplierDetailActivity extends BaseActivity {
     private void updateBatchList() {
         int visibleCount = showAllBatches ? batches.size() : Math.min(5, batches.size());
         batchAdapter.updateBatches(new ArrayList<>(batches.subList(0, visibleCount)));
+        boolean hasBatches = !batches.isEmpty();
+        if (tvBatchEmpty != null) tvBatchEmpty.setVisibility(hasBatches ? View.GONE : View.VISIBLE);
+        if (layoutBatchSummary != null) layoutBatchSummary.setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+        if (layoutBatchGradeSplit != null) layoutBatchGradeSplit.setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+        if (batchesRecyclerView != null) batchesRecyclerView.setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+        if (tvBatchShowing != null) {
+            tvBatchShowing.setVisibility(batches.size() > 5 ? View.VISIBLE : View.GONE);
+            tvBatchShowing.setText(showAllBatches
+                    ? "Showing all " + batches.size() + " batches · newest first"
+                    : "Showing latest 5 of " + batches.size() + " · newest first");
+        }
         if (tvShowAllBatches == null) return;
-        if (batches.size() <= 5) {
+        if (batches.size() <= 5 || batches.isEmpty()) {
             tvShowAllBatches.setVisibility(View.GONE);
         } else {
             tvShowAllBatches.setVisibility(View.VISIBLE);
             tvShowAllBatches.setText(showAllBatches
-                    ? "Show less"
+                    ? "Show less — latest 5 only"
                     : "Show all " + batches.size() + " batches");
+            tvShowAllBatches.setIconResource(showAllBatches ? R.drawable.ic_expand_less : R.drawable.ic_expand_more);
         }
     }
 
     private void updateBatchStats() {
         if (batches.isEmpty()) {
-            tvTotalBatches.setText("Total: 0 batches");
-            tvTotalBatchVolume.setText("Total: 0 kg");
+            tvTotalBatches.setText("0 total");
+            tvTotalBatchVolume.setText("0 kg");
             tvAnnualVolume.setText("0 kg");
+            tvBatchAverageKor.setText("—");
+            tvBatchPremiumCount.setText("0 of 0");
+            tvBatchGradeLegendPremium.setText("Premium · 0 batches");
+            tvBatchGradeLegendStandard.setText("Standard · 0 batches");
             return;
         }
 
         int count = batches.size();
         double totalVolume = 0;
+        double totalKor = 0;
+        int korSamples = 0;
+        int premiumCount = 0;
+        int standardCount = 0;
         for (QualityBatchEntity batch : batches) {
             totalVolume += batch.getWeightKg();
+            if (batch.getKorGPerKg() > 0) {
+                totalKor += batch.getKorGPerKg();
+                korSamples++;
+            }
+            if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.PREMIUM) premiumCount++;
+            else if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.STANDARD) standardCount++;
         }
 
-        tvTotalBatches.setText("Total: " + count + " batch" + (count > 1 ? "es" : ""));
-        tvTotalBatchVolume.setText(String.format(Locale.getDefault(), "Total: %,.0f kg", totalVolume));
+        tvTotalBatches.setText(count + " total");
+        tvTotalBatchVolume.setText(String.format(Locale.getDefault(), "%,.0f kg", totalVolume));
         tvAnnualVolume.setText(String.format(Locale.getDefault(), "%,.0f kg", totalVolume));
+        tvBatchAverageKor.setText(korSamples == 0 ? "—" : String.format(Locale.getDefault(), "%.0f g/kg", totalKor / korSamples));
+        tvBatchPremiumCount.setText(premiumCount + " of " + count);
+        tvBatchGradeLegendPremium.setText("Premium · " + premiumCount + " batches");
+        tvBatchGradeLegendStandard.setText("Standard · " + standardCount + " batches");
+        float premiumWeight = premiumCount;
+        float remainderWeight = Math.max(0, count - premiumCount);
+        LinearLayout.LayoutParams premiumParams = (LinearLayout.LayoutParams) viewPremiumBar.getLayoutParams();
+        premiumParams.width = 0;
+        premiumParams.weight = premiumWeight;
+        viewPremiumBar.setLayoutParams(premiumParams);
+        LinearLayout.LayoutParams otherParams = (LinearLayout.LayoutParams) viewOtherGradeBar.getLayoutParams();
+        otherParams.width = 0;
+        otherParams.weight = remainderWeight;
+        viewOtherGradeBar.setLayoutParams(otherParams);
     }
 
     private void displaySupplierData() {

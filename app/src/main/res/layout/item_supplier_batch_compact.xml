@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="68dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/viewGradeDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_supplier_batch_count" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvBatchNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="#1C1B1A"
+                android:textSize="14sp"
+                android:fontFamily="@font/manrope_extrabold" />
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="#6B675F"
+                android:textSize="12sp"
+                android:fontFamily="@font/manrope_semibold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="#1C1B1A"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/manrope_extrabold" />
+
+        <TextView
+            android:id="@+id/tvGrade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingHorizontal="9dp"
+            android:paddingVertical="5dp"
+            android:background="@drawable/bg_supplier_batch_count"
+            android:textColor="#0A5530"
+            android:textSize="10sp"
+            android:fontFamily="@font/manrope_extrabold" />
+
+        <ImageView
+            android:id="@+id/ivRowChevron"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginStart="6dp"
+            android:src="@drawable/ic_arrow_forward"
+            android:tint="#B9B2A2" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewRowDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E9E1CF" />
+</LinearLayout>
