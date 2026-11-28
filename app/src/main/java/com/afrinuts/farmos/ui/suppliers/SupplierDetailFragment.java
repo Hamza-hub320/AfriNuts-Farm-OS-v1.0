@@ -91,7 +91,7 @@ public class SupplierDetailFragment extends Fragment {
 
         RecyclerView batchesRecyclerView = root.findViewById(R.id.paneBatchesRecyclerView);
         batchesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        batchAdapter = new SupplierBatchAdapter(new java.util.ArrayList<>());
+        batchAdapter = new SupplierBatchAdapter(new java.util.ArrayList<>(), true);
         batchAdapter.setOnBatchUpdatedListener(this::loadBatches);
         batchAdapter.setOnBatchDisputeClickListener(batch -> {
             RaiseDisputeDialog dialog = RaiseDisputeDialog.newInstance(
@@ -101,7 +101,7 @@ public class SupplierDetailFragment extends Fragment {
             dialog.show(getParentFragmentManager(), "RaiseBatchDisputeDialog");
         });
         batchesRecyclerView.setAdapter(batchAdapter);
-        TextView tvShowAllBatches = root.findViewById(R.id.tvPaneShowAllBatches);
+        com.google.android.material.button.MaterialButton tvShowAllBatches = root.findViewById(R.id.tvPaneShowAllBatches);
         tvShowAllBatches.setOnClickListener(v -> {
             showAllBatches = !showAllBatches;
             updateBatchList();
@@ -271,11 +271,47 @@ public class SupplierDetailFragment extends Fragment {
                 batches.clear();
                 if (loaded != null) batches.addAll(loaded);
                 double totalWeight = 0;
-                for (QualityBatchEntity batch : batches) totalWeight += batch.getWeightKg();
+                double totalKor = 0;
+                int korSamples = 0;
+                int premiumCount = 0;
+                int standardCount = 0;
+                for (QualityBatchEntity batch : batches) {
+                    totalWeight += batch.getWeightKg();
+                    if (batch.getKorGPerKg() > 0) {
+                        totalKor += batch.getKorGPerKg();
+                        korSamples++;
+                    }
+                    if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.PREMIUM) premiumCount++;
+                    else if (batch.getQualityGrade() == QualityBatchEntity.QualityGrade.STANDARD) standardCount++;
+                }
                 TextView count = root.findViewById(R.id.tvPaneBatchStatsCount);
-                TextView volume = root.findViewById(R.id.tvPaneBatchStatsVolume);
-                count.setText("Total: " + batches.size() + " batch" + (batches.size() == 1 ? "" : "es"));
-                volume.setText(String.format(Locale.getDefault(), "Total: %,.0f kg", totalWeight));
+                count.setText(batches.size() + " total");
+                ((TextView) root.findViewById(R.id.tvPaneBatchVolume)).setText(
+                        String.format(Locale.getDefault(), "%,.0f kg", totalWeight));
+                ((TextView) root.findViewById(R.id.tvPaneBatchAverageKor)).setText(korSamples == 0
+                        ? "—" : String.format(Locale.getDefault(), "%.0f g/kg", totalKor / korSamples));
+                ((TextView) root.findViewById(R.id.tvPaneBatchPremiumCount)).setText(premiumCount + " of " + batches.size());
+                ((TextView) root.findViewById(R.id.tvPaneGradeLegendPremium)).setText(
+                        "Premium · " + premiumCount + " batches");
+                ((TextView) root.findViewById(R.id.tvPaneGradeLegendStandard)).setText(
+                        "Standard · " + standardCount + " batches");
+                TextView paneVolume = root.findViewById(R.id.tvPaneVolume);
+                TextView annualVolume = root.findViewById(R.id.tvAnnualVolume);
+                String formattedVolume = String.format(Locale.getDefault(), "%,.0f kg", totalWeight);
+                if (paneVolume != null) paneVolume.setText(formattedVolume);
+                if (annualVolume != null) annualVolume.setText(formattedVolume);
+
+                float remainderWeight = Math.max(0, batches.size() - premiumCount);
+                LinearLayout.LayoutParams premiumParams = (LinearLayout.LayoutParams)
+                        root.findViewById(R.id.viewPanePremiumBar).getLayoutParams();
+                premiumParams.width = 0;
+                premiumParams.weight = premiumCount;
+                root.findViewById(R.id.viewPanePremiumBar).setLayoutParams(premiumParams);
+                LinearLayout.LayoutParams otherParams = (LinearLayout.LayoutParams)
+                        root.findViewById(R.id.viewPaneOtherGradeBar).getLayoutParams();
+                otherParams.width = 0;
+                otherParams.weight = remainderWeight;
+                root.findViewById(R.id.viewPaneOtherGradeBar).setLayoutParams(otherParams);
                 updateBatchList();
             });
         });
@@ -285,13 +321,28 @@ public class SupplierDetailFragment extends Fragment {
         if (batchAdapter == null) return;
         int visibleCount = showAllBatches ? batches.size() : Math.min(5, batches.size());
         batchAdapter.updateBatches(new java.util.ArrayList<>(batches.subList(0, visibleCount)));
-        TextView toggle = root == null ? null : root.findViewById(R.id.tvPaneShowAllBatches);
+        boolean hasBatches = !batches.isEmpty();
+        if (root != null) {
+            root.findViewById(R.id.tvPaneBatchEmpty).setVisibility(hasBatches ? View.GONE : View.VISIBLE);
+            root.findViewById(R.id.layoutPaneBatchSummary).setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+            root.findViewById(R.id.layoutPaneBatchGradeSplit).setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+            root.findViewById(R.id.paneBatchesRecyclerView).setVisibility(hasBatches ? View.VISIBLE : View.GONE);
+        }
+        TextView showing = root == null ? null : root.findViewById(R.id.tvPaneBatchShowing);
+        if (showing != null) {
+            showing.setVisibility(batches.size() > 5 ? View.VISIBLE : View.GONE);
+            showing.setText(showAllBatches
+                    ? "Showing all " + batches.size() + " batches · newest first"
+                    : "Showing latest 5 of " + batches.size() + " · newest first");
+        }
+        com.google.android.material.button.MaterialButton toggle = root == null ? null : root.findViewById(R.id.tvPaneShowAllBatches);
         if (toggle == null) return;
         if (batches.size() <= 5) {
             toggle.setVisibility(View.GONE);
         } else {
             toggle.setVisibility(View.VISIBLE);
-            toggle.setText(showAllBatches ? "Show less" : "Show all " + batches.size() + " batches");
+            toggle.setText(showAllBatches ? "Show less — latest 5 only" : "Show all " + batches.size() + " batches");
+            toggle.setIconResource(showAllBatches ? R.drawable.ic_expand_less : R.drawable.ic_expand_more);
         }
     }
 
