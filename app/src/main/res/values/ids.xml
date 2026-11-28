@@ -6,4 +6,5 @@
     <item name="tag_finding_due_date" type="id" />
     <item name="tag_action_status" type="id" />
     <item name="tag_action_due_date" type="id" />
+    <item name="integrity_tablet_detail_container" type="id" />
 </resources>

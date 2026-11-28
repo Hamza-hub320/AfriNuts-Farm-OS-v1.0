@@ -41,6 +41,11 @@ public class IntegrityCenterActivity extends BaseActivity {
     private LinearLayout content, findings, history;
     private View runButton;
     private TextView lastScan, runLabel, criticalCount, warningCount, resolvedCount;
+    private LinearLayout tabletFindings;
+    private android.widget.FrameLayout tabletDetail;
+    private boolean tabletLayout;
+    private long selectedFindingId;
+    private List<IntegrityFindingEntity> tabletRows = new ArrayList<>();
     private long farmId;
     private boolean fieldOfficer;
 
@@ -53,8 +58,9 @@ public class IntegrityCenterActivity extends BaseActivity {
         super.onCreate(state);
         if (!sessionManager.isLoggedIn() || !checkRoleAccess()) return;
         fieldOfficer = sessionManager.getUserRole() == UserEntity.UserRole.FIELD_OFFICER;
+        tabletLayout = getResources().getConfiguration().smallestScreenWidthDp >= 600;
         db = AppDatabase.getInstance(this);
-        setContentView(buildScreen());
+        setContentView(tabletLayout ? buildTabletScreen() : buildScreen());
         io.execute(() -> {
             FarmEntity farm = db.farmDao().getFirstFarm();
             if (farm == null) return;
@@ -120,6 +126,70 @@ public class IntegrityCenterActivity extends BaseActivity {
         return scroll;
     }
 
+    private View buildTabletScreen() {
+        LinearLayout page = new LinearLayout(this);
+        page.setOrientation(LinearLayout.VERTICAL);
+        page.setBackgroundColor(CREAM);
+        page.setPadding(dp(28), dp(20), dp(28), dp(28));
+
+        LinearLayout header = horizontal();
+        ImageButton back = new ImageButton(this);
+        back.setImageResource(R.drawable.ic_finance_back_chevron);
+        back.setBackground(shape(WHITE, 999, 0xFFE9E1CF));
+        header.addView(back, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        back.setOnClickListener(v -> finish());
+        TextView title = text("Integrity Center", 18, INK, true);
+        title.setGravity(Gravity.CENTER);
+        header.addView(title, new LinearLayout.LayoutParams(0, dp(54), 1f));
+        LinearLayout run = new LinearLayout(this);
+        run.setOrientation(LinearLayout.HORIZONTAL); run.setGravity(Gravity.CENTER);
+        run.setPadding(dp(18), 0, dp(18), 0); run.setBackground(shape(GREEN, 999, Color.TRANSPARENT));
+        android.widget.ImageView refresh = new android.widget.ImageView(this);
+        refresh.setImageResource(R.drawable.ic_refresh_due); refresh.setColorFilter(WHITE);
+        LinearLayout.LayoutParams iconp = new LinearLayout.LayoutParams(dp(24), dp(24)); iconp.rightMargin = dp(8); run.addView(refresh, iconp);
+        runLabel = text("Run integrity scan", 15, WHITE, true); runLabel.setGravity(Gravity.CENTER); run.addView(runLabel);
+        runButton = run; runButton.setEnabled(!fieldOfficer); runButton.setAlpha(fieldOfficer ? .55f : 1f);
+        runButton.setOnClickListener(v -> runScan());
+        LinearLayout.LayoutParams runp = new LinearLayout.LayoutParams(-2, dp(52)); runp.leftMargin = dp(16); header.addView(run, runp);
+        page.addView(header);
+
+        lastScan = text("No scan yet", 15, MUTED, false);
+        LinearLayout.LayoutParams lastp = new LinearLayout.LayoutParams(-1, -2); lastp.topMargin = dp(8); page.addView(lastScan, lastp);
+
+        LinearLayout counts = new LinearLayout(this); counts.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, dp(96)); cp.topMargin = dp(14); page.addView(counts, cp);
+        criticalCount = tabletCountCard(counts, "Critical", RED);
+        warningCount = tabletCountCard(counts, "Warning", GOLD);
+        resolvedCount = tabletCountCard(counts, "Resolved", INK);
+
+        LinearLayout panes = horizontal();
+        panes.setGravity(Gravity.TOP);
+        LinearLayout.LayoutParams panesP = new LinearLayout.LayoutParams(-1, 0, 1f); panesP.topMargin = dp(16); page.addView(panes, panesP);
+        LinearLayout left = new LinearLayout(this); left.setOrientation(LinearLayout.VERTICAL);
+        left.setPadding(dp(12), dp(12), dp(12), dp(12)); left.setBackground(shape(WHITE, 28, Color.TRANSPARENT));
+        panes.addView(left, new LinearLayout.LayoutParams(dp(380), -1));
+        TextView label = text("FINDINGS", 14, GREEN, true); label.setLetterSpacing(.12f);
+        LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(-1, -2); left.addView(label, fl);
+        ScrollView listScroll = new ScrollView(this); listScroll.setFillViewport(false);
+        tabletFindings = new LinearLayout(this); tabletFindings.setOrientation(LinearLayout.VERTICAL); listScroll.addView(tabletFindings);
+        LinearLayout.LayoutParams listp = new LinearLayout.LayoutParams(-1, 0, 1f); listp.topMargin = dp(8); left.addView(listScroll, listp);
+
+        LinearLayout.LayoutParams detailp = new LinearLayout.LayoutParams(0, -1, 1f); detailp.leftMargin = dp(28);
+        tabletDetail = new android.widget.FrameLayout(this); tabletDetail.setBackground(shape(WHITE, 28, Color.TRANSPARENT));
+        tabletDetail.setId(R.id.integrity_tablet_detail_container);
+        panes.addView(tabletDetail, detailp);
+        return page;
+    }
+
+    private TextView tabletCountCard(LinearLayout row, String label, int valueColor) {
+        LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL); card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(8), 0, dp(8), 0); card.setBackground(shape(WHITE, 18, 0xFFEFE6D7));
+        TextView name = text(label, 12, MUTED, true), value = text("0", 24, valueColor, true);
+        card.addView(name); card.addView(value);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -1, 1f); p.setMargins(dp(3), 0, dp(3), 0); row.addView(card, p);
+        return value;
+    }
+
     private TextView countCard(LinearLayout row, String label, int valueColor) {
         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL); card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(dp(12), 0, dp(12), 0); card.setBackground(shape(WHITE, 24, 0xFFEFE6D7));
@@ -147,6 +217,7 @@ public class IntegrityCenterActivity extends BaseActivity {
 
     private void renderFindings(List<IntegrityFindingEntity> rows) {
         if (rows == null) return;
+        if (tabletLayout) { renderTabletFindings(rows); return; }
         findings.removeAllViews(); history.removeAllViews();
         List<IntegrityFindingEntity> visible = new ArrayList<>();
         for (IntegrityFindingEntity f : rows) {
@@ -175,6 +246,52 @@ public class IntegrityCenterActivity extends BaseActivity {
             if (resolved.size() > 3) card.addView(text("Showing the 3 latest of " + resolved.size() + " resolved findings.", 15, MUTED, false));
             history.addView(card);
         }
+    }
+
+    private void renderTabletFindings(List<IntegrityFindingEntity> rows) {
+        tabletRows = rows;
+        tabletFindings.removeAllViews();
+        IntegrityFindingEntity first = null;
+        for (IntegrityFindingEntity f : rows) {
+            if (fieldOfficer && !isFieldOfficerFinding(f)) continue;
+            if (first == null) first = f;
+            tabletFindings.addView(tabletFindingRow(f));
+        }
+        if (first == null) {
+            tabletFindings.addView(empty("No findings yet."));
+            tabletDetail.removeAllViews(); tabletDetail.addView(empty("Select a finding to see its detail."));
+            return;
+        }
+        boolean selectedFound = false;
+        for (IntegrityFindingEntity f : rows) if (f.getId() == selectedFindingId && (!fieldOfficer || isFieldOfficerFinding(f))) selectedFound = true;
+        if (!selectedFound) selectedFindingId = first.getId();
+        for (int i = 0; i < tabletFindings.getChildCount(); i++) {
+            View child = tabletFindings.getChildAt(i);
+            if (child.getTag() instanceof Long && (Long) child.getTag() == selectedFindingId) child.setBackground(shape(PALE_GREEN, 18, Color.TRANSPARENT));
+        }
+        showTabletDetail(selectedFindingId);
+    }
+
+    private View tabletFindingRow(IntegrityFindingEntity f) {
+        LinearLayout row = new LinearLayout(this); row.setOrientation(LinearLayout.VERTICAL); row.setPadding(dp(10), dp(8), dp(10), dp(8));
+        row.setTag(f.getId()); row.setBackground(shape(WHITE, 18, Color.TRANSPARENT));
+        LinearLayout titleRow = horizontal();
+        TextView title = text(f.getRuleCode() + " — " + shortDescription(f.getDescription()), 14, INK, true);
+        titleRow.addView(title, new LinearLayout.LayoutParams(0, -2, 1f));
+        boolean critical = "Critical".equalsIgnoreCase(f.getSeverity());
+        titleRow.addView(pill(critical ? "CRITICAL" : "WARNING", critical ? PALE_RED : PALE_GOLD, critical ? RED : GOLD, 10, 800));
+        row.addView(titleRow);
+        TextView detail = text("Expected " + safe(f.getExpectedValue()) + " · Actual " + safe(f.getActualValue()) + " · " + f.getStatus().replace('_', ' '), 12, MUTED, false);
+        row.addView(detail);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -2); p.bottomMargin = dp(6); row.setLayoutParams(p);
+        row.setOnClickListener(v -> { selectedFindingId = f.getId(); renderTabletFindings(tabletRows); });
+        return row;
+    }
+
+    private void showTabletDetail(long id) {
+        tabletDetail.removeAllViews();
+        getSupportFragmentManager().beginTransaction().replace(tabletDetail.getId(),
+                IntegrityFindingDetailPaneFragment.newInstance(id)).commit();
     }
 
     private View findingCard(IntegrityFindingEntity f) {
