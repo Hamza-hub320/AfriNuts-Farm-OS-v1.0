@@ -1,10 +1,13 @@
 package com.afrinuts.farmos.ui.notifications;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.animation.ValueAnimator;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -154,13 +157,21 @@ public class NotificationsActivity extends BaseActivity {
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2);
         rowParams.bottomMargin = dp(8);
         revealRow.setLayoutParams(rowParams);
+        boolean read = getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(NotificationBell.readKey(alert.key), false);
+        int actionColor = read ? GREEN : 0xFFF3EAD8;
+        int actionTextColor = read ? Color.WHITE : 0xFF7A5F22;
 
-        TextView unreadAction = text("Unread", 13, Color.WHITE, true);
-        unreadAction.setGravity(Gravity.CENTER);
-        unreadAction.setPadding(dp(6), 0, dp(6), 0);
-        unreadAction.setBackground(shape(GREEN));
-        FrameLayout.LayoutParams actionParams = new FrameLayout.LayoutParams(dp(64), dp(44), Gravity.START | Gravity.CENTER_VERTICAL);
+        FrameLayout unreadAction = new FrameLayout(this);
+        GradientDrawable spine = new GradientDrawable();
+        spine.setColor(actionColor);
+        spine.setCornerRadii(new float[]{dp(20), dp(20), 0, 0, 0, 0, dp(20), dp(20)});
+        unreadAction.setBackground(spine);
+        unreadAction.setContentDescription(read ? "Mark unread" : "Mark read");
+        FrameLayout.LayoutParams actionParams = new FrameLayout.LayoutParams(dp(32), 0, Gravity.START | Gravity.TOP);
         revealRow.addView(unreadAction, actionParams);
+
+        FrameLayout.LayoutParams labelParams = new FrameLayout.LayoutParams(-1, -1);
+        unreadAction.addView(new VerticalUnreadLabel(read ? "UNREAD" : "READ", actionTextColor), labelParams);
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -170,7 +181,13 @@ public class NotificationsActivity extends BaseActivity {
         card.setBackground(bg);
         FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(-1, -2, Gravity.TOP);
         revealRow.addView(card, cp);
-        boolean read = getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(NotificationBell.readKey(alert.key), false);
+        card.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            int cardHeight = bottom - top;
+            if (actionParams.height != cardHeight) {
+                actionParams.height = cardHeight;
+                unreadAction.setLayoutParams(actionParams);
+            }
+        });
         LinearLayout header = new LinearLayout(this); header.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = text(alert.title, 14.5f, INK, true);
         title.setMaxLines(2); title.setEllipsize(TextUtils.TruncateAt.END);
@@ -185,12 +202,14 @@ public class NotificationsActivity extends BaseActivity {
         card.addView(body, bp);
         card.setOnClickListener(v -> openAlert(alert));
         unreadAction.setOnClickListener(v -> {
-            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
-                    .remove(NotificationBell.readKey(alert.key)).commit();
-            render();
+            android.content.SharedPreferences.Editor edit = getSharedPreferences(PREFS, MODE_PRIVATE).edit();
+            if (read) edit.remove(NotificationBell.readKey(alert.key));
+            else edit.putBoolean(NotificationBell.readKey(alert.key), true);
+            edit.commit();
+            card.animate().translationX(0).setDuration(140).withEndAction(this::render).start();
         });
 
-        int revealWidth = dp(64);
+        int revealWidth = dp(32);
         int touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
         float[] down = new float[2];
         float[] startTranslation = new float[1];
@@ -211,7 +230,11 @@ public class NotificationsActivity extends BaseActivity {
                         if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(true);
                     }
                     if (swiping[0]) {
-                        view.setTranslationX(Math.max(0, Math.min(revealWidth, startTranslation[0] + dx)));
+                        float translation = Math.max(0, Math.min(revealWidth, startTranslation[0] + dx));
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                        params.width = Math.max(0, revealRow.getWidth() - Math.round(translation));
+                        view.setLayoutParams(params);
+                        view.setTranslationX(translation);
                         return true;
                     }
                     return Math.abs(dy) <= touchSlop || Math.abs(dy) <= Math.abs(dx);
@@ -219,7 +242,16 @@ public class NotificationsActivity extends BaseActivity {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     if (swiping[0]) {
-                        float target = view.getTranslationX() >= revealWidth / 2f ? revealWidth : 0;
+                        int target = view.getTranslationX() >= revealWidth / 2f ? revealWidth : 0;
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                        ValueAnimator widthAnimator = ValueAnimator.ofInt(params.width,
+                                Math.max(0, revealRow.getWidth() - target));
+                        widthAnimator.setDuration(140);
+                        widthAnimator.addUpdateListener(animator -> {
+                            params.width = (int) animator.getAnimatedValue();
+                            view.setLayoutParams(params);
+                        });
+                        widthAnimator.start();
                         view.animate().translationX(target).setDuration(140).start();
                         if (view.getParent() != null) view.getParent().requestDisallowInterceptTouchEvent(false);
                         swiping[0] = false;
@@ -300,6 +332,40 @@ public class NotificationsActivity extends BaseActivity {
         view.setTypeface(getResources().getFont(bold ? R.font.manrope_extrabold : R.font.manrope_semibold));
         return view;
     }
+
+    private final class VerticalUnreadLabel extends View {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final String label;
+
+        VerticalUnreadLabel(String label, int textColor) {
+            super(NotificationsActivity.this);
+            this.label = label;
+            paint.setColor(textColor);
+            paint.setTextSize(12f * getResources().getDisplayMetrics().scaledDensity);
+            paint.setTypeface(getResources().getFont(R.font.manrope_extrabold));
+        }
+
+        @Override protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float letterSpacing = paint.getTextSize() * 0.12f;
+            float textWidth = paint.measureText(label) + letterSpacing * (label.length() - 1);
+            Paint.FontMetrics metrics = paint.getFontMetrics();
+            // After rotation, the view's height is the label's horizontal axis.
+            // Center the word on that axis and center its glyphs across the 32dp spine.
+            float baseline = (getWidth() - metrics.ascent - metrics.descent) / 2f;
+            float x = (getHeight() - textWidth) / 2f;
+            canvas.save();
+            canvas.rotate(-90f, getWidth() / 2f, getHeight() / 2f);
+            float cursor = x;
+            for (int i = 0; i < label.length(); i++) {
+                String character = String.valueOf(label.charAt(i));
+                canvas.drawText(character, cursor, baseline, paint);
+                cursor += paint.measureText(character) + letterSpacing;
+            }
+            canvas.restore();
+        }
+    }
+
     private GradientDrawable shape(int color) { GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(999)); return d; }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
