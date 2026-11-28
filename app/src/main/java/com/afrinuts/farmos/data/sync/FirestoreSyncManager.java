@@ -42,6 +42,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -86,6 +91,18 @@ public class FirestoreSyncManager {
     private final Set<String> pendingInspectionIds = new HashSet<>();
     private final Set<String> pendingVerificationIds = new HashSet<>();
     private final Set<String> pendingDocumentIds = new HashSet<>();
+    private final Set<String> pendingExpenseIds = new HashSet<>();
+    private final Set<String> pendingRevenueIds = new HashSet<>();
+    private final Set<String> pendingCommitmentIds = new HashSet<>();
+    private final Set<String> pendingSupplierInspectionIds = new HashSet<>();
+    private final Set<String> pendingDisputeIds = new HashSet<>();
+    private final Set<String> pendingScoreSnapshotIds = new HashSet<>();
+    private final Map<String, Long> pendingExpenseSuppliers = new HashMap<>();
+    private final Map<String, Long> pendingRevenueSuppliers = new HashMap<>();
+    private final Map<String, Long> pendingCommitmentSuppliers = new HashMap<>();
+    private final Map<String, Long> pendingSupplierInspectionSuppliers = new HashMap<>();
+    private final Map<String, Long> pendingDisputeSuppliers = new HashMap<>();
+    private final Map<String, Long> pendingScoreSnapshotSuppliers = new HashMap<>();
 
 
 
@@ -266,6 +283,8 @@ public class FirestoreSyncManager {
                                         if (supplier == null) {
                                             Log.w(TAG, "⚠️ Skipping expense - supplier " + remoteExpense.getSupplierId() +
                                                     " not found in local DB. Will sync later.");
+                                            queuePendingSupplierRecord(pendingExpenseIds, pendingExpenseSuppliers,
+                                                    dc.getDocument().getId(), remoteExpense.getSupplierId());
                                             continue;
                                         }
                                     }
@@ -351,6 +370,8 @@ public class FirestoreSyncManager {
                                 if (supplier == null) {
                                     Log.w(TAG, "⚠️ Skipping revenue - supplier " + remoteRevenue.getSupplierId() +
                                             " not found in local DB. Will sync later.");
+                                    queuePendingSupplierRecord(pendingRevenueIds, pendingRevenueSuppliers,
+                                            dc.getDocument().getId(), remoteRevenue.getSupplierId());
                                     continue;
                                 }
                             }
@@ -686,7 +707,7 @@ public class FirestoreSyncManager {
                                     }
 
                                     isApplyingRemoteUpdate = false;
-                                    processPendingBatches(remoteSupplier.getId());
+                                    retryPendingSupplierRecords(remoteSupplier.getId());
                                     break;
 
                                 case REMOVED:
@@ -717,6 +738,157 @@ public class FirestoreSyncManager {
                     });
                 });
         Log.d(TAG, "👂 Suppliers listener registered");
+    }
+
+    private void queuePendingSupplierRecord(Set<String> pendingIds, Map<String, Long> supplierByDocumentId,
+                                            String documentId, Long supplierId) {
+        if (documentId == null || documentId.isEmpty() || supplierId == null || supplierId <= 0) return;
+        pendingIds.add(documentId);
+        supplierByDocumentId.put(documentId, supplierId);
+    }
+
+    private <T> void drainPendingSupplierRecords(Set<String> pendingIds,
+                                                  Map<String, Long> supplierByDocumentId,
+                                                  long arrivedSupplierId,
+                                                  String collection,
+                                                  Function<DocumentSnapshot, T> mapper,
+                                                  ToLongFunction<T> supplierIdOf,
+                                                  Consumer<T> apply) {
+        List<String> toRetry = new ArrayList<>();
+        for (String documentId : pendingIds) {
+            Long queuedSupplierId = supplierByDocumentId.get(documentId);
+            if (queuedSupplierId != null && queuedSupplierId == arrivedSupplierId) {
+                toRetry.add(documentId);
+            }
+        }
+        for (String documentId : toRetry) {
+            pendingIds.remove(documentId);
+            supplierByDocumentId.remove(documentId);
+            Log.d(TAG, "Retrying skipped " + collection + " record " + documentId
+                    + " after supplier " + arrivedSupplierId + " arrived");
+            db.collection(COLLECTION_FARMS).document(farmId).collection(collection).document(documentId)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document == null || !document.exists()) {
+                            Log.d(TAG, "Retried " + collection + " record " + documentId
+                                    + " — document no longer exists");
+                            return;
+                        }
+                        T remote = mapper.apply(document);
+                        if (remote == null) {
+                            Log.d(TAG, "Retried " + collection + " record " + documentId
+                                    + " — map returned null, dropped");
+                            return;
+                        }
+                        executor.execute(() -> {
+                            long actualSupplierId = supplierIdOf.applyAsLong(remote);
+                            if (actualSupplierId != arrivedSupplierId) {
+                                queuePendingSupplierRecord(pendingIds, supplierByDocumentId,
+                                        documentId, actualSupplierId);
+                                return;
+                            }
+                            if (database.supplierDao().getSupplierById(actualSupplierId) == null) {
+                                Log.w(TAG, "Retried " + collection + " record " + documentId
+                                        + " — supplier still missing, dropped");
+                                return;
+                            }
+                            apply.accept(remote);
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Log.w(TAG, "Retried " + collection + " record " + documentId
+                                    + " — fetch failed, dropped", e));
+        }
+    }
+
+    private <T> void applyUpdatedSupplierChild(T remote,
+                                                Function<T, T> localLookup,
+                                                ToLongFunction<T> updatedAt,
+                                                Consumer<T> insert,
+                                                Consumer<T> update,
+                                                String recordType) {
+        T local = localLookup.apply(remote);
+        isApplyingRemoteUpdate = true;
+        try {
+            if (local == null) {
+                insert.accept(remote);
+                Log.d(TAG, "➕ Retried " + recordType + " from Firestore");
+            } else if (updatedAt.applyAsLong(remote) > updatedAt.applyAsLong(local)) {
+                update.accept(remote);
+                Log.d(TAG, "📥 Retried updated " + recordType + " from Firestore");
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Retried " + recordType + " rejected or failed", e);
+        } finally {
+            isApplyingRemoteUpdate = false;
+        }
+    }
+
+    private void retryPendingSupplierRecords(long supplierId) {
+        drainPendingSupplierRecords(pendingExpenseIds, pendingExpenseSuppliers, supplierId,
+                "expenses", EntityMapper::fromFirestoreExpense, ExpenseEntity::getSupplierId, remote -> {
+                    if (remote.getBatchId() != null && remote.getBatchId() > 0
+                            && database.qualityBatchDao().getBatchById(remote.getBatchId()) == null) return;
+                    applyUpdatedSupplierChild(remote, value -> database.expenseDao().getExpenseById(value.getId()),
+                            ExpenseEntity::getUpdatedAt, value -> database.expenseDao().insert(value),
+                            value -> database.expenseDao().update(value), "expense " + remote.getId());
+                });
+        drainPendingSupplierRecords(pendingRevenueIds, pendingRevenueSuppliers, supplierId,
+                "revenues", EntityMapper::fromFirestoreRevenue, RevenueEntity::getSupplierId, remote -> {
+                    if (database.farmDao().getFarmById(remote.getFarmId()) == null) return;
+                    if (remote.getBatchId() != null && remote.getBatchId() > 0
+                            && database.qualityBatchDao().getBatchById(remote.getBatchId()) == null) return;
+                    applyUpdatedSupplierChild(remote, value -> database.revenueDao().getRevenueById(value.getId()),
+                            RevenueEntity::getUpdatedAt, value -> database.revenueDao().insert(value),
+                            value -> database.revenueDao().update(value), "revenue " + remote.getId());
+                });
+        drainPendingSupplierRecords(pendingCommitmentIds, pendingCommitmentSuppliers, supplierId,
+                "supplier_commitments", EntityMapper::mapToCommitment, SupplierCommitmentEntity::getSupplierId,
+                remote -> applyUpdatedSupplierChild(remote,
+                        value -> database.supplierCommitmentDao().getById(value.getId()),
+                        SupplierCommitmentEntity::getUpdatedAt,
+                        value -> database.supplierCommitmentDao().insert(value),
+                        value -> database.supplierCommitmentDao().update(value), "commitment " + remote.getId()));
+        drainPendingSupplierRecords(pendingSupplierInspectionIds, pendingSupplierInspectionSuppliers, supplierId,
+                "supplier_inspections", EntityMapper::mapToSupplierInspection, SupplierInspectionEntity::getSupplierId,
+                remote -> applyUpdatedSupplierChild(remote,
+                        value -> database.supplierInspectionDao().getById(value.getId()),
+                        SupplierInspectionEntity::getUpdatedAt,
+                        value -> database.supplierInspectionDao().insert(value),
+                        value -> database.supplierInspectionDao().update(value), "inspection " + remote.getId()));
+        drainPendingSupplierRecords(pendingDisputeIds, pendingDisputeSuppliers, supplierId,
+                "supplier_disputes", EntityMapper::mapToDispute, SupplierDisputeEntity::getSupplierId,
+                remote -> applyUpdatedSupplierChild(remote,
+                        value -> database.supplierDisputeDao().getById(value.getId()),
+                        SupplierDisputeEntity::getUpdatedAt,
+                        value -> database.supplierDisputeDao().insert(value),
+                        value -> database.supplierDisputeDao().update(value), "dispute " + remote.getId()));
+        drainPendingSupplierRecords(pendingScoreSnapshotIds, pendingScoreSnapshotSuppliers, supplierId,
+                "supplier_score_history", this::mapScoreSnapshot, SupplierScoreSnapshotEntity::getSupplierId,
+                remote -> {
+                    // Score snapshots are append-only; retain their insert-if-absent semantics.
+                    if (database.supplierScoreSnapshotDao().getById(remote.getId()) != null) return;
+                    isApplyingRemoteUpdate = true;
+                    try {
+                        database.supplierScoreSnapshotDao().insert(remote);
+                    } catch (Exception e) {
+                        Log.w(TAG, "Retried score snapshot " + remote.getId() + " rejected or failed", e);
+                    } finally {
+                        isApplyingRemoteUpdate = false;
+                    }
+                });
+    }
+
+    private SupplierScoreSnapshotEntity mapScoreSnapshot(DocumentSnapshot document) {
+        SupplierScoreSnapshotEntity snapshot = EntityMapper.mapToSnapshot(document);
+        if (snapshot == null) return null;
+        Long id = document.getLong("id");
+        if (id == null) {
+            try { id = Long.parseLong(document.getId()); }
+            catch (NumberFormatException ignored) { return null; }
+        }
+        snapshot.setId(id);
+        return snapshot;
     }
 
     // Add this helper method
@@ -780,6 +952,8 @@ public class FirestoreSyncManager {
                                                 Log.w(TAG, "Skipping commitment " + remote.getId()
                                                         + " — supplier " + remote.getSupplierId()
                                                         + " not present locally");
+                                                queuePendingSupplierRecord(pendingCommitmentIds, pendingCommitmentSuppliers,
+                                                        dc.getDocument().getId(), remote.getSupplierId());
                                                 break;
                                             }
                                             database.supplierCommitmentDao().insert(remote);
@@ -841,6 +1015,9 @@ public class FirestoreSyncManager {
                                                 Log.w(TAG, "Skipping inspection " + remote.getId()
                                                         + " — supplier " + remote.getSupplierId()
                                                         + " not present locally");
+                                                queuePendingSupplierRecord(pendingSupplierInspectionIds,
+                                                        pendingSupplierInspectionSuppliers,
+                                                        dc.getDocument().getId(), remote.getSupplierId());
                                                 break;
                                             }
                                             database.supplierInspectionDao().insert(remote);
@@ -902,6 +1079,8 @@ public class FirestoreSyncManager {
                                                 Log.w(TAG, "Skipping dispute " + remote.getId()
                                                         + " — supplier " + remote.getSupplierId()
                                                         + " not present locally");
+                                                queuePendingSupplierRecord(pendingDisputeIds, pendingDisputeSuppliers,
+                                                        dc.getDocument().getId(), remote.getSupplierId());
                                                 break;
                                             }
                                             database.supplierDisputeDao().insert(remote);
@@ -945,8 +1124,7 @@ public class FirestoreSyncManager {
 
                     executor.execute(() -> {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            SupplierScoreSnapshotEntity remote =
-                                    EntityMapper.mapToSnapshot(dc.getDocument());
+                            SupplierScoreSnapshotEntity remote = mapScoreSnapshot(dc.getDocument());
                             if (remote == null) continue;
 
                             if (dc.getType() == DocumentChange.Type.ADDED
@@ -960,6 +1138,8 @@ public class FirestoreSyncManager {
                                         Log.w(TAG, "Skipping snapshot " + remote.getId()
                                                 + " — supplier " + remote.getSupplierId()
                                                 + " not present locally");
+                                        queuePendingSupplierRecord(pendingScoreSnapshotIds, pendingScoreSnapshotSuppliers,
+                                                dc.getDocument().getId(), remote.getSupplierId());
                                         continue;
                                     }
                                     try {
