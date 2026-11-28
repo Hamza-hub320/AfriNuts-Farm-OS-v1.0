@@ -21,6 +21,7 @@ import androidx.work.WorkManager;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
 import com.afrinuts.farmos.data.local.entity.SyncEntity;
 import com.afrinuts.farmos.utils.NetworkUtils;
+import com.afrinuts.farmos.utils.SessionManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -394,6 +395,15 @@ public class SyncManager {
         isSyncing = false;
         WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_SYNC_WORK);
         triggerAutoSync();
+
+        if (currentFarmId > 0) {
+            FirestoreSyncManager firestoreSyncManager = FirestoreSyncManager.getInstance(context);
+            firestoreSyncManager.stopListening();
+            firestoreSyncManager.startListening(String.valueOf(currentFarmId),
+                    new SessionManager(context).isOwner());
+        } else {
+            Log.w(TAG, "No farm ID set; skipped Firestore pull listener refresh");
+        }
     }
 
     public interface SyncCountCallback {
