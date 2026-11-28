@@ -50,6 +50,7 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
 
     private MaterialAutoCompleteTextView etSupplier;
     private TextInputEditText etInspectionDate;
+    private TextInputEditText etHarvestDate;
     private TextInputEditText etInspectedBy;
 
     // ✅ Path B: two raw KOR measurements + computed display
@@ -76,6 +77,7 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
     private TextInputEditText etNotes;
 
     private final Calendar selectedDate = Calendar.getInstance();
+    private Calendar selectedHarvestDate;
 
     public interface OnUpdatedListener { void onUpdated(); }
     private OnUpdatedListener listener;
@@ -124,6 +126,23 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
     private void initViews(View v) {
         etSupplier = v.findViewById(R.id.etSupplier);
         etInspectionDate = v.findViewById(R.id.etInspectionDate);
+        etHarvestDate = v.findViewById(R.id.etHarvestDate);
+        View inspectionDateLayout = v.findViewById(R.id.layoutInspectionDate);
+        View harvestDateLayout = v.findViewById(R.id.layoutHarvestDate);
+        int dateFieldGap = Math.round(6 * getResources().getDisplayMetrics().density);
+        android.widget.LinearLayout.LayoutParams inspectionParams =
+                (android.widget.LinearLayout.LayoutParams) inspectionDateLayout.getLayoutParams();
+        inspectionParams.width = 0;
+        inspectionParams.weight = 1;
+        inspectionParams.setMarginEnd(dateFieldGap);
+        inspectionDateLayout.setLayoutParams(inspectionParams);
+        android.widget.LinearLayout.LayoutParams harvestParams =
+                (android.widget.LinearLayout.LayoutParams) harvestDateLayout.getLayoutParams();
+        harvestParams.width = 0;
+        harvestParams.weight = 1;
+        harvestParams.setMarginStart(dateFieldGap);
+        harvestDateLayout.setLayoutParams(harvestParams);
+        harvestDateLayout.setVisibility(View.VISIBLE);
         etInspectedBy = v.findViewById(R.id.etInspectedBy);
         etBatchNumberDisplay  = v.findViewById(R.id.etBatchNumberDisplay);
         etWeightKgDisplay     = v.findViewById(R.id.etWeightKgDisplay);
@@ -164,6 +183,9 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
         etInspectionDate.setOnClickListener(x -> showDatePicker());
         etInspectionDate.setFocusable(false);
         etInspectionDate.setClickable(true);
+        etHarvestDate.setOnClickListener(x -> showHarvestDatePicker());
+        etHarvestDate.setFocusable(false);
+        etHarvestDate.setClickable(true);
 
         android.text.TextWatcher w = new android.text.TextWatcher() {
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
@@ -197,6 +219,36 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
     private void updateDateLabel() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         etInspectionDate.setText(sdf.format(selectedDate.getTime()));
+    }
+
+    private void showHarvestDatePicker() {
+        Calendar initial = selectedHarvestDate == null ? Calendar.getInstance() : selectedHarvestDate;
+        new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+            selectedHarvestDate = Calendar.getInstance();
+            selectedHarvestDate.set(year, month, dayOfMonth, 12, 0, 0);
+            selectedHarvestDate.set(Calendar.MILLISECOND, 0);
+            updateHarvestDateLabel();
+        }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void setHarvestDate(long timestamp) {
+        if (timestamp > 0) {
+            selectedHarvestDate = Calendar.getInstance();
+            selectedHarvestDate.setTimeInMillis(timestamp);
+            selectedHarvestDate.set(Calendar.HOUR_OF_DAY, 12);
+            selectedHarvestDate.set(Calendar.MINUTE, 0);
+            selectedHarvestDate.set(Calendar.SECOND, 0);
+            selectedHarvestDate.set(Calendar.MILLISECOND, 0);
+        } else {
+            selectedHarvestDate = null;
+        }
+        updateHarvestDateLabel();
+    }
+
+    private void updateHarvestDateLabel() {
+        if (etHarvestDate == null) return;
+        etHarvestDate.setText(selectedHarvestDate == null ? ""
+                : new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(selectedHarvestDate.getTime()));
     }
 
     private void loadSuppliersThenPopulate() {
@@ -258,6 +310,7 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
 
         // --- Editable inspection ---
         updateDateLabel();
+        setHarvestDate(existing.getHarvestDate());
 
         // --- ✅ Path B: prefill the two raw KOR measurements ---
         if (existing.getKorSampleGrams() > 0) {
@@ -355,6 +408,7 @@ public class RcnEditDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragmen
         );
         b.setId(existing.getId());
         b.setProductType("RCN");
+        b.setHarvestDate(selectedHarvestDate == null ? 0L : selectedHarvestDate.getTimeInMillis());
 
         // ✅ Inspection metadata
         b.setInspectionDate(selectedDate.getTimeInMillis());

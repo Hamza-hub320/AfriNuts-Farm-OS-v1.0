@@ -1060,8 +1060,7 @@
                 style="@style/Text.H5"
                 android:textColor="?attr/colorPrimary"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp"
-                android:visibility="gone" />
+                android:layout_marginBottom="12dp" />
 
             <!-- Batch Stats -->
             <LinearLayout
@@ -1070,8 +1069,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp"
-                android:weightSum="2"
-                android:visibility="gone">
+                android:weightSum="2">
 
                 <TextView
                     android:id="@+id/tvTotalBatches"
@@ -1098,7 +1096,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:padding="4dp"
+                android:padding="4dp" />
+
+            <TextView
+                android:id="@+id/tvShowAllBatches"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:gravity="center"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
 
             <!-- Action Buttons - Liquid Glass Style -->

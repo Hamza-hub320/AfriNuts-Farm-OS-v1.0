@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -102,11 +103,23 @@ public class SelectBatchToEditDialog extends com.afrinuts.farmos.ui.farm.FarmDia
         });
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                .setView(view)
-                .setTitle("Select Batch to Edit")
-                .setNegativeButton("Cancel", (dialog, which) -> dismiss());
+                .setView(view);
 
         return builder.create();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+        Window window = dialog == null ? null : dialog.getWindow();
+        if (window == null) return;
+        float density = requireContext().getResources().getDisplayMetrics().density;
+        int screenWidth = requireContext().getResources().getDisplayMetrics().widthPixels;
+        int sideMargin = Math.round(32 * density);
+        int maxWidth = Math.round(720 * density);
+        window.setLayout(Math.min(screenWidth - sideMargin, maxWidth),
+                ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     @Override

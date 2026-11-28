@@ -198,21 +198,46 @@
                     android:textColor="?attr/colorPrimary"
                     android:layout_marginBottom="12dp" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
-                    style="@style/Widget.AfriNuts.EditText"
-                    app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_today">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etInspectionDate"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutInspectionDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Inspection date *"
-                        android:focusable="false"
-                        android:clickable="true" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@drawable/ic_today">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etInspectionDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Inspection date *"
+                            android:focusable="false"
+                            android:clickable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutHarvestDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:visibility="gone"
+                        style="@style/Widget.AfriNuts.EditText"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@drawable/ic_today">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etHarvestDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Harvest date"
+                            android:focusable="false"
+                            android:clickable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"

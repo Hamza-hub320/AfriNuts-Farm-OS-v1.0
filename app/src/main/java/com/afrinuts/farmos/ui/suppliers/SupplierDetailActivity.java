@@ -83,6 +83,7 @@ public class SupplierDetailActivity extends BaseActivity {
     private TextView tvCertificationExpiry;
     private TextView tvTotalBatches;
     private TextView tvTotalBatchVolume;
+    private TextView tvShowAllBatches;
     private RecyclerView batchesRecyclerView;
     private SupplierBatchAdapter batchAdapter;
     private MaterialButton btnRecordDelivery;
@@ -97,6 +98,7 @@ public class SupplierDetailActivity extends BaseActivity {
     private ImageView ivStatusIcon;
 
     private List<QualityBatchEntity> batches = new ArrayList<>();
+    private boolean showAllBatches;
 
     private CardView cardCommitments, cardInspections, cardDisputes, cardScoreSnapshot;
     private LinearLayout containerCommitments, containerInspections, containerDisputes;
@@ -157,6 +159,7 @@ public class SupplierDetailActivity extends BaseActivity {
         tvCertificationExpiry = findViewById(R.id.tvCertificationExpiry);
         tvTotalBatches = findViewById(R.id.tvTotalBatches);
         tvTotalBatchVolume = findViewById(R.id.tvTotalBatchVolume);
+        tvShowAllBatches = findViewById(R.id.tvShowAllBatches);
         batchesRecyclerView = findViewById(R.id.batchesRecyclerView);
         btnRecordDelivery = findViewById(R.id.btnRecordDelivery);
         btnEditSupplier = findViewById(R.id.btnEditSupplier);
@@ -183,6 +186,10 @@ public class SupplierDetailActivity extends BaseActivity {
         });
 
         batchesRecyclerView.setAdapter(batchAdapter);
+        tvShowAllBatches.setOnClickListener(v -> {
+            showAllBatches = !showAllBatches;
+            updateBatchList();
+        });
 
         cardCommitments      = findViewById(R.id.cardCommitments);
         cardInspections      = findViewById(R.id.cardInspections);
@@ -566,7 +573,7 @@ public class SupplierDetailActivity extends BaseActivity {
                     if (supplierBatches != null && !supplierBatches.isEmpty()) {
                         batches.addAll(supplierBatches);
                     }
-                    batchAdapter.updateBatches(batches);
+                    updateBatchList();
                     updateBatchStats();
 
                     Log.d("SupplierDetail", "Loaded " + batches.size() + " batches for supplier " + supplierId);
@@ -578,6 +585,20 @@ public class SupplierDetailActivity extends BaseActivity {
                 });
             }
         });
+    }
+
+    private void updateBatchList() {
+        int visibleCount = showAllBatches ? batches.size() : Math.min(5, batches.size());
+        batchAdapter.updateBatches(new ArrayList<>(batches.subList(0, visibleCount)));
+        if (tvShowAllBatches == null) return;
+        if (batches.size() <= 5) {
+            tvShowAllBatches.setVisibility(View.GONE);
+        } else {
+            tvShowAllBatches.setVisibility(View.VISIBLE);
+            tvShowAllBatches.setText(showAllBatches
+                    ? "Show less"
+                    : "Show all " + batches.size() + " batches");
+        }
     }
 
     private void updateBatchStats() {

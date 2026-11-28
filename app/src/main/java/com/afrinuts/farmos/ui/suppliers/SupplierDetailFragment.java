@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.afrinuts.farmos.R;
 import com.afrinuts.farmos.data.local.database.AppDatabase;
@@ -30,6 +32,8 @@ import com.afrinuts.farmos.data.local.entity.SupplierDisputeEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierInspectionEntity;
 import com.afrinuts.farmos.data.local.entity.SupplierScoreSnapshotEntity;
+import com.afrinuts.farmos.data.local.entity.QualityBatchEntity;
+import com.afrinuts.farmos.data.repository.QualityBatchRepository;
 import com.afrinuts.farmos.data.repository.SupplierCommitmentRepository;
 import com.afrinuts.farmos.data.repository.SupplierDisputeRepository;
 import com.afrinuts.farmos.data.repository.SupplierInspectionRepository;
@@ -63,6 +67,10 @@ public class SupplierDetailFragment extends Fragment {
     private SupplierInspectionRepository inspectionRepository;
     private SupplierDisputeRepository disputeRepository;
     private SupplierScoreSnapshotRepository scoreRepository;
+    private QualityBatchRepository qualityBatchRepository;
+    private SupplierBatchAdapter batchAdapter;
+    private final java.util.List<QualityBatchEntity> batches = new java.util.ArrayList<>();
+    private boolean showAllBatches;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private LinearLayout commitmentRows, inspectionRows, disputeRows, scoreRows;
@@ -81,6 +89,25 @@ public class SupplierDetailFragment extends Fragment {
         disputesEmpty = root.findViewById(R.id.tvDisputesEmpty);
         scoreRows = root.findViewById(R.id.scoreRows);
 
+        RecyclerView batchesRecyclerView = root.findViewById(R.id.paneBatchesRecyclerView);
+        batchesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        batchAdapter = new SupplierBatchAdapter(new java.util.ArrayList<>());
+        batchAdapter.setOnBatchUpdatedListener(this::loadBatches);
+        batchAdapter.setOnBatchDisputeClickListener(batch -> {
+            RaiseDisputeDialog dialog = RaiseDisputeDialog.newInstance(
+                    supplierId, farmId, SupplierDisputeEntity.TargetEntity.BATCH,
+                    batch.getId(), batch.getBatchNumber());
+            dialog.setOnDisputeRaisedListener(id -> loadTrustSections());
+            dialog.show(getParentFragmentManager(), "RaiseBatchDisputeDialog");
+        });
+        batchesRecyclerView.setAdapter(batchAdapter);
+        TextView tvShowAllBatches = root.findViewById(R.id.tvPaneShowAllBatches);
+        tvShowAllBatches.setOnClickListener(v -> {
+            showAllBatches = !showAllBatches;
+            updateBatchList();
+        });
+        root.findViewById(R.id.btnPaneEditBatch).setOnClickListener(v -> editBatch());
+
         root.findViewById(R.id.btnShowMap).setOnClickListener(v -> openMap());
         root.findViewById(R.id.btnEditSupplier).setOnClickListener(v -> editSupplier());
         root.findViewById(R.id.btnRecordDelivery).setOnClickListener(v -> recordDelivery());
@@ -96,10 +123,12 @@ public class SupplierDetailFragment extends Fragment {
         inspectionRepository = new SupplierInspectionRepository(requireContext(), farmId);
         disputeRepository = new SupplierDisputeRepository(requireContext(), farmId);
         scoreRepository = new SupplierScoreSnapshotRepository(requireContext(), farmId);
+        qualityBatchRepository = new QualityBatchRepository(requireContext(), farmId);
         if (supplierId >= 0) {
             supplierRepository.getSupplierById(supplierId).observe(getViewLifecycleOwner(), this::displaySupplier);
             loadTrustSections();
             loadBatchCount();
+            loadBatches();
         }
         root.setVisibility(View.VISIBLE);
         return root;
@@ -220,6 +249,7 @@ public class SupplierDetailFragment extends Fragment {
         SessionManager session = new SessionManager(requireContext());
         root.findViewById(R.id.btnDelete).setVisibility(session.canEditData() ? View.VISIBLE : View.GONE);
         root.findViewById(R.id.btnEditSupplier).setVisibility(session.canEditData() ? View.VISIBLE : View.GONE);
+        root.findViewById(R.id.btnPaneEditBatch).setVisibility(session.canEditData() ? View.VISIBLE : View.GONE);
         root.findViewById(R.id.chipStatus).setClickable(session.canEditData());
         TextView volume = root.findViewById(R.id.tvPaneVolume); if (volume != null) volume.setText(String.format(Locale.getDefault(), "%,.0f kg", value.getAnnualVolumeKg()));
     }
@@ -230,6 +260,53 @@ public class SupplierDetailFragment extends Fragment {
             if (!isAdded()) return;
             requireActivity().runOnUiThread(() -> { TextView batches = root == null ? null : root.findViewById(R.id.tvPaneBatchCount); if (batches != null) batches.setText(String.valueOf(count)); });
         });
+    }
+
+    private void loadBatches() {
+        executor.execute(() -> {
+            java.util.List<QualityBatchEntity> loaded = qualityBatchRepository.getBatchesBySupplierIdSync(supplierId);
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() -> {
+                if (root == null) return;
+                batches.clear();
+                if (loaded != null) batches.addAll(loaded);
+                double totalWeight = 0;
+                for (QualityBatchEntity batch : batches) totalWeight += batch.getWeightKg();
+                TextView count = root.findViewById(R.id.tvPaneBatchStatsCount);
+                TextView volume = root.findViewById(R.id.tvPaneBatchStatsVolume);
+                count.setText("Total: " + batches.size() + " batch" + (batches.size() == 1 ? "" : "es"));
+                volume.setText(String.format(Locale.getDefault(), "Total: %,.0f kg", totalWeight));
+                updateBatchList();
+            });
+        });
+    }
+
+    private void updateBatchList() {
+        if (batchAdapter == null) return;
+        int visibleCount = showAllBatches ? batches.size() : Math.min(5, batches.size());
+        batchAdapter.updateBatches(new java.util.ArrayList<>(batches.subList(0, visibleCount)));
+        TextView toggle = root == null ? null : root.findViewById(R.id.tvPaneShowAllBatches);
+        if (toggle == null) return;
+        if (batches.size() <= 5) {
+            toggle.setVisibility(View.GONE);
+        } else {
+            toggle.setVisibility(View.VISIBLE);
+            toggle.setText(showAllBatches ? "Show less" : "Show all " + batches.size() + " batches");
+        }
+    }
+
+    private void editBatch() {
+        if (batches.isEmpty()) {
+            Toast.makeText(requireContext(), "No batches to edit. Record a delivery first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        SelectBatchToEditDialog dialog = SelectBatchToEditDialog.newInstance(supplierId);
+        dialog.setOnBatchSelectedListener(batch -> {
+            EditRecordDeliveryDialog editDialog = EditRecordDeliveryDialog.newInstance(batch.getId());
+            editDialog.setOnDeliveryUpdatedListener(this::loadBatches);
+            editDialog.show(getParentFragmentManager(), "EditRecordDeliveryDialog");
+        });
+        dialog.show(getParentFragmentManager(), "SelectBatchToEditDialog");
     }
 
     private void loadTrustSections() {
@@ -333,7 +410,7 @@ public class SupplierDetailFragment extends Fragment {
     }
     private void recordDelivery() {
         RecordDeliveryDialog dialog = RecordDeliveryDialog.newInstance(supplierId);
-        dialog.setOnDeliveryRecordedListener(this::loadBatchCount); dialog.show(getParentFragmentManager(), "RecordDeliveryDialog");
+        dialog.setOnDeliveryRecordedListener(() -> { loadBatchCount(); loadBatches(); }); dialog.show(getParentFragmentManager(), "RecordDeliveryDialog");
     }
     private void editSupplier() {
         EditSupplierDialog dialog = EditSupplierDialog.newInstance(supplierId);
@@ -384,5 +461,6 @@ public class SupplierDetailFragment extends Fragment {
         if (inspectionRepository != null) inspectionRepository.shutdown();
         if (disputeRepository != null) disputeRepository.shutdown();
         if (scoreRepository != null) scoreRepository.shutdown();
+        if (qualityBatchRepository != null) qualityBatchRepository.shutdown();
     }
 }
