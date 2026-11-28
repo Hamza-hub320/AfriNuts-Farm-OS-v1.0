@@ -52,6 +52,7 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
     private TextInputEditText etBatchNumber;
     private TextInputEditText etSupplierName;
     private TextInputEditText etDeliveryDate;
+    private TextInputEditText etHarvestDate;
     private TextInputEditText etQuantity;
     private TextInputEditText etPricePerKg;
     private MaterialAutoCompleteTextView etSourceType;  // Added
@@ -66,6 +67,7 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
     private TextView tvVerifiedStatus;
 
     private Calendar selectedDate = Calendar.getInstance();
+    private Calendar selectedHarvestDate;
 
     public interface OnDeliveryRecordedListener {
         void onDeliveryRecorded();
@@ -143,6 +145,7 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
         etBatchNumber = view.findViewById(R.id.etBatchNumber);
         etSupplierName = view.findViewById(R.id.etSupplierName);
         etDeliveryDate = view.findViewById(R.id.etDeliveryDate);
+        etHarvestDate = view.findViewById(R.id.etHarvestDate);
         etQuantity = view.findViewById(R.id.etQuantity);
         etPricePerKg = view.findViewById(R.id.etPricePerKg);
         etSourceType = view.findViewById(R.id.etSourceType);  // Added
@@ -258,6 +261,10 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
         etDeliveryDate.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) showDatePicker();
         });
+        etHarvestDate.setOnClickListener(v -> showHarvestDatePicker());
+        etHarvestDate.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) showHarvestDatePicker();
+        });
     }
 
     private void showDatePicker() {
@@ -281,6 +288,18 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
         etDeliveryDate.setText(sdf.format(selectedDate.getTime()));
     }
 
+    private void showHarvestDatePicker() {
+        Calendar initial = selectedHarvestDate == null ? Calendar.getInstance() : selectedHarvestDate;
+        new DatePickerDialog(requireContext(), (picker, year, month, dayOfMonth) -> {
+            selectedHarvestDate = Calendar.getInstance();
+            selectedHarvestDate.set(year, month, dayOfMonth, 12, 0, 0);
+            selectedHarvestDate.set(Calendar.MILLISECOND, 0);
+            etHarvestDate.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                    .format(selectedHarvestDate.getTime()));
+            etHarvestDate.setError(null);
+        }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
     private void recordDelivery() {
         if (!sessionManager.canEditData()) {
             new MaterialAlertDialogBuilder(requireContext())
@@ -288,6 +307,11 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
                     .setMessage("Only Owners and Managers can do this.")
                     .setPositiveButton("OK", null)
                     .show();
+            return;
+        }
+        if (selectedHarvestDate == null) {
+            etHarvestDate.setError("Harvest date required");
+            etHarvestDate.requestFocus();
             return;
         }
         String batchNumber = etBatchNumber.getText().toString().trim();
@@ -352,6 +376,7 @@ public class RecordDeliveryDialog extends com.afrinuts.farmos.ui.farm.FarmDialog
                     QualityBatchEntity.QualityGrade.STANDARD,
                     notes
             );
+            batch.setHarvestDate(selectedHarvestDate.getTimeInMillis());
 
             // ✅ Generate verification code using the batch type code
             String verificationCode = BatchNumberGenerator.generateVerificationCode(

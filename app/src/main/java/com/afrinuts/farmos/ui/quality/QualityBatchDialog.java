@@ -78,6 +78,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
     // Auto-populated fields (read-only)
     private TextInputEditText etBatchNumberDisplay;
     private TextInputEditText etProcessingDateDisplay;
+    private TextInputEditText etHarvestDateDisplay;
     private TextInputEditText etWeightKgDisplay;
     private MaterialAutoCompleteTextView etQualityGradeDisplay;
     private MaterialAutoCompleteTextView etSourceTypeDisplay;
@@ -87,6 +88,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
     private List<QualityBatchEntity> deliveryBatches = new ArrayList<>();
 
     private Calendar selectedDate = Calendar.getInstance();
+    private Calendar selectedHarvestDate;
 
     public interface OnBatchAddedListener {
         void onBatchAdded();
@@ -146,6 +148,13 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
                 }
                 if (existingBatch != null) {
                     selectedDate.setTimeInMillis(existingBatch.getProcessingDate());
+                    if (existingBatch.getHarvestDate() > 0) {
+                        selectedHarvestDate = Calendar.getInstance();
+                        selectedHarvestDate.setTimeInMillis(existingBatch.getHarvestDate());
+                    }
+                    requireActivity().runOnUiThread(() -> {
+                        if (etBatchNumberDisplay != null) loadExistingData();
+                    });
                 }
             });
         }
@@ -178,6 +187,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
         // Read-only display fields (from delivery)
         etBatchNumberDisplay = view.findViewById(R.id.etBatchNumberDisplay);
         etProcessingDateDisplay = view.findViewById(R.id.etProcessingDateDisplay);
+        etHarvestDateDisplay = view.findViewById(R.id.etHarvestDateDisplay);
         etWeightKgDisplay = view.findViewById(R.id.etWeightKgDisplay);
         etQualityGradeDisplay = view.findViewById(R.id.etQualityGradeDisplay);
         etSourceTypeDisplay = view.findViewById(R.id.etSourceTypeDisplay);
@@ -264,6 +274,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
         etBatchNumberDisplay.setText(deliveryBatch.getBatchNumber());
         etProcessingDateDisplay.setText(deliveryBatch.getFormattedDate());
         etWeightKgDisplay.setText(String.valueOf(deliveryBatch.getWeightKg()));
+        setHarvestDate(deliveryBatch.getHarvestDate());
 
         // Set quality grade (auto-populated from delivery)
         etQualityGradeDisplay.setText(deliveryBatch.getQualityGrade().getDisplayName(), false);
@@ -345,6 +356,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
         // For edit mode, populate all fields
         etBatchNumberDisplay.setText(existingBatch.getBatchNumber());
         etProcessingDateDisplay.setText(existingBatch.getFormattedDate());
+        setHarvestDate(existingBatch.getHarvestDate());
         etWeightKgDisplay.setText(String.valueOf(existingBatch.getWeightKg()));
 
         etMoistureContent.setText(String.valueOf(existingBatch.getMoistureContent()));
@@ -397,6 +409,10 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
         etProcessingDateDisplay.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) showDatePicker();
         });
+        etHarvestDateDisplay.setOnClickListener(v -> showHarvestDatePicker());
+        etHarvestDateDisplay.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) showHarvestDatePicker();
+        });
     }
 
     private void showDatePicker() {
@@ -418,6 +434,36 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
     private void updateDateLabel() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         etProcessingDateDisplay.setText(sdf.format(selectedDate.getTime()));
+    }
+
+    private void showHarvestDatePicker() {
+        Calendar initial = selectedHarvestDate == null ? Calendar.getInstance() : selectedHarvestDate;
+        new DatePickerDialog(requireContext(), (picker, year, month, dayOfMonth) -> {
+            selectedHarvestDate = Calendar.getInstance();
+            selectedHarvestDate.set(year, month, dayOfMonth, 12, 0, 0);
+            selectedHarvestDate.set(Calendar.MILLISECOND, 0);
+            updateHarvestDateLabel();
+        }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void setHarvestDate(long timestamp) {
+        if (timestamp > 0) {
+            selectedHarvestDate = Calendar.getInstance();
+            selectedHarvestDate.setTimeInMillis(timestamp);
+        } else {
+            selectedHarvestDate = null;
+        }
+        updateHarvestDateLabel();
+    }
+
+    private void updateHarvestDateLabel() {
+        if (etHarvestDateDisplay == null) return;
+        if (selectedHarvestDate == null) {
+            etHarvestDateDisplay.setText("");
+        } else {
+            etHarvestDateDisplay.setText(new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                    .format(selectedHarvestDate.getTime()));
+        }
     }
 
     private void saveBatch() {
@@ -444,6 +490,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
             final double finalKernel = kernel;
             final double finalWeight = weight;
             final String finalNotes = etNotes.getText().toString().trim();
+            final long finalHarvestDate = selectedHarvestDate == null ? 0L : selectedHarvestDate.getTimeInMillis();
 
             QualityBatchEntity.TestResults results = new QualityBatchEntity.TestResults();
             if (!TextUtils.isEmpty(etAflatoxin.getText())) {
@@ -468,6 +515,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
                     existingBatch.setQualityGrade(finalGrade);
                     existingBatch.setTestResults(finalTestResults);
                     existingBatch.setNotes(finalNotes);
+                    existingBatch.setHarvestDate(finalHarvestDate);
                     existingBatch.setUpdatedAt(System.currentTimeMillis());
 
                     qualityBatchRepository.updateBatch(existingBatch, new QualityBatchRepository.RepositoryCallback<Boolean>() {
@@ -550,6 +598,7 @@ public class QualityBatchDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFr
             );
             updatedBatch.setId(batchId);
             updatedBatch.setProductType("KERNEL");
+            updatedBatch.setHarvestDate(selectedHarvestDate == null ? 0L : selectedHarvestDate.getTimeInMillis());
             updatedBatch.setTestResults(results.toJson());
 
             // ✅ Preserve sustainability fields from existing batch

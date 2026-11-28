@@ -259,7 +259,10 @@ public class DocumentGenerator {
             } else {
                 doc.append("Weight: ").append(String.format(Locale.US, "%.0f kg", batch.getWeightKg())).append("\n");
             }
-            doc.append("Harvest Date: ").append(DATE_FORMAT.format(new Date(batch.getProcessingDate()))).append("\n");
+            long harvestDate = batch.getHarvestDate() > 0 ? batch.getHarvestDate() : batch.getProcessingDate();
+            if (harvestDate > 0) {
+                doc.append("Harvest Date: ").append(DATE_FORMAT.format(new Date(harvestDate))).append("\n");
+            }
         }
         doc.append("\n");
 

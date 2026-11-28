@@ -295,9 +295,12 @@ public class QualityBatchDetailActivity extends BaseActivity {
         tvBatchType.setText(batch.isRcn() ? "RCN batch" : "Kernel batch");
         TextView deliveryBatch = findViewById(R.id.tvDeliveryBatch);
         TextView deliveryDate = findViewById(R.id.tvDeliveryDate);
+        TextView harvestDateView = findViewById(R.id.tvHarvestDate);
         TextView qualityScoreLab = findViewById(R.id.tvQualityScoreLab);
         if (deliveryBatch != null) deliveryBatch.setText(batch.getBatchNumber() == null ? "—" : batch.getBatchNumber());
         if (deliveryDate != null) deliveryDate.setText(dateText);
+        if (harvestDateView != null) harvestDateView.setText(batch.getHarvestDate() > 0
+                ? dateFormat.format(new java.util.Date(batch.getHarvestDate())) : "—");
         if (qualityScoreLab != null) qualityScoreLab.setText("— / 100");
 
         int gradeColor;

@@ -49,6 +49,7 @@ public class QualityBatchEntity {
     // Batch identification
     private String batchNumber;
     private long processingDate;
+    private long harvestDate;
 
     // Quality metrics
     private double moistureContent;
@@ -316,6 +317,9 @@ public class QualityBatchEntity {
 
     public long getProcessingDate() { return processingDate; }
     public void setProcessingDate(long processingDate) { this.processingDate = processingDate; }
+
+    public long getHarvestDate() { return harvestDate; }
+    public void setHarvestDate(long harvestDate) { this.harvestDate = harvestDate; }
 
     public double getMoistureContent() { return moistureContent; }
 

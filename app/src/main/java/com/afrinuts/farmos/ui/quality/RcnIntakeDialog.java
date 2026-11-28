@@ -397,6 +397,7 @@ public class RcnIntakeDialog extends com.afrinuts.farmos.ui.farm.FarmDialogFragm
 
         b.setId(selectedBatch.getId());
         b.setProductType("RCN");
+        b.setHarvestDate(selectedBatch.getHarvestDate());
 
 // ✅ Inspection metadata
         b.setInspectionDate(inspectionTs);

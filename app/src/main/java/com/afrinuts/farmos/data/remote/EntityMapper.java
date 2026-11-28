@@ -816,6 +816,7 @@ public class EntityMapper {
         map.put("sourceType", batch.getSourceType() != null ? batch.getSourceType().name() : null);
         map.put("batchNumber", batch.getBatchNumber());
         map.put("processingDate", batch.getProcessingDate());
+        map.put("harvestDate", batch.getHarvestDate());
         map.put("moistureContent", batch.getMoistureContent());
         map.put("nutCountPerKg", batch.getNutCountPerKg());
         map.put("defectiveRate", batch.getDefectiveRate());
@@ -864,6 +865,8 @@ public class EntityMapper {
             String sourceTypeStr = getStringSafe(doc, "sourceType");
             String batchNumber = getStringSafe(doc, "batchNumber");
             long processingDate = getLongSafe(doc, "processingDate");
+            Long harvestDateValue = getLongSafe(doc, "harvestDate");
+            long harvestDate = harvestDateValue != null ? harvestDateValue : 0L;
             double moistureContent = getDoubleSafe(doc, "moistureContent");
             Long nutCountLong = getLongSafe(doc, "nutCountPerKg");
             int nutCountPerKg = nutCountLong != null ? nutCountLong.intValue() : 0;
@@ -923,6 +926,7 @@ public class EntityMapper {
                     notes
             );
             batch.setId(id);
+            batch.setHarvestDate(harvestDate);
             batch.setTestResults(testResults);
             batch.setQualityScore(qualityScore);
             batch.setCreatedAt(createdAt);

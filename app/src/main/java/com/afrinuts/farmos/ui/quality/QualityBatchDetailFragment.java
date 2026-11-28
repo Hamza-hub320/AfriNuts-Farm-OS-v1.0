@@ -55,7 +55,7 @@ public class QualityBatchDetailFragment extends Fragment {
     private View root;
     private TextView tvBatchNumber, tvBatchDate, tvGrade, tvBatchType;
     private TextView tvMoisture, tvDefective, tvNutCount, tvKernel, tvWeight;
-    private TextView tvSupplierName, tvSupplierLocation, tvSupplierCount, tvReceivedAt;
+    private TextView tvSupplierName, tvSupplierLocation, tvSupplierCount, tvReceivedAt, tvHarvestDate;
     private TextView tvAflatoxin, tvPesticide, tvHeavyMetals, tvNotes;
     private TextView tvKor, tvRcnMoisture, tvRcnNutCount, tvMouldy, tvImmature;
     private TextView tvInsectDamaged, tvShrivelled, tvTotalDefective, tvForeignMatter, tvDryingMethod;
@@ -108,6 +108,7 @@ public class QualityBatchDetailFragment extends Fragment {
         tvSupplierLocation = view.findViewById(R.id.tvSupplierLocation);
         tvSupplierCount = view.findViewById(R.id.tvSupplierBatchCount);
         tvReceivedAt = view.findViewById(R.id.tvReceivedAt);
+        tvHarvestDate = view.findViewById(R.id.tvHarvestDate);
         tvAflatoxin = view.findViewById(R.id.tvAflatoxinValue);
         tvPesticide = view.findViewById(R.id.tvPesticideValue);
         tvHeavyMetals = view.findViewById(R.id.tvHeavyMetalsValue);
@@ -227,6 +228,8 @@ public class QualityBatchDetailFragment extends Fragment {
         tvReceivedAt.setText(location);
         root.<TextView>findViewById(R.id.tvDeliveryBatch).setText(bn.isEmpty() ? "—" : bn);
         root.<TextView>findViewById(R.id.tvDeliveryDate).setText(dateText);
+        tvHarvestDate.setText(batch.getHarvestDate() > 0
+                ? new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(batch.getHarvestDate()) : "—");
         tvWeight.setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
         root.<TextView>findViewById(R.id.tvWeightValue).setText(String.format(Locale.getDefault(), "%.0f kg", batch.getWeightKg()));
 
