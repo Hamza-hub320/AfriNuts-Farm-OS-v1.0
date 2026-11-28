@@ -226,7 +226,6 @@ public class SupplierDetailFragment extends Fragment {
         ((TextView) root.findViewById(R.id.tvPhone)).setText(or(value.getPhone(), "No phone"));
         ((TextView) root.findViewById(R.id.tvEmail)).setText(or(value.getEmail(), "No email"));
         ((TextView) root.findViewById(R.id.tvLocation)).setText(or(value.getLocation(), "No location"));
-        ((TextView) root.findViewById(R.id.tvAnnualVolume)).setText(String.format(Locale.getDefault(), "%,.0f kg", value.getAnnualVolumeKg()));
         ((TextView) root.findViewById(R.id.tvAvgQualityScore)).setText(String.format(Locale.getDefault(), "%.0f", value.getAverageQualityScore()));
         ((TextView) root.findViewById(R.id.tvFarmSize)).setText(String.format(Locale.getDefault(), "%.1f ha", value.getFarmSize()));
         setText(R.id.tvYearsFarming, value.getFormattedYearsFarming());
@@ -251,7 +250,6 @@ public class SupplierDetailFragment extends Fragment {
         root.findViewById(R.id.btnEditSupplier).setVisibility(session.canEditData() ? View.VISIBLE : View.GONE);
         root.findViewById(R.id.btnPaneEditBatch).setVisibility(session.canEditData() ? View.VISIBLE : View.GONE);
         root.findViewById(R.id.chipStatus).setClickable(session.canEditData());
-        TextView volume = root.findViewById(R.id.tvPaneVolume); if (volume != null) volume.setText(String.format(Locale.getDefault(), "%,.0f kg", value.getAnnualVolumeKg()));
     }
 
     private void loadBatchCount() {
