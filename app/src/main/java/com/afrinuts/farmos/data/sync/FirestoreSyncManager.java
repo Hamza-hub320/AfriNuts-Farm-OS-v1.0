@@ -686,6 +686,7 @@ public class FirestoreSyncManager {
                                     }
 
                                     isApplyingRemoteUpdate = false;
+                                    processPendingBatches(remoteSupplier.getId());
                                     break;
 
                                 case REMOVED:
@@ -1078,9 +1079,23 @@ public class FirestoreSyncManager {
 
         for (QualityBatchEntity batch : toProcess) {
             pendingBatches.remove(batch);
-            // Insert the batch now that supplier exists
-            database.qualityBatchDao().insert(batch);
-            Log.d(TAG, "✅ Processed queued batch: " + batch.getBatchNumber());
+            QualityBatchEntity local = database.qualityBatchDao().getBatchById(batch.getId());
+            isApplyingRemoteUpdate = true;
+            try {
+                if (local == null) {
+                    database.qualityBatchDao().insert(batch);
+                    Log.d(TAG, "✅ Processed queued batch: " + batch.getBatchNumber());
+                } else if (batch.getUpdatedAt() > local.getUpdatedAt()) {
+                    database.qualityBatchDao().update(batch);
+                    Log.d(TAG, "📥 Updated queued batch (remote newer): " + batch.getBatchNumber());
+                } else {
+                    Log.d(TAG, "⏭️ Skipped queued batch (local newer): " + batch.getBatchNumber());
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Queued batch " + batch.getBatchNumber() + " rejected or failed", e);
+            } finally {
+                isApplyingRemoteUpdate = false;
+            }
         }
     }
 
