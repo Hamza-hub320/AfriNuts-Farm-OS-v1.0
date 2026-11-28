@@ -74,6 +74,12 @@ service cloud.firestore {
         allow read, write: if isInternal();
       }
 
+      match /integrity_findings/{findingId} {
+        allow read: if isInternal() || isFieldOfficer();
+        allow create, update: if isInternal() || isFieldOfficer();
+        allow delete: if false;
+      }
+
       match /supplier_score_history/{snapshotId} {
         allow read: if isInternal() || isFieldOfficer();
         allow write: if isInternal();
