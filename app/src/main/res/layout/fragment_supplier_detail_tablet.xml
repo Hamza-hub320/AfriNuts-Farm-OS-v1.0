@@ -254,6 +254,7 @@
                     style="@style/Widget.AfriNuts.Button.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="34dp"
+                    android:minWidth="132dp"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
                     android:text="Edit Batch"
