@@ -804,19 +804,75 @@ public class MainActivity extends AppCompatActivity {
                 taskRepository = new TaskRepository(MainActivity.this, farmId);
 
                 firestoreSyncManager = FirestoreSyncManager.getInstance(MainActivity.this);
-                firestoreSyncManager.startListening(String.valueOf(farmId), sessionManager.isOwner());
+                runProductTypeBackfillBeforeListening(farmId, () -> {
+                    firestoreSyncManager.startListening(String.valueOf(farmId), sessionManager.isOwner());
 
-                loadFarmData();
+                    loadFarmData();
 
-                if (currentUser != null) {
-                    initializeSyncListener();
-                }
+                    if (currentUser != null) {
+                        initializeSyncListener();
+                    }
 
-                if (sessionManager.isOwner()) {
-                    loadUsersFromFirestore();
-                }
+                    if (sessionManager.isOwner()) {
+                        loadUsersFromFirestore();
+                    }
+                });
 
             });
+        });
+    }
+
+    private void runProductTypeBackfillBeforeListening(long farmId, Runnable onComplete) {
+        databaseExecutor.execute(() -> {
+            android.content.SharedPreferences repairs =
+                    getSharedPreferences("farm_os_repairs", MODE_PRIVATE);
+            String doneKey = "product_type_backfill_v1_done";
+            if (repairs.getBoolean(doneKey, false)) {
+                runOnUiThread(onComplete);
+                return;
+            }
+
+            syncManager.setSyncCenterContext(farmId, null);
+            String[] batchNumbers = {
+                    "AFN-COOP-CONV-260710-4A76",
+                    "AFN-COOP-ORG-260710-C97E",
+                    "AFN-FARM-ORG-260710-34D1",
+                    "AFN-INDP-CONV-261108-DAF0D5",
+                    "AFN-INDP-CONV-261111-0BE9A9",
+                    "AFN-INDP-CONV-261121-1FB0B8",
+                    "AFN-INDP-CONV-261127-E3A3E2",
+                    "AFN-INDP-ORG-260710-8DD0"
+            };
+
+            try {
+                for (String batchNumber : batchNumbers) {
+                    try {
+                        QualityBatchEntity batch = database.qualityBatchDao().getBatchByNumber(batchNumber);
+                        if (batch == null) {
+                            Log.i(TAG, "Backfill: batch " + batchNumber + " not found on this device");
+                            continue;
+                        }
+                        String productType = batch.getProductType();
+                        if (productType == null || productType.trim().isEmpty()) {
+                            batch.setProductType("RCN");
+                            batch.setUpdatedAt(System.currentTimeMillis());
+                            database.qualityBatchDao().update(batch);
+                            syncManager.queueForSync("quality_batch", batch.getId(),
+                                    com.afrinuts.farmos.data.local.entity.SyncEntity.SyncAction.UPDATE);
+                            Log.i(TAG, "Backfill: repaired batch " + batchNumber);
+                        } else {
+                            Log.i(TAG, "Backfill: batch " + batchNumber
+                                    + " already set to " + productType);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Backfill: failed for batch " + batchNumber, e);
+                    }
+                }
+            } finally {
+                repairs.edit().putBoolean(doneKey, true).apply();
+                syncManager.triggerAutoSync();
+                runOnUiThread(onComplete);
+            }
         });
     }
 
