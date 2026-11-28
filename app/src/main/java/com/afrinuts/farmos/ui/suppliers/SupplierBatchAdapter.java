@@ -131,6 +131,14 @@ public class SupplierBatchAdapter extends RecyclerView.Adapter<SupplierBatchAdap
             tvQualityScore.setText(String.valueOf((int) batch.getQualityScore()));
 
             cardView.setOnClickListener(v -> {
+                if (itemView.getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+                    Intent intent = new Intent(itemView.getContext(),
+                            com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity.class);
+                    intent.putExtra(com.afrinuts.farmos.ui.analytics.AnalyticsHubActivity.EXTRA_OPEN_BATCH_ID,
+                            batch.getId());
+                    itemView.getContext().startActivity(intent);
+                    return;
+                }
                 Intent intent = new Intent(itemView.getContext(),
                         QualityBatchDetailActivity.class);
                 intent.putExtra(QualityBatchDetailActivity.EXTRA_BATCH_ID, batch.getId());
